@@ -75,7 +75,7 @@ void loop() {
   char buf[256];
 
   if(packetSize) {
-    Serial.printf("Received %d bytes from %s, %d --", packetSize, gUDP.remoteIP().toString().c_str(), gUDP.remotePort());
+    Serial.printf("%s -- ", gUDP.remoteIP().toString().c_str());
     
     // Read the packet into packetBufffer
     int len = gUDP.read(buf, 255);
