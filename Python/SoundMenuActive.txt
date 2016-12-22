@@ -1,0 +1,11 @@
+# This menu is for the sound module in active mode
+MENU_HEADER 1 2 "Sound - Active"
+NEW_ROW
+NEW_CELL_LEFT 100
+  TEXT_STATIC "Sound Trigger Level: "
+  TEXT_DYNAMIC "?"
+NEW_ROW
+NEW_CELL_LEFT 100
+  TEXT_STATIC "Current Level: "
+  TEXT_DYNAMIC "?"
+SCRIPT_END

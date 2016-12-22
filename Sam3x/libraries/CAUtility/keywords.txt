@@ -1,0 +1,38 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+CAU	KEYWORD1
+int8	KEYWORD1
+uint8	KEYWORD1
+int16	KEYWORD1
+uint16	KEYWORD1
+int32	KEYWORD1
+uint32	KEYWORD1
+float32	KEYWORD1
+float64	KEYWORD1
+
+#######################################
+# Structs, Constants and Enums (KEYWORD1)
+#######################################
+hwPorts	KEYWORD1
+PORT_A	KEYWORD1
+PORT_B	KEYWORD1
+PORT_C	KEYWORD1
+PORT_D	KEYWORD1
+hwPortPin	KEYWORD1
+port	KEYWORD1
+pin	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+logInit	KEYWORD2
+log	KEYWORD2
+pinMode	KEYWORD2
+digitalRead	KEYWORD2
+digitalWrite	KEYWORD2
+getModulePin	KEYWORD2
+getAuxPin	KEYWORD2
+

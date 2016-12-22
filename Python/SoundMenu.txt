@@ -1,0 +1,13 @@
+# This menu is for the sound module
+MENU_HEADER 1 2 "Sound"
+NEW_ROW
+NEW_CELL_LEFT 70
+  TEXT_STATIC "Sound Trigger Level"
+NEW_CELL_RIGHT 30
+  EDIT_NUMBER 3 0 0 511 100
+NEW_ROW
+NEW_CELL_LEFT 70
+  TEXT_STATIC "Current Sound Level (0-511)"
+NEW_CELL_RIGHT 30
+  TEXT_DYNAMIC "???"
+SCRIPT_END

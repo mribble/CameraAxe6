@@ -1,0 +1,14 @@
+  const uint8 sData[] PROGMEM = {
+  PID_MENU_HEADER,1,2,'S','o','u','n','d',0,  // MENU_HEADER 1 2 "Sound"
+  PID_NEW_ROW,  // NEW_ROW
+  PID_NEW_CELL_LEFT,70,  // NEW_CELL_LEFT 70
+  PID_TEXT_STATIC,'S','o','u','n','d',' ','T','r','i','g','g','e','r',' ','L','e','v','e','l',0,  // TEXT_STATIC "Sound Trigger Level"
+  PID_NEW_CELL_RIGHT,30,  // NEW_CELL_RIGHT 30
+  PID_EDIT_NUMBER,0,3,0,0,0,0,255,1,0,0,100,0,0,0,  // EDIT_NUMBER 3 0 0 511 100  **gClientHostId_0**
+  PID_NEW_ROW,  // NEW_ROW
+  PID_NEW_CELL_LEFT,70,  // NEW_CELL_LEFT 70
+  PID_TEXT_STATIC,'C','u','r','r','e','n','t',' ','S','o','u','n','d',' ','L','e','v','e','l',' ','(','0','-','5','1','1',')',0,  // TEXT_STATIC "Current Sound Level (0-511)"
+  PID_NEW_CELL_RIGHT,30,  // NEW_CELL_RIGHT 30
+  PID_TEXT_DYNAMIC,1,'?','?','?',0,  // TEXT_DYNAMIC "???"  **gClientHostId_1**
+  PID_SCRIPT_END,  // SCRIPT_END
+  };  // Total Bytes = 91

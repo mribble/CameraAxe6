@@ -1,0 +1,23 @@
+MENU_HEADER 1 2 "UI Test Menu"
+NEW_ROW
+NEW_CELL_LEFT 40
+NEW_CELL_RIGHT 10
+NEW_CELL_CENTER 50
+  TEXT_STATIC  "Static Text"
+  TEXT_DYNAMIC "Dynamic Text"
+#Here's another comment
+  BUTTON 1 1
+  CHECK_BOX 0
+  DROP_SELECT 1 "no|yes"
+  EDIT_NUMBER 2 3 0 99999 50000
+COND_START 0 0
+  TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400
+COND_END
+SCRIPT_END
+
+#uncomment following lines one at a time to test errors
+#TEXT ""                     #should be error since since string empty
+#T3XT "test"                 #should be error since keyword not recognized
+#TEXT "hi" "                 #should be error since not matching quotes
+#CHECK_BOX id99 true 0       #should fail due to the wrong number of tokens
+
