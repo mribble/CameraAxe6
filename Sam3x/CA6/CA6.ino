@@ -1,7 +1,6 @@
 #include <CATypes.h>
 #include <CAUtility.h>
 #include <CAEeprom.h>
-#include <CAClock.h>
 #include <CASerial.h>
 #include <CAPacket.h>
 #include <CATickTimer.h>
@@ -72,7 +71,7 @@ void setup()
 void loop()
 {
   caRunTests();
-
+/*
   if (g_ctx.active)
   {
     if (interModuleLogicArbiter())  // True means we need to trigger cameras and flashes
@@ -85,6 +84,7 @@ void loop()
     checkModulePorts();
     delay(100);
   }
+*/
 }
 
 // This is the work that happens switching from menu mode to photo mode.

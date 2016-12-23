@@ -1,6 +1,6 @@
 void caRunTests()
 {
-  caTestTickTimer();
+  //caTestTickTimer();
   //aTestPackets();
   //caTestBlinkLed();
   //caTestPerf();
@@ -8,10 +8,9 @@ void caRunTests()
   //caTestLinkAndCamPorts();
   //caTestAuxPort();
   //caTestEeprom();
-  //caTestRTC();
   //caTestAnalog();
   //caTestRFD();
-  // Test BLE 10 pin header
+  caTestEsp8266();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +45,25 @@ void caTestRFD()
     {
       CAU::log("Done - RFD\n");
     }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// caTestEsp8266 - Test communications with ESP8266 module
+// returns  - NA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void caTestEsp8266()
+{
+  char buf[64];
+  static bool first = true;
+
+  if (first) {
+    first = false;
+    Serial1.begin(9600);
+  }
+
+  if (Serial1.available()) {
+    SerialUSB.write(Serial1.read());
   }
 }
 
@@ -775,29 +793,6 @@ void caTestEeprom()
   }
 
   CAU::log("Done - eeprom\n");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestRTC - Tests the real time clock
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestRTC()
-{
-  // Select the Slowclock source
-  //RTC_clock rtc_clock(RC);
-  RTC_clock rtc_clock(XTAL);
-  
-  rtc_clock.init();
-  rtc_clock.set_date(4, 5, 2014);
-  rtc_clock.set_time(1, 2, 3);
-  
-  delay(2100);
-  if ((rtc_clock.get_hours() != 1) || (rtc_clock.get_minutes() != 2) || (rtc_clock.get_seconds() < 5 || rtc_clock.get_seconds() > 6))
-  {
-    CAU::log("  Failed Time check. %d %d %d\n", rtc_clock.get_hours(), rtc_clock.get_minutes(), rtc_clock.get_seconds());
-  }
-
-  CAU::log("Done - rtc\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
