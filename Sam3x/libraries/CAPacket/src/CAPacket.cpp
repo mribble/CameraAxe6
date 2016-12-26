@@ -25,7 +25,7 @@ const uint8* CAPacketMenuHeader::unpack(const uint8* src, char* strBuf) {
 }
 
 uint8* CAPacketMenuHeader::pack(uint8* dst) {
-    uint len = strlen(mMenuName);
+    uint8 len = strlen(mMenuName);
     uint8 packetSize = 2 + len + 1;  // 1 for the null terminator
     packer(packetSize, &dst, 8);
     packer(PID_MENU_HEADER, &dst, 8);

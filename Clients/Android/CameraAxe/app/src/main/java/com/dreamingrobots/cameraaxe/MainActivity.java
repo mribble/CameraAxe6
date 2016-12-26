@@ -31,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TEST CODE TODO remove!
+        byte[] dstBuf = new byte[256]; //todo clean this up
+        byte[] srcBuf = new byte[256]; //todo clean this up
+        CAPacket bob = new CAPacket(this, dstBuf, srcBuf);
+        CAPacket.MenuHeader bobMh = bob.new MenuHeader();
+        bobMh.load(2,3,"hello world");
+        bobMh.pack();
+        // TEST CODE TODO remove!
+
         // Setup all hooks back to the UI elements for easy access later
         mIpAddress = (EditText) findViewById(R.id.ip_address);
         mIpPort = (EditText) findViewById(R.id.ip_port);
