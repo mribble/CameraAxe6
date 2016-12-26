@@ -16,7 +16,6 @@ import android.widget.TextView;
  * + Start threads to handle networking
  */
 public class MainActivity extends AppCompatActivity {
-
     private EditText mIpAddress;
     private EditText mIpPort;
     private Button mSendMessageButton;

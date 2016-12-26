@@ -3,29 +3,30 @@
 
 #include "CATypes.h"
 
-enum packetId  {PID_MENU_HEADER         =  0,
-                PID_NEW_ROW             =  1,
-                PID_NEW_CELL_LEFT       =  2,
-                PID_NEW_CELL_RIGHT      =  3, 
-                PID_NEW_CELL_CENTER     =  4,
-                PID_COND_START          =  5,
-                PID_COND_END            =  6,
-                PID_TEXT_STATIC         =  7,
-                PID_TEXT_DYNAMIC        =  8,
-                PID_BUTTON              =  9,
-                PID_CHECK_BOX           = 10,
-                PID_DROP_SELECT         = 11,
-                PID_EDIT_NUMBER         = 12,
-                PID_TIME_BOX            = 13,
-                PID_SCRIPT_END          = 14,
-                PID_ACTIVATE            = 15,
-                PID_LOG                 = 16,
-                PID_CAM_STATE           = 17,
-                PID_CAM_SETTINGS        = 18,
-                PID_INTERVALOMETER      = 19,
-                PID_INTER_MODULE_LOGIC  = 20,
-                PID_CONTROL_FLAGS       = 21,
-                PID_RTC                 = 22,
+enum packetId  {PID_START_SENTINEL      =  0,  // Assumed to be first
+                PID_MENU_HEADER         =  1,
+                PID_NEW_ROW             =  2,
+                PID_NEW_CELL_LEFT       =  3,
+                PID_NEW_CELL_RIGHT      =  4, 
+                PID_NEW_CELL_CENTER     =  5,
+                PID_COND_START          =  6,
+                PID_COND_END            =  7,
+                PID_TEXT_STATIC         =  8,
+                PID_TEXT_DYNAMIC        =  9,
+                PID_BUTTON              = 10,
+                PID_CHECK_BOX           = 11,
+                PID_DROP_SELECT         = 12,
+                PID_EDIT_NUMBER         = 13,
+                PID_TIME_BOX            = 14,
+                PID_SCRIPT_END          = 15,
+                PID_ACTIVATE            = 16,
+                PID_LOG                 = 17,
+                PID_CAM_STATE           = 18,
+                PID_CAM_SETTINGS        = 19,
+                PID_INTERVALOMETER      = 20,
+                PID_INTER_MODULE_LOGIC  = 21,
+                PID_CONTROL_FLAGS       = 22,
+                PID_END_SENTINEL        = 24, // Assumed to be last
                };
 
 typedef struct {
@@ -182,15 +183,11 @@ typedef struct {
     uint8 enable_extra_messages : 1;
     uint8 unused                : 6;
 } PacketControlFlags;
-
-typedef struct {
-    uint8 todo;
-} PacketRTC; //todo
-
+               
 class CAPacket
 {
 public:
-    CAPacket(): m_bitsUsed(0), m_val(0) {};
+    CAPacket(): mBitsUsed(0), mBitsVal(0) {};
     const uint8* getPacketSize(const uint8* inBuf, uint8 *packetSize);
     const uint8* getPacketType(const uint8* inBuf, uint8 *packetType);
 
@@ -228,12 +225,25 @@ public:
     uint8* packInterModuleLogic(PacketInterModuleLogic* iPacket, uint8* dst);
     uint8* packControlFlags(PacketControlFlags* iPacket, uint8* dst);
 
-private:
-    uint32 unpack(const uint8** src, uint8 unpackBits);
-    void pack(uint32 val, uint8** dst, uint8 packBits);
+protected:
+    uint32 unpacker(const uint8** src, uint8 unpackBits);
+    char* unpackerString(const uint8** src, char* dst);
+    void packer(uint32 val, uint8** dst, uint8 packBits);
+    void packerString(const char* src, uint8** dst, uint8 packBytes);
     
-    uint8 m_bitsUsed;
-    uint8 m_val;
+    uint8 mBitsUsed;
+    uint8 mBitsVal;
+};
+
+class CAPacketMenuHeader : public CAPacket {
+public:
+    const uint8* unpack(const uint8* src, char* strBuf);
+    uint8* pack(uint8* dst);
+    void load(uint8 majorVersion, uint8 minorVersion, char* menuName);
+    
+    uint8 mMajorVersion;
+    uint8 mMinorVersion;
+    char* mMenuName;
 };
 
 #endif // __CAPACKET_H__
