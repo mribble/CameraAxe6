@@ -136,7 +136,7 @@ uint8 interModuleLogicArbiter()
   uint8 i, ret;
   uint8 trig[NUM_MODULES] = {0,0,0,0};
 
-  if (g_ctx.interModuleLogic.enable_latch)
+/*  if (g_ctx.interModuleLogic.enable_latch)
   {
     for(i=0; i<NUM_MODULES; ++i)
     {
@@ -167,7 +167,8 @@ uint8 interModuleLogicArbiter()
       }
     }
   }
-
+  */
+/*
   CA_ASSERT(NUM_MODULES == 4, "Code below assumes 4 modules");
   switch (g_ctx.interModuleLogic.logic)
   {
@@ -187,15 +188,15 @@ uint8 interModuleLogicArbiter()
       CA_ASSERT(0, "invalid interModuleLogic");
       break;
   }
-  
-  if (ret == CA_TRUE && g_ctx.interModuleLogic.enable_latch)
+  */
+/*  if (ret == CA_TRUE && g_ctx.interModuleLogic.enable_latch)
   {
     for(i=0; i<NUM_MODULES; ++i)
     {
       g_ctx.modules[i].latchedTriggers = 0;
     }
   }
-  
+*/  
   return ret;
 }
 

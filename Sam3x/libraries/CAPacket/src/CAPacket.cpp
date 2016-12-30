@@ -1,45 +1,133 @@
 #include <CAPacket.h>
 
-const uint8* CAPacket::getPacketSize(const uint8* inBuf, uint8 *packetSize)
-{
-    *packetSize = inBuf[0];
-    return inBuf+1;
+CAPacket::CAPacket(uint8 state, uint8 *buf, uint16 bufSize) {
+    mBitsUsed = 0;
+    mBitsVal = 0;
+    mBytesUsed = 0;
+
+    mState = state;
+    mBuf = buf;
+    mBufSize = bufSize;
 }
 
-const uint8* CAPacket::getPacketType(const uint8* inBuf, uint8 *packetType)
+uint8 CAPacket::unpackSize() {
+    return (uint8)unpacker(8);
+}
+
+uint8 CAPacket::unpackType() {
+    uint8 val = (uint8)unpacker(8);
+    CA_ASSERT( val > PID_START_SENTINEL  &&
+               val < PID_END_SENTINEL,   "Invalid packet type");
+    return val;
+}
+    
+uint32 CAPacket::unpacker(uint8 unpackBits)
 {
-    CA_ASSERT( inBuf[0] > PID_START_SENTINEL  &&
-               inBuf[0] < PID_END_SENTINEL,   "Invalid packet type");
-    *packetType = inBuf[0];
-    return inBuf+1;
+    CA_ASSERT(mState == STATE_UNPACKER, "Error in unpacker");
+    uint8 unpackBitsLeft = unpackBits;
+    uint32 ret = 0;
+    uint8 valShift = 0;
+
+    // This loop shifts through the number of bytes you want to unpack in the src buffer
+    // and puts them into an uint32
+    do
+    {
+        uint8 bitsInCurSrcByte = 8 - mBitsUsed;
+        uint8 bitsToUnpack = min(unpackBitsLeft, bitsInCurSrcByte);
+        uint8 unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ? 
+                                0 : (bitsInCurSrcByte - unpackBitsLeft);
+        uint8 rightShift = mBitsUsed + unusedLeftBits;
+        uint8 val = mBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
+        val = val >> rightShift;      // Shift bits to right most position for this byte
+        ret |= (uint32(val) << valShift);
+        valShift += bitsToUnpack;
+        if (mBitsUsed + bitsToUnpack == 8)
+        {
+            mBitsUsed = 0;
+            mBytesUsed++;
+        }
+        else
+        {
+            mBitsUsed += bitsToUnpack;
+        }
+        unpackBitsLeft -= bitsToUnpack;
+    } while (unpackBitsLeft != 0);
+    return ret;
+}
+
+void CAPacket::unpackerString(String& str) {
+    CA_ASSERT(mState == STATE_UNPACKER, "Error in unpackerString");
+    uint8 len = strlen((char*)&mBuf[mBytesUsed]);
+    str = (char*)(&mBuf[mBytesUsed]);
+    mBytesUsed += len+1;  // +1 for the null terminator
+}
+
+void CAPacket::packer(uint32 val, uint8 packBits)
+{
+    CA_ASSERT(mState == STATE_PACKER, "Error in packer");
+    uint8 packBitsLeft = packBits;
+
+    do
+    {
+        uint8 bitsInCurDstByte = 8 - mBitsUsed;
+        uint8 bitsToPack = min(bitsInCurDstByte, packBitsLeft);
+        mBitsVal |= (val << mBitsUsed);
+        mBitsUsed += bitsToPack;
+        val = val >> bitsToPack;
+        if (mBitsUsed == 8) // When byte is full write it's value
+        {
+            mBuf[mBytesUsed++] = mBitsVal;
+            mBitsVal = 0;
+            mBitsUsed = 0;
+        }
+        packBitsLeft -= bitsToPack;
+    } while (packBitsLeft != 0);
+}
+
+void CAPacket::packerString(const char* src){
+    CA_ASSERT(mState == STATE_PACKER, "Error in packerString");
+    for(uint8 val=0; val<strlen(src); val++) {
+        (mBuf[mBytesUsed++]) = src[val];
+    }
+}
+
+void CAPacket::flushPacket() {
+    CA_ASSERT((mBitsUsed == 0) && (mBitsVal == 0) && (mBytesUsed < mBufSize),
+                "Error in flushPacket");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // MenuHeader Packet class
 ///////////////////////////////////////////////////////////////////////////////
-const uint8* CAPacketMenuHeader::unpack(const uint8* src, char* strBuf) {
-    mMajorVersion = unpacker(&src, 8);
-    mMinorVersion = unpacker(&src, 8);
-    mMenuName = unpackerString(&src, strBuf);
-    return src;
+CAPacketMenuHeader::CAPacketMenuHeader(CAPacket& caPacket) {
+    mCAP = &caPacket;
 }
 
-uint8* CAPacketMenuHeader::pack(uint8* dst) {
-    uint8 len = strlen(mMenuName);
-    uint8 packetSize = 2 + len + 1;  // 1 for the null terminator
-    packer(packetSize, &dst, 8);
-    packer(PID_MENU_HEADER, &dst, 8);
-    packer(mMajorVersion, &dst, 8);
-    packer(mMinorVersion, &dst, 8);
-    packerString(mMenuName, &dst, len);
-    return dst;
-}
-
-void CAPacketMenuHeader::load(uint8 majorVersion, uint8 minorVersion, char* menuName) {
+void CAPacketMenuHeader::set(uint8 majorVersion, uint8 minorVersion, String menuName) {
     mMajorVersion = majorVersion;
     mMinorVersion = minorVersion;
     mMenuName = menuName;
 }
+
+void CAPacketMenuHeader::unpack() {
+    mMajorVersion = mCAP->unpacker(8);
+    mMinorVersion = mCAP->unpacker(8);
+    mCAP->unpackerString(mMenuName);
+}
+
+uint8 CAPacketMenuHeader::pack() {
+    uint8 len = mMenuName.length();
+    uint8 packetSize = 2 + 2 + len + 1;  // 1 for the null terminator
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_MENU_HEADER, 8);
+    mCAP->packer(mMajorVersion, 8);
+    mCAP->packer(mMinorVersion, 8);
+    mCAP->packerString(mMenuName.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+/*
 
 ///////////////////////////////////////////////////////////////////////////////
 // Unpack
@@ -475,75 +563,6 @@ uint8* CAPacket::packControlFlags(PacketControlFlags* iPacket, uint8* dst)
     packer(0, &dst, 6);
     return dst;
 }
-///////////////////////////////////////////////////////////////////////////////
-// Helper functions
-///////////////////////////////////////////////////////////////////////////////
 
-uint32 CAPacket::unpacker(const uint8** src, uint8 unpackBits)
-{
-    uint8 unpackBitsLeft = unpackBits;
-    uint32 ret = 0;
-    uint8 valShift = 0;
-
-    do
-    {
-        uint8 bitsInCurSrcByte = 8 - mBitsUsed;
-        uint8 bitsToUnpack = min(unpackBitsLeft, bitsInCurSrcByte);
-        uint8 unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ? 
-                                0 : (bitsInCurSrcByte - unpackBitsLeft);
-        uint8 rightShift = mBitsUsed + unusedLeftBits;
-        uint8 val = (**src) << unusedLeftBits;  // Zero out left bits
-        val = val >> rightShift;      // Shift bits to right most position for this byte
-        ret |= (uint32(val) << valShift);
-        valShift += bitsToUnpack;
-        if (mBitsUsed + bitsToUnpack == 8)
-        {
-            mBitsUsed = 0;
-            (*src)++;
-        }
-        else
-        {
-            mBitsUsed += bitsToUnpack;
-        }
-        unpackBitsLeft -= bitsToUnpack;
-        //CAU::log("%d %d %d %d %d %d %d\n", bitsInCurSrcByte, bitsToUnpack, unusedLeftBits, rightShift, val, ret, unpackBitsLeft);
-    } while (unpackBitsLeft != 0);
-    return ret;
-}
-
-char* CAPacket::unpackerString(const uint8** src, char* dst) {
-    uint8 len = strlen((char*)*src);
-    strcpy(dst, (char*)*src);
-    *src = *src+len;
-    return dst;
-}
-
-void CAPacket::packer(uint32 val, uint8** dst, uint8 packBits)
-{
-    uint8 packBitsLeft = packBits;
-    uint8 wVal = 0;
-
-    do
-    {
-        uint8 bitsInCurDstByte = 8 - mBitsUsed;
-        uint8 bitsToPack = min(bitsInCurDstByte, packBitsLeft);
-        mBitsVal |= (val << mBitsUsed);
-        mBitsUsed += bitsToPack;
-        val = val >> bitsToPack;
-        if (mBitsUsed == 8) // When byte is full write it's value
-        {
-            **dst = mBitsVal;
-            mBitsVal = 0;
-            mBitsUsed = 0;
-            (*dst)++;
-        }
-        packBitsLeft -= bitsToPack;
-    } while (packBitsLeft != 0);
-
-}
-
-void CAPacket::packerString(const char* src, uint8** dst, uint8 packBytes){
-    strcpy((char*)*dst, src);
-    *dst = *dst+packBytes;
-}
+*/
 

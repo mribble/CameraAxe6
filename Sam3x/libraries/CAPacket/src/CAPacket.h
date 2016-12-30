@@ -29,6 +29,48 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Assumed to be first
                 PID_END_SENTINEL        = 24, // Assumed to be last
                };
 
+enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
+
+class CAPacket
+{
+public:
+    CAPacket(uint8 state, uint8 *buf, uint16 bufSize);
+    uint8 unpackSize();
+    uint8 unpackType();
+    uint32 unpacker(uint8 unpackBits);
+    void unpackerString(String& str);
+    void packer(uint32 val, uint8 packBits);
+    void packerString(const char* src);
+    void flushPacket();
+
+private:    
+    uint8 mBitsUsed;
+    uint8 mBitsVal;
+    uint16 mBytesUsed;
+    uint8 mState;
+    uint8* mBuf;
+    uint16 mBufSize;
+};
+
+class CAPacketMenuHeader {
+public:
+    CAPacketMenuHeader(CAPacket& caPacket);
+    uint8 getMajorVersion() {return mMajorVersion;};
+    uint8 getMinorVersion() {return mMinorVersion;};
+    String getMenuName() { return mMenuName;};
+
+    void set(uint8 majorVersion, uint8 minorVersion, String menuName);
+    void unpack();
+    uint8 pack();
+
+private:
+    CAPacket* mCAP;
+    uint8 mMajorVersion;
+    uint8 mMinorVersion;
+    String mMenuName;
+};
+
+/*
 typedef struct {
     uint8 major_version;
     uint8 minor_version;
@@ -183,67 +225,6 @@ typedef struct {
     uint8 enable_extra_messages : 1;
     uint8 unused                : 6;
 } PacketControlFlags;
-               
-class CAPacket
-{
-public:
-    CAPacket(): mBitsUsed(0), mBitsVal(0) {};
-    const uint8* getPacketSize(const uint8* inBuf, uint8 *packetSize);
-    const uint8* getPacketType(const uint8* inBuf, uint8 *packetType);
-
-    // Unpack functions
-    const uint8* unpackMenuHeader(const uint8* inBuf, PacketMenuHeader* oPacket, char* oBuf);
-    const uint8* unpackNewCell(const uint8* inBuf, PacketNewCell* oPacket);
-    const uint8* unpackCondStart(const uint8* inBuf, PacketCondStart* oPacket);
-    const uint8* unpackTextStatic(const uint8* inBuf, PacketTextStatic* oPacket, char* oBuf);
-    const uint8* unpackTextDynamic(const uint8* inBuf, PacketTextDynamic* oPacket, char* oBuf);
-    const uint8* unpackButton(const uint8* inBuf, PacketButton* oPacket);
-    const uint8* unpackCheckBox(const uint8* inBuf, PacketCheckBox* oPacket);
-    const uint8* unpackDropSelect(const uint8* inBuf, PacketDropSelect* oPacket, char* oBuf);
-    const uint8* unpackEditNumber(const uint8* inBuf, PacketEditNumber* oPacket);
-    const uint8* unpackTimeBox(const uint8* inBuf, PacketTimeBox* oPacket);
-    const uint8* unpackActivate(const uint8* inBuf, PacketActivate* oPacket);
-    const uint8* unpackLog(const uint8* inBuf, PacketLog* oPacket, char* oBuf);
-    const uint8* unpackCamState(const uint8* inBuf, PacketCamState* oPacket);
-    const uint8* unpackCamSettings(const uint8* inBuf, PacketCamSettings* oPacket);
-    const uint8* unpackIntervalometer(const uint8* inBuf, PacketIntervalometer* oPacket);
-    const uint8* unpackInterModuleLogic(const uint8* inBuf, PacketInterModuleLogic* oPacket);
-    const uint8* unpackControlFlags(const uint8* inBuf, PacketControlFlags* oPacket);
-
-    // Pack functions
-    uint8* packTextDynamic(PacketTextDynamic* iPacket, uint8* dst);
-    uint8* packButton(PacketButton* iPacket, uint8* dst);
-    uint8* packCheckBox(PacketCheckBox* iPacket, uint8* dst);
-    uint8* packDropSelect(PacketDropSelect* iPacket, uint8* dst);
-    uint8* packEditNumber(PacketEditNumber* iPacket, uint8* dst);
-    uint8* packTimeBox(PacketTimeBox* iPacket, uint8* dst);
-    uint8* packActivate(PacketActivate* iPacket, uint8* dst);
-    uint8* packLog(PacketLog* iPacket, uint8* dst);
-    uint8* packCamState(PacketCamState* iPacket, uint8* dst);
-    uint8* packCamSettings(PacketCamSettings* iPacket, uint8* dst);
-    uint8* packIntervalometer(PacketIntervalometer* iPacket, uint8* dst);
-    uint8* packInterModuleLogic(PacketInterModuleLogic* iPacket, uint8* dst);
-    uint8* packControlFlags(PacketControlFlags* iPacket, uint8* dst);
-
-protected:
-    uint32 unpacker(const uint8** src, uint8 unpackBits);
-    char* unpackerString(const uint8** src, char* dst);
-    void packer(uint32 val, uint8** dst, uint8 packBits);
-    void packerString(const char* src, uint8** dst, uint8 packBytes);
-    
-    uint8 mBitsUsed;
-    uint8 mBitsVal;
-};
-
-class CAPacketMenuHeader : public CAPacket {
-public:
-    const uint8* unpack(const uint8* src, char* strBuf);
-    uint8* pack(uint8* dst);
-    void load(uint8 majorVersion, uint8 minorVersion, char* menuName);
-    
-    uint8 mMajorVersion;
-    uint8 mMinorVersion;
-    char* mMenuName;
-};
+*/
 
 #endif // __CAPACKET_H__

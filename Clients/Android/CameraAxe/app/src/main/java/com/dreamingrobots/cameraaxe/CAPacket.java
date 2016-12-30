@@ -13,93 +13,36 @@ import java.nio.charset.Charset;
  * Base class that manages packet construction
  */
 public class CAPacket {
-    static final short PID_START_SENTINEL = 0;
-    static final short PID_MENU_HEADER = 1;
-    static final short PID_END_SENTINEL = 24;
+    public static final short STATE_PACKER = 1;
+    public static final short STATE_UNPACKER = 2;
 
-    static final short STATE_INIT = 0;
-    static final short STATE_PACKER = 1;
-    static final short STATE_UNPACKER = 2;
+    protected static final short PID_START_SENTINEL = 0;
+    protected static final short PID_MENU_HEADER = 1;
+    protected static final short PID_END_SENTINEL = 24;
 
-    protected Context mContext;
-    protected int mBitsUsed;
-    protected int mBitsVal;
-    protected int mBytesUsed;
-    protected int mState;
-    protected byte[] mDstBuf;
-    protected byte[] mSrcBuf;
+    private Context mContext;
+    private int mBitsUsed;
+    private int mBitsVal;
+    private int mBytesUsed;
+    private int mState;
+    private byte[] mBuf;
+    private int mBufSize;
 
-
-    public class MenuHeader {
-
-        public int mMajorVersion;
-        public int mMinorVersion;
-        public String mMenuName;
-
-        public MenuHeader() {
-        }
-
-        public void unpack() {
-            startUnpacker();
-            mMajorVersion = (int)unpacker(8);
-            mMinorVersion = (int)unpacker(8);
-            mMenuName = unpackerString();
-            endUnpacker();
-        }
-
-        public void pack() {
-            int len = mMenuName.length();
-            int packetSize = 2 + len + 1;  // 1 for the null terminator
-            startPacker();
-            packer(packetSize, 8);
-            packer(PID_MENU_HEADER, 8);
-            packer(mMajorVersion, 8);
-            packer(mMinorVersion, 8);
-            packerString(mMenuName);
-            endPacker();
-        }
-
-        public void load(int majorVersion, int minorVersion, String menuName) {
-            mMajorVersion = majorVersion;
-            mMinorVersion = minorVersion;
-            mMenuName = menuName;
-        }
-    }
-
-    public CAPacket(Context context, byte[] dstBuf, byte[] srcBuf) {
+    public CAPacket(Context context, short state, byte[] buf, int bufSize) {
         mContext = context;
-        mDstBuf = dstBuf;
-        mSrcBuf = srcBuf;
+        mState = state;
+        mBuf = buf;
+        mBufSize = bufSize;
     }
 
-    public void startPacker() {
-        if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed != 0 || mState != STATE_INIT) {
-            Toast.makeText(mContext, "Error in startPacker", Toast.LENGTH_LONG);
-        }
-        mState = STATE_PACKER;
-    }
+    public int unpackSize() {return (int) unpacker(8);}
 
-    public void endPacker() {
-        if (mBitsUsed != 0 || mBitsVal != 0 || mState != STATE_PACKER) {
-            Toast.makeText(mContext, "Error in endPacker", Toast.LENGTH_LONG);
+    public short unpackType() {
+        short val = (short) unpacker(8);
+        if ((val <= PID_START_SENTINEL) || (val >= PID_END_SENTINEL)) {
+            Toast.makeText(mContext, "Error: Invalid packet type", Toast.LENGTH_LONG);
         }
-        mState = STATE_INIT;
-        mBytesUsed = 0;
-    }
-
-    public void startUnpacker() {
-        if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed != 0 || mState != STATE_INIT) {
-            Toast.makeText(mContext, "Error in startUnpacker", Toast.LENGTH_LONG);
-        }
-        mState = STATE_UNPACKER;
-    }
-
-    public void endUnpacker() {
-        if (mBitsUsed != 0 || mBitsVal != 0 || mState != STATE_UNPACKER) {
-            Toast.makeText(mContext, "Error in endUnpacker", Toast.LENGTH_LONG);
-        }
-        mState = STATE_INIT;
-        mBytesUsed = 0;
+        return val;
     }
 
     protected long unpacker(int unpackBits) {
@@ -118,7 +61,7 @@ public class CAPacket {
             int unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ?
                     0 : (bitsInCurSrcByte - unpackBitsLeft);
             int rightShift = mBitsUsed + unusedLeftBits;
-            int val = mSrcBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
+            int val = mBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
             val = val >> rightShift;      // Shift bits to right most position for this byte
             ret |= (((long)val) << valShift);
             valShift += bitsToUnpack;
@@ -136,18 +79,18 @@ public class CAPacket {
         return ret;
     }
 
-    protected String unpackerString() {
+    protected void unpackerString(String str) {
         if (mState != STATE_UNPACKER) {
             Toast.makeText(mContext, "Error in unpackerString", Toast.LENGTH_LONG);
-            return null;
+            return;
         }
         int len = 0;
         do {
             len++;
-        } while (mSrcBuf[mBytesUsed+len] != 0); // This do while loop includes null terminator
-        String str = new String(mSrcBuf, mBytesUsed, mBytesUsed+len);
+        } while (mBuf[mBytesUsed+len] != 0); // This do while loop includes null terminator
+        String str2 = new String(mBuf, mBytesUsed, mBytesUsed+len);
+        str = str2;
         mBytesUsed += len;
-        return str;
     }
 
     protected void packer( long val, int packBits) {
@@ -164,7 +107,7 @@ public class CAPacket {
             val = val >> bitsToPack;
             if (mBitsUsed == 8) // When byte is full write it's value
             {
-                mDstBuf[mBytesUsed++] = (byte)(mBitsVal & 0xFF);
+                mBuf[mBytesUsed++] = (byte)(mBitsVal & 0xFF);
                 mBitsVal = 0;
                 mBitsUsed = 0;
             }
@@ -179,7 +122,48 @@ public class CAPacket {
         }
         byte[] b = src.getBytes(Charset.forName("UTF-8"));
         for(int val=0; val<src.length(); val++) {
-            mDstBuf[mBytesUsed++] = b[val];
+            mBuf[mBytesUsed++] = b[val];
+        }
+    }
+
+    protected void flushPacket() {
+        if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed >= mBufSize) {
+            Toast.makeText(mContext, "Error detected during flush()", Toast.LENGTH_LONG);
+        }
+    }
+
+    public class MenuHeader {
+
+        private int mMajorVersion;
+        private int mMinorVersion;
+        private String mMenuName;
+
+        public int getMajorVersion() {return mMajorVersion;}
+        public int getMinorVersion() {return mMinorVersion;}
+        public String getMenuName() {return mMenuName;}
+
+        public void set(int majorVersion, int minorVersion, String menuName) {
+            mMajorVersion = majorVersion;
+            mMinorVersion = minorVersion;
+            mMenuName = menuName;
+        }
+
+        public void unpack() {
+            mMajorVersion = (int)unpacker(8);
+            mMinorVersion = (int)unpacker(8);
+            unpackerString(mMenuName);
+            flushPacket();
+        }
+
+        public void pack() {
+            int len = mMenuName.length();
+            int packetSize = 2 + len + 1;  // 1 for the null terminator
+            packer(packetSize, 8);
+            packer(PID_MENU_HEADER, 8);
+            packer(mMajorVersion, 8);
+            packer(mMinorVersion, 8);
+            packerString(mMenuName);
+            flushPacket();
         }
     }
 }

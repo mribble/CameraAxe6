@@ -17,7 +17,7 @@ void caRunTests()
 // caTestRFD - Test communications with BLE module
 // returns  - NA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestRFD()
+/*void caTestRFD()
 {
   // This test sends a packet from SAM to RFduino.  Then RFduino returns it with the current code there.
   uint8 bufSize;
@@ -46,7 +46,7 @@ void caTestRFD()
       CAU::log("Done - RFD\n");
     }
   }
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestEsp8266 - Test communications with ESP8266 module
@@ -106,17 +106,6 @@ void toggleLed()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPackets()
 {
-  CAPacket packetProcessor;
-  uint8 data[112];
-  uint8 dataA[128];
-  uint8 dataB[128];
-  char strBuf[64];
-  uint8 packetType, packetSize;
-  const uint8 *dataPtr = data;
-
-  memset(dataA, 0, 128);
-  memset(dataB, 0, 128); 
-
   const uint8 sData[] PROGMEM = {
   17,PID_MENU_HEADER,1,2,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
   2,PID_NEW_ROW,  // NEW_ROW
@@ -135,23 +124,49 @@ void caTestPackets()
   2,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 112
 
+
+  uint8 data[112];
+  const uint8 *dataPtr = data;
   // Move progmem data to a buffer for this test
   for(uint16 i=0; i<112; ++i)
   {
    data[i] = pgm_read_byte_near(sData+i);
   }
 
+  CAPacket upack0(STATE_UNPACKER, data, 112);
+  uint8 dataA[128];
+  uint8 packType, packSize, unpackSize;
+  memset(dataA, 0, 128);
+
   // MENU_HEADER 1 2 "UI Test Menu"
+  CAPacketMenuHeader unpack1(upack0);           // Update per type
+  CAPacket pack0(STATE_PACKER, dataA, 128);
+  CAPacketMenuHeader pack1(pack0);              // Update per type
+
+  pack1.set(1, 2, "UI Test Menu");              // Update per type
+  packSize = upack0.unpackSize();
+  packType = upack0.unpackType();
+  unpack1.unpack();
+  unpackSize = pack1.pack();
+  if (memcmp(data, dataA, unpackSize) != 0 ||
+      packSize != unpackSize ||
+      packType != PID_MENU_HEADER ||            // Update per type
+      unpack1.getMajorVersion() != 1 ||
+      unpack1.getMinorVersion() != 2 ||
+      strcmp(unpack1.getMenuName().c_str(), "UI Test Menu") != 0) {
+    CAU::log("ERROR - MENU_HEADER test failed\n");
+  }
+/*
   CAPacketMenuHeader p0a, p0b;
   dataPtr = p0a.getPacketSize(dataPtr, &packetSize);
   dataPtr = p0a.getPacketType(dataPtr, &packetType);
   dataPtr = p0a.unpack(dataPtr, strBuf);
   p0b.load(1, 2, "UI Test Menu");
   p0a.pack(dataA);
-  p0b.pack(dataB);
-  if (memcmp(dataA, dataB, 128) != 0) {
+  if (memcmp(data, dataA, 128) != 0) {
     CAU::log("ERROR - MENU_HEADER test failed");
   }
+*/
 
 
 /*  PacketMenuHeader packMenuHeader;

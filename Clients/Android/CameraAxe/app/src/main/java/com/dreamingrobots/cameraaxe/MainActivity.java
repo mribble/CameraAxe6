@@ -32,12 +32,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // TEST CODE TODO remove!
-        byte[] dstBuf = new byte[256]; //todo clean this up
-        byte[] srcBuf = new byte[256]; //todo clean this up
-        CAPacket bob = new CAPacket(this, dstBuf, srcBuf);
-        CAPacket.MenuHeader bobMh = bob.new MenuHeader();
-        bobMh.load(2,3,"hello world");
-        bobMh.pack();
+        byte[] buf0 = new byte[256];
+        CAPacket pack0 = new CAPacket(this, CAPacket.STATE_PACKER, buf0, 256);
+        CAPacket.MenuHeader p0MenuHeader = pack0.new MenuHeader();
+        p0MenuHeader.set(2,3,"hello world");
+        p0MenuHeader.pack();
+        CAPacket unpack0 = new CAPacket(this, CAPacket.STATE_UNPACKER, buf0, 256);
+        CAPacket.MenuHeader u0MenuHeader = unpack0.new MenuHeader();
+        int val = unpack0.unpackSize();
+        short type = unpack0.unpackType();
+        u0MenuHeader.unpack();
         // TEST CODE TODO remove!
 
         // Setup all hooks back to the UI elements for easy access later
