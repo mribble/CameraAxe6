@@ -133,28 +133,31 @@ void caTestPackets()
    data[i] = pgm_read_byte_near(sData+i);
   }
 
-  CAPacket upack0(STATE_UNPACKER, data, 112);
   uint8 dataA[128];
   uint8 packType, packSize, unpackSize;
   memset(dataA, 0, 128);
 
-  // MENU_HEADER 1 2 "UI Test Menu"
-  CAPacketMenuHeader unpack1(upack0);           // Update per type
   CAPacket pack0(STATE_PACKER, dataA, 128);
-  CAPacketMenuHeader pack1(pack0);              // Update per type
+  CAPacket unpack0(STATE_UNPACKER, data, 112);
 
-  pack1.set(1, 2, "UI Test Menu");              // Update per type
-  packSize = upack0.unpackSize();
-  packType = upack0.unpackType();
-  unpack1.unpack();
-  unpackSize = pack1.pack();
-  if (memcmp(data, dataA, unpackSize) != 0 ||
-      packSize != unpackSize ||
-      packType != PID_MENU_HEADER ||            // Update per type
-      unpack1.getMajorVersion() != 1 ||
-      unpack1.getMinorVersion() != 2 ||
-      strcmp(unpack1.getMenuName().c_str(), "UI Test Menu") != 0) {
-    CAU::log("ERROR - MENU_HEADER test failed\n");
+  {  // MENU_HEADER 1 2 "UI Test Menu"
+    
+    CAPacketMenuHeader unpack1(unpack0);           // Update per type
+    CAPacketMenuHeader pack1(pack0);              // Update per type
+  
+    pack1.set(1, 2, "UI Test Menu");              // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    if (memcmp(data, dataA, unpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_MENU_HEADER ||            // Update per type
+        unpack1.getMajorVersion() != 1 ||
+        unpack1.getMinorVersion() != 2 ||
+        strcmp(unpack1.getMenuName().c_str(), "UI Test Menu") != 0) {
+      CAU::log("ERROR - MENU_HEADER test failed\n");
+    }
   }
 /*
   CAPacketMenuHeader p0a, p0b;

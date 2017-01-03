@@ -1,7 +1,7 @@
 package com.dreamingrobots.cameraaxe;
 
 import android.content.Context;
-import android.widget.Toast;
+import android.util.Log;
 
 import java.nio.charset.Charset;
 
@@ -40,14 +40,14 @@ public class CAPacket {
     public short unpackType() {
         short val = (short) unpacker(8);
         if ((val <= PID_START_SENTINEL) || (val >= PID_END_SENTINEL)) {
-            Toast.makeText(mContext, "Error: Invalid packet type", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error: Invalid packet type");
         }
         return val;
     }
 
     protected long unpacker(int unpackBits) {
         if (mState != STATE_UNPACKER) {
-            Toast.makeText(mContext, "Error in unpacker", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error in unpacker");
             return -1;
         }
         int unpackBitsLeft = unpackBits;
@@ -79,23 +79,23 @@ public class CAPacket {
         return ret;
     }
 
-    protected void unpackerString(String str) {
+    protected void unpackerString(StringBuilder str) {
         if (mState != STATE_UNPACKER) {
-            Toast.makeText(mContext, "Error in unpackerString", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error in unpackerString");
             return;
         }
         int len = 0;
         do {
             len++;
         } while (mBuf[mBytesUsed+len] != 0); // This do while loop includes null terminator
-        String str2 = new String(mBuf, mBytesUsed, mBytesUsed+len);
-        str = str2;
+        str.setLength(0);
+        str.append(new String(mBuf, mBytesUsed, len));
         mBytesUsed += len;
     }
 
     protected void packer( long val, int packBits) {
         if (mState != STATE_PACKER) {
-            Toast.makeText(mContext, "Error in packer", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error in packer");
             return;
         }
         int packBitsLeft = packBits;
@@ -117,7 +117,7 @@ public class CAPacket {
 
     protected void packerString(String src) {
         if (mState != STATE_PACKER) {
-            Toast.makeText(mContext, "Error in packer", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error in packer");
             return;
         }
         byte[] b = src.getBytes(Charset.forName("UTF-8"));
@@ -128,7 +128,7 @@ public class CAPacket {
 
     protected void flushPacket() {
         if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed >= mBufSize) {
-            Toast.makeText(mContext, "Error detected during flush()", Toast.LENGTH_LONG);
+            Log.e("CA6", "Error detected during flush()");
         }
     }
 
@@ -136,16 +136,21 @@ public class CAPacket {
 
         private int mMajorVersion;
         private int mMinorVersion;
-        private String mMenuName;
+        private StringBuilder mMenuName;
+
+        public MenuHeader() {
+            mMenuName = new StringBuilder();
+        }
 
         public int getMajorVersion() {return mMajorVersion;}
         public int getMinorVersion() {return mMinorVersion;}
-        public String getMenuName() {return mMenuName;}
+        public String getMenuName() {return mMenuName.toString();}
 
         public void set(int majorVersion, int minorVersion, String menuName) {
             mMajorVersion = majorVersion;
             mMinorVersion = minorVersion;
-            mMenuName = menuName;
+            mMenuName.setLength(0);
+            mMenuName.append(menuName);
         }
 
         public void unpack() {
@@ -155,15 +160,16 @@ public class CAPacket {
             flushPacket();
         }
 
-        public void pack() {
+        public int pack() {
             int len = mMenuName.length();
             int packetSize = 2 + len + 1;  // 1 for the null terminator
             packer(packetSize, 8);
             packer(PID_MENU_HEADER, 8);
             packer(mMajorVersion, 8);
             packer(mMinorVersion, 8);
-            packerString(mMenuName);
+            packerString(mMenuName.toString());
             flushPacket();
+            return packetSize;
         }
     }
 }
