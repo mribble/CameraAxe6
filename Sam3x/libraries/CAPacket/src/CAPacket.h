@@ -3,31 +3,74 @@
 
 #include "CATypes.h"
 
-enum packetId  {PID_MENU_HEADER         =  0,
-                PID_NEW_ROW             =  1,
-                PID_NEW_CELL_LEFT       =  2,
-                PID_NEW_CELL_RIGHT      =  3, 
-                PID_NEW_CELL_CENTER     =  4,
-                PID_COND_START          =  5,
-                PID_COND_END            =  6,
-                PID_TEXT_STATIC         =  7,
-                PID_TEXT_DYNAMIC        =  8,
-                PID_BUTTON              =  9,
-                PID_CHECK_BOX           = 10,
-                PID_DROP_SELECT         = 11,
-                PID_EDIT_NUMBER         = 12,
-                PID_TIME_BOX            = 13,
-                PID_SCRIPT_END          = 14,
-                PID_ACTIVATE            = 15,
-                PID_LOG                 = 16,
-                PID_CAM_STATE           = 17,
-                PID_CAM_SETTINGS        = 18,
-                PID_INTERVALOMETER      = 19,
-                PID_INTER_MODULE_LOGIC  = 20,
-                PID_CONTROL_FLAGS       = 21,
-                PID_RTC                 = 22,
+enum packetId  {PID_START_SENTINEL      =  0,  // Assumed to be first
+                PID_MENU_HEADER         =  1,
+                PID_NEW_ROW             =  2,
+                PID_NEW_CELL_LEFT       =  3,
+                PID_NEW_CELL_RIGHT      =  4, 
+                PID_NEW_CELL_CENTER     =  5,
+                PID_COND_START          =  6,
+                PID_COND_END            =  7,
+                PID_TEXT_STATIC         =  8,
+                PID_TEXT_DYNAMIC        =  9,
+                PID_BUTTON              = 10,
+                PID_CHECK_BOX           = 11,
+                PID_DROP_SELECT         = 12,
+                PID_EDIT_NUMBER         = 13,
+                PID_TIME_BOX            = 14,
+                PID_SCRIPT_END          = 15,
+                PID_ACTIVATE            = 16,
+                PID_LOG                 = 17,
+                PID_CAM_STATE           = 18,
+                PID_CAM_SETTINGS        = 19,
+                PID_INTERVALOMETER      = 20,
+                PID_INTER_MODULE_LOGIC  = 21,
+                PID_CONTROL_FLAGS       = 22,
+                PID_END_SENTINEL        = 24, // Assumed to be last
                };
 
+enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
+
+class CAPacket
+{
+public:
+    CAPacket(uint8 state, uint8 *buf, uint16 bufSize);
+    uint8 unpackSize();
+    uint8 unpackType();
+    uint32 unpacker(uint8 unpackBits);
+    void unpackerString(String& str);
+    void packer(uint32 val, uint8 packBits);
+    void packerString(const char* src);
+    void flushPacket();
+
+private:    
+    uint8 mBitsUsed;
+    uint8 mBitsVal;
+    uint16 mBytesUsed;
+    uint8 mState;
+    uint8* mBuf;
+    uint16 mBufSize;
+};
+
+class CAPacketMenuHeader {
+public:
+    CAPacketMenuHeader(CAPacket& caPacket);
+    uint8 getMajorVersion() {return mMajorVersion;};
+    uint8 getMinorVersion() {return mMinorVersion;};
+    String getMenuName() { return mMenuName;};
+
+    void set(uint8 majorVersion, uint8 minorVersion, String menuName);
+    void unpack();
+    uint8 pack();
+
+private:
+    CAPacket* mCAP;
+    uint8 mMajorVersion;
+    uint8 mMinorVersion;
+    String mMenuName;
+};
+
+/*
 typedef struct {
     uint8 major_version;
     uint8 minor_version;
@@ -182,58 +225,6 @@ typedef struct {
     uint8 enable_extra_messages : 1;
     uint8 unused                : 6;
 } PacketControlFlags;
-
-typedef struct {
-    uint8 todo;
-} PacketRTC; //todo
-
-class CAPacket
-{
-public:
-    CAPacket(): m_bitsUsed(0), m_val(0) {};
-    const uint8* getPacketSize(const uint8* inBuf, uint8 *packetSize);
-    const uint8* getPacketType(const uint8* inBuf, uint8 *packetType);
-
-    // Unpack functions
-    const uint8* unpackMenuHeader(const uint8* inBuf, PacketMenuHeader* oPacket, char* oBuf);
-    const uint8* unpackNewCell(const uint8* inBuf, PacketNewCell* oPacket);
-    const uint8* unpackCondStart(const uint8* inBuf, PacketCondStart* oPacket);
-    const uint8* unpackTextStatic(const uint8* inBuf, PacketTextStatic* oPacket, char* oBuf);
-    const uint8* unpackTextDynamic(const uint8* inBuf, PacketTextDynamic* oPacket, char* oBuf);
-    const uint8* unpackButton(const uint8* inBuf, PacketButton* oPacket);
-    const uint8* unpackCheckBox(const uint8* inBuf, PacketCheckBox* oPacket);
-    const uint8* unpackDropSelect(const uint8* inBuf, PacketDropSelect* oPacket, char* oBuf);
-    const uint8* unpackEditNumber(const uint8* inBuf, PacketEditNumber* oPacket);
-    const uint8* unpackTimeBox(const uint8* inBuf, PacketTimeBox* oPacket);
-    const uint8* unpackActivate(const uint8* inBuf, PacketActivate* oPacket);
-    const uint8* unpackLog(const uint8* inBuf, PacketLog* oPacket, char* oBuf);
-    const uint8* unpackCamState(const uint8* inBuf, PacketCamState* oPacket);
-    const uint8* unpackCamSettings(const uint8* inBuf, PacketCamSettings* oPacket);
-    const uint8* unpackIntervalometer(const uint8* inBuf, PacketIntervalometer* oPacket);
-    const uint8* unpackInterModuleLogic(const uint8* inBuf, PacketInterModuleLogic* oPacket);
-    const uint8* unpackControlFlags(const uint8* inBuf, PacketControlFlags* oPacket);
-
-    // Pack functions
-    uint8* packTextDynamic(PacketTextDynamic* iPacket, uint8* dst);
-    uint8* packButton(PacketButton* iPacket, uint8* dst);
-    uint8* packCheckBox(PacketCheckBox* iPacket, uint8* dst);
-    uint8* packDropSelect(PacketDropSelect* iPacket, uint8* dst);
-    uint8* packEditNumber(PacketEditNumber* iPacket, uint8* dst);
-    uint8* packTimeBox(PacketTimeBox* iPacket, uint8* dst);
-    uint8* packActivate(PacketActivate* iPacket, uint8* dst);
-    uint8* packLog(PacketLog* iPacket, uint8* dst);
-    uint8* packCamState(PacketCamState* iPacket, uint8* dst);
-    uint8* packCamSettings(PacketCamSettings* iPacket, uint8* dst);
-    uint8* packIntervalometer(PacketIntervalometer* iPacket, uint8* dst);
-    uint8* packInterModuleLogic(PacketInterModuleLogic* iPacket, uint8* dst);
-    uint8* packControlFlags(PacketControlFlags* iPacket, uint8* dst);
-
-private:
-    uint32 unpack(const uint8** src, uint8 unpackBits);
-    void pack(uint32 val, uint8** dst, uint8 packBits);
-    
-    uint8 m_bitsUsed;
-    uint8 m_val;
-};
+*/
 
 #endif // __CAPACKET_H__

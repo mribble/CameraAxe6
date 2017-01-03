@@ -23,9 +23,9 @@ typedef struct
 
 typedef struct {
   uint8 active = 0;
-  PacketInterModuleLogic interModuleLogic;
+//  PacketInterModuleLogic interModuleLogic;
   CtxModules modules[NUM_MODULES];
-  PacketCamSettings camSettings[NUM_CAMERAS];
+//  PacketCamSettings camSettings[NUM_CAMERAS];
 
   CASerial bleSerial;  // Serial for talking to BLE module
   

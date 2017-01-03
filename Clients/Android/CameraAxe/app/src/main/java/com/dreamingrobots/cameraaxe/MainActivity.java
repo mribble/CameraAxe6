@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,6 @@ import android.widget.TextView;
  * + Start threads to handle networking
  */
 public class MainActivity extends AppCompatActivity {
-
     private EditText mIpAddress;
     private EditText mIpPort;
     private Button mSendMessageButton;
@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     // Setup threading for UDP network packets
     UdpClientHandler mUdpClientHandler;
     UdpClientThread mUdpClientThread;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup handler to update UI when network packets are received
         mUdpClientHandler = new UdpClientHandler(this);
+
+        testPackets();
     }
 
     /**
@@ -85,6 +86,30 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 default:
                     super.handleMessage(msg);
+            }
+        }
+    }
+
+    protected void testPackets() {
+
+        byte[] dataA = new byte[256];
+        CAPacket pack0 = new CAPacket(this, CAPacket.STATE_PACKER, dataA, 256);
+        CAPacket unpack0 = new CAPacket(this, CAPacket.STATE_UNPACKER, dataA, 256);
+
+        {   // Menu Header Packet Test
+            CAPacket.MenuHeader pack1 = pack0.new MenuHeader();                     // Update per type
+            CAPacket.MenuHeader unpack1 = unpack0.new MenuHeader();                 // Update per type
+            pack1.set(2, 3, "hello world");                                         // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_MENU_HEADER ||                         // Update per type
+                    unpack1.getMajorVersion() != 2 ||
+                    unpack1.getMinorVersion() != 3 ||
+                    unpack1.getMenuName().equals("hello world") != true) {
+                Log.e("CA6", "Packet Test Error - MENU HEADER test failed");
             }
         }
     }

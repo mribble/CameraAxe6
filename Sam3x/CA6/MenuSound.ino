@@ -65,10 +65,10 @@ void MenuSoundReceivePackets(uint8 modId, uint8 *packet)
   {
     if (packet[0] == 0) // first byte must be clientHostId
     {
-      CAPacket packetProcessor;
-      PacketEditNumber packEditNumber;
-      packetProcessor.unpackEditNumber(packet, &packEditNumber);
-      g_ctx.modules[modId].modStore.menuSoundData.triggerVal = packEditNumber.value;
+      //CAPacket packetProcessor;
+      //PacketEditNumber packEditNumber;
+      //packetProcessor.unpackEditNumber(packet, &packEditNumber);
+      //g_ctx.modules[modId].modStore.menuSoundData.triggerVal = packEditNumber.value;
     }
     else
     {
