@@ -235,38 +235,25 @@ void caTestPackets()
     }
   }
 
+  {  // TEXT_STATIC "Static Text"
+    CAPacketTextStatic unpack1(unpack0);          // Update per type
+    CAPacketTextStatic pack1(pack0);              // Update per type
+  
+    pack1.set("Static Text");                     // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_TEXT_STATIC ||            // Update per type
+        strcmp(unpack1.getText().c_str(), "Static Text") != 0) {
+      CAU::log("ERROR - TEXT_STATIC test failed\n");
+    }
+  }
+
 /*
-
-  // NEW_CELL_LEFT 40
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackNewCell(dataPtr, &packNewCell);
-  if ((packetType != PID_NEW_CELL_LEFT) || (packNewCell.column_percentage != 40))
-  {
-    CAU::log("ERROR - NEW_CELL_LEFT - %d, %d\n", packetType, packNewCell.column_percentage);
-    return;
-  }
-
-  // NEW_CELL_RIGHT 10
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackNewCell(dataPtr, &packNewCell);
-  if ((packetType != PID_NEW_CELL_RIGHT) || (packNewCell.column_percentage != 10))
-  {
-    CAU::log("ERROR - NEW_CELL_RIGHT - %d, %d\n", packetType, packNewCell.column_percentage);
-    return;
-  }
-
-  // NEW_CELL_CENTER 50
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackNewCell(dataPtr, &packNewCell);
-  if ((packetType != PID_NEW_CELL_CENTER) || (packNewCell.column_percentage != 50))
-  {
-    CAU::log("ERROR - NEW_CELL_CENTER - %d, %d\n", packetType, packNewCell.column_percentage);
-    return;
-  }
-
   // TEXT_STATIC "Static Text"
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
   dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
