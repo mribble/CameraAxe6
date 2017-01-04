@@ -109,9 +109,9 @@ void caTestPackets()
   const uint8 sData[] PROGMEM = {
   17,PID_MENU_HEADER,1,2,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL_LEFT,40,  // NEW_CELL_LEFT 40
-  3,PID_NEW_CELL_RIGHT,10,  // NEW_CELL_RIGHT 10
-  3,PID_NEW_CELL_CENTER,50,  // NEW_CELL_CENTER 50
+  3,PID_NEW_CELL,40,0,  // NEW_CELL 40 0
+  3,PID_NEW_CELL,10,2,  // NEW_CELL 10 2
+  3,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
   14,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   16,PID_TEXT_DYNAMIC,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
   4,PID_BUTTON,1,17,  // BUTTON 1 1  **gClientHostId_1**
@@ -122,13 +122,13 @@ void caTestPackets()
   11,PID_TIME_BOX,6,223,24,59,122,62,125,144,1,  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
   2,PID_COND_END,  // COND_END
   2,PID_SCRIPT_END,  // SCRIPT_END
-  };  // Total Bytes = 112
+  };  // Total Bytes = 115
 
 
-  uint8 data[112];
+  uint8 data[115];
   const uint8 *dataPtr = data;
   // Move progmem data to a buffer for this test
-  for(uint16 i=0; i<112; ++i)
+  for(uint16 i=0; i<115; ++i)
   {
    data[i] = pgm_read_byte_near(sData+i);
   }
@@ -141,8 +141,7 @@ void caTestPackets()
   CAPacket unpack0(STATE_UNPACKER, data, 112);
 
   {  // MENU_HEADER 1 2 "UI Test Menu"
-    
-    CAPacketMenuHeader unpack1(unpack0);           // Update per type
+    CAPacketMenuHeader unpack1(unpack0);          // Update per type
     CAPacketMenuHeader pack1(pack0);              // Update per type
   
     pack1.set(1, 2, "UI Test Menu");              // Update per type
@@ -159,56 +158,41 @@ void caTestPackets()
       CAU::log("ERROR - MENU_HEADER test failed\n");
     }
   }
+
+  {  // NEW_ROW
+    CAPacketNewRow unpack1(unpack0);              // Update per type
+    CAPacketNewRow pack1(pack0);                  // Update per type
+  
+    //pack1.set();                                // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    //unpack1.unpack();
+    packSize = pack1.pack();
+    if (memcmp(data, dataA, unpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_NEW_ROW) {                // Update per type
+      CAU::log("ERROR - NEW_ROW test failed\n");
+    }
+  }
+
+  {  // NEW_CELL_LEFT 40
+    CAPacketNewCell unpack1(unpack0);             // Update per type
+    CAPacketNewCell pack1(pack0);                 // Update per type
+  
+    pack1.set(40, 0);                             // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    if (memcmp(data, dataA, unpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_NEW_CELL ||               // Update per type
+        unpack1.getColumnPercentage() != 40 ||
+        unpack1.getJustification() != 0) {
+      CAU::log("ERROR - NEW_CELL test failed\n");
+    }
+  }
 /*
-  CAPacketMenuHeader p0a, p0b;
-  dataPtr = p0a.getPacketSize(dataPtr, &packetSize);
-  dataPtr = p0a.getPacketType(dataPtr, &packetType);
-  dataPtr = p0a.unpack(dataPtr, strBuf);
-  p0b.load(1, 2, "UI Test Menu");
-  p0a.pack(dataA);
-  if (memcmp(data, dataA, 128) != 0) {
-    CAU::log("ERROR - MENU_HEADER test failed");
-  }
-*/
-
-
-/*  PacketMenuHeader packMenuHeader;
-  PacketNewCell packNewCell;
-  PacketTextStatic packStaticText;
-  PacketTextDynamic packTextDynamic, packTextDynamic2;
-  PacketButton packButton, packButton2;
-  PacketCheckBox packCheckBox, packCheckBox2;
-  PacketDropSelect packDropSelect, packDropSelect2;
-  PacketEditNumber packEditNumber, packEditNumber2;
-  PacketCondStart packCondStart;
-  PacketTimeBox packTimeBox, packTimeBox2;
-  PacketActivate packActivate, packActivate2;
-  PacketLog packLog, packLog2;
-  PacketCamState packCamState, packCamState2;
-  PacketCamSettings packCamSettings, packCamSettings2;
-  PacketIntervalometer packIntervalometer, packIntervalometer2;
-  PacketInterModuleLogic packInterModuleLogic, packInterModuleLogic2;
-  PacketControlFlags packControlFlags, packControlFlags2;
-
-
-  // MENU_HEADER 1 2 "UI Test Menu"
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackMenuHeader(dataPtr, &packMenuHeader, strBuf);
-  if ((packetType != PID_MENU_HEADER) || (packMenuHeader.major_version != 1) || (packMenuHeader.minor_version != 2) || (strcmp(packMenuHeader.menu_string, "UI Test Menu") != 0))
-  {
-    CAU::log("ERROR - MENU_HEADER - %d, %d, %d, %s\n", packetType, packMenuHeader.major_version, packMenuHeader.minor_version, packMenuHeader.menu_string);
-    return;
-  }
-
-  // NEW_ROW
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  if (packetType != PID_NEW_ROW)
-  {
-    CAU::log("ERROR - NEW_ROW - %d\n", packetType);
-    return;
-  }
 
   // NEW_CELL_LEFT 40
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);

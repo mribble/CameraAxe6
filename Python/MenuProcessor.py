@@ -1,3 +1,7 @@
+###############################################################################
+## Tested using Python 3.6.0 (other Python 3.x versions might work)
+###############################################################################
+
 import string
 import collections
 import sys
@@ -22,10 +26,10 @@ gCellPercentageSum = 0
 gBytesWritten = 0
 
 # Constants
-KEY_TOKEN_LIST = ['MENU_HEADER','NEW_ROW', 'NEW_CELL_LEFT', 'NEW_CELL_RIGHT', 
-                  'NEW_CELL_CENTER', 'COND_START', 'COND_END', 'TEXT_STATIC', 
-                  'TEXT_DYNAMIC', 'BUTTON', 'CHECK_BOX', 'DROP_SELECT',
-                  'EDIT_NUMBER', 'TIME_BOX', 'SCRIPT_END']
+KEY_TOKEN_LIST = ['MENU_HEADER','NEW_ROW', 'NEW_CELL', 'COND_START',
+                  'COND_END', 'TEXT_STATIC', 'TEXT_DYNAMIC', 'BUTTON',
+                  'CHECK_BOX', 'DROP_SELECT', 'EDIT_NUMBER', 'TIME_BOX',
+                  'SCRIPT_END']
 
 MAX_BUFFER_SIZE = 64
 
@@ -35,7 +39,7 @@ MAX_BUFFER_SIZE = 64
 def exitMenuProcessor():
     global fout
     fout.close()
-    fout = open('.\TestMenuOut.txt', 'w')
+    fout = open(outFileName, 'w')
     fout.close()
     print("Fail")
     exit()
@@ -310,14 +314,15 @@ def procNewRow(tokenList, line):
     increaseBytesWritten()
     writeLineComment(tokenList, -1)
 
-def procNewCellLeft(tokenList, line):
+def procNewCell(tokenList, line):
     scriptStateCheck(scriptState.NEW_CELL, line, int(tokenList[1]))
     byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 2, line)
+    checkTokenCountMismatch(len(tokenList), 3, line)
     writeSize(3, None)
-    fout.write("PID_NEW_CELL_LEFT,")
+    fout.write("PID_NEW_CELL,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 100, 8, byteWriter);
+    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 2, 8, byteWriter);
     writeLineComment(tokenList, -1)
 
 def procNewCellRight(tokenList, line):
@@ -473,10 +478,10 @@ def procScriptEnd(tokenList, line):
     increaseBytesWritten()
     writeLineComment(tokenList, -1)
 
-FUNC_LIST = [procMenuHeader, procNewRow, procNewCellLeft, procNewCellRight, 
-             procNewCellCenter, procCondStart, procCondEnd, procTextStatic,
-             procTextDynamic, procButton, procCheckBox, procDropSelect,
-             procEditNumber, procTimeBox, procScriptEnd]
+FUNC_LIST = [procMenuHeader, procNewRow, procNewCell, procCondStart, 
+             procCondEnd, procTextStatic, procTextDynamic, procButton,
+             procCheckBox, procDropSelect, procEditNumber, procTimeBox,
+             procScriptEnd]
 
 ###############################################################################
 ## Outputs a comment for the current line of tokens
@@ -520,6 +525,7 @@ def processLine(line):
 ## main()
 ###############################################################################
 global fout
+global outFileName
 
 if (len(sys.argv) != 2):
     print("PARAM ERROR - Must pass in one parameter with filename.")
