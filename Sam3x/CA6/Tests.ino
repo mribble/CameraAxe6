@@ -253,27 +253,26 @@ void caTestPackets()
     }
   }
 
+  {  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
+    CAPacketTextDynamic unpack1(unpack0);         // Update per type
+    CAPacketTextDynamic pack1(pack0);             // Update per type
+  
+    pack1.set(0, "Dynamic Text");                    // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_TEXT_DYNAMIC ||           // Update per type
+        unpack1.getClientHostId() != 0 ||
+        strcmp(unpack1.getText().c_str(), "Dynamic Text") != 0) {
+      CAU::log("ERROR - TEXT_DYNAMIC test failed\n");
+    }
+  }
+
 /*
-  // TEXT_STATIC "Static Text"
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackTextStatic(dataPtr, &packStaticText, strBuf);
-  if ((packetType != PID_TEXT_STATIC) || (strcmp(packStaticText.text_string, "Static Text")!=0))
-  {
-    CAU::log("ERROR - STATIC_TEXT - %d, %s\n", packetType, packStaticText.text_string);
-    return;
-  }
-
-  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackTextDynamic(dataPtr, &packTextDynamic, strBuf);
-  if ((packetType != PID_TEXT_DYNAMIC) || (packTextDynamic.client_host_id != 0) || (strcmp(packTextDynamic.text_string, "Dynamic Text")!=0))
-  {
-    CAU::log("ERROR - DYNAMIC_TEXT - %d, %d, %s\n", packetType, packTextDynamic.client_host_id, packTextDynamic.text_string);
-    return;
-  }
-
   // BUTTON 1 1  **gClientHostId_1**
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
   dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
