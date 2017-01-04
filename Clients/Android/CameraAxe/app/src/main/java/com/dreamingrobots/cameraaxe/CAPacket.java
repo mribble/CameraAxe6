@@ -124,6 +124,7 @@ public class CAPacket {
         for(int val=0; val<src.length(); val++) {
             mBuf[mBytesUsed++] = b[val];
         }
+        mBuf[mBytesUsed++] = 0; // Add null terminator
     }
 
     protected void flushPacket() {

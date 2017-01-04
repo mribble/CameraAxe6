@@ -318,7 +318,7 @@ def procNewCell(tokenList, line):
     scriptStateCheck(scriptState.NEW_CELL, line, int(tokenList[1]))
     byteWriter = ByteWriter(0,0)
     checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(3, None)
+    writeSize(4, None)
     fout.write("PID_NEW_CELL,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 100, 8, byteWriter);

@@ -109,9 +109,9 @@ void caTestPackets()
   const uint8 sData[] PROGMEM = {
   17,PID_MENU_HEADER,1,2,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL,40,0,  // NEW_CELL 40 0
-  3,PID_NEW_CELL,10,2,  // NEW_CELL 10 2
-  3,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
+  4,PID_NEW_CELL,40,0,  // NEW_CELL 40 0
+  4,PID_NEW_CELL,10,2,  // NEW_CELL 10 2
+  4,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
   14,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   16,PID_TEXT_DYNAMIC,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
   4,PID_BUTTON,1,17,  // BUTTON 1 1  **gClientHostId_1**
@@ -124,11 +124,12 @@ void caTestPackets()
   2,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 115
 
-
-  uint8 data[115];
+  const uint8 BUF_SIZE = 115;
+  uint8 data[BUF_SIZE];
   const uint8 *dataPtr = data;
+  uint8 totalUnpackSize=0;
   // Move progmem data to a buffer for this test
-  for(uint16 i=0; i<115; ++i)
+  for(uint16 i=0; i<BUF_SIZE; ++i)
   {
    data[i] = pgm_read_byte_near(sData+i);
   }
@@ -137,8 +138,8 @@ void caTestPackets()
   uint8 packType, packSize, unpackSize;
   memset(dataA, 0, 128);
 
-  CAPacket pack0(STATE_PACKER, dataA, 128);
   CAPacket unpack0(STATE_UNPACKER, data, 112);
+  CAPacket pack0(STATE_PACKER, dataA, 128);
 
   {  // MENU_HEADER 1 2 "UI Test Menu"
     CAPacketMenuHeader unpack1(unpack0);          // Update per type
@@ -149,7 +150,8 @@ void caTestPackets()
     packType = unpack0.unpackType();
     unpack1.unpack();
     packSize = pack1.pack();
-    if (memcmp(data, dataA, unpackSize) != 0 ||
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_MENU_HEADER ||            // Update per type
         unpack1.getMajorVersion() != 1 ||
@@ -168,14 +170,15 @@ void caTestPackets()
     packType = unpack0.unpackType();
     //unpack1.unpack();
     packSize = pack1.pack();
-    if (memcmp(data, dataA, unpackSize) != 0 ||
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_NEW_ROW) {                // Update per type
       CAU::log("ERROR - NEW_ROW test failed\n");
     }
   }
 
-  {  // NEW_CELL_LEFT 40
+  {  // NEW_CELL 40 0
     CAPacketNewCell unpack1(unpack0);             // Update per type
     CAPacketNewCell pack1(pack0);                 // Update per type
   
@@ -184,14 +187,54 @@ void caTestPackets()
     packType = unpack0.unpackType();
     unpack1.unpack();
     packSize = pack1.pack();
-    if (memcmp(data, dataA, unpackSize) != 0 ||
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_NEW_CELL ||               // Update per type
         unpack1.getColumnPercentage() != 40 ||
         unpack1.getJustification() != 0) {
-      CAU::log("ERROR - NEW_CELL test failed\n");
+      CAU::log("ERROR - NEW_CELL 0 test failed\n");
     }
   }
+
+  {  // NEW_CELL 10 2
+    CAPacketNewCell unpack1(unpack0);             // Update per type
+    CAPacketNewCell pack1(pack0);                 // Update per type
+  
+    pack1.set(10, 2);                             // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_NEW_CELL ||               // Update per type
+        unpack1.getColumnPercentage() != 10 ||
+        unpack1.getJustification() != 2) {
+      CAU::log("ERROR - NEW_CELL 2 test failed\n");
+    }
+  }
+
+  {  // NEW_CELL 50 1
+    CAPacketNewCell unpack1(unpack0);             // Update per type
+    CAPacketNewCell pack1(pack0);                 // Update per type
+  
+    pack1.set(50, 1);                             // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_NEW_CELL ||               // Update per type
+        unpack1.getColumnPercentage() != 50 ||
+        unpack1.getJustification() != 1) {
+      CAU::log("ERROR - NEW_CELL 1 test failed\n");
+    }
+  }
+
 /*
 
   // NEW_CELL_LEFT 40

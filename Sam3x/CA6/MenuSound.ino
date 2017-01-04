@@ -4,14 +4,14 @@ void MenuSoundInit(uint8 modId)
   const uint8 sData[] PROGMEM = {
   10,PID_MENU_HEADER,1,2,'S','o','u','n','d',0,  // MENU_HEADER 1 2 "Sound"
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL,70,0,  // NEW_CELL 70 0
+  4,PID_NEW_CELL,70,0,  // NEW_CELL 70 0
   22,PID_TEXT_STATIC,'S','o','u','n','d',' ','T','r','i','g','g','e','r',' ','L','e','v','e','l',0,  // TEXT_STATIC "Sound Trigger Level"
-  3,PID_NEW_CELL,30,2,  // NEW_CELL 30 2
+  4,PID_NEW_CELL,30,2,  // NEW_CELL 30 2
   16,PID_EDIT_NUMBER,0,3,0,0,0,0,255,1,0,0,100,0,0,0,  // EDIT_NUMBER 3 0 0 511 100  **gClientHostId_0**
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL,70,0,  // NEW_CELL 70 0
+  4,PID_NEW_CELL,70,0,  // NEW_CELL 70 0
   30,PID_TEXT_STATIC,'C','u','r','r','e','n','t',' ','S','o','u','n','d',' ','L','e','v','e','l',' ','(','0','-','5','1','1',')',0,  // TEXT_STATIC "Current Sound Level (0-511)"
-  3,PID_NEW_CELL,30,2,  // NEW_CELL 30 2
+  4,PID_NEW_CELL,30,2,  // NEW_CELL 30 2
   7,PID_TEXT_DYNAMIC,1,'?','?','?',0,  // TEXT_DYNAMIC "???"  **gClientHostId_1**
   2,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 107
@@ -19,11 +19,11 @@ void MenuSoundInit(uint8 modId)
   const uint8 sDataActive[] PROGMEM = {
   19,PID_MENU_HEADER,1,2,'S','o','u','n','d',' ','-',' ','A','c','t','i','v','e',0,  // MENU_HEADER 1 2 "Sound - Active"
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL,100,0,  // NEW_CELL 100 0
+  4,PID_NEW_CELL,100,0,  // NEW_CELL 100 0
   24,PID_TEXT_STATIC,'S','o','u','n','d',' ','T','r','i','g','g','e','r',' ','L','e','v','e','l',':',' ',0,  // TEXT_STATIC "Sound Trigger Level: "
   5,PID_TEXT_DYNAMIC,0,'?',0,  // TEXT_DYNAMIC "?"  **gClientHostId_0**
   2,PID_NEW_ROW,  // NEW_ROW
-  3,PID_NEW_CELL,100,0,  // NEW_CELL 100 0
+  4,PID_NEW_CELL,100,0,  // NEW_CELL 100 0
   18,PID_TEXT_STATIC,'C','u','r','r','e','n','t',' ','L','e','v','e','l',':',' ',0,  // TEXT_STATIC "Current Level: "
   5,PID_TEXT_DYNAMIC,1,'?',0,  // TEXT_DYNAMIC "?"  **gClientHostId_1**
   2,PID_SCRIPT_END,  // SCRIPT_END
