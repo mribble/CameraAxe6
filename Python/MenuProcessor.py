@@ -325,26 +325,6 @@ def procNewCell(tokenList, line):
     byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 2, 8, byteWriter);
     writeLineComment(tokenList, -1)
 
-def procNewCellRight(tokenList, line):
-    scriptStateCheck(scriptState.NEW_CELL, line, int(tokenList[1]))
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 2, line)
-    writeSize(3, None)
-    fout.write("PID_NEW_CELL_RIGHT,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 100, 8, byteWriter);
-    writeLineComment(tokenList, -1)
-
-def procNewCellCenter(tokenList, line):
-    scriptStateCheck(scriptState.NEW_CELL, line, int(tokenList[1]))
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 2, line)
-    writeSize(3, None)
-    fout.write("PID_NEW_CELL_CENTER,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 100, 8, byteWriter);
-    writeLineComment(tokenList, -1)
-
 def procCondStart(tokenList, line):
     scriptStateCheck(scriptState.CONTINUE_CELL, line)
     global gClientHostId
@@ -391,13 +371,14 @@ def procButton(tokenList, line):
     scriptStateCheck(scriptState.CONTINUE_CELL, line)
     global gClientHostId
     byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(4, None)
+    checkTokenCountMismatch(len(tokenList), 4, line)
+    writeSize(4, tokenList[3])
     fout.write("PID_BUTTON,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 1, 4, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 1, 4, byteWriter)
+    writeString(tokenList[3])
     gClientHostId = writeLineComment(tokenList, gClientHostId)
 
 def procCheckBox(tokenList, line):

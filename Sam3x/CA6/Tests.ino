@@ -114,7 +114,7 @@ void caTestPackets()
   4,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
   14,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   16,PID_TEXT_DYNAMIC,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
-  4,PID_BUTTON,1,17,  // BUTTON 1 1  **gClientHostId_1**
+  11,PID_BUTTON,1,17,'B','u','t','t','o','n',0,  // BUTTON 1 1 "Button"  **gClientHostId_1**
   4,PID_CHECK_BOX,2,0,  // CHECK_BOX 0  **gClientHostId_2**
   11,PID_DROP_SELECT,3,1,'n','o','|','y','e','s',0,  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
   16,PID_EDIT_NUMBER,4,50,0,0,0,0,159,134,1,0,80,195,0,0,  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
@@ -122,9 +122,9 @@ void caTestPackets()
   11,PID_TIME_BOX,6,223,24,59,122,62,125,144,1,  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
   2,PID_COND_END,  // COND_END
   2,PID_SCRIPT_END,  // SCRIPT_END
-  };  // Total Bytes = 115
+  };  // Total Bytes = 122
 
-  const uint8 BUF_SIZE = 115;
+  const uint8 BUF_SIZE = 122;
   uint8 data[BUF_SIZE];
   const uint8 *dataPtr = data;
   uint8 totalUnpackSize=0;
@@ -257,7 +257,7 @@ void caTestPackets()
     CAPacketTextDynamic unpack1(unpack0);         // Update per type
     CAPacketTextDynamic pack1(pack0);             // Update per type
   
-    pack1.set(0, "Dynamic Text");                    // Update per type
+    pack1.set(0, "Dynamic Text");                 // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -272,17 +272,28 @@ void caTestPackets()
     }
   }
 
-/*
-  // BUTTON 1 1  **gClientHostId_1**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackButton(dataPtr, &packButton);
-  if ((packetType != PID_BUTTON) || (packButton.client_host_id != 1) || (packButton.type != 1) || (packButton.value != 1))
-  {
-    CAU::log("ERROR - BUTTON - %d, %d, %d, %d\n", packetType, packButton.client_host_id, packButton.type, packButton.value);
-    return;
+  { // BUTTON 1 1 "Button"  **gClientHostId_1**
+    CAPacketButton unpack1(unpack0);              // Update per type
+    CAPacketButton pack1(pack0);                  // Update per type
+  
+    pack1.set(1, 1, 1, "Button");                 // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_BUTTON ||                 // Update per type
+        unpack1.getClientHostId() != 1 ||
+        unpack1.getType() != 1 ||
+        unpack1.getValue() != 1 ||
+        strcmp(unpack1.getText().c_str(), "Button") != 0) {
+      CAU::log("ERROR - BUTTON test failed\n");
+    }
   }
 
+/*
   // CHECK_BOX 0  **gClientHostId_2**
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
   dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);

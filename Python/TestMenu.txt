@@ -6,7 +6,7 @@ NEW_CELL 50 1
   TEXT_STATIC  "Static Text"
   TEXT_DYNAMIC "Dynamic Text"
 #Here's another comment
-  BUTTON 1 1
+  BUTTON 1 1 "Button"
   CHECK_BOX 0
   DROP_SELECT 1 "no|yes"
   EDIT_NUMBER 2 3 0 99999 50000

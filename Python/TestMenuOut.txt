@@ -6,7 +6,7 @@
   4,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
   14,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   16,PID_TEXT_DYNAMIC,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
-  4,PID_BUTTON,1,17,  // BUTTON 1 1  **gClientHostId_1**
+  11,PID_BUTTON,1,17,'B','u','t','t','o','n',0,  // BUTTON 1 1 "Button"  **gClientHostId_1**
   4,PID_CHECK_BOX,2,0,  // CHECK_BOX 0  **gClientHostId_2**
   11,PID_DROP_SELECT,3,1,'n','o','|','y','e','s',0,  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
   16,PID_EDIT_NUMBER,4,50,0,0,0,0,159,134,1,0,80,195,0,0,  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
@@ -14,4 +14,4 @@
   11,PID_TIME_BOX,6,223,24,59,122,62,125,144,1,  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
   2,PID_COND_END,  // COND_END
   2,PID_SCRIPT_END,  // SCRIPT_END
-  };  // Total Bytes = 115
+  };  // Total Bytes = 122
