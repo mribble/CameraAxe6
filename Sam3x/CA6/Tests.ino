@@ -332,7 +332,54 @@ void caTestPackets()
     }
   }
 
+  {  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
+    CAPacketEditNumber unpack1(unpack0);          // Update per type
+    CAPacketEditNumber pack1(pack0);              // Update per type
+  
+    pack1.set(4, 2, 3, 0, 99999, 50000);          // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_EDIT_NUMBER ||            // Update per type
+        unpack1.getClientHostId() != 4 ||
+        unpack1.getDigitsBeforeDecimal() != 2 ||
+        unpack1.getDigitsAfterDecimal() != 3 ||
+        unpack1.getMinValue() != 0 ||
+        unpack1.getMaxValue() != 99999 ||
+        unpack1.getValue() != 50000 ) {
+      CAU::log("ERROR - EDIT_NUMBER test failed\n");
+    }
+  }
+
+  {  // COND_START 0 0  **gClientHostId_5**
+    CAPacketCondStart unpack1(unpack0);           // Update per type
+    CAPacketCondStart pack1(pack0);               // Update per type
+  
+    pack1.set(5, 0, 0);                           // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_COND_START ||             // Update per type
+        unpack1.getClientHostId() != 5 ||
+        unpack1.getModAttribute() != 0 ||
+        unpack1.getValue() != 0 ) {
+      CAU::log("ERROR - COND_START test failed\n");
+    }
+  }
+
+// TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
+// COND_END
+
 /*
+
   // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
   dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);

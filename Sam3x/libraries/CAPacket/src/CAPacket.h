@@ -81,13 +81,39 @@ public:
     CAPacketNewCell(CAPacket& caPacket);
     uint8 getColumnPercentage() {return mColumnPercentage;};
     uint8 getJustification() {return mJustification;};
-    void set(uint8 packetType, uint8 columnPercentage);
+    void set(uint8 columnPercentage, uint8 justification);
     void unpack();
     uint8 pack();
 private:
     CAPacket* mCAP;
     uint8 mColumnPercentage;
     uint8 mJustification;
+};
+
+class CAPacketCondStart {
+public:
+    CAPacketCondStart(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getModAttribute() {return mModAttribute;};
+    uint8 getValue() {return mValue;};
+    void set(uint8 clientHostId, uint8 modAttribute, uint8 value);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mModAttribute;
+    uint8 mValue;
+};
+
+class CAPacketCondEnd {
+public:
+    CAPacketCondEnd(CAPacket& caPacket);
+    void set();
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
 };
 
 class CAPacketTextStatic {
@@ -162,6 +188,29 @@ private:
     uint8 mClientHostId;
     uint8 mValue;
     String mText;
+};
+
+class CAPacketEditNumber {
+public:
+    CAPacketEditNumber(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;};
+    uint8 getDigitsAfterDecimal() {return mDigitsAfterDecimal;};
+    uint32 getMinValue() {return mMinValue;};
+    uint32 getMaxValue() {return mMaxValue;};
+    uint32 getValue() {return mValue;};
+    void set(uint8 clientHostId, uint8 digitsBeforeDecimal, uint8 digitsAfterDecimal, 
+                uint32 minValue, uint32 maxValue, uint32 value);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mDigitsBeforeDecimal;
+    uint8 mDigitsAfterDecimal;
+    uint32 mMinValue;
+    uint32 mMaxValue;
+    uint32 mValue;
 };
 
 /*

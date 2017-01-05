@@ -99,7 +99,7 @@ void CAPacket::flushPacket() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// MenuHeader Packet class
+// MenuHeader Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketMenuHeader::CAPacketMenuHeader(CAPacket& caPacket) {
     mCAP = &caPacket;
@@ -131,7 +131,7 @@ uint8 CAPacketMenuHeader::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// NewRow Packet class
+// NewRow Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketNewRow::CAPacketNewRow(CAPacket& caPacket) {
     mCAP = &caPacket;
@@ -154,7 +154,7 @@ uint8 CAPacketNewRow::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// NewCell Packet class
+// NewCell Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketNewCell::CAPacketNewCell(CAPacket& caPacket) {
     mColumnPercentage = 0;
@@ -185,7 +185,67 @@ uint8 CAPacketNewCell::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TextStatic Packet class
+// CondStart Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCondStart::CAPacketCondStart(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mModAttribute = 0;
+    mValue = 0;
+}
+
+void CAPacketCondStart::set(uint8 clientHostId, uint8 modAttribute, uint8 value) {
+    mClientHostId = clientHostId;
+    mModAttribute = modAttribute;
+    mValue = mValue;
+    CA_ASSERT((mModAttribute <= 1) && (mValue <= 1),
+                "Error in CAPacketCondStart::set()");
+}
+
+void CAPacketCondStart::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mModAttribute = mCAP->unpacker(4);
+    mValue = mCAP->unpacker(4);
+    mCAP->flushPacket();
+    CA_ASSERT((mModAttribute <= 1) && (mValue <= 1),
+                "Error in CAPacketCondStart::unpack()");
+}
+
+uint8 CAPacketCondStart::pack() {
+    uint8 packetSize = 2 + 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_COND_START, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mModAttribute, 4);
+    mCAP->packer(mValue, 4);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CondEnd Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCondEnd::CAPacketCondEnd(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketCondEnd::set() {
+    CA_ASSERT(0, "NewRow::set never needs to be called");
+}
+
+void CAPacketCondEnd::unpack() {
+    CA_ASSERT(0, "NewRow::unpack never needs to be called");
+}
+
+uint8 CAPacketCondEnd::pack() {
+    uint8 packetSize = 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_COND_END, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TextStatic Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketTextStatic::CAPacketTextStatic(CAPacket& caPacket) {
     mCAP = &caPacket;
@@ -211,7 +271,7 @@ uint8 CAPacketTextStatic::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TextDynamic Packet class
+// TextDynamic Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketTextDynamic::CAPacketTextDynamic(CAPacket& caPacket) {
     mClientHostId = 0;
@@ -241,7 +301,7 @@ uint8 CAPacketTextDynamic::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Button Packet class
+// Button Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketButton::CAPacketButton(CAPacket& caPacket) {
     mClientHostId = 0;
@@ -255,6 +315,8 @@ void CAPacketButton::set(uint8 clientHostId, uint8 type, uint8 value, String tex
     mType = type;
     mValue = value;
     mText = text;
+    CA_ASSERT((mType <= 1) && (mValue <= 1),
+                "Error in CAPacketButton::set()");
 }
 
 void CAPacketButton::unpack() {
@@ -263,6 +325,8 @@ void CAPacketButton::unpack() {
     mValue = mCAP->unpacker(4);
     mCAP->unpackerString(mText);
     mCAP->flushPacket();
+    CA_ASSERT((mType <= 1) && (mValue <= 1),
+                "Error in CAPacketButton::unpack()");
 }
 
 uint8 CAPacketButton::pack() {
@@ -279,7 +343,7 @@ uint8 CAPacketButton::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Check Box Packet class
+// CheckBox Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketCheckBox::CAPacketCheckBox(CAPacket& caPacket) {
     mClientHostId = 0;
@@ -290,12 +354,14 @@ CAPacketCheckBox::CAPacketCheckBox(CAPacket& caPacket) {
 void CAPacketCheckBox::set(uint8 clientHostId, uint8 value) {
     mClientHostId = clientHostId;
     mValue = value;
+    CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::set()");
 }
 
 void CAPacketCheckBox::unpack() {
     mClientHostId = mCAP->unpacker(8);
     mValue = mCAP->unpacker(8);
     mCAP->flushPacket();
+    CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::unpack()");
 }
 
 uint8 CAPacketCheckBox::pack() {
@@ -309,7 +375,7 @@ uint8 CAPacketCheckBox::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Button Packet class
+// DropSelect Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketDropSelect::CAPacketDropSelect(CAPacket& caPacket) {
     mClientHostId = 0;
@@ -338,6 +404,61 @@ uint8 CAPacketDropSelect::pack() {
     mCAP->packer(mClientHostId, 8);
     mCAP->packer(mValue, 8);
     mCAP->packerString(mText.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// EditNumber Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketEditNumber::CAPacketEditNumber(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mDigitsBeforeDecimal = 0;
+    mDigitsAfterDecimal = 0;
+    mMinValue = 0;
+    mMaxValue = 0;
+    mValue = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketEditNumber::set(uint8 clientHostId, uint8 digitsBeforeDecimal, uint8 digitsAfterDecimal, 
+                                uint32 minValue, uint32 maxValue, uint32 value ) {
+    mClientHostId = clientHostId;
+    mDigitsBeforeDecimal = digitsBeforeDecimal;
+    mDigitsAfterDecimal = digitsAfterDecimal;
+    mMinValue = minValue;
+    mMaxValue = maxValue;
+    mValue = value;
+    CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
+                (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
+                (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                "Error in CAPacketEditNumber::set()");
+}
+
+void CAPacketEditNumber::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mDigitsBeforeDecimal = mCAP->unpacker(4);
+    mDigitsAfterDecimal = mCAP->unpacker(4);
+    mMinValue = mCAP->unpacker(32);
+    mMaxValue = mCAP->unpacker(32);
+    mValue = mCAP->unpacker(32);
+    mCAP->flushPacket();
+    CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
+                (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
+                (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                "Error in CAPacketEditNumber::unpack()");
+}
+
+uint8 CAPacketEditNumber::pack() {
+    uint8 packetSize = 2 + 14;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_EDIT_NUMBER, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mDigitsBeforeDecimal, 4);
+    mCAP->packer(mDigitsAfterDecimal, 4);
+    mCAP->packer(mMinValue, 32);
+    mCAP->packer(mMaxValue, 32);
+    mCAP->packer(mValue, 32);
     mCAP->flushPacket();
     return packetSize;
 }
