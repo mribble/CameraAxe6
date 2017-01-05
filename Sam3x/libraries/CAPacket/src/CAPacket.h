@@ -3,30 +3,28 @@
 
 #include "CATypes.h"
 
-enum packetId  {PID_START_SENTINEL      =  0,  // Assumed to be first
+enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_MENU_HEADER         =  1,
                 PID_NEW_ROW             =  2,
-                PID_NEW_CELL_LEFT       =  3,
-                PID_NEW_CELL_RIGHT      =  4, 
-                PID_NEW_CELL_CENTER     =  5,
-                PID_COND_START          =  6,
-                PID_COND_END            =  7,
-                PID_TEXT_STATIC         =  8,
-                PID_TEXT_DYNAMIC        =  9,
-                PID_BUTTON              = 10,
-                PID_CHECK_BOX           = 11,
-                PID_DROP_SELECT         = 12,
-                PID_EDIT_NUMBER         = 13,
-                PID_TIME_BOX            = 14,
-                PID_SCRIPT_END          = 15,
-                PID_ACTIVATE            = 16,
-                PID_LOG                 = 17,
-                PID_CAM_STATE           = 18,
-                PID_CAM_SETTINGS        = 19,
-                PID_INTERVALOMETER      = 20,
-                PID_INTER_MODULE_LOGIC  = 21,
-                PID_CONTROL_FLAGS       = 22,
-                PID_END_SENTINEL        = 24, // Assumed to be last
+                PID_NEW_CELL            =  3,
+                PID_COND_START          =  4,
+                PID_COND_END            =  5,
+                PID_TEXT_STATIC         =  6,
+                PID_TEXT_DYNAMIC        =  7,
+                PID_BUTTON              =  8,
+                PID_CHECK_BOX           =  9,
+                PID_DROP_SELECT         = 10,
+                PID_EDIT_NUMBER         = 11,
+                PID_TIME_BOX            = 12,
+                PID_SCRIPT_END          = 13,
+                PID_ACTIVATE            = 14,
+                PID_LOG                 = 15,
+                PID_CAM_STATE           = 16,
+                PID_CAM_SETTINGS        = 17,
+                PID_INTERVALOMETER      = 18,
+                PID_INTER_MODULE_LOGIC  = 19,
+                PID_CONTROL_FLAGS       = 20,
+                PID_END_SENTINEL        = 21, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -57,12 +55,10 @@ public:
     CAPacketMenuHeader(CAPacket& caPacket);
     uint8 getMajorVersion() {return mMajorVersion;};
     uint8 getMinorVersion() {return mMinorVersion;};
-    String getMenuName() { return mMenuName;};
-
+    String getMenuName() {return mMenuName;};
     void set(uint8 majorVersion, uint8 minorVersion, String menuName);
     void unpack();
     uint8 pack();
-
 private:
     CAPacket* mCAP;
     uint8 mMajorVersion;
@@ -70,48 +66,110 @@ private:
     String mMenuName;
 };
 
+class CAPacketNewRow {
+public:
+    CAPacketNewRow(CAPacket& caPacket);
+    void set();
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+};
+
+class CAPacketNewCell {
+public:
+    CAPacketNewCell(CAPacket& caPacket);
+    uint8 getColumnPercentage() {return mColumnPercentage;};
+    uint8 getJustification() {return mJustification;};
+    void set(uint8 packetType, uint8 columnPercentage);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mColumnPercentage;
+    uint8 mJustification;
+};
+
+class CAPacketTextStatic {
+public:
+    CAPacketTextStatic(CAPacket& caPacket);
+    String getText() {return mText;};
+    void set(String text);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    String mText;
+};
+
+class CAPacketTextDynamic {
+public:
+    CAPacketTextDynamic(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    String getText() {return mText;};
+    void set(uint8 clientHostId, String text);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    String mText;
+};
+
+class CAPacketButton {
+public:
+    CAPacketButton(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getType() {return mType;};
+    uint8 getValue() {return mValue;};
+    String getText() {return mText;};
+    void set(uint8 clientHostId, uint8 type, uint8 value, String text);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mType;
+    uint8 mValue;
+    String mText;
+};
+
+class CAPacketCheckBox {
+public:
+    CAPacketCheckBox(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getValue() {return mValue;};
+    void set(uint8 clientHostId, uint8 value);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mValue;
+};
+
+class CAPacketDropSelect {
+public:
+    CAPacketDropSelect(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getValue() {return mValue;};
+    String getText() {return mText;};
+    void set(uint8 clientHostId, uint8 value, String text);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mValue;
+    String mText;
+};
+
 /*
-typedef struct {
-    uint8 major_version;
-    uint8 minor_version;
-    char* menu_string;
-} PacketMenuHeader;
-
-typedef struct {
-    uint8 column_percentage;
-} PacketNewCell;
-
 typedef struct {
     uint8 client_host_id;
     uint8 mod_attribute    : 4;
     uint8 value            : 4;
 } PacketCondStart;
-
-typedef struct {
-    char* text_string;
-} PacketTextStatic;
-
-typedef struct {
-    uint8 client_host_id;    
-    char* text_string;
-} PacketTextDynamic;
-
-typedef struct {
-    uint8 client_host_id;
-    uint8 type   : 4;
-    uint8 value  : 4;
-} PacketButton;
-
-typedef struct {
-    uint8 client_host_id;
-    uint8 value;
-} PacketCheckBox;
-
-typedef struct {
-    uint8 client_host_id;
-    uint8 value;
-    char* drop_value_string;
-} PacketDropSelect;
 
 typedef struct {
     uint8 client_host_id;

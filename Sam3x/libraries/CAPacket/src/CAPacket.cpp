@@ -1,4 +1,5 @@
 #include <CAPacket.h>
+#include <CAUtility.h>
 
 CAPacket::CAPacket(uint8 state, uint8 *buf, uint16 bufSize) {
     mBitsUsed = 0;
@@ -89,6 +90,7 @@ void CAPacket::packerString(const char* src){
     for(uint8 val=0; val<strlen(src); val++) {
         (mBuf[mBytesUsed++]) = src[val];
     }
+    mBuf[mBytesUsed++] = 0; // Add null terminator
 }
 
 void CAPacket::flushPacket() {
@@ -113,16 +115,229 @@ void CAPacketMenuHeader::unpack() {
     mMajorVersion = mCAP->unpacker(8);
     mMinorVersion = mCAP->unpacker(8);
     mCAP->unpackerString(mMenuName);
+    mCAP->flushPacket();
 }
 
 uint8 CAPacketMenuHeader::pack() {
-    uint8 len = mMenuName.length();
-    uint8 packetSize = 2 + 2 + len + 1;  // 1 for the null terminator
+    uint8 len = mMenuName.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + 2 + len;
     mCAP->packer(packetSize, 8);
     mCAP->packer(PID_MENU_HEADER, 8);
     mCAP->packer(mMajorVersion, 8);
     mCAP->packer(mMinorVersion, 8);
     mCAP->packerString(mMenuName.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NewRow Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketNewRow::CAPacketNewRow(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketNewRow::set() {
+    CA_ASSERT(0, "NewRow::set never needs to be called");
+}
+
+void CAPacketNewRow::unpack() {
+    CA_ASSERT(0, "NewRow::unpack never needs to be called");
+}
+
+uint8 CAPacketNewRow::pack() {
+    uint8 packetSize = 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_NEW_ROW, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NewCell Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketNewCell::CAPacketNewCell(CAPacket& caPacket) {
+    mColumnPercentage = 0;
+    mJustification = 0;
+}
+
+void CAPacketNewCell::set(uint8 columnPercentage, uint8 justification) {
+    CA_ASSERT((columnPercentage <= 100) && (justification <= 2),
+                "Error in CAPacketNewCell::set()");
+    mColumnPercentage = columnPercentage;
+    mJustification = justification;
+}
+
+void CAPacketNewCell::unpack() {
+    mColumnPercentage = mCAP->unpacker(8);
+    mJustification = mCAP->unpacker(8);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketNewCell::pack() {
+    uint8 packetSize = 2 + 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_NEW_CELL, 8);
+    mCAP->packer(mColumnPercentage, 8);
+    mCAP->packer(mJustification, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TextStatic Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketTextStatic::CAPacketTextStatic(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketTextStatic::set(String text) {
+    mText = text;
+}
+
+void CAPacketTextStatic::unpack() {
+    mCAP->unpackerString(mText);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketTextStatic::pack() {
+    uint8 len = mText.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + len;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_TEXT_STATIC, 8);
+    mCAP->packerString(mText.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TextDynamic Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketTextDynamic::CAPacketTextDynamic(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketTextDynamic::set(uint8 clientHostId, String text) {
+    mClientHostId = clientHostId;
+    mText = text;
+}
+
+void CAPacketTextDynamic::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mCAP->unpackerString(mText);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketTextDynamic::pack() {
+    uint8 len = mText.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + 1 + len;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_TEXT_DYNAMIC, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packerString(mText.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Button Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketButton::CAPacketButton(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mType = 0;
+    mValue = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketButton::set(uint8 clientHostId, uint8 type, uint8 value, String text) {
+    mClientHostId = clientHostId;
+    mType = type;
+    mValue = value;
+    mText = text;
+}
+
+void CAPacketButton::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mType = mCAP->unpacker(4);
+    mValue = mCAP->unpacker(4);
+    mCAP->unpackerString(mText);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketButton::pack() {
+    uint8 len = mText.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + 2 + len;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_BUTTON, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mType, 4);
+    mCAP->packer(mValue, 4);
+    mCAP->packerString(mText.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Check Box Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCheckBox::CAPacketCheckBox(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mValue = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketCheckBox::set(uint8 clientHostId, uint8 value) {
+    mClientHostId = clientHostId;
+    mValue = value;
+}
+
+void CAPacketCheckBox::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mValue = mCAP->unpacker(8);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketCheckBox::pack() {
+    uint8 packetSize = 2 + 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_CHECK_BOX, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mValue, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Button Packet class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketDropSelect::CAPacketDropSelect(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mValue = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketDropSelect::set(uint8 clientHostId, uint8 value, String text) {
+    mClientHostId = clientHostId;
+    mValue = value;
+    mText = text;
+}
+
+void CAPacketDropSelect::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mValue = mCAP->unpacker(8);
+    mCAP->unpackerString(mText);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketDropSelect::pack() {
+    uint8 len = mText.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + 2 + len;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_DROP_SELECT, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mValue, 8);
+    mCAP->packerString(mText.c_str());
     mCAP->flushPacket();
     return packetSize;
 }
@@ -133,77 +348,11 @@ uint8 CAPacketMenuHeader::pack() {
 // Unpack
 ///////////////////////////////////////////////////////////////////////////////
 
-const uint8* CAPacket::unpackMenuHeader(const uint8* inBuf, PacketMenuHeader* oPacket, char* oBuf)
-{
-    oPacket->major_version    = (inBuf++)[0];
-    oPacket->minor_version    = (inBuf++)[0];
-    oPacket->menu_string      = oBuf;
-    do
-    {
-        *(oBuf++) = (inBuf++)[0];
-    } while (oBuf[-1] != 0);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackNewCell(const uint8* inBuf, PacketNewCell* oPacket)
-{
-    oPacket->column_percentage = (inBuf++)[0];
-    return inBuf;
-}
-
 const uint8* CAPacket::unpackCondStart(const uint8* inBuf, PacketCondStart* oPacket)
 {
     oPacket->client_host_id  = (inBuf++)[0];
     oPacket->mod_attribute   = unpacker(&inBuf, 4);
     oPacket->value           = unpacker(&inBuf, 4);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackTextStatic(const uint8* inBuf, PacketTextStatic* oPacket, char* oBuf)
-{
-    oPacket->text_string = oBuf;
-    do
-    {
-        *(oBuf++) = (inBuf++)[0];
-    } while (oBuf[-1] != 0);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackTextDynamic(const uint8* inBuf, PacketTextDynamic* oPacket, char* oBuf)
-{
-    oPacket->client_host_id    = (inBuf++)[0];
-    oPacket->text_string       = oBuf;
-    do
-    {
-        *(oBuf++) = (inBuf++)[0];
-    } while (oBuf[-1] != 0);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackButton(const uint8* inBuf, PacketButton* oPacket)
-{
-    oPacket->client_host_id   = (inBuf++)[0];
-    oPacket->type             = unpacker(&inBuf, 4);
-    oPacket->value            = unpacker(&inBuf, 4);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackCheckBox(const uint8* inBuf, PacketCheckBox* oPacket)
-{
-    oPacket->client_host_id   = (inBuf++)[0];
-    oPacket->value            = (inBuf++)[0];
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackDropSelect(const uint8* inBuf, PacketDropSelect* oPacket, char* oBuf)
-{
-    oPacket->client_host_id    = (inBuf++)[0];
-    oPacket->value             = (inBuf++)[0];
-    oPacket->drop_value_string = oBuf;
-    do
-    {
-        *(oBuf++) = (inBuf++)[0];
-    } while (oBuf[-1] != 0);
     return inBuf;
 }
 

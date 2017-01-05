@@ -312,27 +312,27 @@ void caTestPackets()
     }
   }
 
+  {  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
+    CAPacketDropSelect unpack1(unpack0);          // Update per type
+    CAPacketDropSelect pack1(pack0);              // Update per type
+  
+    pack1.set(3, 1, "no|yes");                    // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_DROP_SELECT ||            // Update per type
+        unpack1.getClientHostId() != 3 ||
+        unpack1.getValue() != 1 ||
+        strcmp(unpack1.getText().c_str(), "no|yes") != 0) {
+      CAU::log("ERROR - DROP_SELECT test failed\n");
+    }
+  }
+
 /*
-  // CHECK_BOX 0  **gClientHostId_2**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackCheckBox(dataPtr, &packCheckBox);
-  if ((packetType != PID_CHECK_BOX) || (packCheckBox.client_host_id != 2) || (packCheckBox.value != 0))
-  {
-    CAU::log("ERROR - CHECK_BOX - %d, %d, %d\n", packetType, packCheckBox.client_host_id, packCheckBox.value);
-    return;
-  }
-
-  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackDropSelect(dataPtr, &packDropSelect, strBuf);
-  if ((packetType != PID_DROP_SELECT) || (packDropSelect.client_host_id != 3) || (packDropSelect.value != 1) || (strcmp(packDropSelect.drop_value_string, "no|yes")!=0))
-  {
-    CAU::log("ERROR - DROP_SELECT - %d, %d, %d, %s\n", packetType, packDropSelect.client_host_id, packDropSelect.value, packDropSelect.drop_value_string);
-    return;
-  }
-
   // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
   dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
