@@ -213,6 +213,39 @@ private:
     uint32 mValue;
 };
 
+class CAPacketTimeBox {
+public:
+    const uint8 HOUR_MASK           = 0x01;
+    const uint8 MINUTE_MASK         = 0x02;
+    const uint8 SECOND_MASK         = 0x04;
+    const uint8 MILLISECOND_MASK    = 0x08;
+    const uint8 MICROSECOND_MASK    = 0x10;
+    const uint8 NANOSECOND_MASK     = 0x20;
+    CAPacketTimeBox(CAPacket& caPacket);
+    uint8 getClientHostId() {return mClientHostId;};
+    uint8 getEnableMask() {return mEnableMask;};
+    uint16 getHours() {return mHours;};
+    uint8 getMinutes() {return mMinutes;};
+    uint8 getSeconds() {return mSeconds;};
+    uint16 getMilliseconds() {return mMilliseconds;};
+    uint16 getMicroseconds() {return mMicroseconds;};
+    uint16 getNanoseconds() {return mNanoseconds;};
+    void set(uint8 clientHostId, uint8 enableMask, uint16 hours, uint8 minutes, uint8 seconds,
+                uint16 milliseconds, uint16 microseconds, uint16 nanoseconds);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mClientHostId;
+    uint8 mEnableMask;
+    uint16 mHours;
+    uint8 mMinutes;
+    uint8 mSeconds;
+    uint16 mMilliseconds;
+    uint16 mMicroseconds;
+    uint16 mNanoseconds;
+};
+
 /*
 typedef struct {
     uint8 client_host_id;

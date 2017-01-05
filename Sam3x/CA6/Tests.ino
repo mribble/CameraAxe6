@@ -134,12 +134,12 @@ void caTestPackets()
    data[i] = pgm_read_byte_near(sData+i);
   }
 
-  uint8 dataA[128];
+  uint8 dataA[256];
   uint8 packType, packSize, unpackSize;
-  memset(dataA, 0, 128);
+  memset(dataA, 0, 256);
 
-  CAPacket unpack0(STATE_UNPACKER, data, 112);
-  CAPacket pack0(STATE_PACKER, dataA, 128);
+  CAPacket unpack0(STATE_UNPACKER, data, BUF_SIZE);
+  CAPacket pack0(STATE_PACKER, dataA, 256);
 
   {  // MENU_HEADER 1 2 "UI Test Menu"
     CAPacketMenuHeader unpack1(unpack0);          // Update per type
@@ -375,42 +375,50 @@ void caTestPackets()
     }
   }
 
-// TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
-// COND_END
+
+  {  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
+    CAPacketTimeBox unpack1(unpack0);             // Update per type
+    CAPacketTimeBox pack1(pack0);                 // Update per type
+  
+    pack1.set(6, 0x1f, 99, 59, 40, 999, 500, 400);// Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_TIME_BOX ||               // Update per type
+        unpack1.getClientHostId() != 6 ||
+        unpack1.getEnableMask() != 0x1f ||
+        unpack1.getHours() != 99 ||
+        unpack1.getMinutes() != 59 ||
+        unpack1.getSeconds() != 40 ||
+        unpack1.getMilliseconds() != 999 ||
+        unpack1.getMicroseconds() != 500 ||
+        unpack1.getNanoseconds() != 400 ) {
+      CAU::log("ERROR - TIME_BOX test failed\n");
+    }
+  }
+
+  {  // COND_END
+    CAPacketCondEnd unpack1(unpack0);             // Update per type
+    CAPacketCondEnd pack1(pack0);                 // Update per type
+  
+    //pack1.set();                                // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    //unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_COND_END) {               // Update per type
+      CAU::log("ERROR - COND_END test failed\n");
+    }
+  }
 
 /*
-
-  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackEditNumber(dataPtr, &packEditNumber);
-  if ((packetType != PID_EDIT_NUMBER) || (packEditNumber.client_host_id != 4) || (packEditNumber.digits_before_decimal != 2) || (packEditNumber.digits_after_decimal != 3) || 
-      (packEditNumber.min_value != 0) || (packEditNumber.max_value != 99999) || (packEditNumber.value != 50000))
-  {
-    CAU::log("ERROR - EDIT_NUMBER - %d, %d, %d, %d, %u, %u, %u\n", packetType, packEditNumber.client_host_id, packEditNumber.digits_before_decimal, packEditNumber.digits_after_decimal, packEditNumber.min_value, packEditNumber.max_value, packEditNumber.value);
-    return;
-  }
-
-  // COND_START 0 0  **gClientHostId_5**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackCondStart(dataPtr, &packCondStart);
-  if ((packetType != PID_COND_START) || (packCondStart.client_host_id != 5) || (packCondStart.mod_attribute != 0) || (packCondStart.value != 0))
-  {
-    CAU::log("ERROR - COND_START - %d, %d, %d, %d\n", packetType, packCondStart.client_host_id, packCondStart.mod_attribute, packCondStart.value);
-    return;
-  }
-
-  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr = packetProcessor.unpackTimeBox(dataPtr, &packTimeBox);
-  if ((packetType != PID_TIME_BOX) || (packTimeBox.client_host_id != 6) || (packTimeBox.enable_hours != 1) || (packTimeBox.enable_minutes != 1) || (packTimeBox.enable_seconds != 1) || (packTimeBox.enable_milliseconds != 1) || (packTimeBox.enable_microseconds != 1) || (packTimeBox.enable_nanoseconds != 0) || (packTimeBox.hours != 99) || (packTimeBox.minutes != 59) || (packTimeBox.seconds != 40) || (packTimeBox.milliseconds != 999) || (packTimeBox.microseconds != 500) || (packTimeBox.nanoseconds != 400))
-  {
-
-    CAU::log("ERROR - TIME_BOX - %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d \n", packetType, packTimeBox.client_host_id, packTimeBox.enable_hours, packTimeBox.enable_minutes, packTimeBox.enable_seconds, packTimeBox.enable_milliseconds, packTimeBox.enable_microseconds, packTimeBox.enable_nanoseconds, packTimeBox.hours, packTimeBox.minutes, packTimeBox.seconds, packTimeBox.milliseconds, packTimeBox.microseconds, packTimeBox.nanoseconds);
-    return;
-  }
 
   // COND_END
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);

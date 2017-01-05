@@ -463,30 +463,76 @@ uint8 CAPacketEditNumber::pack() {
     return packetSize;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TimeBox Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
+    mClientHostId = 0;
+    mEnableMask = 0;
+    mHours = 0;
+    mMinutes = 0;
+    mSeconds = 0;
+    mMilliseconds = 0;
+    mMicroseconds = 0;
+    mNanoseconds = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketTimeBox::set(uint8 clientHostId, uint8 enableMask, uint16 hours, uint8 minutes, uint8 seconds,
+                            uint16 milliseconds, uint16 microseconds, uint16 nanoseconds ) {
+    mClientHostId = clientHostId;
+    mEnableMask = enableMask;
+    mHours = hours;
+    mMinutes = minutes;
+    mSeconds = seconds;
+    mMilliseconds = milliseconds;
+    mMicroseconds = microseconds;
+    mNanoseconds = nanoseconds;
+    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+                (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
+                "Error in CAPacketTimeBox::set()");
+}
+
+void CAPacketTimeBox::unpack() {
+    mClientHostId = mCAP->unpacker(8);
+    mEnableMask = mCAP->unpacker(6);
+    mHours = mCAP->unpacker(10);
+    mMinutes = mCAP->unpacker(6);
+    mSeconds = mCAP->unpacker(6);
+    mMilliseconds = mCAP->unpacker(10);
+    mMicroseconds = mCAP->unpacker(10);
+    mNanoseconds = mCAP->unpacker(10);
+    mCAP->unpacker(6); // Unused
+    mCAP->flushPacket();
+    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+                (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
+                "Error in CAPacketTimeBox::set()");
+}
+
+uint8 CAPacketTimeBox::pack() {
+    uint8 unused;
+    uint8 packetSize = 2 + 9;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_TIME_BOX, 8);
+    mCAP->packer(mClientHostId, 8);
+    mCAP->packer(mEnableMask, 6);
+    mCAP->packer(mHours, 10);
+    mCAP->packer(mMinutes, 6);
+    mCAP->packer(mSeconds, 6);
+    mCAP->packer(mMilliseconds, 10);
+    mCAP->packer(mMicroseconds, 10);
+    mCAP->packer(mNanoseconds, 10);
+    mCAP->packer(unused, 6);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
 /*
 
 ///////////////////////////////////////////////////////////////////////////////
 // Unpack
 ///////////////////////////////////////////////////////////////////////////////
 
-const uint8* CAPacket::unpackCondStart(const uint8* inBuf, PacketCondStart* oPacket)
-{
-    oPacket->client_host_id  = (inBuf++)[0];
-    oPacket->mod_attribute   = unpacker(&inBuf, 4);
-    oPacket->value           = unpacker(&inBuf, 4);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackEditNumber(const uint8* inBuf, PacketEditNumber* oPacket)
-{
-    oPacket->client_host_id        = (inBuf++)[0];
-    oPacket->digits_before_decimal = unpacker(&inBuf, 4);
-    oPacket->digits_after_decimal  = unpacker(&inBuf, 4);
-    oPacket->min_value             = unpacker(&inBuf, 32);
-    oPacket->max_value             = unpacker(&inBuf, 32);
-    oPacket->value                 = unpacker(&inBuf, 32);
-    return inBuf;
-}
 
 const uint8* CAPacket::unpackTimeBox(const uint8* inBuf, PacketTimeBox* oPacket)
 {
