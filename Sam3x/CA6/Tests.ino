@@ -293,6 +293,25 @@ void caTestPackets()
     }
   }
 
+  {  // CHECK_BOX 0  **gClientHostId_2**
+    CAPacketCheckBox unpack1(unpack0);            // Update per type
+    CAPacketCheckBox pack1(pack0);                // Update per type
+  
+    pack1.set(2, 0);                              // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_CHECK_BOX ||              // Update per type
+        unpack1.getClientHostId() != 2 ||
+        unpack1.getValue() != 0 ) {
+      CAU::log("ERROR - CHECK_BOX test failed\n");
+    }
+  }
+
 /*
   // CHECK_BOX 0  **gClientHostId_2**
   dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
