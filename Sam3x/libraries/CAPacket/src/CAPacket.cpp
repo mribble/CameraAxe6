@@ -558,7 +558,7 @@ CAPacketActivate::CAPacketActivate(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketActivate::set(uint8 activate ) {
+void CAPacketActivate::set(uint8 activate) {
     mActivate = activate;
     CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::set()");
 }
@@ -604,10 +604,159 @@ uint8 CAPacketLog::pack() {
     return packetSize;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// CamState Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCamState::CAPacketCamState(CAPacket& caPacket) {
+    mMultiplier = 0;
+    mFocus = 0;
+    mShutter = 0;
+    mCAP = &caPacket;
+}
 
+void CAPacketCamState::set(uint8 multiplier, uint8 focus, uint8 shutter) {
+    mMultiplier = multiplier;
+    mFocus = focus;
+    mShutter = shutter;
+}
 
+void CAPacketCamState::unpack() {
+    mMultiplier = mCAP->unpacker(8);
+    mFocus = mCAP->unpacker(8);
+    mShutter = mCAP->unpacker(8);
+    mCAP->flushPacket();
+}
 
+uint8 CAPacketCamState::pack() {
+    uint8 packetSize = 2 + 3;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_CAM_STATE, 8);
+    mCAP->packer(mMultiplier, 8);
+    mCAP->packer(mFocus, 8);
+    mCAP->packer(mShutter, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
 
+///////////////////////////////////////////////////////////////////////////////
+// CamSettings Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCamSettings::CAPacketCamSettings(CAPacket& caPacket) {
+    mCamPortNumber = 0;
+    mMode = 0;
+    mDelayHours = 0;
+    mDelayMinutes = 0;
+    mDelaySeconds = 0;
+    mDelayMilliseconds = 0;
+    mDelayMicroseconds = 0;
+    mDurationHours = 0;
+    mDurationMinutes = 0;
+    mDurationSeconds = 0;
+    mDurationMilliseconds = 0;
+    mDurationMicroseconds = 0;
+    mSequencer = 0;
+    mApplyIntervalometer = 0;
+    mSmartPreview = 0;
+    mMirrorLockupEnable = 0;
+    mMirrorLockupMinutes = 0;
+    mMirrorLockupSeconds = 0;
+    mMirrorLockupMilliseconds = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketCamSettings::set(uint8 camPortNumber, uint8 mode, uint16 delayHours, uint8 delayMinutes,
+                uint8 delaySeconds, uint16 delayMilliseconds, uint16 delayMicroseconds,
+                uint16 durationHours, uint8 durationMinutes, uint8 durationSeconds, 
+                uint16 durationMilliseconds, uint16 durationMicroseconds, uint8 sequencer,
+                uint8 applyIntervalometer, uint8 smartPreview, uint8 mirrorLockupEnable, 
+                uint8 mirrorLockupMinutes, uint8 mirrorLockupSeconds, uint16 mirrorLockupMilliseconds) {
+    mCamPortNumber = camPortNumber;
+    mMode = mode;
+    mDelayHours = delayHours;
+    mDelayMinutes = delayMinutes;
+    mDelaySeconds = delaySeconds;
+    mDelayMilliseconds = delayMilliseconds;
+    mDelayMicroseconds = delayMicroseconds;
+    mDurationHours = durationHours;
+    mDurationMinutes = durationMinutes;
+    mDurationSeconds = durationSeconds;
+    mDurationMilliseconds = durationMilliseconds;
+    mDurationMicroseconds = durationMicroseconds;
+    mSequencer = sequencer;
+    mApplyIntervalometer = applyIntervalometer;
+    mSmartPreview = smartPreview;
+    mMirrorLockupEnable = mirrorLockupEnable;
+    mMirrorLockupMinutes = mirrorLockupMinutes;
+    mMirrorLockupSeconds = mirrorLockupSeconds;
+    mMirrorLockupMilliseconds = mirrorLockupMilliseconds;
+    CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
+                (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
+                (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
+                (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                "Error in CAPacketCamSettings::set()");
+}
+
+void CAPacketCamSettings::unpack() {
+    mCamPortNumber = mCAP->unpacker(8);
+    mMode = mCAP->unpacker(2);
+    mDelayHours = mCAP->unpacker(10);
+    mDelayMinutes = mCAP->unpacker(6);
+    mDelaySeconds = mCAP->unpacker(6);
+    mDelayMilliseconds = mCAP->unpacker(10);
+    mDelayMicroseconds = mCAP->unpacker(10);
+    mDurationHours = mCAP->unpacker(10);
+    mDurationMinutes = mCAP->unpacker(6);
+    mDurationSeconds = mCAP->unpacker(6);
+    mDurationMilliseconds = mCAP->unpacker(10);
+    mDurationMicroseconds = mCAP->unpacker(10);
+    mSequencer = mCAP->unpacker(8);
+    mApplyIntervalometer = mCAP->unpacker(1);
+    mSmartPreview = mCAP->unpacker(6);
+    mMirrorLockupEnable = mCAP->unpacker(1);
+    mMirrorLockupMinutes = mCAP->unpacker(6);
+    mMirrorLockupSeconds = mCAP->unpacker(6);
+    mMirrorLockupMilliseconds = mCAP->unpacker(10);
+    mCAP->unpacker(4); // Unused
+    mCAP->flushPacket();
+    CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
+                (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
+                (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
+                (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                "Error in CAPacketCamSettings::set()");
+}
+
+uint8 CAPacketCamSettings::pack() {
+    uint8 unused;
+    uint8 packetSize = 2 + 17;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_CAM_SETTINGS, 8);
+    mCAP->packer(mCamPortNumber, 8);
+    mCAP->packer(mMode, 2);
+    mCAP->packer(mDelayHours, 10);
+    mCAP->packer(mDelayMinutes, 6);
+    mCAP->packer(mDelaySeconds, 6);
+    mCAP->packer(mDelayMilliseconds, 10);
+    mCAP->packer(mDelayMicroseconds, 10);
+    mCAP->packer(mDurationHours, 10);
+    mCAP->packer(mDurationMinutes, 6);
+    mCAP->packer(mDurationSeconds, 6);
+    mCAP->packer(mDurationMilliseconds, 10);
+    mCAP->packer(mDurationMicroseconds, 10);
+    mCAP->packer(mSequencer, 8);
+    mCAP->packer(mApplyIntervalometer, 1);
+    mCAP->packer(mSmartPreview, 6);
+    mCAP->packer(mMirrorLockupEnable, 1);
+    mCAP->packer(mMirrorLockupMinutes, 6);
+    mCAP->packer(mMirrorLockupSeconds, 6);
+    mCAP->packer(mMirrorLockupMilliseconds, 10);
+    mCAP->packer(unused, 4);
+    mCAP->flushPacket();
+    return packetSize;
+}
 
 /*
 

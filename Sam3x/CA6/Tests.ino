@@ -452,7 +452,7 @@ void caTestPackets()
     if (packSize != unpackSize ||
           packType != PID_ACTIVATE ||             // Update per type
           unpack11.getActivate() != 1 ) {
-      CAU::log("ERROR - ACTIVATE test failed");
+      CAU::log("ERROR - ACTIVATE test failed\n");
     } 
   }
   
@@ -468,72 +468,64 @@ void caTestPackets()
     if (packSize != unpackSize ||
           packType != PID_LOG ||                  // Update per type
           strcmp(unpack11.getLog().c_str(), "This is a log") != 0) {
-      CAU::log("ERROR - LOG test failed");
+      CAU::log("ERROR - LOG test failed\n");
     } 
   }
 
+  { // CAM_STATE Packet Test
+    CAPacketCamState unpack11(unpack10);          // Update per type
+    CAPacketCamState pack11(pack10);              // Update per type
+    
+    pack11.set(2, 0xc1, 0xf0);                    // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_CAM_STATE ||            // Update per type
+          unpack11.getMultiplier() != 2 ||
+          unpack11.getFocus() != 0xc1 ||
+          unpack11.getShutter() != 0xf0) {
+      CAU::log("ERROR - CAM_STATE test failed\n");
+    } 
+  }
+
+  { // CAM_SETTINGS Packet Test
+    CAPacketCamSettings unpack11(unpack10);       // Update per type
+    CAPacketCamSettings pack11(pack10);           // Update per type
+    
+    pack11.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_CAM_SETTINGS ||       // Update per type
+          unpack11.getCamPortNumber() != 50 ||
+          unpack11.getMode() != 1 ||
+          unpack11.getDelayHours() != 999 ||
+          unpack11.getDelayMinutes() != 59 ||
+          unpack11.getDelaySeconds() != 58 ||
+          unpack11.getDelayMilliseconds() != 998 ||
+          unpack11.getDelayMicroseconds() != 997 ||
+          unpack11.getDurationHours() != 996 ||
+          unpack11.getDurationMinutes() != 57 ||
+          unpack11.getDurationSeconds() != 56 ||
+          unpack11.getDurationMilliseconds() != 995 ||
+          unpack11.getDurationMicroseconds() != 994 ||
+          unpack11.getSequencer() != 0xbe ||
+          unpack11.getApplyIntervalometer() != 1 ||
+          unpack11.getSmartPreview() != 5 ||
+          unpack11.getMirrorLockupEnable() != 1 ||
+          unpack11.getMirrorLockupMinutes() != 40 ||
+          unpack11.getMirrorLockupSeconds() != 41 ||
+          unpack11.getMirrorLockupMilliseconds() != 900 ) {
+      CAU::log("ERROR - CAM_SETTINGS test failed\n");
+    } 
+  }
+
+
 /*
-  // Pack/Unpack for ACTIVATE
-  dataPtr = data;
-  memset(&packActivate, 0, sizeof(packActivate));
-  memset(&packActivate2, 0, sizeof(packActivate2));
-  packActivate.active = 1;
-  dataPtr2 = packetProcessor.packActivate(&packActivate, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackActivate(dataPtr, &packActivate2);
-  if ((packetType != PID_ACTIVATE) || (memcmp(&packActivate, &packActivate2, sizeof(packActivate)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack ACTIVATE %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for LOG
-  dataPtr = data;
-  memset(&packLog, 0, sizeof(packLog));
-  memset(&packLog2, 0, sizeof(packLog2));
-  packLog.log_string = "foo";
-  dataPtr2 = packetProcessor.packLog(&packLog, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackLog(dataPtr, &packLog2, strBuf);
-  if ((packetType != PID_LOG) || (memcmp(&packLog, &packLog2, sizeof(packLog)-4) != 0) || strcmp("foo", strBuf)!=0 )
-  {
-    CAU::log("ERROR - Pack/unpack LOG %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for CAM_STATE
-  dataPtr = data;
-  memset(&packCamState, 0, sizeof(packCamState));
-  memset(&packCamState2, 0, sizeof(packCamState2));
-  packCamState.cam_multiplier = 0;
-  packCamState.cam0_focus     = 1;
-  packCamState.cam0_shutter   = 0;
-  packCamState.cam1_focus     = 1;
-  packCamState.cam1_shutter   = 1;
-  packCamState.cam2_focus     = 0;
-  packCamState.cam2_shutter   = 0;
-  packCamState.cam3_focus     = 0;
-  packCamState.cam3_shutter   = 1;
-  packCamState.cam4_focus     = 1;
-  packCamState.cam4_shutter   = 1;
-  packCamState.cam5_focus     = 1;
-  packCamState.cam5_shutter   = 1;
-  packCamState.cam6_focus     = 1;
-  packCamState.cam6_shutter   = 0;
-  packCamState.cam7_focus     = 1;
-  packCamState.cam7_shutter   = 0;
-  dataPtr2 = packetProcessor.packCamState(&packCamState, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackCamState(dataPtr, &packCamState2);
-  if ((packetType != PID_CAM_STATE) || (memcmp(&packCamState, &packCamState2, sizeof(packCamState)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack CAM_STATE %d\n", packetType);
-    return;
-  }
-
   // Pack/Unpack for CAM_SETTINGS
   dataPtr = data;
   memset(&packCamSettings, 0, sizeof(packCamSettings));
