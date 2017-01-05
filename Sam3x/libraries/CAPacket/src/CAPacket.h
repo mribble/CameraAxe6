@@ -246,6 +246,40 @@ private:
     uint16 mNanoseconds;
 };
 
+class CAPacketScriptEnd {
+public:
+    CAPacketScriptEnd(CAPacket& caPacket);
+    void set();
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+};
+
+class CAPacketActivate {
+public:
+    CAPacketActivate(CAPacket& caPacket);
+    uint8 getActivate() {return mActivate;};
+    void set(uint8 activate);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mActivate;
+};
+
+class CAPacketLog {
+public:
+    CAPacketLog(CAPacket& caPacket);
+    String getLog() {return mLog;};
+    void set(String log);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    String mLog;
+};
+
 /*
 typedef struct {
     uint8 client_host_id;

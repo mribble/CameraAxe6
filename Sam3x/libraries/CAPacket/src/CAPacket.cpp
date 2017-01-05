@@ -229,11 +229,11 @@ CAPacketCondEnd::CAPacketCondEnd(CAPacket& caPacket) {
 }
 
 void CAPacketCondEnd::set() {
-    CA_ASSERT(0, "NewRow::set never needs to be called");
+    CA_ASSERT(0, "CondEnd::set never needs to be called");
 }
 
 void CAPacketCondEnd::unpack() {
-    CA_ASSERT(0, "NewRow::unpack never needs to be called");
+    CA_ASSERT(0, "CondEnd::unpack never needs to be called");
 }
 
 uint8 CAPacketCondEnd::pack() {
@@ -526,6 +526,88 @@ uint8 CAPacketTimeBox::pack() {
     mCAP->flushPacket();
     return packetSize;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ScriptEnd Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketScriptEnd::CAPacketScriptEnd(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketScriptEnd::set() {
+    CA_ASSERT(0, "ScriptEnd::set never needs to be called");
+}
+
+void CAPacketScriptEnd::unpack() {
+    CA_ASSERT(0, "ScriptEnd::unpack never needs to be called");
+}
+
+uint8 CAPacketScriptEnd::pack() {
+    uint8 packetSize = 2;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_SCRIPT_END, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// EditNumber Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketActivate::CAPacketActivate(CAPacket& caPacket) {
+    mActivate = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketActivate::set(uint8 activate ) {
+    mActivate = activate;
+    CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::set()");
+}
+
+void CAPacketActivate::unpack() {
+    mActivate = mCAP->unpacker(8);
+    mCAP->flushPacket();
+    CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::unpack()");
+}
+
+uint8 CAPacketActivate::pack() {
+    uint8 packetSize = 2 + 1;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_ACTIVATE, 8);
+    mCAP->packer(mActivate, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Log Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketLog::CAPacketLog(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketLog::set(String log) {
+    mLog = log;
+}
+
+void CAPacketLog::unpack() {
+    mCAP->unpackerString(mLog);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketLog::pack() {
+    uint8 len = mLog.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 2 + len;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_LOG, 8);
+    mCAP->packerString(mLog.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+
+
+
+
 
 /*
 

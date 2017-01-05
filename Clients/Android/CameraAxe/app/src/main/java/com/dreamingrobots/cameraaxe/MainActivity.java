@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void testPackets() {
-
         byte[] dataA = new byte[256];
         CAPacket pack0 = new CAPacket(this, CAPacket.STATE_PACKER, dataA, 256);
         CAPacket unpack0 = new CAPacket(this, CAPacket.STATE_UNPACKER, dataA, 256);

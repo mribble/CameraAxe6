@@ -137,7 +137,6 @@ void caTestPackets()
   uint8 dataA[256];
   uint8 packType, packSize, unpackSize;
   memset(dataA, 0, 256);
-
   CAPacket unpack0(STATE_UNPACKER, data, BUF_SIZE);
   CAPacket pack0(STATE_PACKER, dataA, 256);
 
@@ -418,141 +417,62 @@ void caTestPackets()
     }
   }
 
+
+  {  // SCRIPT_END
+    CAPacketScriptEnd unpack1(unpack0);           // Update per type
+    CAPacketScriptEnd pack1(pack0);               // Update per type
+  
+    //pack1.set();                                // Update per type
+    unpackSize = unpack0.unpackSize();
+    packType = unpack0.unpackType();
+    //unpack1.unpack();
+    packSize = pack1.pack();
+    totalUnpackSize += unpackSize;
+    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
+        packSize != unpackSize ||
+        packType != PID_SCRIPT_END) {             // Update per type
+      CAU::log("ERROR - SCRIPT_END test failed\n");
+    }
+  }
+
+  // The following are packet types that don't exist in the script files
+  memset(dataA, 0, 256);
+  CAPacket unpack10(STATE_UNPACKER, dataA, 256);
+  CAPacket pack10(STATE_PACKER, dataA, 256);
+
+  { // ACTIVATE Packet Test
+    CAPacketActivate unpack11(unpack10);          // Update per type
+    CAPacketActivate pack11(pack10);              // Update per type
+    
+    pack11.set(1);                                // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_ACTIVATE ||             // Update per type
+          unpack11.getActivate() != 1 ) {
+      CAU::log("ERROR - ACTIVATE test failed");
+    } 
+  }
+  
+  { // LOG Packet Test
+    CAPacketLog unpack11(unpack10);               // Update per type
+    CAPacketLog pack11(pack10);                   // Update per type
+    
+    pack11.set("This is a log");                  // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_LOG ||                  // Update per type
+          strcmp(unpack11.getLog().c_str(), "This is a log") != 0) {
+      CAU::log("ERROR - LOG test failed");
+    } 
+  }
+
 /*
-
-  // COND_END
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  if (packetType != PID_COND_END)
-  {
-    CAU::log("ERROR - COND_END - %d\n", packetType);
-    return;
-  }
-
-  // SCRIPT_END
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  if (packetType != PID_SCRIPT_END)
-  {
-    CAU::log("ERROR - SCRIPT_END - %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for TEXT_DYNAMIC
-  dataPtr = data;
-  memset(&packTextDynamic, 0, sizeof(packTextDynamic));
-  memset(&packTextDynamic2, 0, sizeof(packTextDynamic2));
-  packTextDynamic.client_host_id = 4;
-  packTextDynamic.text_string = "hello123";
-  dataPtr2 = packetProcessor.packTextDynamic(&packTextDynamic, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackTextDynamic(dataPtr, &packTextDynamic2, strBuf);
-  if ((packetType != PID_TEXT_DYNAMIC) || (memcmp(&packTextDynamic, &packTextDynamic2, sizeof(packTextDynamic)-4) != 0) || strcmp(strBuf, "hello123")!=0)
-  {
-    CAU::log("ERROR - Pack/unpack TEXT_DYNAMIC %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for BUTTON
-  dataPtr = data;
-  memset(&packButton, 0, sizeof(packButton));
-  memset(&packButton2, 0, sizeof(packButton2));
-  packButton.client_host_id = 3;
-  packButton.type = 1;
-  packButton.value = 0;
-  dataPtr2 = packetProcessor.packButton(&packButton, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackButton(dataPtr, &packButton2);
-  if ((packetType != PID_BUTTON) || (memcmp(&packButton, &packButton2, sizeof(packButton)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack BUTTON %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for CHECK_BOX
-  dataPtr = data;
-  memset(&packCheckBox, 0, sizeof(packCheckBox));
-  memset(&packCheckBox2, 0, sizeof(packCheckBox2));
-  packCheckBox.client_host_id = 5;
-  packCheckBox.value = 99;
-  dataPtr2 = packetProcessor.packCheckBox(&packCheckBox, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackCheckBox(dataPtr, &packCheckBox2);
-  if ((packetType != PID_CHECK_BOX) || (memcmp(&packCheckBox, &packCheckBox2, sizeof(packCheckBox)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack CHECK_BOX %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for DROP_SELECT
-  dataPtr = data;
-  memset(&packDropSelect, 0, sizeof(packDropSelect));
-  memset(&packDropSelect2, 0, sizeof(packDropSelect2));
-  packDropSelect.client_host_id = 6;
-  packDropSelect.value = 1;
-  packDropSelect.drop_value_string = "yes|no";
-  dataPtr2 = packetProcessor.packDropSelect(&packDropSelect, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackDropSelect(dataPtr, &packDropSelect2, strBuf);
-  if ((packetType != PID_DROP_SELECT) || (memcmp(&packDropSelect, &packDropSelect2, sizeof(packDropSelect)-4) != 0) || strcmp("yes|no", strBuf)!=0 )
-  {
-    CAU::log("ERROR - Pack/unpack DROP_SELECT %d\n", packetType);
-    return;
-  }
-
-  // Pack/Unpack for EDIT_NUMBER
-  dataPtr = data;
-  memset(&packEditNumber, 0, sizeof(packEditNumber));
-  memset(&packEditNumber2, 0, sizeof(packEditNumber2));
-  packEditNumber.client_host_id = 3;
-  packEditNumber.digits_before_decimal = 2;
-  packEditNumber.digits_after_decimal = 1;
-  packEditNumber.min_value = 0;
-  packEditNumber.max_value = 99;
-  packEditNumber.value = 80;
-  dataPtr2 = packetProcessor.packEditNumber(&packEditNumber, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackEditNumber(dataPtr, &packEditNumber2);
-  if ((packetType != PID_EDIT_NUMBER) || (memcmp(&packEditNumber, &packEditNumber2, sizeof(packEditNumber)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack EDIT_NUMBER %d\n", packetType);
-    CAU::log(" %d, %d, %d, %u, %u, %u\n", packEditNumber.client_host_id, packEditNumber.digits_before_decimal, packEditNumber.digits_after_decimal, packEditNumber.min_value, packEditNumber.max_value, packEditNumber.value);
-    CAU::log(" %d, %d, %d, %u, %u, %u\n", packEditNumber2.client_host_id, packEditNumber2.digits_before_decimal, packEditNumber2.digits_after_decimal, packEditNumber2.min_value, packEditNumber2.max_value, packEditNumber2.value);
-    return;
-  }
-
-  // Pack/Unpack for TIME_BOX
-  dataPtr = data;
-  memset(&packTimeBox, 0, sizeof(packTimeBox));
-  memset(&packTimeBox2, 0, sizeof(packTimeBox2));
-  packTimeBox.client_host_id = 7;
-  packTimeBox.enable_hours = 0;
-  packTimeBox.enable_minutes = 1;
-  packTimeBox.enable_seconds = 1;
-  packTimeBox.enable_milliseconds = 1;
-  packTimeBox.enable_microseconds = 1;
-  packTimeBox.enable_nanoseconds = 1;
-  packTimeBox.hours = 10;
-  packTimeBox.minutes = 59;
-  packTimeBox.seconds = 999;
-  packTimeBox.milliseconds = 998;
-  packTimeBox.microseconds = 997;
-  packTimeBox.nanoseconds = 996;
-  dataPtr2 = packetProcessor.packTimeBox(&packTimeBox, (uint8*)dataPtr);
-  dataPtr = packetProcessor.getPacketSize(dataPtr, &packetSize);
-  dataPtr = packetProcessor.getPacketType(dataPtr, &packetType);
-  dataPtr2 = packetProcessor.unpackTimeBox(dataPtr, &packTimeBox2);
-  if ((packetType != PID_TIME_BOX) || (memcmp(&packTimeBox, &packTimeBox2, sizeof(packTimeBox)) != 0))
-  {
-    CAU::log("ERROR - Pack/unpack TIME_BOX %d\n", packetType);
-    return;
-  }
-
   // Pack/Unpack for ACTIVATE
   dataPtr = data;
   memset(&packActivate, 0, sizeof(packActivate));
