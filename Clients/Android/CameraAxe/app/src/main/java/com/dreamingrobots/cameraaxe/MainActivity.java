@@ -95,21 +95,35 @@ public class MainActivity extends AppCompatActivity {
         CAPacket pack0 = new CAPacket(this, CAPacket.STATE_PACKER, dataA, 256);
         CAPacket unpack0 = new CAPacket(this, CAPacket.STATE_UNPACKER, dataA, 256);
 
-        {   // Menu Header Packet Test
-            CAPacket.MenuHeader pack1 = pack0.new MenuHeader();                     // Update per type
-            CAPacket.MenuHeader unpack1 = unpack0.new MenuHeader();                 // Update per type
-            pack1.set(2, 3, "hello world");                                         // Update per type
+        {   // MenuHeader Packet Test
+            CAPacket.MenuHeader pack1 = pack0.new MenuHeader();                 // Update per type
+            CAPacket.MenuHeader unpack1 = unpack0.new MenuHeader();             // Update per type
+            pack1.set(2, 3, "hello world");                                     // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_MENU_HEADER ||                         // Update per type
+                    packType != CAPacket.PID_MENU_HEADER ||                     // Update per type
                     unpack1.getMajorVersion() != 2 ||
                     unpack1.getMinorVersion() != 3 ||
                     unpack1.getMenuName().equals("hello world") != true) {
-                Log.e("CA6", "Packet Test Error - MENU HEADER test failed");
+                Log.e("CA6", "Packet Test Error - MENU_HEADER test failed");
             }
         }
+        {   // NewRow Packet Test
+            CAPacket.NewRow pack1 = pack0.new NewRow();                         // Update per type
+            CAPacket.NewRow unpack1 = unpack0.new NewRow();                     // Update per type
+            //pack1.set();                                                      // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            //unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_NEW_ROW ) {                        // Update per type
+                Log.e("CA6", "Packet Test Error - NEW_ROW test failed");
+            }
+        }
+
     }
 }

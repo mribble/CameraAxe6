@@ -16,9 +16,28 @@ public class CAPacket {
     public static final short STATE_PACKER = 1;
     public static final short STATE_UNPACKER = 2;
 
-    protected static final short PID_START_SENTINEL = 0;
-    protected static final short PID_MENU_HEADER = 1;
-    protected static final short PID_END_SENTINEL = 24;
+    protected static final short PID_START_SENTINEL     = 0;  // Must be first
+    protected static final short PID_MENU_HEADER        = 1;
+    protected static final short PID_NEW_ROW            = 2;
+    protected static final short PID_NEW_CELL           = 3;
+    protected static final short PID_COND_START         = 4;
+    protected static final short PID_COND_END           = 5;
+    protected static final short PID_TEXT_STATIC        = 6;
+    protected static final short PID_TEXT_DYNAMIC       = 7;
+    protected static final short PID_BUTTON             = 8;
+    protected static final short PID_CHECK_BOX          = 9;
+    protected static final short PID_DROP_SELECT        = 10;
+    protected static final short PID_EDIT_NUMBER        = 11;
+    protected static final short PID_TIME_BOX           = 12;
+    protected static final short PID_SCRIPT_END         = 13;
+    protected static final short PID_ACTIVATE           = 14;
+    protected static final short PID_LOG                = 15;
+    protected static final short PID_CAM_STATE          = 16;
+    protected static final short PID_CAM_SETTINGS       = 17;
+    protected static final short PID_INTERVALOMETER     = 18;
+    protected static final short PID_INTER_MODULE_LOGIC = 19;
+    protected static final short PID_CONTROL_FLAGS      = 20;
+    protected static final short PID_END_SENTINEL       = 21; // Must be last
 
     private Context mContext;
     private int mBitsUsed;
@@ -90,7 +109,7 @@ public class CAPacket {
         } while (mBuf[mBytesUsed+len] != 0); // This do while loop includes null terminator
         str.setLength(0);
         str.append(new String(mBuf, mBytesUsed, len));
-        mBytesUsed += len;
+        mBytesUsed += len+1;  // +1 for the null terminator
     }
 
     protected void packer( long val, int packBits) {
@@ -133,6 +152,9 @@ public class CAPacket {
         }
     }
 
+    /***********************************************************************************************
+     * MenuHeader Packet Class
+     **********************************************************************************************/
     public class MenuHeader {
 
         private int mMajorVersion;
@@ -162,13 +184,36 @@ public class CAPacket {
         }
 
         public int pack() {
-            int len = mMenuName.length();
-            int packetSize = 2 + len + 1;  // 1 for the null terminator
+            int len = mMenuName.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + 2 + len;
             packer(packetSize, 8);
             packer(PID_MENU_HEADER, 8);
             packer(mMajorVersion, 8);
             packer(mMinorVersion, 8);
             packerString(mMenuName.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * NewRow Packet Class
+     **********************************************************************************************/
+    public class NewRow {
+
+        public NewRow() {}
+
+        public void set() {
+            Log.e("CA6", "NewRow::set() never needs to be called");
+        }
+
+        public void unpack() {
+            Log.e("CA6", "NewRow::set() never needs to be called");
+        }
+
+        public int pack() {
+            int packetSize = 2;
+            packer(packetSize, 8);
+            packer(PID_NEW_ROW, 8);
             flushPacket();
             return packetSize;
         }
