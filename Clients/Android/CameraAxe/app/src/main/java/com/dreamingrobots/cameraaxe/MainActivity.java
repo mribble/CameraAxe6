@@ -124,6 +124,37 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - NEW_ROW test failed");
             }
         }
+        {   // NewCell Packet Test
+            CAPacket.NewCell pack1 = pack0.new NewCell();                       // Update per type
+            CAPacket.NewCell unpack1 = unpack0.new NewCell();                   // Update per type
+            pack1.set(100, 1);                                                  // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_NEW_CELL ||                        // Update per type
+                    unpack1.getColumnPercentage() != 100 ||
+                    unpack1.getJustification() != 1 ) {
+                Log.e("CA6", "Packet Test Error - NEW_CELL test failed");
+            }
+        }
+        {   // CondStart Packet Test
+            CAPacket.CondStart pack1 = pack0.new CondStart();                   // Update per type
+            CAPacket.CondStart unpack1 = unpack0.new CondStart();               // Update per type
+            pack1.set(2, 1, 1);                                                 // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_COND_START ||                      // Update per type
+                    unpack1.getClientHostId() != 2 ||
+                    unpack1.getModAttribute() != 1 ||
+                    unpack1.getValue() != 1 ) {
+                Log.e("CA6", "Packet Test Error - COND_START test failed");
+            }
+        }
 
     }
 }

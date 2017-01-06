@@ -54,6 +54,12 @@ public class CAPacket {
         mBufSize = bufSize;
     }
 
+    public void CA_ASSERT(boolean test, String str) {
+        if (test == false) {
+            Log.e("CA6_ASSERT", str);
+        }
+    }
+
     public int unpackSize() {return (int) unpacker(8);}
 
     public short unpackType() {
@@ -80,17 +86,16 @@ public class CAPacket {
             int unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ?
                     0 : (bitsInCurSrcByte - unpackBitsLeft);
             int rightShift = mBitsUsed + unusedLeftBits;
-            int val = mBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
+            int val = (mBuf[mBytesUsed] << unusedLeftBits) & 0xff;  // Zero out left bits
             val = val >> rightShift;      // Shift bits to right most position for this byte
-            ret |= (((long)val) << valShift);
+            ret |= ((long)val) << valShift;
             valShift += bitsToUnpack;
             if (mBitsUsed + bitsToUnpack == 8)
             {
                 mBitsUsed = 0;
                 mBytesUsed++;
             }
-            else
-            {
+            else {
                 mBitsUsed += bitsToUnpack;
             }
             unpackBitsLeft -= bitsToUnpack;
@@ -214,6 +219,81 @@ public class CAPacket {
             int packetSize = 2;
             packer(packetSize, 8);
             packer(PID_NEW_ROW, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * NewCell Packet Class
+     **********************************************************************************************/
+    public class NewCell {
+
+        private int mColumnPercentage;
+        private int mJustification;
+
+        public NewCell() {}
+
+        public int getColumnPercentage() {return mColumnPercentage;}
+        public int getJustification() {return mJustification;}
+
+        public void set(int columnPercentage, int justification) {
+            mColumnPercentage = columnPercentage;
+            mJustification = justification;
+        }
+
+        public void unpack() {
+            mColumnPercentage = (int)unpacker(8);
+            mJustification = (int)unpacker(8);
+            flushPacket();
+        }
+
+        public int pack() {
+            int packetSize = 2 + 2;
+            packer(packetSize, 8);
+            packer(PID_NEW_CELL, 8);
+            packer(mColumnPercentage, 8);
+            packer(mJustification, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * CondStart Packet Class
+     **********************************************************************************************/
+    public class CondStart {
+
+        private int mClientHostId;
+        private int mModAttribute;
+        private int mValue;
+
+        public CondStart() {}
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
+        public int getValue() {return mValue;}
+
+        public void set(int clientHostId, int modAttribute, int value) {
+            mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
+            mValue = value;
+            CA_ASSERT((mModAttribute <= 1) && (mValue <= 1),
+                    "Error in CAPacketCondStart::set()");
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(4);
+            mValue = (int)unpacker(4);
+            flushPacket();
+        }
+
+        public int pack() {
+            int packetSize = 2 + 2;
+            packer(packetSize, 8);
+            packer(PID_COND_START, 8);
+            packer(mClientHostId, 8);
+            packer(mModAttribute, 4);
+            packer(mValue, 4);
             flushPacket();
             return packetSize;
         }
