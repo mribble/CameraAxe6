@@ -524,6 +524,31 @@ void caTestPackets()
     } 
   }
 
+  { // INTERVALOMETER Packet Test
+    CAPacketIntervalometer unpack11(unpack10);    // Update per type
+    CAPacketIntervalometer pack11(pack10);        // Update per type
+    
+    pack11.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_INTERVALOMETER ||            // Update per type
+          unpack11.getStartHours() != 900 ||
+          unpack11.getStartMinutes() != 50 ||
+          unpack11.getStartSeconds() != 51 ||
+          unpack11.getStartMilliseconds() != 901 ||
+          unpack11.getStartMicroseconds() != 902 ||
+          unpack11.getIntervalHours() != 903 ||
+          unpack11.getIntervalMinutes() != 52 ||
+          unpack11.getIntervalSeconds() != 53 ||
+          unpack11.getIntervalMilliseconds() != 904 ||
+          unpack11.getIntervalMicroseconds() != 905 ||
+          unpack11.getRepeats() != 9999 ) {
+      CAU::log("ERROR - INTERVALOMETER test failed\n");
+    } 
+  }
 
 /*
   // Pack/Unpack for CAM_SETTINGS

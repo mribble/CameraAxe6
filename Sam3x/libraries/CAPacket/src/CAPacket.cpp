@@ -726,7 +726,7 @@ void CAPacketCamSettings::unpack() {
                 (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
                 (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
                 (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
-                "Error in CAPacketCamSettings::set()");
+                "Error in CAPacketCamSettings::unpack()");
 }
 
 uint8 CAPacketCamSettings::pack() {
@@ -757,6 +757,87 @@ uint8 CAPacketCamSettings::pack() {
     mCAP->flushPacket();
     return packetSize;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Intervalometer Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketIntervalometer::CAPacketIntervalometer(CAPacket& caPacket) {
+    mStartHours = 0;
+    mStartMinutes = 0;
+    mStartSeconds = 0;
+    mStartMilliseconds = 0;
+    mStartMicroseconds = 0;
+    mIntervalHours = 0;
+    mIntervalMinutes = 0;
+    mIntervalSeconds = 0;
+    mIntervalMilliseconds = 0;
+    mIntervalMicroseconds = 0;
+    mRepeats = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketIntervalometer::set(uint16 startHours, uint8 startMinutes, uint8 startSeconds, uint16 startMilliseconds,
+                uint16 startMicroseconds, uint16 intervalHours, uint8 intervalMinutes,
+                uint8 intervalSeconds, uint16 intervalMilliseconds, uint16 intervalMicroseconds,
+                uint16 repeats) {
+    mStartHours = startHours;
+    mStartMinutes = startMinutes;
+    mStartSeconds = startSeconds;
+    mStartMilliseconds = startMilliseconds;
+    mStartMicroseconds = startMicroseconds;
+    mIntervalHours = intervalHours;
+    mIntervalMinutes = intervalMinutes;
+    mIntervalSeconds = intervalSeconds;
+    mIntervalMilliseconds = intervalMilliseconds;
+    mIntervalMicroseconds = intervalMicroseconds;
+    mRepeats = repeats;
+    CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
+                (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
+                (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::set()");
+}
+
+void CAPacketIntervalometer::unpack() {
+    mStartHours = mCAP->unpacker(10);
+    mStartMinutes = mCAP->unpacker(6);
+    mStartSeconds = mCAP->unpacker(6);
+    mStartMilliseconds = mCAP->unpacker(10);
+    mStartMicroseconds = mCAP->unpacker(10);
+    mIntervalHours = mCAP->unpacker(10);
+    mIntervalMinutes = mCAP->unpacker(6);
+    mIntervalSeconds = mCAP->unpacker(6);
+    mIntervalMilliseconds = mCAP->unpacker(10);
+    mIntervalMicroseconds = mCAP->unpacker(10);
+    mRepeats = mCAP->unpacker(16);
+    mCAP->unpacker(4);  // Unused
+    mCAP->flushPacket();
+    CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
+                (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
+                (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::unpack()");
+}
+
+uint8 CAPacketIntervalometer::pack() {
+    uint8 unused;
+    uint8 packetSize = 2 + 13;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_INTERVALOMETER, 8);
+    mCAP->packer(mStartHours, 10);
+    mCAP->packer(mStartMinutes, 6);
+    mCAP->packer(mStartSeconds, 6);
+    mCAP->packer(mStartMilliseconds, 10);
+    mCAP->packer(mStartMicroseconds, 10);
+    mCAP->packer(mIntervalHours, 10);
+    mCAP->packer(mIntervalMinutes, 6);
+    mCAP->packer(mIntervalSeconds, 6);
+    mCAP->packer(mIntervalMilliseconds, 10);
+    mCAP->packer(mIntervalMicroseconds, 10);
+    mCAP->packer(mRepeats, 16);
+    mCAP->packer(unused, 4);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
 
 /*
 

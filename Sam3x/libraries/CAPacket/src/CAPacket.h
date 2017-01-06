@@ -365,6 +365,40 @@ private:
     uint16 mMirrorLockupMilliseconds;
 };
 
+class CAPacketIntervalometer {
+public:
+    CAPacketIntervalometer(CAPacket& caPacket);
+    uint16 getStartHours() {return mStartHours;};
+    uint8 getStartMinutes() {return mStartMinutes;};
+    uint8 getStartSeconds() {return mStartSeconds;};
+    uint16 getStartMilliseconds() {return mStartMilliseconds;};
+    uint16 getStartMicroseconds() {return mStartMicroseconds;};
+    uint16 getIntervalHours() {return mIntervalHours;};
+    uint8 getIntervalMinutes() {return mIntervalMinutes;};
+    uint8 getIntervalSeconds() {return mIntervalSeconds;};
+    uint16 getIntervalMilliseconds() {return mIntervalMilliseconds;};
+    uint16 getIntervalMicroseconds() {return mIntervalMicroseconds;};
+    uint16 getRepeats() {return mRepeats;};
+    void set(uint16 startHours, uint8 startMinutes, uint8 startSeconds, uint16 startMilliseconds,
+                uint16 startMicroseconds, uint16 intervalHours, uint8 intervalMinutes,
+                uint8 intervalSeconds, uint16 intervalMilliseconds, uint16 intervalMicroseconds,
+                uint16 repeats);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint16 mStartHours;
+    uint8 mStartMinutes;
+    uint8 mStartSeconds;
+    uint16 mStartMilliseconds;
+    uint16 mStartMicroseconds;
+    uint16 mIntervalHours;
+    uint8 mIntervalMinutes;
+    uint8 mIntervalSeconds;
+    uint16 mIntervalMilliseconds;
+    uint16 mIntervalMicroseconds;
+    uint16 mRepeats;
+};
 
 /*
 typedef struct {
