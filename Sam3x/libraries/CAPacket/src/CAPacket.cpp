@@ -838,359 +838,76 @@ uint8 CAPacketIntervalometer::pack() {
     return packetSize;
 }
 
-
-/*
-
 ///////////////////////////////////////////////////////////////////////////////
-// Unpack
+// InterModuleLogic Packet Class
 ///////////////////////////////////////////////////////////////////////////////
+CAPacketInterModuleLogic::CAPacketInterModuleLogic(CAPacket& caPacket) {
+    mLatchEnable = 0;
+    mLogic = 0;
+    mCAP = &caPacket;
+}
 
-
-const uint8* CAPacket::unpackTimeBox(const uint8* inBuf, PacketTimeBox* oPacket)
-{
-    uint8 unused;
+void CAPacketInterModuleLogic::set(uint8 latchEnable, uint8 logic) {
+    mLatchEnable = latchEnable;
+    mLogic = logic;
+    CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
+                "Error in CAPacketInterModuleLogic::set()");
+}
     
-    oPacket->client_host_id       = (inBuf++)[0];
-    oPacket->enable_hours         = unpacker(&inBuf, 1);
-    oPacket->enable_minutes       = unpacker(&inBuf, 1);
-    oPacket->enable_seconds       = unpacker(&inBuf, 1);
-    oPacket->enable_milliseconds  = unpacker(&inBuf, 1);
-    oPacket->enable_microseconds  = unpacker(&inBuf, 1);
-    oPacket->enable_nanoseconds   = unpacker(&inBuf, 1);
-    oPacket->hours                = unpacker(&inBuf, 10);
-    oPacket->minutes              = unpacker(&inBuf, 6);
-    oPacket->seconds              = unpacker(&inBuf, 6);
-    oPacket->milliseconds         = unpacker(&inBuf, 10);
-    oPacket->microseconds         = unpacker(&inBuf, 10);
-    oPacket->nanoseconds          = unpacker(&inBuf, 10);
-    unused                        = unpacker(&inBuf, 6);
-    return inBuf;
+void CAPacketInterModuleLogic::unpack() {
+    mLatchEnable = mCAP->unpacker(1);
+    mLogic = mCAP->unpacker(7);
+    mCAP->flushPacket();
+    CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
+                "Error in CAPacketInterModuleLogic::unpack()");
+
 }
 
-const uint8* CAPacket::unpackActivate(const uint8* inBuf, PacketActivate* oPacket)
-{
-    oPacket->active = (inBuf++)[0];
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackLog(const uint8* inBuf, PacketLog* oPacket, char* oBuf)
-{
-    oPacket->log_string = oBuf;
-    do
-    {
-        *(oBuf++) = (inBuf++)[0];
-    } while (oBuf[-1] != 0);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackCamState(const uint8* inBuf, PacketCamState* oPacket)
-{
-    oPacket->cam_multiplier = (inBuf++)[0];
-    oPacket->cam0_focus     = unpacker(&inBuf, 1);
-    oPacket->cam0_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam1_focus     = unpacker(&inBuf, 1);
-    oPacket->cam1_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam2_focus     = unpacker(&inBuf, 1);
-    oPacket->cam2_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam3_focus     = unpacker(&inBuf, 1);
-    oPacket->cam3_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam4_focus     = unpacker(&inBuf, 1);
-    oPacket->cam4_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam5_focus     = unpacker(&inBuf, 1);
-    oPacket->cam5_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam6_focus     = unpacker(&inBuf, 1);
-    oPacket->cam6_shutter   = unpacker(&inBuf, 1);
-    oPacket->cam7_focus     = unpacker(&inBuf, 1);
-    oPacket->cam7_shutter   = unpacker(&inBuf, 1);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackCamSettings(const uint8* inBuf, PacketCamSettings* oPacket)
-{
-    uint8 unused;
-
-    oPacket->cam_port_number             = unpacker(&inBuf, 5);
-    oPacket->mode                        = unpacker(&inBuf, 2);
-    oPacket->delay_hours                 = unpacker(&inBuf, 10);
-    oPacket->delay_minutes               = unpacker(&inBuf, 6);
-    oPacket->delay_seconds               = unpacker(&inBuf, 6);
-    oPacket->delay_milliseconds          = unpacker(&inBuf, 10);
-    oPacket->delay_microseconds          = unpacker(&inBuf, 10);
-    oPacket->duration_hours              = unpacker(&inBuf, 10);
-    oPacket->duration_minutes            = unpacker(&inBuf, 6);
-    oPacket->duration_seconds            = unpacker(&inBuf, 6);
-    oPacket->duration_milliseconds       = unpacker(&inBuf, 10);
-    oPacket->duration_microseconds       = unpacker(&inBuf, 10);
-    oPacket->sequencer0                  = unpacker(&inBuf, 1);
-    oPacket->sequencer1                  = unpacker(&inBuf, 1);
-    oPacket->sequencer2                  = unpacker(&inBuf, 1);
-    oPacket->sequencer3                  = unpacker(&inBuf, 1);
-    oPacket->sequencer4                  = unpacker(&inBuf, 1);
-    oPacket->sequencer5                  = unpacker(&inBuf, 1);
-    oPacket->sequencer6                  = unpacker(&inBuf, 1);
-    oPacket->sequencer7                  = unpacker(&inBuf, 1);
-    oPacket->apply_intervalometer        = unpacker(&inBuf, 1);
-    oPacket->smart_preview               = unpacker(&inBuf, 6);
-    oPacket->mirror_lockup_enable        = unpacker(&inBuf, 1);
-    oPacket->mirror_lockup_minutes       = unpacker(&inBuf, 6);
-    oPacket->mirror_lockup_seconds       = unpacker(&inBuf, 6);
-    oPacket->mirror_lockup_milliseconds  = unpacker(&inBuf, 10);
-    unused                               = unpacker(&inBuf, 7);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackIntervalometer(const uint8* inBuf, PacketIntervalometer* oPacket)
-{
-    uint8 unused;
-
-    oPacket->start_hours           = unpacker(&inBuf, 10);
-    oPacket->start_minutes         = unpacker(&inBuf, 6);
-    oPacket->start_seconds         = unpacker(&inBuf, 6);
-    oPacket->start_milliseconds    = unpacker(&inBuf, 10);
-    oPacket->start_microseconds    = unpacker(&inBuf, 10);
-    oPacket->interval_hours        = unpacker(&inBuf, 10);
-    oPacket->interval_minutes      = unpacker(&inBuf, 6);
-    oPacket->interval_seconds      = unpacker(&inBuf, 6);
-    oPacket->interval_milliseconds = unpacker(&inBuf, 10);
-    oPacket->interval_microseconds = unpacker(&inBuf, 10);
-    oPacket->repeats               = unpacker(&inBuf, 16);
-    unused                         = unpacker(&inBuf, 4);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackInterModuleLogic(const uint8* inBuf, PacketInterModuleLogic* oPacket)
-{
-    uint8 unused;
-    
-    oPacket->enable_latch = unpacker(&inBuf, 1);
-    oPacket->logic        = unpacker(&inBuf, 4);
-    unused                = unpacker(&inBuf, 3);
-    return inBuf;
-}
-
-const uint8* CAPacket::unpackControlFlags(const uint8* inBuf, PacketControlFlags* oPacket)
-{
-    uint8 unused;
-    
-    oPacket->enable_slave_mode      = unpacker(&inBuf, 1);
-    oPacket->enable_extra_messages  = unpacker(&inBuf, 1);
-    unused                          = unpacker(&inBuf, 6);
-    return inBuf;
+uint8 CAPacketInterModuleLogic::pack() {
+    uint8 packetSize = 2 + 1;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_INTER_MODULE_LOGIC, 8);
+    mCAP->packer(mLatchEnable, 1);
+    mCAP->packer(mLogic, 7);
+    mCAP->flushPacket();
+    return packetSize;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Pack
+// ControlFlags Packet Class
 ///////////////////////////////////////////////////////////////////////////////
-
-uint8* CAPacket::packTextDynamic(PacketTextDynamic* iPacket, uint8* dst)
-{
-    char* str = iPacket->text_string;
-    uint8 packetSize = 3 + strlen(str) + 1;  // 1 for the null terminator
-    packer(packetSize, &dst, 8);
-    packer(PID_TEXT_DYNAMIC, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    do
-    {
-        *(dst++) = *(str++);
-    } while (dst[-1] != 0);
-    return dst;
+CAPacketControlFlags::CAPacketControlFlags(CAPacket& caPacket) {
+    mSlaveModeEnable = 0;
+    mExtraMessagesEnable = 0;
+    mCAP = &caPacket;
 }
 
-uint8* CAPacket::packButton(PacketButton* iPacket, uint8* dst)
-{
-    uint8 packetSize = 4;
-    packer(packetSize, &dst, 8);
-    packer(PID_BUTTON, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    packer(iPacket->type, &dst, 4);
-    packer(iPacket->value, &dst, 4);
-    return dst;
+void CAPacketControlFlags::set(uint8 slaveModeEnable, uint8 extraMessagesEnable) {
+    mSlaveModeEnable = slaveModeEnable;
+    mExtraMessagesEnable = extraMessagesEnable;
+    CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1), 
+                "Error in CAPacketControlFlags::set()");
+}
+    
+void CAPacketControlFlags::unpack() {
+    mSlaveModeEnable = mCAP->unpacker(1);
+    mExtraMessagesEnable = mCAP->unpacker(1);
+    mCAP->unpacker(6); // Unused
+    mCAP->flushPacket();
+    CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1), 
+                "Error in CAPacketControlFlags::unpack()");
+
 }
 
-uint8* CAPacket::packCheckBox(PacketCheckBox* iPacket, uint8* dst)
-{
-    uint8 packetSize = 4;
-    packer(packetSize, &dst, 8);
-    packer(PID_CHECK_BOX, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    packer(iPacket->value, &dst, 8);
-    return dst;
+uint8 CAPacketControlFlags::pack() {
+    uint8 unused = 0;
+    uint8 packetSize = 2 + 1;
+    mCAP->packer(packetSize, 8);
+    mCAP->packer(PID_CONTROL_FLAGS, 8);
+    mCAP->packer(mSlaveModeEnable, 1);
+    mCAP->packer(mExtraMessagesEnable, 1);
+    mCAP->packer(unused, 6);
+    mCAP->flushPacket();
+    return packetSize;
 }
-
-uint8* CAPacket::packDropSelect(PacketDropSelect* iPacket, uint8* dst)
-{
-    char* str = iPacket->drop_value_string;
-    uint8 packetSize = 4 + strlen(str) + 1;  // 1 for the null terminator
-    packer(packetSize, &dst, 8);
-    packer(PID_DROP_SELECT, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    packer(iPacket->value, &dst, 8);
-    do
-    {
-        *(dst++) = *(str++);
-    } while (dst[-1] != 0);
-    return dst;
-}
-
-uint8* CAPacket::packEditNumber(PacketEditNumber* iPacket, uint8* dst) 
-{
-    uint8 packetSize = 16;
-    packer(packetSize, &dst, 8);
-    packer(PID_EDIT_NUMBER, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    packer(iPacket->digits_before_decimal, &dst, 4);
-    packer(iPacket->digits_after_decimal, &dst, 4);
-    packer(iPacket->min_value, &dst, 32);
-    packer(iPacket->max_value, &dst, 32);
-    packer(iPacket->value, &dst, 32);
-    return dst;
-}
-
-uint8* CAPacket::packTimeBox(PacketTimeBox* iPacket, uint8* dst)
-{
-    uint8 packetSize = 11;
-    packer(packetSize, &dst, 8);
-    packer(PID_TIME_BOX, &dst, 8);
-    packer(iPacket->client_host_id, &dst, 8);
-    packer(iPacket->enable_hours, &dst, 1);
-    packer(iPacket->enable_minutes, &dst, 1);
-    packer(iPacket->enable_seconds, &dst, 1);
-    packer(iPacket->enable_milliseconds, &dst, 1);
-    packer(iPacket->enable_microseconds, &dst, 1);
-    packer(iPacket->enable_nanoseconds, &dst, 1);
-    packer(iPacket->hours, &dst, 10);
-    packer(iPacket->minutes, &dst, 6);
-    packer(iPacket->seconds, &dst, 6);
-    packer(iPacket->milliseconds, &dst, 10);
-    packer(iPacket->microseconds, &dst, 10);
-    packer(iPacket->nanoseconds, &dst, 10);
-    packer(0, &dst, 6); // unused
-    return dst;
-}
-
-uint8* CAPacket::packActivate(PacketActivate* iPacket, uint8* dst)
-{
-    uint8 packetSize = 3;
-    packer(packetSize, &dst, 8);
-    packer(PID_ACTIVATE, &dst, 8);
-    packer(iPacket->active, &dst, 8);
-    return dst;
-}
-
-uint8* CAPacket::packLog(PacketLog* iPacket, uint8* dst)
-{
-    char* str = iPacket->log_string;
-    uint8 packetSize = 2 + strlen(str) + 1;  // 1 for the null terminator
-    packer(packetSize, &dst, 8);
-    packer(PID_LOG, &dst, 8);
-    do
-    {
-        *(dst++) = *(str++);
-    } while (dst[-1] != 0);
-    return dst;
-}
-
-uint8* CAPacket::packCamState(PacketCamState* iPacket, uint8* dst)
-{
-    uint8 packetSize = 5;
-    packer(packetSize, &dst, 8);
-    packer(PID_CAM_STATE, &dst, 8);
-    packer(iPacket->cam_multiplier, &dst, 8);
-    packer(iPacket->cam0_focus, &dst, 1);
-    packer(iPacket->cam0_shutter, &dst, 1);
-    packer(iPacket->cam1_focus, &dst, 1);
-    packer(iPacket->cam1_shutter, &dst, 1);
-    packer(iPacket->cam2_focus, &dst, 1);
-    packer(iPacket->cam2_shutter, &dst, 1);
-    packer(iPacket->cam3_focus, &dst, 1);
-    packer(iPacket->cam3_shutter, &dst, 1);
-    packer(iPacket->cam4_focus, &dst, 1);
-    packer(iPacket->cam4_shutter, &dst, 1);
-    packer(iPacket->cam5_focus, &dst, 1);
-    packer(iPacket->cam5_shutter, &dst, 1);
-    packer(iPacket->cam6_focus, &dst, 1);
-    packer(iPacket->cam6_shutter, &dst, 1);
-    packer(iPacket->cam7_focus, &dst, 1);
-    packer(iPacket->cam7_shutter, &dst, 1);
-    return dst;
-}
-
-uint8* CAPacket::packCamSettings(PacketCamSettings* iPacket, uint8* dst)
-{
-    uint8 packetSize = 19;
-    packer(packetSize, &dst, 8);
-    packer(PID_CAM_SETTINGS, &dst, 8);
-    packer(iPacket->cam_port_number, &dst, 5);
-    packer(iPacket->mode, &dst, 2);
-    packer(iPacket->delay_hours, &dst, 10);
-    packer(iPacket->delay_minutes, &dst, 6);
-    packer(iPacket->delay_seconds, &dst, 6);    
-    packer(iPacket->delay_milliseconds, &dst, 10);
-    packer(iPacket->delay_microseconds, &dst, 10);
-    packer(iPacket->duration_hours, &dst, 10);
-    packer(iPacket->duration_minutes, &dst, 6);
-    packer(iPacket->duration_seconds, &dst, 6);
-    packer(iPacket->duration_milliseconds, &dst, 10);
-    packer(iPacket->duration_microseconds, &dst, 10);
-    packer(iPacket->sequencer0, &dst, 1);
-    packer(iPacket->sequencer1, &dst, 1);
-    packer(iPacket->sequencer2, &dst, 1);
-    packer(iPacket->sequencer3, &dst, 1);
-    packer(iPacket->sequencer4, &dst, 1);
-    packer(iPacket->sequencer5, &dst, 1);
-    packer(iPacket->sequencer6, &dst, 1);
-    packer(iPacket->sequencer7, &dst, 1);
-    packer(iPacket->apply_intervalometer, &dst, 1);
-    packer(iPacket->smart_preview, &dst, 6);
-    packer(iPacket->mirror_lockup_enable, &dst, 1);
-    packer(iPacket->mirror_lockup_minutes, &dst, 6);
-    packer(iPacket->mirror_lockup_seconds, &dst, 6);
-    packer(iPacket->mirror_lockup_milliseconds, &dst, 10);
-    packer(0, &dst, 7); // unused
-    return dst;
-}
-
-uint8* CAPacket::packIntervalometer(PacketIntervalometer* iPacket, uint8* dst)
-{
-    uint8 packetSize = 15;
-    packer(packetSize, &dst, 8);
-    packer(PID_INTERVALOMETER, &dst, 8);
-    packer(iPacket->start_hours, &dst, 10);
-    packer(iPacket->start_minutes, &dst, 6);
-    packer(iPacket->start_seconds, &dst, 6);
-    packer(iPacket->start_milliseconds, &dst, 10);
-    packer(iPacket->start_microseconds, &dst, 10);
-    packer(iPacket->interval_hours, &dst, 10);
-    packer(iPacket->interval_minutes, &dst, 6);
-    packer(iPacket->interval_seconds, &dst, 6);
-    packer(iPacket->interval_milliseconds, &dst, 10);
-    packer(iPacket->interval_microseconds, &dst, 10);
-    packer(iPacket->repeats, &dst, 16);
-    packer(0, &dst, 4);  // unused
-    return dst;
-}
-
-uint8* CAPacket::packInterModuleLogic(PacketInterModuleLogic* iPacket, uint8* dst)
-{
-    uint8 packetSize = 3;
-    packer(packetSize, &dst, 8);
-    packer(PID_INTER_MODULE_LOGIC, &dst, 8);
-    packer(iPacket->enable_latch, &dst, 1);
-    packer(iPacket->logic, &dst, 4);
-    packer(0, &dst, 3);
-    return dst;
-}
-
-uint8* CAPacket::packControlFlags(PacketControlFlags* iPacket, uint8* dst)
-{
-    uint8 packetSize = 3;
-    packer(packetSize, &dst, 8);
-    packer(PID_CONTROL_FLAGS, &dst, 8);
-    packer(iPacket->enable_slave_mode, &dst, 1);
-    packer(iPacket->enable_extra_messages, &dst, 1);
-    packer(0, &dst, 6);
-    return dst;
-}
-
-*/
 

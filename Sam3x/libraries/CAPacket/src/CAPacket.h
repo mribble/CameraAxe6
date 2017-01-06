@@ -29,26 +29,47 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  CAPacket - This class handles converting from variables the app uses to a packed byte stream sent over the
+//                  network.  This class manages the data buffer for either packing or unpacking modes.  Packing
+//                  means converting from variables to the byte buffer.  Unpacking is converting from the byte
+//                  buffer to variables.  There is one class per packet type and each of these classes has a 
+//                  reference to this CAPacket class.
+//
+//             unpackSize() and unpackType() are separated from the main unpack, which is implemented in the 
+//                  packet type specific classes, because having this the packet size and packet type early is
+//                  useful in the code that uses these classes.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CAPacket
 {
 public:
     CAPacket(uint8 state, uint8 *buf, uint16 bufSize);
-    uint8 unpackSize();
-    uint8 unpackType();
-    uint32 unpacker(uint8 unpackBits);
-    void unpackerString(String& str);
-    void packer(uint32 val, uint8 packBits);
-    void packerString(const char* src);
-    void flushPacket();
+    uint8 unpackSize();                                 // Unpacks the size of the packet
+    uint8 unpackType();                                 // Unpacks the type of the packet
+    uint32 unpacker(uint8 unpackBits);                  // Unpacks 1..32 bits from the byte stream
+    void unpackerString(String& str);                   // Unpacks a null terminated string from the byte stream
+    void packer(uint32 val, uint8 packBits);            // Packs 1..32 bits into the byte stream
+    void packerString(const char* src);                 // Packs a null terminated string into the byte stream
+    void flushPacket();                                 // This just does some validation
 
 private:    
-    uint8 mBitsUsed;
-    uint8 mBitsVal;
-    uint16 mBytesUsed;
-    uint8 mState;
-    uint8* mBuf;
-    uint16 mBufSize;
+    uint8 mBitsUsed;        // Bits of an uncompleted byte (pack or unpack) used in the byte stream
+    uint8 mBitsVal;         // Value of the unused bits
+    uint16 mBytesUsed;      // Number of bytes used in the pack or unpack stream
+    uint8 mState;           // State of the class (prevents invalid use like unpacking from a pack buffer)
+    uint8* mBuf;            // The byte stream
+    uint16 mBufSize;        // Size of the byte stream
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Below are many classes.  One for each packet type.
+//   * All these classes have a constructor that attaches a reference of CAPacket to this class.
+//   * All these classes have get*() methods to access private data members.
+//   * All these classes have a set() method to set all the private data members.
+//   * All these classes have an unpack() method to do the unpacking (not including packet size or type)
+//   * All these classes have a pack() method to do the packing (including the packet size and type)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class CAPacketMenuHeader {
 public:
@@ -400,125 +421,32 @@ private:
     uint16 mRepeats;
 };
 
-/*
-typedef struct {
-    uint8 client_host_id;
-    uint8 mod_attribute    : 4;
-    uint8 value            : 4;
-} PacketCondStart;
+class CAPacketInterModuleLogic {
+public:
+    CAPacketInterModuleLogic(CAPacket& caPacket);
+    uint8 getLatchEnable() {return mLatchEnable;};
+    uint8 getLogic() {return mLogic;};
+    void set(uint8 latchEnable, uint8 logic);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mLatchEnable;
+    uint8 mLogic;
+};
 
-typedef struct {
-    uint8 client_host_id;
-    uint8 digits_before_decimal : 4;
-    uint8 digits_after_decimal  : 4;
-    uint32 min_value;
-    uint32 max_value;
-    uint32 value;
-} PacketEditNumber;
-
-typedef struct {
-    uint8 client_host_id;
-    uint8 enable_hours         : 1;
-    uint8 enable_minutes       : 1;
-    uint8 enable_seconds       : 1;
-    uint8 enable_milliseconds  : 1;
-    uint8 enable_microseconds  : 1;
-    uint8 enable_nanoseconds   : 1;
-    uint8 unused0              : 2;
-    uint16 hours               : 10;
-    uint16 minutes             : 6;
-    uint16 seconds             : 6;
-    uint16 milliseconds        : 10;
-    uint16 microseconds;       // 10
-    uint16 nanoseconds;        // 10
-} PacketTimeBox;
-
-typedef struct {
-    uint8 active;
-} PacketActivate;
-
-typedef struct {
-    char* log_string;
-} PacketLog;
-
-typedef struct {
-    uint8 cam_multiplier;
-    uint8 cam0_focus    : 1;
-    uint8 cam0_shutter  : 1;
-    uint8 cam1_focus    : 1;
-    uint8 cam1_shutter  : 1;
-    uint8 cam2_focus    : 1;
-    uint8 cam2_shutter  : 1;
-    uint8 cam3_focus    : 1;
-    uint8 cam3_shutter  : 1;
-    uint8 cam4_focus    : 1;
-    uint8 cam4_shutter  : 1;
-    uint8 cam5_focus    : 1;
-    uint8 cam5_shutter  : 1;
-    uint8 cam6_focus    : 1;
-    uint8 cam6_shutter  : 1;
-    uint8 cam7_focus    : 1;
-    uint8 cam7_shutter  : 1;
-} PacketCamState;
-
-typedef struct {
-    uint32 cam_port_number   : 5;
-    uint32 mode              : 2;
-    uint32 delay_hours       : 10;
-    uint32 delay_minutes     : 6;
-    uint32 delay_seconds     : 6;
-    uint32 unused0           : 3;
-    uint32 delay_milliseconds : 10;
-    uint32 delay_microseconds : 10;
-    uint32 duration_hours     : 10;
-    uint32 unused1            : 2;
-    uint32 duration_minutes      : 6;
-    uint32 duration_seconds      : 6;
-    uint32 duration_milliseconds : 10;
-    uint32 duration_microseconds : 10;
-    uint32 sequencer0             : 1;
-    uint32 sequencer1             : 1;
-    uint32 sequencer2             : 1;
-    uint32 sequencer3             : 1;
-    uint32 sequencer4             : 1;
-    uint32 sequencer5             : 1;
-    uint32 sequencer6             : 1;
-    uint32 sequencer7             : 1;
-    uint32 unused2                : 4;
-    uint32 apply_intervalometer   : 1;
-    uint32 smart_preview          : 6;
-    uint32 mirror_lockup_enable   : 1;
-    uint32 mirror_lockup_minutes  : 6;
-    uint32 mirror_lockup_seconds  : 6;
-    uint16 mirror_lockup_milliseconds; //10
-} PacketCamSettings;
-
-typedef struct {
-    uint16 start_hours             : 10;
-    uint16 start_minutes           : 6;
-    uint16 start_seconds           : 6;
-    uint16 start_milliseconds      : 10;
-    uint16 start_microseconds;     // 10
-    uint16 interval_hours          : 10;
-    uint16 interval_minutes        : 6;
-    uint16 interval_seconds        : 6;
-    uint16 interval_milliseconds   : 10;
-    uint16 interval_microseconds;  // 10
-    uint16 repeats;
-} PacketIntervalometer;
-
-enum interModuleLogic {IML_OR, IML_AND, IML_OR_AND_OR, IML_AND_OR_AND};
-typedef struct {
-    uint8  enable_latch : 1;
-    uint8  logic        : 4;
-    uint8  unused       : 3;
-} PacketInterModuleLogic;
-
-typedef struct {
-    uint8 enable_slave_mode     : 1;
-    uint8 enable_extra_messages : 1;
-    uint8 unused                : 6;
-} PacketControlFlags;
-*/
+class CAPacketControlFlags {
+public:
+    CAPacketControlFlags(CAPacket& caPacket);
+    uint8 getSlaveModeEnable() {return mSlaveModeEnable;};
+    uint8 getExtraMessagesEnable() {return mExtraMessagesEnable;};
+    void set(uint8 slaveModeEnabe, uint8 extraMessagesEnable);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mSlaveModeEnable;
+    uint8 mExtraMessagesEnable;
+};
 
 #endif // __CAPACKET_H__
