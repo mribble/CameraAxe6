@@ -298,4 +298,27 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * CondEnd Packet Class
+     **********************************************************************************************/
+    public class CondEnd {
+
+        public CondEnd() {}
+
+        public void set() {
+            Log.e("CA6", "CondEnd::set() never needs to be called");
+        }
+
+        public void unpack() {
+            Log.e("CA6", "CondEnd::set() never needs to be called");
+        }
+
+        public int pack() {
+            int packetSize = 2;
+            packer(packetSize, 8);
+            packer(PID_COND_END, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }

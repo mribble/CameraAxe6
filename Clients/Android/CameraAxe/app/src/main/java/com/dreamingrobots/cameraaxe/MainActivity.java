@@ -155,6 +155,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - COND_START test failed");
             }
         }
+        {   // CondEnd Packet Test
+            CAPacket.CondEnd pack1 = pack0.new CondEnd();                       // Update per type
+            CAPacket.CondEnd unpack1 = unpack0.new CondEnd();                   // Update per type
+            //pack1.set();                                                      // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            //unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_COND_END ) {                       // Update per type
+                Log.e("CA6", "Packet Test Error - COND_END test failed");
+            }
+        }
 
     }
 }
