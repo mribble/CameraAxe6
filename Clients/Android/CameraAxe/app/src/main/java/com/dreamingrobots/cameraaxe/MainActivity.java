@@ -168,6 +168,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - COND_END test failed");
             }
         }
+        {   // TextStatic Packet Test
+            CAPacket.TextStatic pack1 = pack0.new TextStatic();                 // Update per type
+            CAPacket.TextStatic unpack1 = unpack0.new TextStatic();             // Update per type
+            pack1.set("static");                                                // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_TEXT_STATIC ||                     // Update per type
+                    unpack1.getText().equals("static") != true) {
+                Log.e("CA6", "Packet Test Error - TEXT_STATIC test failed");
+            }
+        }
+        {   // TextDynamic Packet Test
+            CAPacket.TextDynamic pack1 = pack0.new TextDynamic();               // Update per type
+            CAPacket.TextDynamic unpack1 = unpack0.new TextDynamic();           // Update per type
+            pack1.set(245, "Dynamic");                                          // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_TEXT_DYNAMIC ||                    // Update per type
+                    unpack1.getClientHostId() != 245 ||
+                    unpack1.getText().equals("Dynamic") != true) {
+                Log.e("CA6", "Packet Test Error - TEXT_DYNAMIC test failed");
+            }
+        }
 
     }
 }

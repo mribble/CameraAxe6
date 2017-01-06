@@ -321,4 +321,75 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * TextStatic Packet Class
+     **********************************************************************************************/
+    public class TextStatic {
+
+        private StringBuilder mText;
+
+        public TextStatic() {
+            mText = new StringBuilder();
+        }
+
+        public String getText() {return mText.toString();}
+
+        public void set(String menuName) {
+            mText.setLength(0);
+            mText.append(menuName);
+        }
+
+        public void unpack() {
+            unpackerString(mText);
+            flushPacket();
+        }
+
+        public int pack() {
+            int len = mText.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + len;
+            packer(packetSize, 8);
+            packer(PID_TEXT_STATIC, 8);
+            packerString(mText.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * TextDynamic Packet Class
+     **********************************************************************************************/
+    public class TextDynamic {
+
+        private int mClientHostId;
+        private StringBuilder mText;
+
+        public TextDynamic() {
+            mText = new StringBuilder();
+        }
+
+        public int getClientHostId() {return mClientHostId;}
+        public String getText() {return mText.toString();}
+
+        public void set(int clientHostId, String menuName) {
+            mClientHostId = clientHostId;
+            mText.setLength(0);
+            mText.append(menuName);
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            unpackerString(mText);
+            flushPacket();
+        }
+
+        public int pack() {
+            int len = mText.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + 1 + len;
+            packer(packetSize, 8);
+            packer(PID_TEXT_DYNAMIC, 8);
+            packer(mClientHostId, 8);
+            packerString(mText.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
 }
