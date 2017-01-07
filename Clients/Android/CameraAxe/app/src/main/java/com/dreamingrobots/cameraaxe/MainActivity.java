@@ -197,6 +197,37 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - TEXT_DYNAMIC test failed");
             }
         }
-
+        {   // Button Packet Test
+            CAPacket.Button pack1 = pack0.new Button();                         // Update per type
+            CAPacket.Button unpack1 = unpack0.new Button();                     // Update per type
+            pack1.set(23, 1, 1, "Button1");                                     // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_BUTTON ||                          // Update per type
+                    unpack1.getClientHostId() != 23 ||
+                    unpack1.getType() != 1 ||
+                    unpack1.getValue() != 1 ||
+                    unpack1.getText().equals("Button1") != true) {
+                Log.e("CA6", "Packet Test Error - BUTTON test failed");
+            }
+        }
+        {   // CheckBox Packet Test
+            CAPacket.CheckBox pack1 = pack0.new CheckBox();                     // Update per type
+            CAPacket.CheckBox unpack1 = unpack0.new CheckBox();                 // Update per type
+            pack1.set(234, 1);                                                  // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_CHECK_BOX ||                       // Update per type
+                    unpack1.getClientHostId() != 234 ||
+                    unpack1.getValue() != 1 ) {
+                Log.e("CA6", "Packet Test Error - CHECK_BOX test failed");
+            }
+        }
     }
 }

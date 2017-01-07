@@ -392,4 +392,93 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * Button Packet Class
+     **********************************************************************************************/
+    public class Button {
+
+        private int mClientHostId;
+        private int mType;
+        private int mValue;
+        private StringBuilder mText;
+
+        public Button() {
+            mText = new StringBuilder();
+        }
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getType() {return mType;}
+        public int getValue() {return mValue;}
+        public String getText() {return mText.toString();}
+
+        public void set(int clientHostId, int type, int value, String menuName) {
+            mClientHostId = clientHostId;
+            mType = type;
+            mValue = value;
+            mText.setLength(0);
+            mText.append(menuName);
+            CA_ASSERT((mType <= 1) && (mValue <= 1),
+                    "Error in CAPacketButton::set()");
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mType = (int)unpacker(4);
+            mValue = (int)unpacker(4);
+            unpackerString(mText);
+            flushPacket();
+            CA_ASSERT((mType <= 1) && (mValue <= 1),
+                    "Error in CAPacketButton::unpack()");
+
+        }
+
+        public int pack() {
+            int len = mText.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + 2 + len;
+            packer(packetSize, 8);
+            packer(PID_BUTTON, 8);
+            packer(mClientHostId, 8);
+            packer(mType, 4);
+            packer(mValue, 4);
+            packerString(mText.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * CheckBox Packet Class
+     **********************************************************************************************/
+    public class CheckBox {
+
+        private int mClientHostId;
+        private int mValue;
+
+        public CheckBox() {}
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getValue() {return mValue;}
+
+        public void set(int clientHostId, int value) {
+            mClientHostId = clientHostId;
+            mValue = value;
+            CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::set()");
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mValue = (int)unpacker(8);
+            flushPacket();
+            CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::unpack()");
+        }
+
+        public int pack() {
+            int packetSize = 2 + 2;
+            packer(packetSize, 8);
+            packer(PID_CHECK_BOX, 8);
+            packer(mClientHostId, 8);
+            packer(mValue, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }
