@@ -481,4 +481,47 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * DropSelect Packet Class
+     **********************************************************************************************/
+    public class DropSelect {
+
+        private int mClientHostId;
+        private int mValue;
+        private StringBuilder mText;
+
+        public DropSelect() {
+            mText = new StringBuilder();
+        }
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getValue() {return mValue;}
+        public String getText() {return mText.toString();}
+
+        public void set(int clientHostId, int value, String menuName) {
+            mClientHostId = clientHostId;
+            mValue = value;
+            mText.setLength(0);
+            mText.append(menuName);
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mValue = (int)unpacker(8);
+            unpackerString(mText);
+            flushPacket();
+        }
+
+        public int pack() {
+            int len = mText.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + 2 + len;
+            packer(packetSize, 8);
+            packer(PID_DROP_SELECT, 8);
+            packer(mClientHostId, 8);
+            packer(mValue, 8);
+            packerString(mText.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
 }

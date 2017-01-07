@@ -229,5 +229,22 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - CHECK_BOX test failed");
             }
         }
+        {   // DropSelect Packet Test
+            CAPacket.DropSelect pack1 = pack0.new DropSelect();                 // Update per type
+            CAPacket.DropSelect unpack1 = unpack0.new DropSelect();             // Update per type
+            pack1.set(7, 1, "no|yes");                                         // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_DROP_SELECT ||                     // Update per type
+                    unpack1.getClientHostId() != 7 ||
+                    unpack1.getValue() != 1 ||
+                    unpack1.getText().equals("no|yes") != true) {
+                Log.e("CA6", "Packet Test Error - DROP_SELECT test failed");
+            }
+        }
+
     }
 }
