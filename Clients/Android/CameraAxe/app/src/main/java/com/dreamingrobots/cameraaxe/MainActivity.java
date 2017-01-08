@@ -245,6 +245,24 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - DROP_SELECT test failed");
             }
         }
-
+        {   // EditNumber Packet Test
+            CAPacket.EditNumber pack1 = pack0.new EditNumber();                 // Update per type
+            CAPacket.EditNumber unpack1 = unpack0.new EditNumber();             // Update per type
+            pack1.set(32, 2, 6, 0, 99999999, 12345678);                          // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_EDIT_NUMBER ||                     // Update per type
+                    unpack1.getClientHostId() != 32 ||
+                    unpack1.getDigitsBeforeDecimal() != 2 ||
+                    unpack1.getDigitsAfterDecimal() != 6 ||
+                    unpack1.getMinValue() != 0 ||
+                    unpack1.getmMaxValue() != 99999999 ||
+                    unpack1.getValue() != 12345678) {
+                Log.e("CA6", "Packet Test Error - EDIT_NUMBER test failed");
+            }
+        }
     }
 }

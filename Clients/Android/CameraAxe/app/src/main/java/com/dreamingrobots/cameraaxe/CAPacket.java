@@ -524,4 +524,67 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * EditNumber Packet Class
+     **********************************************************************************************/
+    public class EditNumber {
+
+        private int mClientHostId;
+        private int mDigitsBeforeDecimal;
+        private int mDigitsAfterDecimal;
+        private long mMinValue;
+        private long mMaxValue;
+        private long mValue;
+
+        public EditNumber() {}
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;}
+        public int getDigitsAfterDecimal() {return mDigitsAfterDecimal;}
+        public long getMinValue() {return mMinValue;}
+        public long getmMaxValue() {return mMaxValue;}
+        public long getValue() {return mValue;}
+
+        public void set(int clientHostId, int digitsBeforeDecimal, int digitsAfterDecimal,
+                        long minValue, long maxValue, long value) {
+            mClientHostId = clientHostId;
+            mDigitsBeforeDecimal = digitsBeforeDecimal;
+            mDigitsAfterDecimal = digitsAfterDecimal;
+            mMinValue = minValue;
+            mMaxValue = maxValue;
+            mValue = value;
+            CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
+                            (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
+                            (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                            "Error in CAPacketEditNumber::set()");
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mDigitsBeforeDecimal = (int)unpacker(4);
+            mDigitsAfterDecimal = (int)unpacker(4);
+            mMinValue = (long)unpacker(32);
+            mMaxValue = (long)unpacker(32);
+            mValue = (long)unpacker(32);
+            flushPacket();
+            CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
+                            (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
+                            (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                            "Error in CAPacketEditNumber::unpack()");
+        }
+
+        public int pack() {
+            int packetSize = 2 + 14;
+            packer(packetSize, 8);
+            packer(PID_EDIT_NUMBER, 8);
+            packer(mClientHostId, 8);
+            packer(mDigitsBeforeDecimal, 4);
+            packer(mDigitsAfterDecimal, 4);
+            packer(mMinValue, 32);
+            packer(mMaxValue, 32);
+            packer(mValue, 32);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }
