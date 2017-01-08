@@ -399,5 +399,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - INTERVALOMETER test failed");
             }
         }
+        {   // InterModuleLogic Packet Test
+            CAPacket.InterModuleLogic pack1 = pack0.new InterModuleLogic();     // Update per type
+            CAPacket.InterModuleLogic unpack1 = unpack0.new InterModuleLogic(); // Update per type
+            pack1.set(1, 2);                                                    // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_INTER_MODULE_LOGIC ||              // Update per type
+                    unpack1.getLatchEnable() != 1 ||
+                    unpack1.getLogic() != 2) {
+                Log.e("CA6", "Packet Test Error - INTER_MODULE_LOGIC test failed");
+            }
+        }
+        {   // ControlFlags Packet Test
+            CAPacket.ControlFlags pack1 = pack0.new ControlFlags();             // Update per type
+            CAPacket.ControlFlags unpack1 = unpack0.new ControlFlags();         // Update per type
+            pack1.set(1, 1);                                                    // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_CONTROL_FLAGS ||                   // Update per type
+                    unpack1.getSlaveModeEnable() != 1 ||
+                    unpack1.getExtraMessagesEnable() != 1) {
+                Log.e("CA6", "Packet Test Error - CONTROL_FLAGS test failed");
+            }
+        }
     }
 }

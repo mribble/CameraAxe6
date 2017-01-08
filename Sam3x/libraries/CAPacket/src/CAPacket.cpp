@@ -860,7 +860,6 @@ void CAPacketInterModuleLogic::unpack() {
     mCAP->flushPacket();
     CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
                 "Error in CAPacketInterModuleLogic::unpack()");
-
 }
 
 uint8 CAPacketInterModuleLogic::pack() {

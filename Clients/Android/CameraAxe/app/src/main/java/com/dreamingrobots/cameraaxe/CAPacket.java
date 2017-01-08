@@ -1037,4 +1037,83 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * InterModuleLogic Packet Class
+     **********************************************************************************************/
+    public class InterModuleLogic {
+
+        private int mLatchEnable;
+        private int mLogic;
+
+        public InterModuleLogic() {}
+
+        public int getLatchEnable() {return mLatchEnable;}
+        public int getLogic() {return mLogic;}
+
+        public void set(int latchEnable, int logic) {
+            mLatchEnable = latchEnable;
+            mLogic = logic;
+            CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3),
+                        "Error in InterModuleLogic::set()");
+        }
+
+        public void unpack() {
+            mLatchEnable = (int)unpacker(1);
+            mLogic =  (int)unpacker(7);
+            flushPacket();
+            CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3),
+                        "Error in InterModuleLogic::unpack()");
+        }
+
+        public int pack() {
+            int packetSize = 2 + 1;
+            packer(packetSize, 8);
+            packer(PID_INTER_MODULE_LOGIC, 8);
+            packer(mLatchEnable, 1);
+            packer(mLogic, 7);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * InterModuleLogic Packet Class
+     **********************************************************************************************/
+    public class ControlFlags {
+
+        private int mSlaveModeEnable;
+        private int mExtraMessagesEnable;
+
+        public ControlFlags() {}
+
+        public int getSlaveModeEnable() {return mSlaveModeEnable;}
+        public int getExtraMessagesEnable() {return mExtraMessagesEnable;}
+
+        public void set(int slaveModeEnable, int extraMessagesEnable) {
+            mSlaveModeEnable = slaveModeEnable;
+            mExtraMessagesEnable = extraMessagesEnable;
+            CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1),
+                    "Error in CAPacketControlFlags::set()");
+        }
+
+        public void unpack() {
+            mSlaveModeEnable = (int)unpacker(1);
+            mExtraMessagesEnable =  (int)unpacker(1);
+            unpacker(6); // Unused
+            flushPacket();
+            CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1),
+                    "Error in CAPacketControlFlags::unpack()");
+        }
+
+        public int pack() {
+            int unused = 0;
+            int packetSize = 2 + 1;
+            packer(packetSize, 8);
+            packer(PID_CONTROL_FLAGS, 8);
+            packer(mSlaveModeEnable, 1);
+            packer(mExtraMessagesEnable, 1);
+            packer(unused, 6);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }
