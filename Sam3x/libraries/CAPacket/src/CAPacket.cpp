@@ -488,7 +488,7 @@ void CAPacketTimeBox::set(uint8 clientHostId, uint8 enableMask, uint16 hours, ui
     mMilliseconds = milliseconds;
     mMicroseconds = microseconds;
     mNanoseconds = nanoseconds;
-    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+    CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
                 (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
                 "Error in CAPacketTimeBox::set()");
 }
@@ -504,7 +504,7 @@ void CAPacketTimeBox::unpack() {
     mNanoseconds = mCAP->unpacker(10);
     mCAP->unpacker(6); // Unused
     mCAP->flushPacket();
-    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+    CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
                 (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
                 "Error in CAPacketTimeBox::set()");
 }

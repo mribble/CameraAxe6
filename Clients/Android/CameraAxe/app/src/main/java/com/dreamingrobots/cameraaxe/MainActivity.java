@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         {   // DropSelect Packet Test
             CAPacket.DropSelect pack1 = pack0.new DropSelect();                 // Update per type
             CAPacket.DropSelect unpack1 = unpack0.new DropSelect();             // Update per type
-            pack1.set(7, 1, "no|yes");                                         // Update per type
+            pack1.set(7, 1, "no|yes");                                          // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         {   // EditNumber Packet Test
             CAPacket.EditNumber pack1 = pack0.new EditNumber();                 // Update per type
             CAPacket.EditNumber unpack1 = unpack0.new EditNumber();             // Update per type
-            pack1.set(32, 2, 6, 0, 99999999, 12345678);                          // Update per type
+            pack1.set(32, 2, 6, 0, 99999999, 12345678);                         // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -262,6 +262,27 @@ public class MainActivity extends AppCompatActivity {
                     unpack1.getmMaxValue() != 99999999 ||
                     unpack1.getValue() != 12345678) {
                 Log.e("CA6", "Packet Test Error - EDIT_NUMBER test failed");
+            }
+        }
+        {   // TimeBox Packet Test
+            CAPacket.TimeBox pack1 = pack0.new TimeBox();                       // Update per type
+            CAPacket.TimeBox unpack1 = unpack0.new TimeBox();                   // Update per type
+            pack1.set(17, 0x3F, 999, 59, 58, 998, 997, 996);                    // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_TIME_BOX ||                        // Update per type
+                    unpack1.getClientHostId() != 17 ||
+                    unpack1.getEnableMask() != 0x3F ||
+                    unpack1.getHours() != 999 ||
+                    unpack1.getMinutes() != 59 ||
+                    unpack1.getSeconds() != 58 ||
+                    unpack1.getMilliseconds() != 998 ||
+                    unpack1.getMicroseconds() != 997 ||
+                    unpack1.getNanoseconds() != 996) {
+                Log.e("CA6", "Packet Test Error - TIME_BOX test failed");
             }
         }
     }

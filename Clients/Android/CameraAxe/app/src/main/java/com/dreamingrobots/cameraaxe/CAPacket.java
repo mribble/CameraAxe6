@@ -556,7 +556,7 @@ public class CAPacket {
             CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
                             (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
                             (mMinValue <= 99999999) && (mMaxValue <= 99999999),
-                            "Error in CAPacketEditNumber::set()");
+                    "Error in CAPacketEditNumber::set()");
         }
 
         public void unpack() {
@@ -570,7 +570,7 @@ public class CAPacket {
             CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
                             (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
                             (mMinValue <= 99999999) && (mMaxValue <= 99999999),
-                            "Error in CAPacketEditNumber::unpack()");
+                    "Error in CAPacketEditNumber::unpack()");
         }
 
         public int pack() {
@@ -583,6 +583,80 @@ public class CAPacket {
             packer(mMinValue, 32);
             packer(mMaxValue, 32);
             packer(mValue, 32);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * TimeBox Packet Class
+     **********************************************************************************************/
+    public class TimeBox {
+
+        private int mClientHostId;
+        private int mEnableMask;
+        private int mHours;
+        private int mMinutes;
+        private int mSeconds;
+        private int mMilliseconds;
+        private int mMicroseconds;
+        private int mNanoseconds;
+
+        public TimeBox() {}
+
+        public int getClientHostId() {return mClientHostId;}
+        public int getEnableMask() {return mEnableMask;}
+        public int getHours() {return mHours;}
+        public int getMinutes() {return mMinutes;}
+        public int getSeconds() {return mSeconds;}
+        public int getMilliseconds() {return mMilliseconds;}
+        public int getMicroseconds() {return mMicroseconds;}
+        public int getNanoseconds() {return mNanoseconds;}
+
+        public void set(int clientHostId, int enableMask, int hours, int minutes, int seconds,
+                        int milliseconds, int microseconds, int nanoseconds ) {
+            mClientHostId = clientHostId;
+            mEnableMask = enableMask;
+            mHours = hours;
+            mMinutes = minutes;
+            mSeconds = seconds;
+            mMilliseconds = milliseconds;
+            mMicroseconds = microseconds;
+            mNanoseconds = nanoseconds;
+            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+                            (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
+                            "Error in CAPacketTimeBox::set()");
+        }
+
+        public void unpack() {
+            mClientHostId = (int)unpacker(8);
+            mEnableMask = (int)unpacker(6);
+            mHours = (int)unpacker(10);
+            mMinutes = (int)unpacker(6);
+            mSeconds = (int)unpacker(6);
+            mMilliseconds = (int)unpacker(10);
+            mMicroseconds = (int)unpacker(10);
+            mNanoseconds = (int)unpacker(10);
+            unpacker(6); // Unused
+            flushPacket();
+            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
+                            (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
+                            "Error in CAPacketTimeBox::set()");
+        }
+
+        public int pack() {
+            int unused = 0;
+            int packetSize = 2 + 9;
+            packer(packetSize, 8);
+            packer(PID_TIME_BOX, 8);
+            packer(mClientHostId, 8);
+            packer(mEnableMask, 6);
+            packer(mHours, 10);
+            packer(mMinutes, 6);
+            packer(mSeconds, 6);
+            packer(mMilliseconds, 10);
+            packer(mMicroseconds, 10);
+            packer(mNanoseconds, 10);
+            packer(unused, 6);
             flushPacket();
             return packetSize;
         }
