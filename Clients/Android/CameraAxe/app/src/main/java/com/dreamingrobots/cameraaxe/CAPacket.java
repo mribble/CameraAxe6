@@ -748,4 +748,200 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * CamState Packet Class
+     **********************************************************************************************/
+    public class CamState {
+        public static final short CAM0  = 0x01;
+        public static final short CAM1  = 0x02;
+        public static final short CAM2  = 0x04;
+        public static final short CAM3  = 0x08;
+        public static final short CAM4  = 0x10;
+        public static final short CAM5  = 0x20;
+        public static final short CAM6  = 0x40;
+        public static final short CAM7  = 0x80;
+
+        private int mMultiplier;
+        private int mFocus;
+        private int mShutter;
+
+        public CamState() {}
+
+        public int getMultiplier() {return mMultiplier;}
+        public int getFocus() {return mFocus;}
+        public int getmShutter() {return mShutter;}
+
+        public void set(int multiplier, int focus, int shutter) {
+            mMultiplier = multiplier;
+            mFocus = focus;
+            mShutter = shutter;
+        }
+
+        public void unpack() {
+            mMultiplier = (int)unpacker(8);
+            mFocus =  (int)unpacker(8);
+            mShutter = (int)unpacker(8);
+            flushPacket();
+        }
+
+        public int pack() {
+            int packetSize = 2 + 3;
+            packer(packetSize, 8);
+            packer(PID_CAM_STATE, 8);
+            packer(mMultiplier, 8);
+            packer(mFocus, 8);
+            packer(mShutter, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * CamSettings Packet Class
+     **********************************************************************************************/
+    public class CamSettings {
+        public static final short SEQ0  = 0x01;
+        public static final short SEQ1  = 0x02;
+        public static final short SEQ2  = 0x04;
+        public static final short SEQ3  = 0x08;
+        public static final short SEQ4  = 0x10;
+        public static final short SEQ5  = 0x20;
+        public static final short SEQ6  = 0x40;
+        public static final short SEQ7  = 0x80;
+
+        private int mCamPortNumber;
+        private int mMode;
+        private int mDelayHours;
+        private int mDelayMinutes;
+        private int mDelaySeconds;
+        private int mDelayMilliseconds;
+        private int mDelayMicroseconds;
+        private int mDurationHours;
+        private int mDurationMinutes;
+        private int mDurationSeconds;
+        private int mDurationMilliseconds;
+        private int mDurationMicroseconds;
+        private int mSequencer;
+        private int mApplyIntervalometer;
+        private int mSmartPreview;
+        private int mMirrorLockupEnable;
+        private int mMirrorLockupMinutes;
+        private int mMirrorLockupSeconds;
+        private int mMirrorLockupMilliseconds;
+
+        public CamSettings() {}
+
+        public int  getCamPortNumber() {return mCamPortNumber;}
+        public int  getMode() {return mMode;}
+        public int  getDelayHours() {return mDelayHours;}
+        public int  getDelayMinutes() {return mDelayMinutes;}
+        public int  getDelaySeconds() {return mDelaySeconds;}
+        public int  getDelayMilliseconds() {return mDelayMilliseconds;}
+        public int  getDelayMicroseconds() {return mDelayMicroseconds;}
+        public int  getDurationHours() {return mDurationHours;}
+        public int  getDurationMinutes() {return mDurationMinutes;}
+        public int  getDurationSeconds() {return mDurationSeconds;}
+        public int  getDurationMilliseconds() {return mDurationMilliseconds;}
+        public int  getDurationMicroseconds() {return mDurationMicroseconds;}
+        public int  getSequencer() {return mSequencer;}
+        public int  getApplyIntervalometer() {return mApplyIntervalometer;}
+        public int  getSmartPreview() {return mSmartPreview;}
+        public int  getMirrorLockupEnable() {return mMirrorLockupEnable;}
+        public int  getMirrorLockupMinutes() {return mMirrorLockupMinutes;}
+        public int  getMirrorLockupSeconds() {return mMirrorLockupSeconds;}
+        public int  getMirrorLockupMilliseconds() {return mMirrorLockupMilliseconds;}
+
+        public void set(int camPortNumber, int mode, int delayHours, int delayMinutes,
+                        int delaySeconds, int delayMilliseconds, int delayMicroseconds,
+                        int durationHours, int durationMinutes, int durationSeconds,
+                        int durationMilliseconds, int durationMicroseconds, int sequencer,
+                        int applyIntervalometer, int smartPreview, int mirrorLockupEnable,
+                        int mirrorLockupMinutes, int mirrorLockupSeconds, int mirrorLockupMilliseconds) {
+            mCamPortNumber = camPortNumber;
+            mMode = mode;
+            mDelayHours = delayHours;
+            mDelayMinutes = delayMinutes;
+            mDelaySeconds = delaySeconds;
+            mDelayMilliseconds = delayMilliseconds;
+            mDelayMicroseconds = delayMicroseconds;
+            mDurationHours = durationHours;
+            mDurationMinutes = durationMinutes;
+            mDurationSeconds = durationSeconds;
+            mDurationMilliseconds = durationMilliseconds;
+            mDurationMicroseconds = durationMicroseconds;
+            mSequencer = sequencer;
+            mApplyIntervalometer = applyIntervalometer;
+            mSmartPreview = smartPreview;
+            mMirrorLockupEnable = mirrorLockupEnable;
+            mMirrorLockupMinutes = mirrorLockupMinutes;
+            mMirrorLockupSeconds = mirrorLockupSeconds;
+            mMirrorLockupMilliseconds = mirrorLockupMilliseconds;
+            CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
+                            (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
+                            (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                            (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
+                            (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                            (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                            "Error in CamSettings::set()");
+        }
+
+        public void unpack() {
+            mCamPortNumber = (int)unpacker(8);
+            mMode = (int)unpacker(2);
+            mDelayHours = (int)unpacker(10);
+            mDelayMinutes = (int)unpacker(6);
+            mDelaySeconds = (int)unpacker(6);
+            mDelayMilliseconds = (int)unpacker(10);
+            mDelayMicroseconds = (int)unpacker(10);
+            mDurationHours = (int)unpacker(10);
+            mDurationMinutes = (int)unpacker(6);
+            mDurationSeconds = (int)unpacker(6);
+            mDurationMilliseconds = (int)unpacker(10);
+            mDurationMicroseconds = (int)unpacker(10);
+            mSequencer = (int)unpacker(8);
+            mApplyIntervalometer = (int)unpacker(1);
+            mSmartPreview = (int)unpacker(6);
+            mMirrorLockupEnable = (int)unpacker(1);
+            mMirrorLockupMinutes = (int)unpacker(6);
+            mMirrorLockupSeconds = (int)unpacker(6);
+            mMirrorLockupMilliseconds = (int)unpacker(10);
+            unpacker(4); // Unused
+            flushPacket();
+            CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
+                            (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
+                            (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                            (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
+                            (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                            (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                    "Error in CamSettings::unpack()");
+        }
+
+        public int pack() {
+            int unused = 0;
+            int packetSize = 2 + 17;
+            packer(packetSize, 8);
+            packer(PID_CAM_SETTINGS, 8);
+            packer(mCamPortNumber, 8);
+            packer(mMode, 2);
+            packer(mDelayHours, 10);
+            packer(mDelayMinutes, 6);
+            packer(mDelaySeconds, 6);
+            packer(mDelayMilliseconds, 10);
+            packer(mDelayMicroseconds, 10);
+            packer(mDurationHours, 10);
+            packer(mDurationMinutes, 6);
+            packer(mDurationSeconds, 6);
+            packer(mDurationMilliseconds, 10);
+            packer(mDurationMicroseconds, 10);
+            packer(mSequencer, 8);
+            packer(mApplyIntervalometer, 1);
+            packer(mSmartPreview, 6);
+            packer(mMirrorLockupEnable, 1);
+            packer(mMirrorLockupMinutes, 6);
+            packer(mMirrorLockupSeconds, 6);
+            packer(mMirrorLockupMilliseconds, 10);
+            packer(unused, 4);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }

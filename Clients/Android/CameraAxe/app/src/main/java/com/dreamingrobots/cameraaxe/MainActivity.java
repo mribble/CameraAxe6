@@ -326,5 +326,54 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - LOG test failed");
             }
         }
+        {   // CamState Packet Test
+            CAPacket.CamState pack1 = pack0.new CamState();                     // Update per type
+            CAPacket.CamState unpack1 = unpack0.new CamState();                 // Update per type
+            pack1.set(3, 0xbe, 0xef);                                           // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_CAM_STATE ||                       // Update per type
+                    unpack1.getMultiplier() != 3 ||
+                    unpack1.getFocus() != 0xbe ||
+                    unpack1.getmShutter() != 0xef) {
+                Log.e("CA6", "Packet Test Error - CAM_STATE test failed");
+            }
+        }
+        {   // CamSettings Packet Test
+            CAPacket.CamSettings pack1 = pack0.new CamSettings();               // Update per type
+            CAPacket.CamSettings unpack1 = unpack0.new CamSettings();           // Update per type
+            pack1.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994,
+                        0xbe, 1, 5, 1, 40, 41, 900);                            // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_CAM_SETTINGS ||                    // Update per type
+                    unpack1.getCamPortNumber() != 50 ||
+                    unpack1.getMode() != 1 ||
+                    unpack1.getDelayHours() != 999 ||
+                    unpack1.getDelayMinutes() != 59 ||
+                    unpack1.getDelaySeconds() != 58 ||
+                    unpack1.getDelayMilliseconds() != 998 ||
+                    unpack1.getDelayMicroseconds() != 997 ||
+                    unpack1.getDurationHours() != 996 ||
+                    unpack1.getDurationMinutes() != 57 ||
+                    unpack1.getDurationSeconds() != 56 ||
+                    unpack1.getDurationMilliseconds() != 995 ||
+                    unpack1.getDurationMicroseconds() != 994 ||
+                    unpack1.getSequencer() != 0xbe ||
+                    unpack1.getApplyIntervalometer() != 1 ||
+                    unpack1.getSmartPreview() != 5 ||
+                    unpack1.getMirrorLockupEnable() != 1 ||
+                    unpack1.getMirrorLockupMinutes() != 40 ||
+                    unpack1.getMirrorLockupSeconds() != 41 ||
+                    unpack1.getMirrorLockupMilliseconds() != 900) {
+                Log.e("CA6", "Packet Test Error - CAM_SETTINGS test failed");
+            }
+        }
     }
 }
