@@ -456,9 +456,9 @@ void caTestPackets()
     } 
   }
   
-  { // LOG Packet Test
-    CAPacketLog unpack11(unpack10);               // Update per type
-    CAPacketLog pack11(pack10);                   // Update per type
+  { // LOGGER Packet Test
+    CAPacketLogger unpack11(unpack10);               // Update per type
+    CAPacketLogger pack11(pack10);                   // Update per type
     
     pack11.set("This is a log");                  // Update per type
     uint8 packSize = pack11.pack();
@@ -466,7 +466,7 @@ void caTestPackets()
     uint8 packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
-          packType != PID_LOG ||                  // Update per type
+          packType != PID_LOGGER ||               // Update per type
           strcmp(unpack11.getLog().c_str(), "This is a log") != 0) {
       CAU::log("ERROR - LOG test failed\n");
     } 

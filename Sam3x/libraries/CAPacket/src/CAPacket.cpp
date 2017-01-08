@@ -551,7 +551,7 @@ uint8 CAPacketScriptEnd::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// EditNumber Packet Class
+// Activate Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketActivate::CAPacketActivate(CAPacket& caPacket) {
     mActivate = 0;
@@ -579,26 +579,26 @@ uint8 CAPacketActivate::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Log Packet Class
+// Logger Packet Class
 ///////////////////////////////////////////////////////////////////////////////
-CAPacketLog::CAPacketLog(CAPacket& caPacket) {
+CAPacketLogger::CAPacketLogger(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketLog::set(String log) {
+void CAPacketLogger::set(String log) {
     mLog = log;
 }
 
-void CAPacketLog::unpack() {
+void CAPacketLogger::unpack() {
     mCAP->unpackerString(mLog);
     mCAP->flushPacket();
 }
 
-uint8 CAPacketLog::pack() {
+uint8 CAPacketLogger::pack() {
     uint8 len = mLog.length() + 1;  // 1 for the null terminator
     uint8 packetSize = 2 + len;
     mCAP->packer(packetSize, 8);
-    mCAP->packer(PID_LOG, 8);
+    mCAP->packer(PID_LOGGER, 8);
     mCAP->packerString(mLog.c_str());
     mCAP->flushPacket();
     return packetSize;

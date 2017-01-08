@@ -31,7 +31,7 @@ public class CAPacket {
     protected static final short PID_TIME_BOX           = 12;
     protected static final short PID_SCRIPT_END         = 13;
     protected static final short PID_ACTIVATE           = 14;
-    protected static final short PID_LOG                = 15;
+    protected static final short PID_LOGGER             = 15;
     protected static final short PID_CAM_STATE          = 16;
     protected static final short PID_CAM_SETTINGS       = 17;
     protected static final short PID_INTERVALOMETER     = 18;
@@ -212,7 +212,7 @@ public class CAPacket {
         }
 
         public void unpack() {
-            Log.e("CA6", "NewRow::set() never needs to be called");
+            Log.e("CA6", "NewRow::unpack() never needs to be called");
         }
 
         public int pack() {
@@ -310,7 +310,7 @@ public class CAPacket {
         }
 
         public void unpack() {
-            Log.e("CA6", "CondEnd::set() never needs to be called");
+            Log.e("CA6", "CondEnd::unpack() never needs to be called");
         }
 
         public int pack() {
@@ -657,6 +657,93 @@ public class CAPacket {
             packer(mMicroseconds, 10);
             packer(mNanoseconds, 10);
             packer(unused, 6);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * ScriptEnd Packet Class
+     **********************************************************************************************/
+    public class ScriptEnd {
+
+        public ScriptEnd() {}
+
+        public void set() {
+            Log.e("CA6", "ScriptEnd::set() never needs to be called");
+        }
+
+        public void unpack() {
+            Log.e("CA6", "ScriptEnd::unpack() never needs to be called");
+        }
+
+        public int pack() {
+            int packetSize = 2;
+            packer(packetSize, 8);
+            packer(PID_SCRIPT_END, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * Activate Packet Class
+     **********************************************************************************************/
+    public class Activate {
+
+        private int mActivate;
+
+        public Activate() {}
+
+        public int getActivate() {return mActivate;}
+
+        public void set(int activate) {
+            mActivate = activate;
+            CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::set()");
+        }
+
+        public void unpack() {
+            mActivate = (int)unpacker(8);
+            flushPacket();
+            CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::unpack()");
+        }
+
+        public int pack() {
+            int packetSize = 2 + 1;
+            packer(packetSize, 8);
+            packer(PID_ACTIVATE, 8);
+            packer(mActivate, 8);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * Log Packet Class
+     **********************************************************************************************/
+    public class Logger {
+
+        private StringBuilder mLog;
+
+        public Logger() {
+            mLog = new StringBuilder();
+        }
+
+        public String getLog() {return mLog.toString();}
+
+        public void set(String log) {
+            mLog.setLength(0);
+            mLog.append(log);
+        }
+
+        public void unpack() {
+            unpackerString(mLog);
+            flushPacket();
+        }
+
+        public int pack() {
+            int len = mLog.length() + 1;  // 1 for the null terminator
+            int packetSize = 2 + len;
+            packer(packetSize, 8);
+            packer(PID_LOGGER, 8);
+            packerString(mLog.toString());
             flushPacket();
             return packetSize;
         }

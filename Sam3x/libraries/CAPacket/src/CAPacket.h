@@ -18,7 +18,7 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_TIME_BOX            = 12,
                 PID_SCRIPT_END          = 13,
                 PID_ACTIVATE            = 14,
-                PID_LOG                 = 15,
+                PID_LOGGER              = 15,
                 PID_CAM_STATE           = 16,
                 PID_CAM_SETTINGS        = 17,
                 PID_INTERVALOMETER      = 18,
@@ -289,9 +289,9 @@ private:
     uint8 mActivate;
 };
 
-class CAPacketLog {
+class CAPacketLogger {
 public:
-    CAPacketLog(CAPacket& caPacket);
+    CAPacketLogger(CAPacket& caPacket);
     String getLog() {return mLog;};
     void set(String log);
     void unpack();

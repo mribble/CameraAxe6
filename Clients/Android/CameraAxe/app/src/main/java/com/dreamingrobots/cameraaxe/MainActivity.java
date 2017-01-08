@@ -285,5 +285,46 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - TIME_BOX test failed");
             }
         }
+        {   // ScriptEnd Packet Test
+            CAPacket.ScriptEnd pack1 = pack0.new ScriptEnd();                   // Update per type
+            CAPacket.ScriptEnd unpack1 = unpack0.new ScriptEnd();               // Update per type
+            //pack1.set();                                                      // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            //unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_SCRIPT_END ) {                     // Update per type
+                Log.e("CA6", "Packet Test Error - SCRIPT_END test failed");
+            }
+        }
+        {   // Activate Packet Test
+            CAPacket.Activate pack1 = pack0.new Activate();                     // Update per type
+            CAPacket.Activate unpack1 = unpack0.new Activate();                 // Update per type
+            pack1.set(1);                                                       // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_ACTIVATE ||                        // Update per type
+                    unpack1.getActivate() != 1) {
+                Log.e("CA6", "Packet Test Error - ACTIVATE test failed");
+            }
+        }
+        {   // Logger Packet Test
+            CAPacket.Logger pack1 = pack0.new Logger();                         // Update per type
+            CAPacket.Logger unpack1 = unpack0.new Logger();                     // Update per type
+            pack1.set("Log123");                                                // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_LOGGER ||                             // Update per type
+                    unpack1.getLog().equals("Log123") != true) {
+                Log.e("CA6", "Packet Test Error - LOG test failed");
+            }
+        }
     }
 }
