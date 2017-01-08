@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_NEW_ROW ) {                        // Update per type
+                    packType != CAPacket.PID_NEW_ROW) {                        // Update per type
                 Log.e("CA6", "Packet Test Error - NEW_ROW test failed");
             }
         }
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_NEW_CELL ||                        // Update per type
                     unpack1.getColumnPercentage() != 100 ||
-                    unpack1.getJustification() != 1 ) {
+                    unpack1.getJustification() != 1) {
                 Log.e("CA6", "Packet Test Error - NEW_CELL test failed");
             }
         }
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     packType != CAPacket.PID_COND_START ||                      // Update per type
                     unpack1.getClientHostId() != 2 ||
                     unpack1.getModAttribute() != 1 ||
-                    unpack1.getValue() != 1 ) {
+                    unpack1.getValue() != 1) {
                 Log.e("CA6", "Packet Test Error - COND_START test failed");
             }
         }
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_COND_END ) {                       // Update per type
+                    packType != CAPacket.PID_COND_END) {                       // Update per type
                 Log.e("CA6", "Packet Test Error - COND_END test failed");
             }
         }
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_CHECK_BOX ||                       // Update per type
                     unpack1.getClientHostId() != 234 ||
-                    unpack1.getValue() != 1 ) {
+                    unpack1.getValue() != 1) {
                 Log.e("CA6", "Packet Test Error - CHECK_BOX test failed");
             }
         }
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_SCRIPT_END ) {                     // Update per type
+                    packType != CAPacket.PID_SCRIPT_END) {                     // Update per type
                 Log.e("CA6", "Packet Test Error - SCRIPT_END test failed");
             }
         }
@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
             CAPacket.CamSettings pack1 = pack0.new CamSettings();               // Update per type
             CAPacket.CamSettings unpack1 = unpack0.new CamSettings();           // Update per type
             pack1.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994,
-                        0xbe, 1, 5, 1, 40, 41, 900);                            // Update per type
+                    0xbe, 1, 5, 1, 40, 41, 900);                            // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -373,6 +373,30 @@ public class MainActivity extends AppCompatActivity {
                     unpack1.getMirrorLockupSeconds() != 41 ||
                     unpack1.getMirrorLockupMilliseconds() != 900) {
                 Log.e("CA6", "Packet Test Error - CAM_SETTINGS test failed");
+            }
+        }
+        {   // Intervalometer Packet Test
+            CAPacket.Intervalometer pack1 = pack0.new Intervalometer();     // Update per type
+            CAPacket.Intervalometer unpack1 = unpack0.new Intervalometer(); // Update per type
+            pack1.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999);  // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_INTERVALOMETER ||              // Update per type
+                    unpack1.getStartHours() != 900 ||
+                    unpack1.getStartMinutes() != 50 ||
+                    unpack1.getStartSeconds() != 51 ||
+                    unpack1.getStartMilliseconds() != 901 ||
+                    unpack1.getStartMicroseconds() != 902 ||
+                    unpack1.getIntervalHours() != 903 ||
+                    unpack1.getIntervalMinutes() != 52 ||
+                    unpack1.getIntervalSeconds() != 53 ||
+                    unpack1.getIntervalMilliseconds() != 904 ||
+                    unpack1.getIntervalMicroseconds() != 905 ||
+                    unpack1.getRepeats() != 9999) {
+                Log.e("CA6", "Packet Test Error - INTERVALOMETER test failed");
             }
         }
     }

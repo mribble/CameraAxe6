@@ -944,4 +944,97 @@ public class CAPacket {
             return packetSize;
         }
     }
+    /***********************************************************************************************
+     * Intervalometer Packet Class
+     **********************************************************************************************/
+    public class Intervalometer {
+
+        private int mStartHours;
+        private int mStartMinutes;
+        private int mStartSeconds;
+        private int mStartMilliseconds;
+        private int mStartMicroseconds;
+        private int mIntervalHours;
+        private int mIntervalMinutes;
+        private int mIntervalSeconds;
+        private int mIntervalMilliseconds;
+        private int mIntervalMicroseconds;
+        private int mRepeats;
+
+        public Intervalometer() {}
+
+        public int getStartHours() {return mStartHours;}
+        public int getStartMinutes() {return mStartMinutes;}
+        public int getStartSeconds() {return mStartSeconds;}
+        public int getStartMilliseconds() {return mStartMilliseconds;}
+        public int getStartMicroseconds() {return mStartMicroseconds;}
+        public int getIntervalHours() {return mIntervalHours;}
+        public int getIntervalMinutes() {return mIntervalMinutes;}
+        public int getIntervalSeconds() {return mIntervalSeconds;}
+        public int getIntervalMilliseconds() {return mIntervalMilliseconds;}
+        public int getIntervalMicroseconds() {return mIntervalMicroseconds;}
+        public int getRepeats() {return mRepeats;}
+
+        public void set(int startHours, int startMinutes, int startSeconds, int startMilliseconds,
+                        int startMicroseconds, int intervalHours, int intervalMinutes,
+                        int intervalSeconds, int intervalMilliseconds, int intervalMicroseconds,
+                        int repeats) {
+            mStartHours = startHours;
+            mStartMinutes = startMinutes;
+            mStartSeconds = startSeconds;
+            mStartMilliseconds = startMilliseconds;
+            mStartMicroseconds = startMicroseconds;
+            mIntervalHours = intervalHours;
+            mIntervalMinutes = intervalMinutes;
+            mIntervalSeconds = intervalSeconds;
+            mIntervalMilliseconds = intervalMilliseconds;
+            mIntervalMicroseconds = intervalMicroseconds;
+            mRepeats = repeats;
+            CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
+                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
+                    (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                    (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::set()");       }
+
+        public void unpack() {
+            mStartHours = (int)unpacker(10);
+            mStartMinutes = (int)unpacker(6);
+            mStartSeconds = (int)unpacker(6);
+            mStartMilliseconds = (int)unpacker(10);
+            mStartMicroseconds = (int)unpacker(10);
+            mIntervalHours = (int)unpacker(10);
+            mIntervalMinutes = (int)unpacker(6);
+            mIntervalSeconds = (int)unpacker(6);
+            mIntervalMilliseconds = (int)unpacker(10);
+            mIntervalMicroseconds = (int)unpacker(10);
+            mRepeats = (int)unpacker(16);
+            unpacker(4);  // Unused
+            flushPacket();
+            CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
+                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
+                    (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                    (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::unpack()");
+        }
+
+        public int pack() {
+
+            int unused=0;
+            int packetSize = 2 + 13;
+            packer(packetSize, 8);
+            packer(PID_INTERVALOMETER, 8);
+            packer(mStartHours, 10);
+            packer(mStartMinutes, 6);
+            packer(mStartSeconds, 6);
+            packer(mStartMilliseconds, 10);
+            packer(mStartMicroseconds, 10);
+            packer(mIntervalHours, 10);
+            packer(mIntervalMinutes, 6);
+            packer(mIntervalSeconds, 6);
+            packer(mIntervalMilliseconds, 10);
+            packer(mIntervalMicroseconds, 10);
+            packer(mRepeats, 16);
+            packer(unused, 4);
+            flushPacket();
+            return packetSize;
+        }
+    }
 }
