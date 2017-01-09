@@ -18,4 +18,4 @@ private:
     uint8 m_size;
 };
 
-#endif __CASERIAL_H__
+#endif // __CASERIAL_H__
