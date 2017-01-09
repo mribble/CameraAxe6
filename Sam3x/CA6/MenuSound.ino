@@ -32,7 +32,6 @@ void MenuSoundInit(uint8 modId)
   g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate = 0;
   g_ctx.modules[modId].modStore.menuSoundData.ppSound = CAU::getModulePin(modId, 0);
   CAU::pinMode(g_ctx.modules[modId].modStore.menuSoundData.ppSound, ANALOG_INPUT);
-  
 }
 
 // Sends packets to host

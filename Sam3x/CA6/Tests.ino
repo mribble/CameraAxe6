@@ -1,7 +1,7 @@
 void caRunTests()
 {
   //caTestTickTimer();
-  caTestPackets();
+  //caTestPackets();
   //caTestBlinkLed();
   //caTestPerf();
   //caTestModulePorts();
