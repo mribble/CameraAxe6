@@ -71,23 +71,19 @@ void setup() {
 }
 
 void loop() {
-  int packetSize = gUDP.parsePacket();
+  int udpSize = gUDP.parsePacket();
+  int serialSize = Serial.available();
   char buf[256];
 
-  if(packetSize) {
-    Serial.printf("%s -- ", gUDP.remoteIP().toString().c_str());
-    
-    // Read the packet into packetBufffer
-    int len = gUDP.read(buf, 255);
-    if (len > 0) {
-        buf[len] = 0; // string null termination
-    }
-    Serial.printf("%s\n", buf);
+  if (udpSize > 0) {
+    udpSize = gUDP.readBytes(buf, 256);
+    Serial.write(buf, udpSize);
+  }
 
-    // send a reply over udp
+  if (serialSize > 0) {
+    serialSize = Serial.readBytes(buf, 256);
     gUDP.beginPacket(gUDP.remoteIP(), gUDP.remotePort());
-    gUDP.write("Message from Esp8266");
+    gUDP.write(buf, serialSize);
     gUDP.endPacket();
   }
-  delay(10);
 }

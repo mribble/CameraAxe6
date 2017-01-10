@@ -10,14 +10,6 @@
 // Initialize the context
 Context g_ctx;
 
-/*void isolateRFD() {
-  hwPortPin pp;
-  pp = CAU::getOnboardDevicePin(BLE_TX_PIN);
-  CAU::pinMode(pp, INPUT);
-  pp = CAU::getOnboardDevicePin(BLE_RX_PIN);
-  CAU::pinMode(pp, INPUT);
-}*/
-
 void setup() {
   // This could be bigger, just want to know if the size starts getting really large
   CA_ASSERT(sizeof(ModStore) < 1024, "modStore is getting large.");
@@ -32,6 +24,12 @@ void setup() {
 
 void loop() {
   //caRunTests();
+
+  //todo - finish and cleanup
+  uint8 buf[128];
+  if (g_ctx.bleSerial.read(buf, buf+1, buf+2)) {
+    CAU::log("%d %d %s\n", buf[0], buf[1], &buf[2]);
+  }
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
