@@ -39,17 +39,21 @@ public class UdpClientThread extends Thread {
             mSocket = new DatagramSocket();
             mAddress = InetAddress.getByName(mIpAddr);
 
+            // Build the packet
+            byte[] data = new byte[256];
+            CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, data, 256);
+            CAPacket.Logger pack1 = pack0.new Logger();
+            pack1.set("Start");
+            int packSize = pack1.pack();
+
             // send request
-            String str = "Message from Android.";
-            byte[] buf = str.getBytes("UTF-8");
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, mAddress, mIpPort);
+            DatagramPacket packet = new DatagramPacket(data, packSize, mAddress, mIpPort);
             mSocket.send(packet);
 
-            packet = new DatagramPacket(buf, buf.length);
-
-            mSocket.receive(packet);
-            String receivedData = new String(packet.getData(), 0, packet.getLength());
-            sendUiMessage(receivedData);
+            //packet = new DatagramPacket(data, data.length);
+            //mSocket.receive(packet);
+            //String receivedData = new String(packet.getData(), 0, packet.getLength());
+            //sendUiMessage(receivedData);
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {

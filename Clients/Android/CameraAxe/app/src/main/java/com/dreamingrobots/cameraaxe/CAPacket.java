@@ -1,6 +1,5 @@
 package com.dreamingrobots.cameraaxe;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.nio.charset.Charset;
@@ -39,7 +38,6 @@ public class CAPacket {
     protected static final short PID_CONTROL_FLAGS      = 20;
     protected static final short PID_END_SENTINEL       = 21; // Must be last
 
-    private Context mContext;
     private int mBitsUsed;
     private int mBitsVal;
     private int mBytesUsed;
@@ -47,8 +45,7 @@ public class CAPacket {
     private byte[] mBuf;
     private int mBufSize;
 
-    public CAPacket(Context context, short state, byte[] buf, int bufSize) {
-        mContext = context;
+    public CAPacket(short state, byte[] buf, int bufSize) {
         mState = state;
         mBuf = buf;
         mBufSize = bufSize;

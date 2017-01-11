@@ -18,18 +18,12 @@ void setup() {
   CAU::initializeAnalog();
 
   g_ctx.bleSerial.init(9600);
-
-  //delay(5000); //Give time to connect USB serial
 }
 
 void loop() {
   //caRunTests();
 
-  //todo - finish and cleanup
-  uint8 buf[128];
-  if (g_ctx.bleSerial.read(buf, buf+1, buf+2)) {
-    CAU::log("%d %d %s\n", buf[0], buf[1], &buf[2]);
-  }
+  processEsp8266();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
@@ -51,6 +45,14 @@ void photoModeSetup() {
     if (modId) {
       g_ctx.procTable.funcActiveInit[modId](i);
     }
+  }
+}
+
+void processEsp8266() {
+  //todo - finish and cleanup
+  uint8 buf[128];
+  if (g_ctx.bleSerial.read(buf, buf+1, buf+2)) {
+    CAU::log("%d %d %s\n", buf[0], buf[1], &buf[2]);
   }
 }
 
@@ -135,7 +137,30 @@ uint8 interModuleLogicArbiter() {
 
 
 void cameraFlashHandler() {
-  
+  hwPortPin ppFocus, ppShutter;
+  uint8 i;
+
+  // todo -- For now just trigger all the cameras for 1 second
+
+  for(i=0; i<8; ++i)
+  {
+    ppFocus = CAU::getCameraPin(i, FOCUS);
+    CAU::pinMode(ppFocus, OUTPUT);
+    CAU::digitalWrite(ppFocus, HIGH);
+    ppShutter = CAU::getCameraPin(i, SHUTTER);
+    CAU::pinMode(ppShutter, OUTPUT);
+    CAU::digitalWrite(ppShutter, HIGH);
+  }
+  delay(1000);
+
+  for(i=0; i<8; ++i)
+  {
+    ppFocus = CAU::getCameraPin(i, FOCUS);
+    CAU::digitalWrite(ppFocus, LOW);
+    ppShutter = CAU::getCameraPin(i, SHUTTER);
+    CAU::digitalWrite(ppShutter, LOW);
+  }
+
 }
 
 
