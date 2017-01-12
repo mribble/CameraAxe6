@@ -21,7 +21,7 @@ void logInit(uint32 baud)
 void log(char *fmt, ...)
 {
 #ifdef CA_LOGGING
-    uint8 maxSize = 64;  // Max resulting string size
+    const uint8 maxSize = 128;  // Max resulting string size
     char buf[maxSize];  
     va_list args;
     va_start (args, fmt);

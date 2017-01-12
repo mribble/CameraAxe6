@@ -44,6 +44,7 @@ class CAPacket
 {
 public:
     CAPacket(uint8 state, uint8 *buf, uint16 bufSize);
+    void resetBuffer();                                 // Resets the data buffer back to the start
     uint8 unpackSize();                                 // Unpacks the size of the packet
     uint8 unpackType();                                 // Unpacks the type of the packet
     uint32 unpacker(uint8 unpackBits);                  // Unpacks 1..32 bits from the byte stream
@@ -76,7 +77,7 @@ public:
     CAPacketMenuHeader(CAPacket& caPacket);
     uint8 getMajorVersion() {return mMajorVersion;};
     uint8 getMinorVersion() {return mMinorVersion;};
-    String getMenuName() {return mMenuName;};
+    const char* getMenuName() {return mMenuName.c_str();};
     void set(uint8 majorVersion, uint8 minorVersion, String menuName);
     void unpack();
     uint8 pack();
@@ -140,7 +141,7 @@ private:
 class CAPacketTextStatic {
 public:
     CAPacketTextStatic(CAPacket& caPacket);
-    String getText() {return mText;};
+    const char* getText() {return mText.c_str();};
     void set(String text);
     void unpack();
     uint8 pack();
@@ -153,7 +154,7 @@ class CAPacketTextDynamic {
 public:
     CAPacketTextDynamic(CAPacket& caPacket);
     uint8 getClientHostId() {return mClientHostId;};
-    String getText() {return mText;};
+    const char* getText() {return mText.c_str();};
     void set(uint8 clientHostId, String text);
     void unpack();
     uint8 pack();
@@ -169,7 +170,7 @@ public:
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getType() {return mType;};
     uint8 getValue() {return mValue;};
-    String getText() {return mText;};
+    const char* getText() {return mText.c_str();};
     void set(uint8 clientHostId, uint8 type, uint8 value, String text);
     void unpack();
     uint8 pack();
@@ -200,7 +201,7 @@ public:
     CAPacketDropSelect(CAPacket& caPacket);
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getValue() {return mValue;};
-    String getText() {return mText;};
+    const char* getText() {return mText.c_str();};
     void set(uint8 clientHostId, uint8 value, String text);
     void unpack();
     uint8 pack();
@@ -292,7 +293,7 @@ private:
 class CAPacketLogger {
 public:
     CAPacketLogger(CAPacket& caPacket);
-    String getLog() {return mLog;};
+    const char* getLog() {return mLog.c_str();};
     void set(String log);
     void unpack();
     uint8 pack();

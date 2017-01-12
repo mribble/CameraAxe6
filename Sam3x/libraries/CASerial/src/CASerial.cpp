@@ -19,9 +19,12 @@ void CASerial::init(uint32 baud) {
 #endif
 }
 
-boolean CASerial::read(uint8 *bufSize, uint8 *header, uint8 *data) {
+boolean CASerial::readOnePacket(uint8 *data) {
     boolean ret = CA_FALSE;
     uint8 avaliableBytes = mSerial->available();
+    
+    // To read one packet you need to know the first byte in a packet is the size.  This code assumes that.
+    // The second byte is always the packet type, but this code doesn't need to know that.
     
     if (avaliableBytes) {
         if (mSize == 0) {
@@ -30,9 +33,8 @@ boolean CASerial::read(uint8 *bufSize, uint8 *header, uint8 *data) {
         }
         
         if (avaliableBytes >= mSize-1) {
-            *bufSize = mSize;
-            mSerial->readBytes((char*)header, 1);
-            mSerial->readBytes((char*)data, mSize-2);
+            data[0] = mSize;
+            mSerial->readBytes(data+1, mSize-1);
             mSize = 0;
             ret = CA_TRUE;
         }

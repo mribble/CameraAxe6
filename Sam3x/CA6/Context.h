@@ -28,15 +28,15 @@ struct CtxProcTable
 struct Context {
   // Constructor with initialization list
   Context() : 
-    packer(STATE_PACKER, buf, BUF_SZ),
-    unpacker(STATE_UNPACKER, buf, BUF_SZ),
+    packer(STATE_PACKER, pData, BUF_SZ),
+    unpacker(STATE_UNPACKER, pData, BUF_SZ),
     interModuleLogic(packer),
     camSettings{packer, packer, packer, packer, packer, packer, packer, packer}
     {}
 
   uint8 active = 0;
   
-  uint8 buf[256];
+  uint8 pData[BUF_SZ];
   CAPacket packer;
   CAPacket unpacker;
   CAPacketInterModuleLogic interModuleLogic;

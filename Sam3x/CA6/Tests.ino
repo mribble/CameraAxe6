@@ -155,7 +155,7 @@ void caTestPackets()
         packType != PID_MENU_HEADER ||            // Update per type
         unpack1.getMajorVersion() != 1 ||
         unpack1.getMinorVersion() != 2 ||
-        strcmp(unpack1.getMenuName().c_str(), "UI Test Menu") != 0) {
+        strcmp(unpack1.getMenuName(), "UI Test Menu") != 0) {
       CAU::log("ERROR - MENU_HEADER test failed\n");
     }
   }
@@ -247,7 +247,7 @@ void caTestPackets()
     if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_TEXT_STATIC ||            // Update per type
-        strcmp(unpack1.getText().c_str(), "Static Text") != 0) {
+        strcmp(unpack1.getText(), "Static Text") != 0) {
       CAU::log("ERROR - TEXT_STATIC test failed\n");
     }
   }
@@ -266,7 +266,7 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_TEXT_DYNAMIC ||           // Update per type
         unpack1.getClientHostId() != 0 ||
-        strcmp(unpack1.getText().c_str(), "Dynamic Text") != 0) {
+        strcmp(unpack1.getText(), "Dynamic Text") != 0) {
       CAU::log("ERROR - TEXT_DYNAMIC test failed\n");
     }
   }
@@ -287,7 +287,7 @@ void caTestPackets()
         unpack1.getClientHostId() != 1 ||
         unpack1.getType() != 1 ||
         unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText().c_str(), "Button") != 0) {
+        strcmp(unpack1.getText(), "Button") != 0) {
       CAU::log("ERROR - BUTTON test failed\n");
     }
   }
@@ -326,7 +326,7 @@ void caTestPackets()
         packType != PID_DROP_SELECT ||            // Update per type
         unpack1.getClientHostId() != 3 ||
         unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText().c_str(), "no|yes") != 0) {
+        strcmp(unpack1.getText(), "no|yes") != 0) {
       CAU::log("ERROR - DROP_SELECT test failed\n");
     }
   }
@@ -467,7 +467,7 @@ void caTestPackets()
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_LOGGER ||               // Update per type
-          strcmp(unpack11.getLog().c_str(), "This is a log") != 0) {
+          strcmp(unpack11.getLog(), "This is a log") != 0) {
       CAU::log("ERROR - LOG test failed\n");
     } 
   }

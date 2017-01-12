@@ -23,7 +23,7 @@ void setup() {
 void loop() {
   //caRunTests();
 
-  processEsp8266();
+  processIncomingPackets();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
@@ -45,14 +45,6 @@ void photoModeSetup() {
     if (modId) {
       g_ctx.procTable.funcActiveInit[modId](i);
     }
-  }
-}
-
-void processEsp8266() {
-  //todo - finish and cleanup
-  uint8 buf[128];
-  if (g_ctx.bleSerial.read(buf, buf+1, buf+2)) {
-    CAU::log("%d %d %s\n", buf[0], buf[1], &buf[2]);
   }
 }
 

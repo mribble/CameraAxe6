@@ -11,6 +11,13 @@ CAPacket::CAPacket(uint8 state, uint8 *buf, uint16 bufSize) {
     mBufSize = bufSize;
 }
 
+void CAPacket::resetBuffer() {
+    flushPacket();  // Check for errors
+    mBitsUsed = 0;
+    mBitsVal = 0;
+    mBytesUsed = 0;
+}
+
 uint8 CAPacket::unpackSize() {
     return (uint8)unpacker(8);
 }
