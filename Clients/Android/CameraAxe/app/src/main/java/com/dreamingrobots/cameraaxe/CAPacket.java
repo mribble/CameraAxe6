@@ -29,7 +29,7 @@ public class CAPacket {
     protected static final short PID_EDIT_NUMBER        = 11;
     protected static final short PID_TIME_BOX           = 12;
     protected static final short PID_SCRIPT_END         = 13;
-    protected static final short PID_ACTIVATE           = 14;
+    protected static final short PID_MENU_SELECT        = 14;
     protected static final short PID_LOGGER             = 15;
     protected static final short PID_CAM_STATE          = 16;
     protected static final short PID_CAM_SETTINGS       = 17;
@@ -55,6 +55,13 @@ public class CAPacket {
         if (test == false) {
             Log.e("CA6_ASSERT", str);
         }
+    }
+
+    public void resetBuffer() {
+        flushPacket();  // Check for errors
+        mBitsUsed = 0;
+        mBitsVal = 0;
+        mBytesUsed = 0;
     }
 
     public int unpackSize() {return (int) unpacker(8);}
@@ -682,32 +689,37 @@ public class CAPacket {
         }
     }
     /***********************************************************************************************
-     * Activate Packet Class
+     * MenuSelect Packet Class
      **********************************************************************************************/
-    public class Activate {
+    public class MenuSelect {
 
-        private int mActivate;
+        private int mMode;
+        private int mMenuNumber;
 
-        public Activate() {}
+        public MenuSelect() {}
 
-        public int getActivate() {return mActivate;}
+        public int getMode() {return mMode;}
+        public int getMenuNumber() {return mMenuNumber;}
 
-        public void set(int activate) {
-            mActivate = activate;
-            CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::set()");
+        public void set(int mode, int menuNumber) {
+            mMode = mode;
+            mMenuNumber = menuNumber;
+            CA_ASSERT((mMode <= 1), "Error in MenuSelect::set()");
         }
 
         public void unpack() {
-            mActivate = (int)unpacker(8);
+            mMode = (int)unpacker(8);
+            mMenuNumber = (int)unpacker(8);
             flushPacket();
-            CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::unpack()");
+            CA_ASSERT((mMode <= 1), "Error in MenuSelect::unpack()");
         }
 
         public int pack() {
-            int packetSize = 2 + 1;
+            int packetSize = 2 + 2;
             packer(packetSize, 8);
-            packer(PID_ACTIVATE, 8);
-            packer(mActivate, 8);
+            packer(PID_MENU_SELECT, 8);
+            packer(mMode, 8);
+            packer(mMenuNumber, 8);
             flushPacket();
             return packetSize;
         }

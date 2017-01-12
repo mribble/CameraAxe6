@@ -298,18 +298,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CA6", "Packet Test Error - SCRIPT_END test failed");
             }
         }
-        {   // Activate Packet Test
-            CAPacket.Activate pack1 = pack0.new Activate();                     // Update per type
-            CAPacket.Activate unpack1 = unpack0.new Activate();                 // Update per type
-            pack1.set(1);                                                       // Update per type
+        {   // MenuSelect Packet Test
+            CAPacket.MenuSelect pack1 = pack0.new MenuSelect();                 // Update per type
+            CAPacket.MenuSelect unpack1 = unpack0.new MenuSelect();             // Update per type
+            pack1.set(1, 44);                                                   // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_ACTIVATE ||                        // Update per type
-                    unpack1.getActivate() != 1) {
-                Log.e("CA6", "Packet Test Error - ACTIVATE test failed");
+                    packType != CAPacket.PID_MENU_SELECT ||                     // Update per type
+                    unpack1.getMode() != 1 ||
+                    unpack1.getMenuNumber() != 44) {
+                Log.e("CA6", "Packet Test Error - MENU_SELECT test failed");
             }
         }
         {   // Logger Packet Test

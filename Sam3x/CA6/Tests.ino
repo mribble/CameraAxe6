@@ -441,18 +441,19 @@ void caTestPackets()
   CAPacket pack10(STATE_PACKER, dataA, 256);
 
   { // ACTIVATE Packet Test
-    CAPacketActivate unpack11(unpack10);          // Update per type
-    CAPacketActivate pack11(pack10);              // Update per type
+    CAPacketMenuSelect unpack11(unpack10);        // Update per type
+    CAPacketMenuSelect pack11(pack10);            // Update per type
     
-    pack11.set(1);                                // Update per type
+    pack11.set(1, 23);                            // Update per type
     uint8 packSize = pack11.pack();
     uint8 unpackSize = unpack10.unpackSize();
     uint8 packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
-          packType != PID_ACTIVATE ||             // Update per type
-          unpack11.getActivate() != 1 ) {
-      CAU::log("ERROR - ACTIVATE test failed\n");
+          packType != PID_MENU_SELECT ||          // Update per type
+          unpack11.getMode() != 1 ||
+          unpack11.getMenuNumber() != 23) {
+      CAU::log("ERROR - MENU_SELECT test failed\n");
     } 
   }
   

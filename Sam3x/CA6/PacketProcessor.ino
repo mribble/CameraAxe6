@@ -86,10 +86,10 @@ void processIncomingPackets() {
         CAU::log("%d PID_SCRIPT_END\n", packetSize);
         break;
       }
-      case PID_ACTIVATE: {
-        CAPacketActivate unpack(g_ctx.unpacker);
+      case PID_MENU_SELECT: {
+        CAPacketMenuSelect unpack(g_ctx.unpacker);
         unpack.unpack();
-        CAU::log("%d PID_ACTIVATE - %d\n", packetSize, unpack.getActivate());
+        CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
         break;
       }
       case PID_LOGGER: {

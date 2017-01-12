@@ -17,7 +17,7 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_EDIT_NUMBER         = 11,
                 PID_TIME_BOX            = 12,
                 PID_SCRIPT_END          = 13,
-                PID_ACTIVATE            = 14,
+                PID_MENU_SELECT         = 14,
                 PID_LOGGER              = 15,
                 PID_CAM_STATE           = 16,
                 PID_CAM_SETTINGS        = 17,
@@ -278,16 +278,18 @@ private:
     CAPacket* mCAP;
 };
 
-class CAPacketActivate {
+class CAPacketMenuSelect {
 public:
-    CAPacketActivate(CAPacket& caPacket);
-    uint8 getActivate() {return mActivate;};
-    void set(uint8 activate);
+    CAPacketMenuSelect(CAPacket& caPacket);
+    uint8 getMode() {return mMode;};
+    uint8 getMenuNumber() {return mMenuNumber;};
+    void set(uint8 activate, uint8 menuNumber);
     void unpack();
     uint8 pack();
 private:
     CAPacket* mCAP;
-    uint8 mActivate;
+    uint8 mMode;
+    uint8 mMenuNumber;
 };
 
 class CAPacketLogger {

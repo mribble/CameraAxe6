@@ -558,29 +558,33 @@ uint8 CAPacketScriptEnd::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Activate Packet Class
+// MenuSelect Packet Class
 ///////////////////////////////////////////////////////////////////////////////
-CAPacketActivate::CAPacketActivate(CAPacket& caPacket) {
-    mActivate = 0;
+CAPacketMenuSelect::CAPacketMenuSelect(CAPacket& caPacket) {
+    mMode = 0;
+    mMenuNumber = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketActivate::set(uint8 activate) {
-    mActivate = activate;
-    CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::set()");
+void CAPacketMenuSelect::set(uint8 mode, uint8 menuNumber) {
+    mMode = mode;
+    mMenuNumber = menuNumber;
+    CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::set()");
 }
 
-void CAPacketActivate::unpack() {
-    mActivate = mCAP->unpacker(8);
+void CAPacketMenuSelect::unpack() {
+    mMode = mCAP->unpacker(8);
+    mMenuNumber = mCAP->unpacker(8);
     mCAP->flushPacket();
-    CA_ASSERT((mActivate <= 1), "Error in CAPacketActivate::unpack()");
+    CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::unpack()");
 }
 
-uint8 CAPacketActivate::pack() {
-    uint8 packetSize = 2 + 1;
+uint8 CAPacketMenuSelect::pack() {
+    uint8 packetSize = 2 + 2;
     mCAP->packer(packetSize, 8);
-    mCAP->packer(PID_ACTIVATE, 8);
-    mCAP->packer(mActivate, 8);
+    mCAP->packer(PID_MENU_SELECT, 8);
+    mCAP->packer(mMode, 8);
+    mCAP->packer(mMenuNumber, 8);
     mCAP->flushPacket();
     return packetSize;
 }
