@@ -42,7 +42,7 @@ boolean CASerial::readOnePacket(uint8 *data) {
      return ret;
 }
 
-void CASerial::write(uint8 *data) {
+void CASerial::writeOnePacket(uint8 *data) {
     uint8 val;
     uint8 bufSize = data[0];  // First byte is the size
 

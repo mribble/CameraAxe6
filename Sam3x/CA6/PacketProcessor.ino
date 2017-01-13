@@ -1,5 +1,6 @@
 void processIncomingPackets() {
   uint8* pData = g_ctx.pData;
+
   if (g_ctx.bleSerial.readOnePacket(pData)) {
     uint8 packetSize = g_ctx.unpacker.unpackSize();
     uint8 packetType = g_ctx.unpacker.unpackType();
@@ -90,6 +91,12 @@ void processIncomingPackets() {
         CAPacketMenuSelect unpack(g_ctx.unpacker);
         unpack.unpack();
         CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
+
+        CAPacketLogger loggerPacket(g_ctx.packer);
+        loggerPacket.set("Log from sam3x\n");
+        uint8 packSize = loggerPacket.pack();
+        g_ctx.bleSerial.writeOnePacket(pData);
+        g_ctx.packer.resetBuffer();
         break;
       }
       case PID_LOGGER: {

@@ -73,6 +73,7 @@ void setup() {
 void loop() {
   int udpSize = gUDP.parsePacket();
   int serialSize = Serial.available();
+  static uint8 gPacketSize = 0;
   char buf[256];
 
   if (udpSize > 0) {
@@ -81,9 +82,18 @@ void loop() {
   }
 
   if (serialSize > 0) {
-    serialSize = Serial.readBytes(buf, 256);
-    gUDP.beginPacket(gUDP.remoteIP(), gUDP.remotePort());
-    gUDP.write(buf, serialSize);
-    gUDP.endPacket();
+    
+    if (gPacketSize == 0) {
+      Serial.readBytes(&gPacketSize, 1);
+    }
+
+    if (serialSize >= gPacketSize-1) {
+      buf[0] = gPacketSize;
+      Serial.readBytes(buf+1, gPacketSize-1);
+      gUDP.beginPacket(gUDP.remoteIP(), gUDP.remotePort());
+      gUDP.write(buf, gPacketSize);
+      gUDP.endPacket();
+      gPacketSize = 0;
+    }
   }
 }

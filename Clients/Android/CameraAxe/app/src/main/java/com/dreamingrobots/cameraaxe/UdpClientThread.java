@@ -42,18 +42,20 @@ public class UdpClientThread extends Thread {
             // Build the packet
             byte[] data = new byte[256];
             CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, data, 256);
-            CAPacket.Logger pack1 = pack0.new Logger();
-            pack1.set("Start");
+            //CAPacket.Logger pack1 = pack0.new Logger();
+            //pack1.set("Start");
+            CAPacket.MenuSelect pack1 = pack0.new MenuSelect();
+            pack1.set(1, 1);
             int packSize = pack1.pack();
 
             // send request
             DatagramPacket packet = new DatagramPacket(data, packSize, mAddress, mIpPort);
             mSocket.send(packet);
 
-            //packet = new DatagramPacket(data, data.length);
-            //mSocket.receive(packet);
-            //String receivedData = new String(packet.getData(), 0, packet.getLength());
-            //sendUiMessage(receivedData);
+            packet = new DatagramPacket(data, data.length);
+            mSocket.receive(packet);
+            String receivedData = new String(packet.getData(), 0, packet.getLength());
+            sendUiMessage(receivedData);
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {

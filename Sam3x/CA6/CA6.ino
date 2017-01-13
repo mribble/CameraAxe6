@@ -22,7 +22,6 @@ void setup() {
 
 void loop() {
   //caRunTests();
-
   processIncomingPackets();
 
   if (g_ctx.active) {

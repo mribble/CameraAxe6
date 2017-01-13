@@ -458,8 +458,8 @@ void caTestPackets()
   }
   
   { // LOGGER Packet Test
-    CAPacketLogger unpack11(unpack10);               // Update per type
-    CAPacketLogger pack11(pack10);                   // Update per type
+    CAPacketLogger unpack11(unpack10);            // Update per type
+    CAPacketLogger pack11(pack10);                // Update per type
     
     pack11.set("This is a log");                  // Update per type
     uint8 packSize = pack11.pack();

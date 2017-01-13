@@ -10,7 +10,7 @@ public:
     CASerial() : mSize(0) {};
     void init(uint32 baud);
     boolean readOnePacket(uint8 *data);
-    void write(uint8 *data);
+    void writeOnePacket(uint8 *data);
 
 private:
     HardwareSerial *mSerial;
