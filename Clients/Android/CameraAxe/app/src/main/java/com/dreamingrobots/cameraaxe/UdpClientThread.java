@@ -36,7 +36,7 @@ public class UdpClientThread extends Thread {
         sendUiMessage("...");
 
         try {
-            mSocket = new DatagramSocket();
+            mSocket = new DatagramSocket(mIpPort);
             mAddress = InetAddress.getByName(mIpAddr);
 
             // Build the packet

@@ -10,7 +10,7 @@
 // Is broadcasting to 255.255.255.255 or should I be doing something else?
 // Are the gateway and submask numbers ok?
 
-const unsigned int gPort = 4040;
+uint16 gPort = 4045;
 WiFiUDP gUDP;
 
 // Different wifi connection modes.  One must be enabled.
@@ -74,9 +74,11 @@ void loop() {
   int udpSize = gUDP.parsePacket();
   int serialSize = Serial.available();
   static uint8 gPacketSize = 0;
+  static IPAddress gIp;
   char buf[256];
 
   if (udpSize > 0) {
+    gIp = gUDP.remoteIP();
     udpSize = gUDP.readBytes(buf, 256);
     Serial.write(buf, udpSize);
   }
@@ -90,7 +92,7 @@ void loop() {
     if (serialSize >= gPacketSize-1) {
       buf[0] = gPacketSize;
       Serial.readBytes(buf+1, gPacketSize-1);
-      gUDP.beginPacket(gUDP.remoteIP(), gUDP.remotePort());
+      gUDP.beginPacket(gIp, gPort);
       gUDP.write(buf, gPacketSize);
       gUDP.endPacket();
       gPacketSize = 0;
