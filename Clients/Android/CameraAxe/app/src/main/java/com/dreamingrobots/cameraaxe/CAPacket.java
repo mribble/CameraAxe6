@@ -546,7 +546,7 @@ public class CAPacket {
         public int getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;}
         public int getDigitsAfterDecimal() {return mDigitsAfterDecimal;}
         public long getMinValue() {return mMinValue;}
-        public long getmMaxValue() {return mMaxValue;}
+        public long getMaxValue() {return mMaxValue;}
         public long getValue() {return mValue;}
 
         public void set(int clientHostId, int digitsBeforeDecimal, int digitsAfterDecimal,
@@ -778,7 +778,7 @@ public class CAPacket {
 
         public int getMultiplier() {return mMultiplier;}
         public int getFocus() {return mFocus;}
-        public int getmShutter() {return mShutter;}
+        public int getShutter() {return mShutter;}
 
         public void set(int multiplier, int focus, int shutter) {
             mMultiplier = multiplier;
