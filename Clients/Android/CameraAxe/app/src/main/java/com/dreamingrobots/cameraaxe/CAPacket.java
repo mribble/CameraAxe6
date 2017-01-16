@@ -15,28 +15,28 @@ public class CAPacket {
     public static final short STATE_PACKER = 1;
     public static final short STATE_UNPACKER = 2;
 
-    protected static final short PID_START_SENTINEL     = 0;  // Must be first
-    protected static final short PID_MENU_HEADER        = 1;
-    protected static final short PID_NEW_ROW            = 2;
-    protected static final short PID_NEW_CELL           = 3;
-    protected static final short PID_COND_START         = 4;
-    protected static final short PID_COND_END           = 5;
-    protected static final short PID_TEXT_STATIC        = 6;
-    protected static final short PID_TEXT_DYNAMIC       = 7;
-    protected static final short PID_BUTTON             = 8;
-    protected static final short PID_CHECK_BOX          = 9;
-    protected static final short PID_DROP_SELECT        = 10;
-    protected static final short PID_EDIT_NUMBER        = 11;
-    protected static final short PID_TIME_BOX           = 12;
-    protected static final short PID_SCRIPT_END         = 13;
-    protected static final short PID_MENU_SELECT        = 14;
-    protected static final short PID_LOGGER             = 15;
-    protected static final short PID_CAM_STATE          = 16;
-    protected static final short PID_CAM_SETTINGS       = 17;
-    protected static final short PID_INTERVALOMETER     = 18;
-    protected static final short PID_INTER_MODULE_LOGIC = 19;
-    protected static final short PID_CONTROL_FLAGS      = 20;
-    protected static final short PID_END_SENTINEL       = 21; // Must be last
+    public static final short PID_START_SENTINEL     = 0;  // Must be first
+    public static final short PID_MENU_HEADER        = 1;
+    public static final short PID_NEW_ROW            = 2;
+    public static final short PID_NEW_CELL           = 3;
+    public static final short PID_COND_START         = 4;
+    public static final short PID_COND_END           = 5;
+    public static final short PID_TEXT_STATIC        = 6;
+    public static final short PID_TEXT_DYNAMIC       = 7;
+    public static final short PID_BUTTON             = 8;
+    public static final short PID_CHECK_BOX          = 9;
+    public static final short PID_DROP_SELECT        = 10;
+    public static final short PID_EDIT_NUMBER        = 11;
+    public static final short PID_TIME_BOX           = 12;
+    public static final short PID_SCRIPT_END         = 13;
+    public static final short PID_MENU_SELECT        = 14;
+    public static final short PID_LOGGER             = 15;
+    public static final short PID_CAM_STATE          = 16;
+    public static final short PID_CAM_SETTINGS       = 17;
+    public static final short PID_INTERVALOMETER     = 18;
+    public static final short PID_INTER_MODULE_LOGIC = 19;
+    public static final short PID_CONTROL_FLAGS      = 20;
+    public static final short PID_END_SENTINEL       = 21; // Must be last
 
     private int mBitsUsed;
     private int mBitsVal;

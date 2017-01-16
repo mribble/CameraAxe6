@@ -14,14 +14,20 @@ import java.net.UnknownHostException;
  * Thread that handles reading and writing UDP packets
  */
 public class UdpClientThread extends Thread {
+
+    public enum UdpClientState {SEND, RECEIVE}
+
+    private UdpClientState mState;
     private String mIpAddr;
     private int mIpPort;
-    MainActivity.UdpClientHandler mHandler;
-    DatagramSocket mSocket;
-    InetAddress mAddress;
+    private MainActivity.UdpClientHandler mHandler;
+    private DatagramSocket mSocket;
+    private InetAddress mAddress;
 
-    public UdpClientThread(String addr, int port, MainActivity.UdpClientHandler handler) {
+    public UdpClientThread(UdpClientState state, String addr, int port, MainActivity.UdpClientHandler handler) {
         super();
+
+        mState = state;
         mIpAddr = addr;
         mIpPort = port;
         mHandler = handler;
@@ -41,21 +47,25 @@ public class UdpClientThread extends Thread {
 
             // Build the packet
             byte[] data = new byte[256];
-            CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, data, 256);
-            //CAPacket.Logger pack1 = pack0.new Logger();
-            //pack1.set("Start");
-            CAPacket.MenuSelect pack1 = pack0.new MenuSelect();
-            pack1.set(1, 1);
-            int packSize = pack1.pack();
 
-            // send request
-            DatagramPacket packet = new DatagramPacket(data, packSize, mAddress, mIpPort);
-            mSocket.send(packet);
-
-            packet = new DatagramPacket(data, data.length);
-            mSocket.receive(packet);
-            String receivedData = new String(packet.getData(), 0, packet.getLength());
-            sendUiMessage(receivedData);
+            if (mState == UdpClientThread.UdpClientState.SEND) {
+                // send a packet
+                CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, data, 256);
+                CAPacket.MenuSelect pack1 = pack0.new MenuSelect();
+                pack1.set(1, 1);
+                int packSize = pack1.pack();
+                DatagramPacket packet = new DatagramPacket(data, packSize, mAddress, mIpPort);
+                mSocket.send(packet);
+            }
+            else if (mState == UdpClientThread.UdpClientState.RECEIVE) {
+                while (!Thread.currentThread().isInterrupted()) {
+                    // receive packets
+                    DatagramPacket packet = new DatagramPacket(data, data.length);
+                    mSocket.receive(packet);
+                    String receivedData = new String(packet.getData(), 0, packet.getLength());
+                    sendUiMessage(receivedData);
+                }
+            }
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {

@@ -23,8 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView mReturnedMessage;
 
     // Setup threading for UDP network packets
-    UdpClientHandler mUdpClientHandler;
-    UdpClientThread mUdpClientThread;
+    UdpClientHandler mUdpHandler;
+    UdpClientThread mUdpSendThread;
+    UdpClientThread mUdpReceiveThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +38,25 @@ public class MainActivity extends AppCompatActivity {
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
         mReturnedMessage = (TextView) findViewById(R.id.returned_message);
 
+        // Setup handler to update UI when network packets are received
+        mUdpHandler = new UdpClientHandler(this);
+
+        final String ipAddress = mIpAddress.getText().toString();
+        final int ipPort = Integer.parseInt(mIpPort.getText().toString());
+
+        // The receive thread runs in a loop looking for new incoming data
+        mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE, ipAddress, ipPort+1, mUdpHandler);
+        mUdpReceiveThread.start();
+
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String ipAddress = mIpAddress.getText().toString();
-                int ipPort = Integer.parseInt(mIpPort.getText().toString());
-                mUdpClientThread = new UdpClientThread(ipAddress, ipPort, mUdpClientHandler);
-                mUdpClientThread.start();
+                // The send thread sends a message and the thread ends
+                mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress, ipPort, mUdpHandler);
+                mUdpSendThread.start();
             }
         });
-
-        // Setup handler to update UI when network packets are received
-        mUdpClientHandler = new UdpClientHandler(this);
 
         testPackets();
     }
@@ -65,9 +72,7 @@ public class MainActivity extends AppCompatActivity {
         private void updateMessage(String msg) {
             mParent.mReturnedMessage.setText(msg);
         }
-        private void clientEnd() {
-            mParent.mUdpClientThread = null;
-        }
+        private void clientEnd() {}
 
         public UdpClientHandler(MainActivity parent) {
             super();

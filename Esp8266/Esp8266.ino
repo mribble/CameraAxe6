@@ -92,7 +92,7 @@ void loop() {
     if (serialSize >= gPacketSize-1) {
       buf[0] = gPacketSize;
       Serial.readBytes(buf+1, gPacketSize-1);
-      gUDP.beginPacket(gIp, gPort);
+      gUDP.beginPacket(gIp, gPort+1);
       gUDP.write(buf, gPacketSize);
       gUDP.endPacket();
       gPacketSize = 0;
