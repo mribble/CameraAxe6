@@ -1,13 +1,13 @@
-#ifndef __CASERIAL_H__
-#define __CASERIAL_H__
+#ifndef __CAPACKET_HELPER_H__
+#define __CAPACKET_HELPER_H__
 
 #include "CATypes.h"
 
 #define MAX_PACKET_SIZE      128
 
-class CASerial {
+class CAPacketHelper {
 public:
-    CASerial() : mSize(0) {};
+    CAPacketHelper() : mSize(0) {};
     void init(uint32 baud);
     boolean readOnePacket(uint8 *data);
     void writeOnePacket(uint8 *data);
@@ -17,4 +17,4 @@ private:
     uint8 mSize;
 };
 
-#endif // __CASERIAL_H__
+#endif // __CAPACKET_HELPER_H__

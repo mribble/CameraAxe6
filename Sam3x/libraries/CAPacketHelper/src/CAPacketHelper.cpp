@@ -4,22 +4,14 @@
 #include <CAUtility.h>
 #endif
 
-void CASerial::init(uint32 baud) {
-#ifdef __SAM3X8E__
+void CAPacketHelper::init(uint32 baud) {
     mSerial = &Serial1;
     mSerial->begin(baud);
     delay(5000);
     while (mSerial->read() != -1){}   // flush out all the initialization writes
-#elif ESP8266
-    mSerial = &Serial1;
-    mSerial->begin(baud);
-#elif __RFduino__
-    mSerial = &Serial;
-    Serial.begin(baud);
-#endif
 }
 
-boolean CASerial::readOnePacket(uint8 *data) {
+boolean CAPacketHelper::readOnePacket(uint8 *data) {
     boolean ret = CA_FALSE;
     uint8 avaliableBytes = mSerial->available();
     
@@ -42,7 +34,7 @@ boolean CASerial::readOnePacket(uint8 *data) {
      return ret;
 }
 
-void CASerial::writeOnePacket(uint8 *data) {
+void CAPacketHelper::writeOnePacket(uint8 *data) {
     uint8 val;
     uint8 bufSize = data[0];  // First byte is the size
 
@@ -52,6 +44,6 @@ void CASerial::writeOnePacket(uint8 *data) {
     }
 
     val = mSerial->write(data, bufSize);
-    CA_ASSERT(val==bufSize, "Failed CASerial::writePacket");
+    CA_ASSERT(val==bufSize, "Failed CAPacketHelper::writePacket");
 }
 
