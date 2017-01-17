@@ -12,9 +12,7 @@ public:
     CAPacketHelper() : 
     mSize(0),
     mPacker(STATE_PACKER, mData, MAX_PACKET_SIZE),
-    mUnpacker(STATE_UNPACKER, mData, MAX_PACKET_SIZE),
-    mInterModuleLogic(mPacker),
-    mCamSettings{mPacker, mPacker, mPacker, mPacker, mPacker, mPacker, mPacker, mPacker}
+    mUnpacker(STATE_UNPACKER, mData, MAX_PACKET_SIZE)
     {};
     
     void init(uint32 baud);
@@ -22,10 +20,6 @@ public:
     void writeOnePacket(uint8 *data);
     void processIncomingPacket();
 
-public:     // todo make these private and create base classes to hold this data in g_ctx
-    CAPacketInterModuleLogic mInterModuleLogic;
-    CAPacketCamSettings mCamSettings[NUM_CAMERAS];
-    
 private:
     HardwareSerial *mSerial;
     uint8 mSize;

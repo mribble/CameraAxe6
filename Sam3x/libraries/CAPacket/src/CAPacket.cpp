@@ -650,7 +650,7 @@ uint8 CAPacketCamState::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CamSettings Packet Class
+// CamSettings Packet Class ** Derived from CamSettingsBase
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketCamSettings::CAPacketCamSettings(CAPacket& caPacket) {
     mCamPortNumber = 0;
@@ -673,40 +673,6 @@ CAPacketCamSettings::CAPacketCamSettings(CAPacket& caPacket) {
     mMirrorLockupSeconds = 0;
     mMirrorLockupMilliseconds = 0;
     mCAP = &caPacket;
-}
-
-void CAPacketCamSettings::set(uint8 camPortNumber, uint8 mode, uint16 delayHours, uint8 delayMinutes,
-                uint8 delaySeconds, uint16 delayMilliseconds, uint16 delayMicroseconds,
-                uint16 durationHours, uint8 durationMinutes, uint8 durationSeconds, 
-                uint16 durationMilliseconds, uint16 durationMicroseconds, uint8 sequencer,
-                uint8 applyIntervalometer, uint8 smartPreview, uint8 mirrorLockupEnable, 
-                uint8 mirrorLockupMinutes, uint8 mirrorLockupSeconds, uint16 mirrorLockupMilliseconds) {
-    mCamPortNumber = camPortNumber;
-    mMode = mode;
-    mDelayHours = delayHours;
-    mDelayMinutes = delayMinutes;
-    mDelaySeconds = delaySeconds;
-    mDelayMilliseconds = delayMilliseconds;
-    mDelayMicroseconds = delayMicroseconds;
-    mDurationHours = durationHours;
-    mDurationMinutes = durationMinutes;
-    mDurationSeconds = durationSeconds;
-    mDurationMilliseconds = durationMilliseconds;
-    mDurationMicroseconds = durationMicroseconds;
-    mSequencer = sequencer;
-    mApplyIntervalometer = applyIntervalometer;
-    mSmartPreview = smartPreview;
-    mMirrorLockupEnable = mirrorLockupEnable;
-    mMirrorLockupMinutes = mirrorLockupMinutes;
-    mMirrorLockupSeconds = mirrorLockupSeconds;
-    mMirrorLockupMilliseconds = mirrorLockupMilliseconds;
-    CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
-                (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
-                (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
-                (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
-                (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
-                (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
-                "Error in CAPacketCamSettings::set()");
 }
 
 void CAPacketCamSettings::unpack() {
@@ -850,7 +816,7 @@ uint8 CAPacketIntervalometer::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// InterModuleLogic Packet Class
+// InterModuleLogic Packet Class ** Derived from InterModuleLogicBase
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketInterModuleLogic::CAPacketInterModuleLogic(CAPacket& caPacket) {
     mLatchEnable = 0;
@@ -858,13 +824,6 @@ CAPacketInterModuleLogic::CAPacketInterModuleLogic(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketInterModuleLogic::set(uint8 latchEnable, uint8 logic) {
-    mLatchEnable = latchEnable;
-    mLogic = logic;
-    CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
-                "Error in CAPacketInterModuleLogic::set()");
-}
-    
 void CAPacketInterModuleLogic::unpack() {
     mLatchEnable = mCAP->unpacker(1);
     mLogic = mCAP->unpacker(7);
