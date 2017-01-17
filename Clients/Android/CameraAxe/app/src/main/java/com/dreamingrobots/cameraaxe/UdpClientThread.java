@@ -63,7 +63,7 @@ public class UdpClientThread extends Thread {
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     mSocket.receive(packet);
                     CAPacketHelper ph = new CAPacketHelper();
-                    String receivedData = ph.processIncomingPackets(packet.getData(), packet.getLength());
+                    String receivedData = ph.processIncomingPacket(packet.getData(), packet.getLength());
                     sendUiMessage(receivedData);
                 }
             }

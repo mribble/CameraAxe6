@@ -1,8 +1,8 @@
 #include <CATypes.h>
 #include <CAUtility.h>
 #include <CAEeprom.h>
-#include <CASerial.h>
 #include <CAPacket.h>
+#include <CAPacketHelper.h>
 #include <CATickTimer.h>
 #include "MenuData.h"
 #include "Context.h"
@@ -17,7 +17,7 @@ void setup() {
   CAU::logInit(9600);
   CAU::initializeAnalog();
 
-  g_ctx.bleSerial.init(9600);
+  g_ctx.packetHelper.init(9600);
 }
 
 void loop() {

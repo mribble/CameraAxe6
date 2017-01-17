@@ -1,7 +1,7 @@
 void processIncomingPackets() {
   uint8* pData = g_ctx.pData;
 
-  if (g_ctx.bleSerial.readOnePacket(pData)) {
+  if (g_ctx.packetHelper.readOnePacket(pData)) {
     uint8 packetSize = g_ctx.unpacker.unpackSize();
     uint8 packetType = g_ctx.unpacker.unpackType();
 
@@ -95,7 +95,7 @@ void processIncomingPackets() {
         CAPacketLogger loggerPacket(g_ctx.packer);
         loggerPacket.set("Log from sam3x\n");
         uint8 packSize = loggerPacket.pack();
-        g_ctx.bleSerial.writeOnePacket(pData);
+        g_ctx.packetHelper.writeOnePacket(pData);
         g_ctx.packer.resetBuffer();
         break;
       }

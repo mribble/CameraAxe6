@@ -43,7 +43,7 @@ struct Context {
   CAPacketCamSettings camSettings[NUM_CAMERAS];
 
   CtxModules modules[NUM_MODULES];
-  CASerial bleSerial;  // Serial for talking to BLE module
+  CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CtxProcTable procTable;
 
 // todo remove

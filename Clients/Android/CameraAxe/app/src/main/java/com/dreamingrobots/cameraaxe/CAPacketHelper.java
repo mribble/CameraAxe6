@@ -31,7 +31,7 @@ public class CAPacketHelper {
     private static final int mDataSize = 256;
     private byte[] mData = new byte[mDataSize];
 
-    public String processIncomingPackets(byte[] buf, int bufSize) {
+    public String processIncomingPacket(byte[] buf, int bufSize) {
         CAPacket unpacker = new CAPacket(CAPacket.STATE_UNPACKER, buf, bufSize);
         int packetSize = unpacker.unpackSize();
         short packetType = unpacker.unpackType();

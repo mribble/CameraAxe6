@@ -1,4 +1,4 @@
-#include <CASerial.h>
+#include <CAPacketHelper.h>
 
 #ifdef __SAM3X8E__
 #include <CAUtility.h>
