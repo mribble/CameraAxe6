@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   //caRunTests();
-  processIncomingPackets();
+  g_ctx.packetHelper.processIncomingPacket();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
@@ -74,7 +74,7 @@ uint8 interModuleLogicArbiter() {
   uint8 i, ret;
   uint8 trig[NUM_MODULES] = {0,0,0,0};
 
-  if (g_ctx.interModuleLogic.getLatchEnable()) {
+  if (g_ctx.packetHelper.mInterModuleLogic.getLatchEnable()) {
     for(i=0; i<NUM_MODULES; ++i) {
       int8 modId = g_ctx.modules[i].modId;
       if (modId) {
@@ -99,7 +99,7 @@ uint8 interModuleLogicArbiter() {
   }
 
   CA_ASSERT(NUM_MODULES == 4, "Code below assumes 4 modules");
-  switch (g_ctx.interModuleLogic.getLogic()) {
+  switch (g_ctx.packetHelper.mInterModuleLogic.getLogic()) {
     case 0:  // or
       ret = (trig[0] || trig[1] || trig[2] || trig[3]);
       break;
@@ -117,7 +117,7 @@ uint8 interModuleLogicArbiter() {
       break;
   }
 
-  if (ret == CA_TRUE && g_ctx.interModuleLogic.getLatchEnable()) {
+  if (ret == CA_TRUE && g_ctx.packetHelper.mInterModuleLogic.getLatchEnable()) {
     for(i=0; i<NUM_MODULES; ++i) {
       g_ctx.modules[i].latchedTriggers = 0;
     }

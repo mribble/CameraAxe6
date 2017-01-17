@@ -7,8 +7,6 @@
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 
-#define BUF_SZ 256
-
 struct CtxModules
 {
   uint8 modId = 0;
@@ -27,20 +25,10 @@ struct CtxProcTable
 
 struct Context {
   // Constructor with initialization list
-  Context() : 
-    packer(STATE_PACKER, pData, BUF_SZ),
-    unpacker(STATE_UNPACKER, pData, BUF_SZ),
-    interModuleLogic(packer),
-    camSettings{packer, packer, packer, packer, packer, packer, packer, packer}
-    {}
+  Context(){}
 
   uint8 active = 0;
   
-  uint8 pData[BUF_SZ];
-  CAPacket packer;
-  CAPacket unpacker;
-  CAPacketInterModuleLogic interModuleLogic;
-  CAPacketCamSettings camSettings[NUM_CAMERAS];
 
   CtxModules modules[NUM_MODULES];
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
