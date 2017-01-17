@@ -15,10 +15,13 @@ public:
     mUnpacker(STATE_UNPACKER, mData, MAX_PACKET_SIZE)
     {};
     
+    CAPacket& getUnpacker() {return mUnpacker;};
+    uint8* getData() {return mData;};
+    
     void init(uint32 baud);
     boolean readOnePacket(uint8 *data);
     void writeOnePacket(uint8 *data);
-    void processIncomingPacket();
+    void writeMenu(const uint8 *sData, uint16 sz);
     
     //todo add missing packet functions here
     void writePacketLogger(const char* str);

@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   //caRunTests();
-  g_ctx.packetHelper.processIncomingPacket();
+  processIncomingPacket();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes

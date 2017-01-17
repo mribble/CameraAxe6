@@ -30,8 +30,10 @@ void MenuSoundInit(uint8 modId)
   };  // Total Bytes = 85
   
   g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate = 0;
-  g_ctx.modules[modId].modStore.menuSoundData.ppSound = CAU::getModulePin(modId, 0);
   CAU::pinMode(g_ctx.modules[modId].modStore.menuSoundData.ppSound, ANALOG_INPUT);
+  g_ctx.modules[modId].modStore.menuSoundData.ppSound = CAU::getModulePin(modId, 0);
+  uint8 *data = 0;
+  g_ctx.packetHelper.writeMenu(sData, 107);
 }
 
 // Sends packets to host
