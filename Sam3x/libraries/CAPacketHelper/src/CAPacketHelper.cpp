@@ -48,9 +48,8 @@ void CAPacketHelper::writeOnePacket(uint8 *data) {
 }
 
 void CAPacketHelper::processIncomingPacket() {
-  uint8* pData = mData;
 
-  if (readOnePacket(pData)) {
+  if (readOnePacket(mData)) {
     uint8 packetSize = mUnpacker.unpackSize();
     uint8 packetType = mUnpacker.unpackType();
 
@@ -141,11 +140,7 @@ void CAPacketHelper::processIncomingPacket() {
         unpack.unpack();
         CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
 
-        CAPacketLogger loggerPacket(mPacker);
-        loggerPacket.set("Log from sam3x\n");
-        uint8 packSize = loggerPacket.pack();
-        writeOnePacket(pData);
-        mPacker.resetBuffer();
+        writePacketLogger("Message from sam3x");
         break;
       }
       case PID_LOGGER: {
@@ -196,4 +191,12 @@ void CAPacketHelper::processIncomingPacket() {
     }
     mUnpacker.resetBuffer();
   }
+}
+
+void CAPacketHelper::writePacketLogger(const char* str) {
+    CAPacketLogger pack0(mPacker);
+    pack0.set(str);
+    uint8 packSize = pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
 }

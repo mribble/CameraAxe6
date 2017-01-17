@@ -3,6 +3,9 @@
 
 #include "CATypes.h"
 
+// These base classes exist because sometimes we need to store this data and we don't want that to be tied to
+//  packet processing so we created base classes without any of the packet processing included
+
 class CAPacketCamSettingsBase {
 public:
     const uint8 SEQ0    = 0x01;

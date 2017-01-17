@@ -46,23 +46,21 @@ public class UdpClientThread extends Thread {
             mAddress = InetAddress.getByName(mIpAddr);
 
             // Build the packet
-            byte[] data = new byte[256];
 
             if (mState == UdpClientThread.UdpClientState.SEND) {
                 // send a packet
-                CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, data, 256);
-                CAPacket.MenuSelect pack1 = pack0.new MenuSelect();
-                pack1.set(1, 1);
-                int packSize = pack1.pack();
-                DatagramPacket packet = new DatagramPacket(data, packSize, mAddress, mIpPort);
+                CAPacketHelper ph = new CAPacketHelper();
+                int packSize = ph.writePacketMenuSelect(1, 2);
+                DatagramPacket packet = new DatagramPacket(ph.getData(), packSize, mAddress, mIpPort);
                 mSocket.send(packet);
             }
             else if (mState == UdpClientThread.UdpClientState.RECEIVE) {
+                byte[] data = new byte[256];
+                CAPacketHelper ph = new CAPacketHelper();
                 while (!Thread.currentThread().isInterrupted()) {
                     // receive packets
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     mSocket.receive(packet);
-                    CAPacketHelper ph = new CAPacketHelper();
                     String receivedData = ph.processIncomingPacket(packet.getData(), packet.getLength());
                     sendUiMessage(receivedData);
                 }

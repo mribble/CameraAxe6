@@ -96,7 +96,5 @@ uint8 MenuSoundTriggerCheck(uint8 modId)
   {
     ret = val > triggerVal ? CA_TRUE : CA_FALSE;
   }
-
-  
 }
 

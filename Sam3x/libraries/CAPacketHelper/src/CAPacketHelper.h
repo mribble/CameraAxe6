@@ -19,6 +19,9 @@ public:
     boolean readOnePacket(uint8 *data);
     void writeOnePacket(uint8 *data);
     void processIncomingPacket();
+    
+    //todo add missing packet functions here
+    void writePacketLogger(const char* str);
 
 private:
     HardwareSerial *mSerial;

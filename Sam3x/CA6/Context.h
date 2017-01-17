@@ -31,7 +31,6 @@ struct Context {
   CAPacketInterModuleLogicBase interModuleLogic;
   CAPacketCamSettingsBase camSettings[NUM_CAMERAS];
 
-
   CtxModules modules[NUM_MODULES];
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CtxProcTable procTable;

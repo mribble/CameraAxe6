@@ -156,9 +156,6 @@ void cameraFlashHandler() {
 
 
 
-
-
-
 /*
 //#define ENABLE_CUSTOM_UART
 #ifdef ENABLE_CUSTOM_UART

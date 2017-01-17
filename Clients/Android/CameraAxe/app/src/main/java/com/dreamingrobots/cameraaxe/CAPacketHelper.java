@@ -30,6 +30,11 @@ import static com.dreamingrobots.cameraaxe.CAPacket.PID_TIME_BOX;
 public class CAPacketHelper {
     private static final int mDataSize = 256;
     private byte[] mData = new byte[mDataSize];
+    private CAPacket mPacker = new CAPacket(CAPacket.STATE_PACKER, mData, 256);
+
+    public byte[] getData() {
+        return mData;
+    }
 
     public String processIncomingPacket(byte[] buf, int bufSize) {
         CAPacket unpacker = new CAPacket(CAPacket.STATE_UNPACKER, buf, bufSize);
@@ -179,6 +184,14 @@ public class CAPacketHelper {
         return ret;
     }
 
+    //todo add more writePacket types
+    public int writePacketMenuSelect(int mode, int menuNumber) {
+        CAPacket.MenuSelect pack0 = mPacker.new MenuSelect();
+        pack0.set(1, 1);
+        int packSize = pack0.pack();
+        mPacker.resetBuffer();
+        return packSize;
+    }
 
     public void testPackets() {
         CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, mData, mDataSize);
