@@ -1,0 +1,9 @@
+(module DUMMY_PIN_NEPAD_1MM (layer F.Cu) (tedit 5466996D)
+  (fp_text reference X4 (at 1.1684 -0.7112) (layer F.SilkS) hide
+    (effects (font (size 0.762 0.762) (thickness 0.14986)))
+  )
+  (fp_text value DP (at 1.143 0.3556) (layer F.SilkS) hide
+    (effects (font (size 0.762 0.762) (thickness 0.14986)))
+  )
+  (pad 1 smd circle (at 0 0) (size 0.381 0.381) (layers F.Cu))
+)
