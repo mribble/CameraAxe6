@@ -17,10 +17,10 @@ import android.widget.ListView;
  * + Start threads to handle networking
  */
 public class MainActivity extends AppCompatActivity {
-    private EditText mIpAddress;
-    private EditText mIpPort;
-    private Button mSendMessageButton;
-    private MenuAdapter mAdapter;
+    EditText mIpAddress;
+    EditText mIpPort;
+    Button mSendMessageButton;
+    MenuAdapter mAdapter;
 
     // Setup threading for UDP network packets
     UdpClientHandler mUdpHandler;
@@ -38,13 +38,14 @@ public class MainActivity extends AppCompatActivity {
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
 
         // Setup handler to update UI when network packets are received
-        mUdpHandler = new UdpClientHandler(this);
+        mUdpHandler = new UdpClientHandler(mAdapter);
 
         final String ipAddress = mIpAddress.getText().toString();
         final int ipPort = Integer.parseInt(mIpPort.getText().toString());
 
         // The receive thread runs in a loop looking for new incoming data
-        mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE, ipAddress, ipPort+1, mUdpHandler);
+        mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE, ipAddress,
+                ipPort+1, mUdpHandler);
         mUdpReceiveThread.start();
 
         // When this button is clicked we generate a network packet and spawn a thread
@@ -52,15 +53,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // The send thread sends a message and the thread ends
-                mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress, ipPort, mUdpHandler);
+                mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress,
+                        ipPort, mUdpHandler);
                 mUdpSendThread.start();
             }
         });
 
+        // Create a new adapter and listView that displays the dynamic menu
         mAdapter = new MenuAdapter(this);
         ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
         listViewItems.setAdapter(mAdapter);
 
+        // Run a packet tester - This code can be removed someday
         CAPacketHelper tester = new CAPacketHelper();
         tester.testPackets();
     }
@@ -69,20 +73,21 @@ public class MainActivity extends AppCompatActivity {
      * Internal class to update UI based on messages from UdpClientThread thread.
      */
     public class UdpClientHandler extends Handler {
-        public static final int UPDATE_MESSAGE = 0;
-        public static final int UPDATE_END = 1;
-        public static final int UPDATE_PACKET = 2;
-        private MainActivity mParent;
+        static final int UPDATE_MESSAGE = 0;
+        static final int UPDATE_PACKET = 1;
+        //private MenuAdapter mAdapter;
 
-        private void updateMessage(String msg) {Log.e("CA6", msg);}
-        private void clientEnd() {}
+        private void updateMessage(String msg) {
+            Log.e("CA6", msg);
+        }
+
         private void updatePacket(CAPacket.PacketElement packet) {
             mAdapter.addPacket(packet);
         }
 
-        public UdpClientHandler(MainActivity parent) {
+        UdpClientHandler(MenuAdapter adapter) {
             super();
-            this.mParent = parent;
+            //this.mAdapter = adapter;
         }
 
         @Override
@@ -91,9 +96,6 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what) {
                 case UPDATE_MESSAGE:
                     updateMessage((String) msg.obj);
-                    break;
-                case UPDATE_END:
-                    clientEnd();
                     break;
                 case UPDATE_PACKET:
                     updatePacket((CAPacket.PacketElement)msg.obj);

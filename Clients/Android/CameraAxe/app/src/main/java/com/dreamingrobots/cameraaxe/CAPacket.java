@@ -5,7 +5,9 @@ import android.util.Log;
 import java.nio.charset.Charset;
 
 /**
- * Base class that manages packet construction
+ * CAPacket is the base class that manages packet construction
+ * PacketElement is an interface for all the different packet types.  Each packet type has it's
+ *  own class
  */
 class CAPacket {
     static final int STATE_PACKER = 1;
@@ -34,9 +36,9 @@ class CAPacket {
     static final int PID_CONTROL_FLAGS              = 20;
     private static final int PID_END_SENTINEL       = 21;   // Must be last
 
-    private int mBitsUsed;
-    private int mBitsVal;
-    private int mBytesUsed;
+    private int mBitsUsed;  // Bits in use that didn't fill a full byte
+    private int mBitsVal;   // Value of bits that didn't fill a full byte
+    private int mBytesUsed; // Total full bytes used by the current packer
     private int mState;
     private byte[] mBuf;
     private int mBufSize;
@@ -47,6 +49,7 @@ class CAPacket {
         mBufSize = bufSize;
     }
 
+    // This was just added to make code more similar between embedded C++ and java code
     private void CA_ASSERT(boolean test, String str) {
         if (!test) {
             Log.e("CA6_ASSERT", str);
@@ -79,7 +82,7 @@ class CAPacket {
         long ret = 0;
         int valShift = 0;
         // This loop shifts through the number of bytes you want to unpack in the src buffer
-        // and puts them into an uint32
+        // and puts them into an unsigned integer
         do {
             int bitsInCurSrcByte = 8 - mBitsUsed;
             int bitsToUnpack = Math.min(unpackBitsLeft, bitsInCurSrcByte);
@@ -638,9 +641,9 @@ class CAPacket {
             mMilliseconds = milliseconds;
             mMicroseconds = microseconds;
             mNanoseconds = nanoseconds;
-            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
-                            (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
-                            "Error in CAPacketTimeBox::set()");
+            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) &&
+                    (mSeconds <=59) && (mMilliseconds <= 999) && (mMicroseconds <= 999) &&
+                    (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
         }
 
         public void unpack() {
@@ -654,9 +657,9 @@ class CAPacket {
             mNanoseconds = (int)unpacker(10);
             unpacker(6); // Unused
             flushPacket();
-            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) &&
-                            (mMilliseconds <= 999) && (mMicroseconds <= 999) && (mNanoseconds <= 999),
-                            "Error in CAPacketTimeBox::set()");
+            CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) &&
+                    (mSeconds <=59) && (mMilliseconds <= 999) && (mMicroseconds <= 999) &&
+                    (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
         }
 
         public int pack() {
@@ -878,7 +881,8 @@ class CAPacket {
                         int durationHours, int durationMinutes, int durationSeconds,
                         int durationMilliseconds, int durationMicroseconds, int sequencer,
                         int applyIntervalometer, int smartPreview, int mirrorLockupEnable,
-                        int mirrorLockupMinutes, int mirrorLockupSeconds, int mirrorLockupMilliseconds) {
+                        int mirrorLockupMinutes, int mirrorLockupSeconds,
+                        int mirrorLockupMilliseconds) {
             mCamPortNumber = camPortNumber;
             mMode = mode;
             mDelayHours = delayHours;
@@ -899,12 +903,14 @@ class CAPacket {
             mMirrorLockupSeconds = mirrorLockupSeconds;
             mMirrorLockupMilliseconds = mirrorLockupMilliseconds;
             CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
-                            (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
-                            (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
-                            (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
-                            (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
-                            (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
-                            "Error in CamSettings::set()");
+                    (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) &&
+                    (mDelayMicroseconds <= 999) && (mDurationHours <= 999) &&
+                    (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                    (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) &&
+                    (mApplyIntervalometer <= 1) && (mSmartPreview <= 59) &&
+                    (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                    (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                    "Error in CamSettings::set()");
         }
 
         public void unpack() {
@@ -930,11 +936,13 @@ class CAPacket {
             unpacker(4); // Unused
             flushPacket();
             CA_ASSERT((mMode <= 2) && (mDelayHours <= 999) && (mDelayMinutes <=59) &&
-                            (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) && (mDelayMicroseconds <= 999) &&
-                            (mDurationHours <= 999) && (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
-                            (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) && (mApplyIntervalometer <= 1) &&
-                            (mSmartPreview <= 59) && (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
-                            (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
+                    (mDelaySeconds <= 59) && (mDelayMilliseconds <= 999) &&
+                    (mDelayMicroseconds <= 999) && (mDurationHours <= 999) &&
+                    (mDurationMinutes <= 59) && (mDurationSeconds <= 59) &&
+                    (mDurationMilliseconds <= 999) && (mDurationMicroseconds <= 999) &&
+                    (mApplyIntervalometer <= 1) && (mSmartPreview <= 59) &&
+                    (mMirrorLockupEnable <= 1) && (mMirrorLockupMinutes <= 59) &&
+                    (mMirrorLockupSeconds <= 59) && (mMirrorLockupMilliseconds <= 999),
                     "Error in CamSettings::unpack()");
         }
 
@@ -1015,9 +1023,11 @@ class CAPacket {
             mIntervalMicroseconds = intervalMicroseconds;
             mRepeats = repeats;
             CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
-                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
-                    (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
-                    (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::set()");       }
+                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) &&
+                    (mIntervalHours <= 999) && (mIntervalMinutes <= 59) &&
+                    (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                    (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::set()");
+        }
 
         public void unpack() {
             mStartHours = (int)unpacker(10);
@@ -1034,8 +1044,9 @@ class CAPacket {
             unpacker(4);  // Unused
             flushPacket();
             CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
-                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
-                    (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
+                    (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) &&
+                    (mIntervalHours <= 999) && (mIntervalMinutes <= 59) &&
+                    (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
                     (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::unpack()");
         }
 

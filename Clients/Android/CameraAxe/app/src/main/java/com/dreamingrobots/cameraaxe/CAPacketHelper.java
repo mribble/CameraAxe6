@@ -3,13 +3,13 @@ package com.dreamingrobots.cameraaxe;
 import android.util.Log;
 
 /**
- * Created by oe on 1/16/2017.
+ * CAPacketHelper class makes processing incoming packets and sending them easier
  */
 
 public class CAPacketHelper {
     private static final int mDataSize = 256;
     private byte[] mData = new byte[mDataSize];
-    private CAPacket mPacker = new CAPacket(CAPacket.STATE_PACKER, mData, 256);
+    private CAPacket mPacker = new CAPacket(CAPacket.STATE_PACKER, mData, mDataSize);
 
     public byte[] getData() {
         return mData;
@@ -130,7 +130,6 @@ public class CAPacketHelper {
         return ret;
     }
 
-    //todo add more writePacket types
     public int writePacketMenuSelect(int mode, int menuNumber) {
         CAPacket.MenuSelect pack0 = mPacker.new MenuSelect();
         pack0.set(1, 1);
@@ -370,7 +369,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != CAPacket.PID_LOGGER ||                             // Update per type
+                    packType != CAPacket.PID_LOGGER ||                          // Update per type
                     unpack1.getLog().equals("Log123") != true) {
                 Log.e("CA6", "Packet Test Error - LOG test failed");
             }

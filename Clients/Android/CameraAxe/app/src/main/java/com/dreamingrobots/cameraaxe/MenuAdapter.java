@@ -11,13 +11,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Created by oe on 1/23/2017.
+ * Adapter for dynamic menu generation
  */
 
 public class MenuAdapter extends BaseAdapter{
 
     private ArrayList<CAPacket.PacketElement> mData = new ArrayList<CAPacket.PacketElement>();
-
     private Activity mActivity;
     private LayoutInflater mInflater;
 
@@ -67,7 +66,7 @@ public class MenuAdapter extends BaseAdapter{
                 break;
             case CAPacket.PID_TEXT_STATIC: {
                 if (v == null) {
-                    v = (LinearLayout) mInflater.inflate(R.layout.dm_text_static, null);
+                    v = (LinearLayout) mInflater.inflate(R.layout.dm_text_static, parent, false);
                 }
                 TextView tView = (TextView) v.findViewById(R.id.dml_text_static);
                 CAPacket.TextStatic p = (CAPacket.TextStatic)mData.get(position);
@@ -83,7 +82,7 @@ public class MenuAdapter extends BaseAdapter{
             case CAPacket.PID_DROP_SELECT:
                 break;
             case CAPacket.PID_EDIT_NUMBER:
-                v = (LinearLayout) mInflater.inflate(R.layout.dm_edit_number, null);
+                v = (LinearLayout) mInflater.inflate(R.layout.dm_edit_number, parent, false);
                 break;
             case CAPacket.PID_TIME_BOX:
                 break;

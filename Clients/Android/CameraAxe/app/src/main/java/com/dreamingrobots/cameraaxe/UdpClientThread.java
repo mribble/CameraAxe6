@@ -18,36 +18,37 @@ public class UdpClientThread extends Thread {
     public enum UdpClientState {SEND, RECEIVE}
 
     private UdpClientState mState;
-    private String mIpAddr;
+    private String mIpAddress;
     private int mIpPort;
     private MainActivity.UdpClientHandler mHandler;
     private DatagramSocket mSocket;
     private InetAddress mAddress;
 
-    public UdpClientThread(UdpClientState state, String addr, int port, MainActivity.UdpClientHandler handler) {
+    public UdpClientThread(UdpClientState state, String address, int port,
+                           MainActivity.UdpClientHandler handler) {
         super();
 
         mState = state;
-        mIpAddr = addr;
+        mIpAddress = address;
         mIpPort = port;
         mHandler = handler;
     }
 
     private void sendUiMessage(String state) {
-        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_MESSAGE, state));
+        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_MESSAGE,
+                state));
     }
 
     private void sendPacketMessage(CAPacket.PacketElement packet) {
-        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_PACKET, packet));
+        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_PACKET,
+                packet));
     }
 
     @Override
     public void run() {
-        sendUiMessage("...");
-
         try {
             mSocket = new DatagramSocket(mIpPort);
-            mAddress = InetAddress.getByName(mIpAddr);
+            mAddress = InetAddress.getByName(mIpAddress);
 
             // Build the packet
 
@@ -55,7 +56,8 @@ public class UdpClientThread extends Thread {
                 // send a packet
                 CAPacketHelper ph = new CAPacketHelper();
                 int packSize = ph.writePacketMenuSelect(1, 2);
-                DatagramPacket packet = new DatagramPacket(ph.getData(), packSize, mAddress, mIpPort);
+                DatagramPacket packet = new DatagramPacket(ph.getData(), packSize, mAddress,
+                        mIpPort);
                 mSocket.send(packet);
             }
             else if (mState == UdpClientThread.UdpClientState.RECEIVE) {
@@ -65,7 +67,8 @@ public class UdpClientThread extends Thread {
                     // receive packets
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     mSocket.receive(packet);
-                    CAPacket.PacketElement receivedData = ph.processIncomingPacket(packet.getData(), packet.getLength());
+                    CAPacket.PacketElement receivedData = ph.processIncomingPacket(packet.getData(),
+                            packet.getLength());
                     sendPacketMessage(receivedData);
                 }
             }
@@ -78,7 +81,6 @@ public class UdpClientThread extends Thread {
         } finally {
             if(mSocket != null){
                 mSocket.close();
-                mHandler.sendEmptyMessage(MainActivity.UdpClientHandler.UPDATE_END);
             }
         }
     }
