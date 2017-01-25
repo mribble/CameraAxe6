@@ -33,8 +33,12 @@ public class UdpClientThread extends Thread {
         mHandler = handler;
     }
 
-    private void sendUiMessage(String state){
+    private void sendUiMessage(String state) {
         mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_MESSAGE, state));
+    }
+
+    private void sendPacketMessage(CAPacket.PacketElement packet) {
+        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_PACKET, packet));
     }
 
     @Override
@@ -61,8 +65,8 @@ public class UdpClientThread extends Thread {
                     // receive packets
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     mSocket.receive(packet);
-                    String receivedData = ph.processIncomingPacket(packet.getData(), packet.getLength());
-                    sendUiMessage(receivedData);
+                    CAPacket.PacketElement receivedData = ph.processIncomingPacket(packet.getData(), packet.getLength());
+                    sendPacketMessage(receivedData);
                 }
             }
         } catch (SocketException e) {

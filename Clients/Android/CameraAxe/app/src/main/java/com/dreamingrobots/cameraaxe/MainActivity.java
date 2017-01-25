@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
 
 /**
  * The main UI activity for the Android Udp application.
@@ -19,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mIpAddress;
     private EditText mIpPort;
     private Button mSendMessageButton;
-    private TextView mReturnedMessage;
+    private MenuAdapter mAdapter;
 
     // Setup threading for UDP network packets
     UdpClientHandler mUdpHandler;
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         mIpAddress = (EditText) findViewById(R.id.ip_address);
         mIpPort = (EditText) findViewById(R.id.ip_port);
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
-        mReturnedMessage = (TextView) findViewById(R.id.returned_message);
 
         // Setup handler to update UI when network packets are received
         mUdpHandler = new UdpClientHandler(this);
@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mAdapter = new MenuAdapter(this);
+        ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
+        listViewItems.setAdapter(mAdapter);
+
         CAPacketHelper tester = new CAPacketHelper();
         tester.testPackets();
     }
@@ -64,15 +68,17 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Internal class to update UI based on messages from UdpClientThread thread.
      */
-    public static class UdpClientHandler extends Handler {
+    public class UdpClientHandler extends Handler {
         public static final int UPDATE_MESSAGE = 0;
         public static final int UPDATE_END = 1;
+        public static final int UPDATE_PACKET = 2;
         private MainActivity mParent;
 
-        private void updateMessage(String msg) {
-            mParent.mReturnedMessage.setText(msg);
-        }
+        private void updateMessage(String msg) {Log.e("CA6", msg);}
         private void clientEnd() {}
+        private void updatePacket(CAPacket.PacketElement packet) {
+            mAdapter.addPacket(packet);
+        }
 
         public UdpClientHandler(MainActivity parent) {
             super();
@@ -88,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case UPDATE_END:
                     clientEnd();
+                    break;
+                case UPDATE_PACKET:
+                    updatePacket((CAPacket.PacketElement)msg.obj);
                     break;
                 default:
                     super.handleMessage(msg);

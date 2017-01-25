@@ -2,27 +2,6 @@ package com.dreamingrobots.cameraaxe;
 
 import android.util.Log;
 
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_BUTTON;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_CAM_SETTINGS;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_CAM_STATE;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_CHECK_BOX;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_COND_END;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_COND_START;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_CONTROL_FLAGS;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_DROP_SELECT;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_EDIT_NUMBER;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_INTERVALOMETER;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_INTER_MODULE_LOGIC;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_LOGGER;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_MENU_HEADER;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_MENU_SELECT;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_NEW_CELL;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_NEW_ROW;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_SCRIPT_END;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_TEXT_DYNAMIC;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_TEXT_STATIC;
-import static com.dreamingrobots.cameraaxe.CAPacket.PID_TIME_BOX;
-
 /**
  * Created by oe on 1/16/2017.
  */
@@ -36,148 +15,115 @@ public class CAPacketHelper {
         return mData;
     }
 
-    public String processIncomingPacket(byte[] buf, int bufSize) {
+    public CAPacket.PacketElement processIncomingPacket(byte[] buf, int bufSize) {
         CAPacket unpacker = new CAPacket(CAPacket.STATE_UNPACKER, buf, bufSize);
         int packetSize = unpacker.unpackSize();
         short packetType = unpacker.unpackType();
-        String ret;
+        CAPacket.PacketElement ret;
 
         switch (packetType) {
-            case PID_MENU_HEADER: {
+            case CAPacket.PID_MENU_HEADER: {
                 CAPacket.MenuHeader unpack = unpacker.new MenuHeader();
                 unpack.unpack();
-                ret = new String("PID_MENU_HEADER " + packetSize + " " + unpack.getMajorVersion() +
-                        " " + unpack.getMinorVersion() +  " " + unpack.getMenuName());
+                ret = unpack;
             } break;
-            case PID_NEW_ROW: {
-                CAPacket.MenuHeader unpack = unpacker.new MenuHeader();
+            case CAPacket.PID_NEW_ROW: {
+                CAPacket.NewRow unpack = unpacker.new NewRow();
                 unpack.unpack();
-                ret = new String("PID_NEW_ROW " + packetSize);
+                ret = unpack;
             } break;
-            case PID_NEW_CELL: {
+            case CAPacket.PID_NEW_CELL: {
                 CAPacket.NewCell unpack = unpacker.new NewCell();
                 unpack.unpack();
-                ret = new String("PID_NEW_CELL " + packetSize + " " + unpack.getColumnPercentage() +
-                        " " + unpack.getJustification());
+                ret = unpack;
             } break;
-            case PID_COND_START: {
+            case CAPacket.PID_COND_START: {
                 CAPacket.CondStart unpack = unpacker.new CondStart();
                 unpack.unpack();
-                ret = new String("PID_COND_START " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getModAttribute() + " " + unpack.getValue());
+                ret = unpack;
             } break;
-            case PID_COND_END: {
+            case CAPacket.PID_COND_END: {
                 CAPacket.CondEnd unpack = unpacker.new CondEnd();
                 unpack.unpack();
-                ret = new String("PID_COND_END " + packetSize);
+                ret = unpack;
             } break;
-            case PID_TEXT_STATIC: {
+            case CAPacket.PID_TEXT_STATIC: {
                 CAPacket.TextStatic unpack = unpacker.new TextStatic();
                 unpack.unpack();
-                ret = new String("PID_TEXT_STATIC " + packetSize + " " + unpack.getText());
+                ret = unpack;
             } break;
-            case PID_TEXT_DYNAMIC: {
+            case CAPacket.PID_TEXT_DYNAMIC: {
                 CAPacket.TextDynamic unpack = unpacker.new TextDynamic();
                 unpack.unpack();
-                ret = new String("PID_TEXT_DYNAMIC " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getText());
+                ret = unpack;
             } break;
-            case PID_BUTTON: {
+            case CAPacket.PID_BUTTON: {
                 CAPacket.Button unpack = unpacker.new Button();
                 unpack.unpack();
-                ret = new String("PID_BUTTON " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getText());
+                ret = unpack;
             } break;
-            case PID_CHECK_BOX: {
+            case CAPacket.PID_CHECK_BOX: {
                 CAPacket.CheckBox unpack = unpacker.new CheckBox();
                 unpack.unpack();
-                ret = new String("PID_CHECK_BOX " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getValue());
+                ret = unpack;
             } break;
-            case PID_DROP_SELECT: {
+            case CAPacket.PID_DROP_SELECT: {
                 CAPacket.DropSelect unpack = unpacker.new DropSelect();
                 unpack.unpack();
-                ret = new String("PID_DROP_SELECT " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getValue() + " " + unpack.getText());
+                ret = unpack;
             } break;
-            case PID_EDIT_NUMBER: {
+            case CAPacket.PID_EDIT_NUMBER: {
                 CAPacket.EditNumber unpack = unpacker.new EditNumber();
                 unpack.unpack();
-                ret = new String("PID_EDIT_NUMBER " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getDigitsBeforeDecimal() + " " + unpack.getDigitsAfterDecimal()
-                        + " " + unpack.getMinValue() + " " + unpack.getMaxValue() + " " +
-                        unpack.getValue());
+                ret = unpack;
             } break;
-            case PID_TIME_BOX: {
+            case CAPacket.PID_TIME_BOX: {
                 CAPacket.TimeBox unpack = unpacker.new TimeBox();
                 unpack.unpack();
-                ret = new String("PID_TIME_BOX " + packetSize + " " + unpack.getClientHostId() +
-                        " " + unpack.getEnableMask() + " " + unpack.getHours() + " " +
-                        unpack.getMinutes() + " " + unpack.getSeconds() + " " +
-                        unpack.getMilliseconds() + " " + unpack.getMicroseconds() + " " +
-                        unpack.getNanoseconds());
+                ret = unpack;
             } break;
-            case PID_SCRIPT_END: {
+            case CAPacket.PID_SCRIPT_END: {
                 CAPacket.ScriptEnd unpack = unpacker.new ScriptEnd();
                 unpack.unpack();
-                ret = new String("PID_SCRIPT_END " + packetSize);
+                ret = unpack;
             } break;
-            case PID_MENU_SELECT: {
+            case CAPacket.PID_MENU_SELECT: {
                 CAPacket.MenuSelect unpack = unpacker.new MenuSelect();
                 unpack.unpack();
-                ret = new String("PID_MENU_SELECT " + packetSize + " " + unpack.getMode() + " " +
-                        unpack.getMenuNumber());
+                ret = unpack;
             } break;
-            case PID_LOGGER: {
+            case CAPacket.PID_LOGGER: {
                 CAPacket.Logger unpack = unpacker.new Logger();
                 unpack.unpack();
-                ret = new String("PID_LOGGER " + packetSize + " " + unpack.getLog());
+                ret = unpack;
             } break;
-            case PID_CAM_STATE: {
+            case CAPacket.PID_CAM_STATE: {
                 CAPacket.CamState unpack = unpacker.new CamState();
                 unpack.unpack();
-                ret = new String("PID_CAM_STATE " + packetSize + " " + unpack.getMultiplier() + " "
-                        + unpack.getFocus() + " " + unpack.getShutter());
+                ret = unpack;
             } break;
-            case PID_CAM_SETTINGS: {
+            case CAPacket.PID_CAM_SETTINGS: {
                 CAPacket.CamSettings unpack = unpacker.new CamSettings();
                 unpack.unpack();
-                ret = new String("PID_CAM_SETTINGS " + packetSize + " " + unpack.getCamPortNumber()
-                        + " " + unpack.getMode() + " " +  unpack.getDelayHours() + " " +
-                        unpack.getDelayMinutes() + " " + unpack.getDelaySeconds() + " " +
-                        unpack.getDelayMilliseconds() + " " + unpack.getDelayMicroseconds() + " " +
-                        unpack.getDurationHours() + " " + unpack.getDurationMinutes() + " " +
-                        unpack.getDurationSeconds() + " " + unpack.getDurationMilliseconds() + " " +
-                        unpack.getDurationMicroseconds() + " " + unpack.getSequencer() + " " +
-                        unpack.getApplyIntervalometer() + " " + unpack.getSmartPreview() + " " +
-                        unpack.getMirrorLockupEnable() + " " + unpack.getMirrorLockupMinutes() + " "
-                        + unpack.getMirrorLockupSeconds() + " " +
-                        unpack.getMirrorLockupMilliseconds());
+                ret = unpack;
             } break;
-            case PID_INTERVALOMETER: {
+            case CAPacket.PID_INTERVALOMETER: {
                 CAPacket.Intervalometer unpack = unpacker.new Intervalometer();
                 unpack.unpack();
-                ret = new String("PID_INTERVALOMETER " + packetSize + " " + unpack.getStartHours() +
-                        " " + unpack.getStartMinutes() + " " + unpack.getStartSeconds() + " " +
-                        unpack.getStartMilliseconds() + " " + unpack.getStartMicroseconds() + " " +
-                        unpack.getIntervalHours() + " " + unpack.getIntervalMinutes() + " " +
-                        unpack.getIntervalSeconds() + " " + unpack.getIntervalMilliseconds() + " " +
-                        unpack.getIntervalMicroseconds() + " " + unpack.getRepeats());
+                ret = unpack;
             } break;
-            case PID_INTER_MODULE_LOGIC: {
+            case CAPacket.PID_INTER_MODULE_LOGIC: {
                 CAPacket.InterModuleLogic unpack = unpacker.new InterModuleLogic();
                 unpack.unpack();
-                ret = new String("PID_INTER_MODULE_LOGIC " + packetSize + " " +
-                        unpack.getLatchEnable() + " " + unpack.getLogic());
+                ret = unpack;
             } break;
-            case PID_CONTROL_FLAGS: {
+            case CAPacket.PID_CONTROL_FLAGS: {
                 CAPacket.ControlFlags unpack = unpacker.new ControlFlags();
                 unpack.unpack();
-                ret = new String("PID_CONTROL_FLAGS " + packetSize + " " +
-                        unpack.getSlaveModeEnable()+ " " + unpack.getExtraMessagesEnable());
+                ret = unpack;
             } break;
             default: {
-                ret = new String("ERROR reading packet.");
+                ret = null;
             } break;
         }
 
@@ -206,7 +152,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_MENU_HEADER ||                     // Update per type
+                    packType != CAPacket.PID_MENU_HEADER ||                     // Update per type
                     unpack1.getMajorVersion() != 2 ||
                     unpack1.getMinorVersion() != 3 ||
                     unpack1.getMenuName().equals("hello world") != true) {
@@ -222,7 +168,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_NEW_ROW) {                        // Update per type
+                    packType != CAPacket.PID_NEW_ROW) {                        // Update per type
                 Log.e("CA6", "Packet Test Error - NEW_ROW test failed");
             }
         }
@@ -235,7 +181,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_NEW_CELL ||                        // Update per type
+                    packType != CAPacket.PID_NEW_CELL ||                        // Update per type
                     unpack1.getColumnPercentage() != 100 ||
                     unpack1.getJustification() != 1) {
                 Log.e("CA6", "Packet Test Error - NEW_CELL test failed");
@@ -250,7 +196,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_COND_START ||                      // Update per type
+                    packType != CAPacket.PID_COND_START ||                      // Update per type
                     unpack1.getClientHostId() != 2 ||
                     unpack1.getModAttribute() != 1 ||
                     unpack1.getValue() != 1) {
@@ -266,7 +212,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_COND_END) {                       // Update per type
+                packType != CAPacket.PID_COND_END) {                            // Update per type
                 Log.e("CA6", "Packet Test Error - COND_END test failed");
             }
         }
@@ -279,7 +225,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_TEXT_STATIC ||                     // Update per type
+                    packType != CAPacket.PID_TEXT_STATIC ||                     // Update per type
                     unpack1.getText().equals("static") != true) {
                 Log.e("CA6", "Packet Test Error - TEXT_STATIC test failed");
             }
@@ -293,7 +239,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_TEXT_DYNAMIC ||                    // Update per type
+                    packType != CAPacket.PID_TEXT_DYNAMIC ||                    // Update per type
                     unpack1.getClientHostId() != 245 ||
                     unpack1.getText().equals("Dynamic") != true) {
                 Log.e("CA6", "Packet Test Error - TEXT_DYNAMIC test failed");
@@ -308,7 +254,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_BUTTON ||                          // Update per type
+                    packType != CAPacket.PID_BUTTON ||                          // Update per type
                     unpack1.getClientHostId() != 23 ||
                     unpack1.getType() != 1 ||
                     unpack1.getValue() != 1 ||
@@ -325,7 +271,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_CHECK_BOX ||                       // Update per type
+                    packType != CAPacket.PID_CHECK_BOX ||                       // Update per type
                     unpack1.getClientHostId() != 234 ||
                     unpack1.getValue() != 1) {
                 Log.e("CA6", "Packet Test Error - CHECK_BOX test failed");
@@ -340,7 +286,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_DROP_SELECT ||                     // Update per type
+                    packType != CAPacket.PID_DROP_SELECT ||                     // Update per type
                     unpack1.getClientHostId() != 7 ||
                     unpack1.getValue() != 1 ||
                     unpack1.getText().equals("no|yes") != true) {
@@ -356,7 +302,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_EDIT_NUMBER ||                     // Update per type
+                    packType != CAPacket.PID_EDIT_NUMBER ||                     // Update per type
                     unpack1.getClientHostId() != 32 ||
                     unpack1.getDigitsBeforeDecimal() != 2 ||
                     unpack1.getDigitsAfterDecimal() != 6 ||
@@ -375,7 +321,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_TIME_BOX ||                        // Update per type
+                    packType != CAPacket.PID_TIME_BOX ||                        // Update per type
                     unpack1.getClientHostId() != 17 ||
                     unpack1.getEnableMask() != 0x3F ||
                     unpack1.getHours() != 999 ||
@@ -396,7 +342,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             //unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_SCRIPT_END) {                     // Update per type
+                    packType != CAPacket.PID_SCRIPT_END) {                     // Update per type
                 Log.e("CA6", "Packet Test Error - SCRIPT_END test failed");
             }
         }
@@ -409,7 +355,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_MENU_SELECT ||                     // Update per type
+                    packType != CAPacket.PID_MENU_SELECT ||                     // Update per type
                     unpack1.getMode() != 1 ||
                     unpack1.getMenuNumber() != 44) {
                 Log.e("CA6", "Packet Test Error - MENU_SELECT test failed");
@@ -424,7 +370,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_LOGGER ||                             // Update per type
+                    packType != CAPacket.PID_LOGGER ||                             // Update per type
                     unpack1.getLog().equals("Log123") != true) {
                 Log.e("CA6", "Packet Test Error - LOG test failed");
             }
@@ -438,7 +384,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_CAM_STATE ||                       // Update per type
+                    packType != CAPacket.PID_CAM_STATE ||                       // Update per type
                     unpack1.getMultiplier() != 3 ||
                     unpack1.getFocus() != 0xbe ||
                     unpack1.getShutter() != 0xef) {
@@ -455,7 +401,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_CAM_SETTINGS ||                    // Update per type
+                    packType != CAPacket.PID_CAM_SETTINGS ||                    // Update per type
                     unpack1.getCamPortNumber() != 50 ||
                     unpack1.getMode() != 1 ||
                     unpack1.getDelayHours() != 999 ||
@@ -487,7 +433,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_INTERVALOMETER ||              // Update per type
+                    packType != CAPacket.PID_INTERVALOMETER ||              // Update per type
                     unpack1.getStartHours() != 900 ||
                     unpack1.getStartMinutes() != 50 ||
                     unpack1.getStartSeconds() != 51 ||
@@ -511,7 +457,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_INTER_MODULE_LOGIC ||              // Update per type
+                    packType != CAPacket.PID_INTER_MODULE_LOGIC ||              // Update per type
                     unpack1.getLatchEnable() != 1 ||
                     unpack1.getLogic() != 2) {
                 Log.e("CA6", "Packet Test Error - INTER_MODULE_LOGIC test failed");
@@ -526,7 +472,7 @@ public class CAPacketHelper {
             short packType = unpack0.unpackType();
             unpack1.unpack();
             if (packSize != unpackSize ||
-                    packType != PID_CONTROL_FLAGS ||                   // Update per type
+                    packType != CAPacket.PID_CONTROL_FLAGS ||                   // Update per type
                     unpack1.getSlaveModeEnable() != 1 ||
                     unpack1.getExtraMessagesEnable() != 1) {
                 Log.e("CA6", "Packet Test Error - CONTROL_FLAGS test failed");

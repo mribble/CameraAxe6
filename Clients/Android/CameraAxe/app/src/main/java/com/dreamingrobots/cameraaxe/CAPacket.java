@@ -5,38 +5,34 @@ import android.util.Log;
 import java.nio.charset.Charset;
 
 /**
- * Created by oe on 12/25/2016.
- */
-
-/**
  * Base class that manages packet construction
  */
-public class CAPacket {
-    public static final short STATE_PACKER = 1;
-    public static final short STATE_UNPACKER = 2;
+class CAPacket {
+    static final int STATE_PACKER = 1;
+    static final int STATE_UNPACKER = 2;
 
-    public static final short PID_START_SENTINEL     = 0;  // Must be first
-    public static final short PID_MENU_HEADER        = 1;
-    public static final short PID_NEW_ROW            = 2;
-    public static final short PID_NEW_CELL           = 3;
-    public static final short PID_COND_START         = 4;
-    public static final short PID_COND_END           = 5;
-    public static final short PID_TEXT_STATIC        = 6;
-    public static final short PID_TEXT_DYNAMIC       = 7;
-    public static final short PID_BUTTON             = 8;
-    public static final short PID_CHECK_BOX          = 9;
-    public static final short PID_DROP_SELECT        = 10;
-    public static final short PID_EDIT_NUMBER        = 11;
-    public static final short PID_TIME_BOX           = 12;
-    public static final short PID_SCRIPT_END         = 13;
-    public static final short PID_MENU_SELECT        = 14;
-    public static final short PID_LOGGER             = 15;
-    public static final short PID_CAM_STATE          = 16;
-    public static final short PID_CAM_SETTINGS       = 17;
-    public static final short PID_INTERVALOMETER     = 18;
-    public static final short PID_INTER_MODULE_LOGIC = 19;
-    public static final short PID_CONTROL_FLAGS      = 20;
-    public static final short PID_END_SENTINEL       = 21; // Must be last
+    private static final int PID_START_SENTINEL     = 0;    // Must be first
+    static final int PID_MENU_HEADER                = 1;
+    static final int PID_NEW_ROW                    = 2;
+    static final int PID_NEW_CELL                   = 3;
+    static final int PID_COND_START                 = 4;
+    static final int PID_COND_END                   = 5;
+    static final int PID_TEXT_STATIC                = 6;
+    static final int PID_TEXT_DYNAMIC               = 7;
+    static final int PID_BUTTON                     = 8;
+    static final int PID_CHECK_BOX                  = 9;
+    static final int PID_DROP_SELECT                = 10;
+    static final int PID_EDIT_NUMBER                = 11;
+    static final int PID_TIME_BOX                   = 12;
+    static final int PID_SCRIPT_END                 = 13;   // Must be last of menu based packets
+    static final int PID_MENU_SELECT                = 14;
+    static final int PID_LOGGER                     = 15;
+    static final int PID_CAM_STATE                  = 16;
+    static final int PID_CAM_SETTINGS               = 17;
+    static final int PID_INTERVALOMETER             = 18;
+    static final int PID_INTER_MODULE_LOGIC         = 19;
+    static final int PID_CONTROL_FLAGS              = 20;
+    private static final int PID_END_SENTINEL       = 21;   // Must be last
 
     private int mBitsUsed;
     private int mBitsVal;
@@ -45,26 +41,26 @@ public class CAPacket {
     private byte[] mBuf;
     private int mBufSize;
 
-    public CAPacket(short state, byte[] buf, int bufSize) {
+    CAPacket(int state, byte[] buf, int bufSize) {
         mState = state;
         mBuf = buf;
         mBufSize = bufSize;
     }
 
-    public void CA_ASSERT(boolean test, String str) {
-        if (test == false) {
+    private void CA_ASSERT(boolean test, String str) {
+        if (!test) {
             Log.e("CA6_ASSERT", str);
         }
     }
 
-    public void resetBuffer() {
+    void resetBuffer() {
         flushPacket();  // Check for errors
         mBitsUsed = 0;
         mBitsVal = 0;
         mBytesUsed = 0;
     }
 
-    public int unpackSize() {return (int) unpacker(8);}
+    int unpackSize() {return (int) unpacker(8);}
 
     public short unpackType() {
         short val = (short) unpacker(8);
@@ -156,15 +152,25 @@ public class CAPacket {
     }
 
     protected void flushPacket() {
-        if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed >= mBufSize) {
+        if (mBitsUsed != 0 || mBitsVal != 0 || mBytesUsed > mBufSize) {
             Log.e("CA6", "Error detected during flush()");
         }
     }
 
     /***********************************************************************************************
+    * The PacketElement interface allows all the different packet types allows for a visitor
+     * design pattern
+    **********************************************************************************************/
+    public interface PacketElement {
+        public int getPacketType();
+        public void unpack();
+        public int pack();
+    }
+
+    /***********************************************************************************************
      * MenuHeader Packet Class
      **********************************************************************************************/
-    public class MenuHeader {
+    public class MenuHeader implements PacketElement {
 
         private int mMajorVersion;
         private int mMinorVersion;
@@ -174,6 +180,7 @@ public class CAPacket {
             mMenuName = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_MENU_HEADER;}
         public int getMajorVersion() {return mMajorVersion;}
         public int getMinorVersion() {return mMinorVersion;}
         public String getMenuName() {return mMenuName.toString();}
@@ -207,17 +214,15 @@ public class CAPacket {
     /***********************************************************************************************
      * NewRow Packet Class
      **********************************************************************************************/
-    public class NewRow {
+    public class NewRow implements PacketElement {
 
         public NewRow() {}
 
-        public void set() {
-            Log.e("CA6", "NewRow::set() never needs to be called");
-        }
+        public int getPacketType() {return PID_NEW_ROW;}
 
-        public void unpack() {
-            Log.e("CA6", "NewRow::unpack() never needs to be called");
-        }
+        public void set() {}
+
+        public void unpack() {}
 
         public int pack() {
             int packetSize = 2;
@@ -230,13 +235,14 @@ public class CAPacket {
     /***********************************************************************************************
      * NewCell Packet Class
      **********************************************************************************************/
-    public class NewCell {
+    public class NewCell implements PacketElement {
 
         private int mColumnPercentage;
         private int mJustification;
 
         public NewCell() {}
 
+        public int getPacketType() {return PID_NEW_CELL;}
         public int getColumnPercentage() {return mColumnPercentage;}
         public int getJustification() {return mJustification;}
 
@@ -264,7 +270,7 @@ public class CAPacket {
     /***********************************************************************************************
      * CondStart Packet Class
      **********************************************************************************************/
-    public class CondStart {
+    public class CondStart implements PacketElement {
 
         private int mClientHostId;
         private int mModAttribute;
@@ -272,6 +278,7 @@ public class CAPacket {
 
         public CondStart() {}
 
+        public int getPacketType() {return PID_COND_START;}
         public int getClientHostId() {return mClientHostId;}
         public int getModAttribute() {return mModAttribute;}
         public int getValue() {return mValue;}
@@ -305,17 +312,15 @@ public class CAPacket {
     /***********************************************************************************************
      * CondEnd Packet Class
      **********************************************************************************************/
-    public class CondEnd {
+    public class CondEnd implements PacketElement {
 
         public CondEnd() {}
 
-        public void set() {
-            Log.e("CA6", "CondEnd::set() never needs to be called");
-        }
+        public int getPacketType() {return PID_COND_END;}
 
-        public void unpack() {
-            Log.e("CA6", "CondEnd::unpack() never needs to be called");
-        }
+        public void set() {}
+
+        public void unpack() {}
 
         public int pack() {
             int packetSize = 2;
@@ -328,7 +333,7 @@ public class CAPacket {
     /***********************************************************************************************
      * TextStatic Packet Class
      **********************************************************************************************/
-    public class TextStatic {
+    public class TextStatic implements PacketElement {
 
         private StringBuilder mText;
 
@@ -336,6 +341,7 @@ public class CAPacket {
             mText = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_TEXT_STATIC;}
         public String getText() {return mText.toString();}
 
         public void set(String menuName) {
@@ -361,7 +367,7 @@ public class CAPacket {
     /***********************************************************************************************
      * TextDynamic Packet Class
      **********************************************************************************************/
-    public class TextDynamic {
+    public class TextDynamic implements PacketElement {
 
         private int mClientHostId;
         private StringBuilder mText;
@@ -370,6 +376,7 @@ public class CAPacket {
             mText = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_TEXT_DYNAMIC;}
         public int getClientHostId() {return mClientHostId;}
         public String getText() {return mText.toString();}
 
@@ -399,7 +406,7 @@ public class CAPacket {
     /***********************************************************************************************
      * Button Packet Class
      **********************************************************************************************/
-    public class Button {
+    public class Button implements PacketElement {
 
         private int mClientHostId;
         private int mType;
@@ -410,6 +417,7 @@ public class CAPacket {
             mText = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_BUTTON;}
         public int getClientHostId() {return mClientHostId;}
         public int getType() {return mType;}
         public int getValue() {return mValue;}
@@ -452,13 +460,14 @@ public class CAPacket {
     /***********************************************************************************************
      * CheckBox Packet Class
      **********************************************************************************************/
-    public class CheckBox {
+    public class CheckBox implements PacketElement {
 
         private int mClientHostId;
         private int mValue;
 
         public CheckBox() {}
 
+        public int getPacketType() {return PID_CHECK_BOX;}
         public int getClientHostId() {return mClientHostId;}
         public int getValue() {return mValue;}
 
@@ -488,7 +497,7 @@ public class CAPacket {
     /***********************************************************************************************
      * DropSelect Packet Class
      **********************************************************************************************/
-    public class DropSelect {
+    public class DropSelect implements PacketElement {
 
         private int mClientHostId;
         private int mValue;
@@ -498,6 +507,7 @@ public class CAPacket {
             mText = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_DROP_SELECT;}
         public int getClientHostId() {return mClientHostId;}
         public int getValue() {return mValue;}
         public String getText() {return mText.toString();}
@@ -531,7 +541,7 @@ public class CAPacket {
     /***********************************************************************************************
      * EditNumber Packet Class
      **********************************************************************************************/
-    public class EditNumber {
+    public class EditNumber implements PacketElement {
 
         private int mClientHostId;
         private int mDigitsBeforeDecimal;
@@ -542,6 +552,7 @@ public class CAPacket {
 
         public EditNumber() {}
 
+        public int getPacketType() {return PID_EDIT_NUMBER;}
         public int getClientHostId() {return mClientHostId;}
         public int getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;}
         public int getDigitsAfterDecimal() {return mDigitsAfterDecimal;}
@@ -594,7 +605,7 @@ public class CAPacket {
     /***********************************************************************************************
      * TimeBox Packet Class
      **********************************************************************************************/
-    public class TimeBox {
+    public class TimeBox implements PacketElement {
 
         private int mClientHostId;
         private int mEnableMask;
@@ -607,6 +618,7 @@ public class CAPacket {
 
         public TimeBox() {}
 
+        public int getPacketType() {return PID_TIME_BOX;}
         public int getClientHostId() {return mClientHostId;}
         public int getEnableMask() {return mEnableMask;}
         public int getHours() {return mHours;}
@@ -668,17 +680,15 @@ public class CAPacket {
     /***********************************************************************************************
      * ScriptEnd Packet Class
      **********************************************************************************************/
-    public class ScriptEnd {
+    public class ScriptEnd implements PacketElement {
 
         public ScriptEnd() {}
 
-        public void set() {
-            Log.e("CA6", "ScriptEnd::set() never needs to be called");
-        }
+        public int getPacketType() {return PID_SCRIPT_END;}
 
-        public void unpack() {
-            Log.e("CA6", "ScriptEnd::unpack() never needs to be called");
-        }
+        public void set() {}
+
+        public void unpack() {}
 
         public int pack() {
             int packetSize = 2;
@@ -691,13 +701,14 @@ public class CAPacket {
     /***********************************************************************************************
      * MenuSelect Packet Class
      **********************************************************************************************/
-    public class MenuSelect {
+    public class MenuSelect implements PacketElement {
 
         private int mMode;
         private int mMenuNumber;
 
         public MenuSelect() {}
 
+        public int getPacketType() {return PID_MENU_SELECT;}
         public int getMode() {return mMode;}
         public int getMenuNumber() {return mMenuNumber;}
 
@@ -727,7 +738,7 @@ public class CAPacket {
     /***********************************************************************************************
      * Log Packet Class
      **********************************************************************************************/
-    public class Logger {
+    public class Logger implements PacketElement {
 
         private StringBuilder mLog;
 
@@ -735,6 +746,7 @@ public class CAPacket {
             mLog = new StringBuilder();
         }
 
+        public int getPacketType() {return PID_LOGGER;}
         public String getLog() {return mLog.toString();}
 
         public void set(String log) {
@@ -760,7 +772,7 @@ public class CAPacket {
     /***********************************************************************************************
      * CamState Packet Class
      **********************************************************************************************/
-    public class CamState {
+    public class CamState implements PacketElement {
         public static final short CAM0  = 0x01;
         public static final short CAM1  = 0x02;
         public static final short CAM2  = 0x04;
@@ -776,6 +788,7 @@ public class CAPacket {
 
         public CamState() {}
 
+        public int getPacketType() {return PID_CAM_STATE;}
         public int getMultiplier() {return mMultiplier;}
         public int getFocus() {return mFocus;}
         public int getShutter() {return mShutter;}
@@ -807,7 +820,7 @@ public class CAPacket {
     /***********************************************************************************************
      * CamSettings Packet Class
      **********************************************************************************************/
-    public class CamSettings {
+    public class CamSettings implements PacketElement {
         public static final short SEQ0  = 0x01;
         public static final short SEQ1  = 0x02;
         public static final short SEQ2  = 0x04;
@@ -839,6 +852,7 @@ public class CAPacket {
 
         public CamSettings() {}
 
+        public int getPacketType() {return PID_CAM_SETTINGS;}
         public int  getCamPortNumber() {return mCamPortNumber;}
         public int  getMode() {return mMode;}
         public int  getDelayHours() {return mDelayHours;}
@@ -956,7 +970,7 @@ public class CAPacket {
     /***********************************************************************************************
      * Intervalometer Packet Class
      **********************************************************************************************/
-    public class Intervalometer {
+    public class Intervalometer implements PacketElement {
 
         private int mStartHours;
         private int mStartMinutes;
@@ -972,6 +986,7 @@ public class CAPacket {
 
         public Intervalometer() {}
 
+        public int getPacketType() {return PID_INTERVALOMETER;}
         public int getStartHours() {return mStartHours;}
         public int getStartMinutes() {return mStartMinutes;}
         public int getStartSeconds() {return mStartSeconds;}
@@ -1049,13 +1064,14 @@ public class CAPacket {
     /***********************************************************************************************
      * InterModuleLogic Packet Class
      **********************************************************************************************/
-    public class InterModuleLogic {
+    public class InterModuleLogic implements PacketElement {
 
         private int mLatchEnable;
         private int mLogic;
 
         public InterModuleLogic() {}
 
+        public int getPacketType() {return PID_INTER_MODULE_LOGIC;}
         public int getLatchEnable() {return mLatchEnable;}
         public int getLogic() {return mLogic;}
 
@@ -1087,13 +1103,14 @@ public class CAPacket {
     /***********************************************************************************************
      * InterModuleLogic Packet Class
      **********************************************************************************************/
-    public class ControlFlags {
+    public class ControlFlags implements PacketElement {
 
         private int mSlaveModeEnable;
         private int mExtraMessagesEnable;
 
         public ControlFlags() {}
 
+        public int getPacketType() {return PID_CONTROL_FLAGS;}
         public int getSlaveModeEnable() {return mSlaveModeEnable;}
         public int getExtraMessagesEnable() {return mExtraMessagesEnable;}
 
