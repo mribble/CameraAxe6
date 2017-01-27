@@ -7,8 +7,11 @@
 #include "MenuData.h"
 #include "Context.h"
 
+#include "CA6_Esp.h"
 // Initialize the context
 Context g_ctx;
+
+CA6_EspClass ca6_esp;
 
 void setup() {
   // This could be bigger, just want to know if the size starts getting really large
@@ -17,11 +20,16 @@ void setup() {
   CAU::logInit(9600);
   CAU::initializeAnalog();
 
+  ca6_esp.init();
+
   g_ctx.packetHelper.init(9600);
 }
 
 void loop() {
   //caRunTests();
+  if (SerialUSB.available()) {
+    processCommand();
+  }
   processIncomingPacket();
 
   if (g_ctx.active) {
