@@ -15,26 +15,22 @@ class CAPacket {
 
     private static final int PID_START_SENTINEL     = 0;    // Must be first
     static final int PID_MENU_HEADER                = 1;
-    static final int PID_NEW_ROW                    = 2;
-    static final int PID_NEW_CELL                   = 3;
-    static final int PID_COND_START                 = 4;
-    static final int PID_COND_END                   = 5;
-    static final int PID_TEXT_STATIC                = 6;
-    static final int PID_TEXT_DYNAMIC               = 7;
-    static final int PID_BUTTON                     = 8;
-    static final int PID_CHECK_BOX                  = 9;
-    static final int PID_DROP_SELECT                = 10;
-    static final int PID_EDIT_NUMBER                = 11;
-    static final int PID_TIME_BOX                   = 12;
-    static final int PID_SCRIPT_END                 = 13;   // Must be last of menu based packets
-    static final int PID_MENU_SELECT                = 14;
-    static final int PID_LOGGER                     = 15;
-    static final int PID_CAM_STATE                  = 16;
-    static final int PID_CAM_SETTINGS               = 17;
-    static final int PID_INTERVALOMETER             = 18;
-    static final int PID_INTER_MODULE_LOGIC         = 19;
-    static final int PID_CONTROL_FLAGS              = 20;
-    private static final int PID_END_SENTINEL       = 21;   // Must be last
+    static final int PID_TEXT_STATIC                = 2;
+    static final int PID_TEXT_DYNAMIC               = 3;
+    static final int PID_BUTTON                     = 4;
+    static final int PID_CHECK_BOX                  = 5;
+    static final int PID_DROP_SELECT                = 6;
+    static final int PID_EDIT_NUMBER                = 7;
+    static final int PID_TIME_BOX                   = 8;
+    static final int PID_SCRIPT_END                 = 9;   // Must be last of menu based packets
+    static final int PID_MENU_SELECT                = 10;
+    static final int PID_LOGGER                     = 11;
+    static final int PID_CAM_STATE                  = 12;
+    static final int PID_CAM_SETTINGS               = 13;
+    static final int PID_INTERVALOMETER             = 14;
+    static final int PID_INTER_MODULE_LOGIC         = 15;
+    static final int PID_CONTROL_FLAGS              = 16;
+    private static final int PID_END_SENTINEL       = 17;   // Must be last
 
     private int mBitsUsed;  // Bits in use that didn't fill a full byte
     private int mBitsVal;   // Value of bits that didn't fill a full byte
@@ -63,7 +59,7 @@ class CAPacket {
         mBytesUsed = 0;
     }
 
-    int unpackSize() {return (int) unpacker(8);}
+    int unpackSize() {return (int) unpacker(16);}
 
     public short unpackType() {
         short val = (short) unpacker(8);
@@ -196,139 +192,20 @@ class CAPacket {
         }
 
         public void unpack() {
-            mMajorVersion = (int)unpacker(8);
-            mMinorVersion = (int)unpacker(8);
+            mMajorVersion = (int)unpacker(16);
+            mMinorVersion = (int)unpacker(16);
             unpackerString(mMenuName);
             flushPacket();
         }
 
         public int pack() {
             int len = mMenuName.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + 2 + len;
-            packer(packetSize, 8);
+            int packetSize = 3 + 2 + len;
+            packer(packetSize, 16);
             packer(PID_MENU_HEADER, 8);
-            packer(mMajorVersion, 8);
-            packer(mMinorVersion, 8);
+            packer(mMajorVersion, 16);
+            packer(mMinorVersion, 16);
             packerString(mMenuName.toString());
-            flushPacket();
-            return packetSize;
-        }
-    }
-    /***********************************************************************************************
-     * NewRow Packet Class
-     **********************************************************************************************/
-    public class NewRow implements PacketElement {
-
-        public NewRow() {}
-
-        public int getPacketType() {return PID_NEW_ROW;}
-
-        public void set() {}
-
-        public void unpack() {}
-
-        public int pack() {
-            int packetSize = 2;
-            packer(packetSize, 8);
-            packer(PID_NEW_ROW, 8);
-            flushPacket();
-            return packetSize;
-        }
-    }
-    /***********************************************************************************************
-     * NewCell Packet Class
-     **********************************************************************************************/
-    public class NewCell implements PacketElement {
-
-        private int mColumnPercentage;
-        private int mJustification;
-
-        public NewCell() {}
-
-        public int getPacketType() {return PID_NEW_CELL;}
-        public int getColumnPercentage() {return mColumnPercentage;}
-        public int getJustification() {return mJustification;}
-
-        public void set(int columnPercentage, int justification) {
-            mColumnPercentage = columnPercentage;
-            mJustification = justification;
-        }
-
-        public void unpack() {
-            mColumnPercentage = (int)unpacker(8);
-            mJustification = (int)unpacker(8);
-            flushPacket();
-        }
-
-        public int pack() {
-            int packetSize = 2 + 2;
-            packer(packetSize, 8);
-            packer(PID_NEW_CELL, 8);
-            packer(mColumnPercentage, 8);
-            packer(mJustification, 8);
-            flushPacket();
-            return packetSize;
-        }
-    }
-    /***********************************************************************************************
-     * CondStart Packet Class
-     **********************************************************************************************/
-    public class CondStart implements PacketElement {
-
-        private int mClientHostId;
-        private int mModAttribute;
-        private int mValue;
-
-        public CondStart() {}
-
-        public int getPacketType() {return PID_COND_START;}
-        public int getClientHostId() {return mClientHostId;}
-        public int getModAttribute() {return mModAttribute;}
-        public int getValue() {return mValue;}
-
-        public void set(int clientHostId, int modAttribute, int value) {
-            mClientHostId = clientHostId;
-            mModAttribute = modAttribute;
-            mValue = value;
-            CA_ASSERT((mModAttribute <= 1) && (mValue <= 1),
-                    "Error in CAPacketCondStart::set()");
-        }
-
-        public void unpack() {
-            mClientHostId = (int)unpacker(8);
-            mModAttribute = (int)unpacker(4);
-            mValue = (int)unpacker(4);
-            flushPacket();
-        }
-
-        public int pack() {
-            int packetSize = 2 + 2;
-            packer(packetSize, 8);
-            packer(PID_COND_START, 8);
-            packer(mClientHostId, 8);
-            packer(mModAttribute, 4);
-            packer(mValue, 4);
-            flushPacket();
-            return packetSize;
-        }
-    }
-    /***********************************************************************************************
-     * CondEnd Packet Class
-     **********************************************************************************************/
-    public class CondEnd implements PacketElement {
-
-        public CondEnd() {}
-
-        public int getPacketType() {return PID_COND_END;}
-
-        public void set() {}
-
-        public void unpack() {}
-
-        public int pack() {
-            int packetSize = 2;
-            packer(packetSize, 8);
-            packer(PID_COND_END, 8);
             flushPacket();
             return packetSize;
         }
@@ -338,31 +215,31 @@ class CAPacket {
      **********************************************************************************************/
     public class TextStatic implements PacketElement {
 
-        private StringBuilder mText;
+        private StringBuilder mText0;
 
         public TextStatic() {
-            mText = new StringBuilder();
+            mText0 = new StringBuilder();
         }
 
         public int getPacketType() {return PID_TEXT_STATIC;}
-        public String getText() {return mText.toString();}
+        public String getText0() {return mText0.toString();}
 
-        public void set(String menuName) {
-            mText.setLength(0);
-            mText.append(menuName);
+        public void set(String text0) {
+            mText0.setLength(0);
+            mText0.append(text0);
         }
 
         public void unpack() {
-            unpackerString(mText);
+            unpackerString(mText0);
             flushPacket();
         }
 
         public int pack() {
-            int len = mText.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + len;
-            packer(packetSize, 8);
+            int len = mText0.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + len;
+            packer(packetSize, 16);
             packer(PID_TEXT_STATIC, 8);
-            packerString(mText.toString());
+            packerString(mText0.toString());
             flushPacket();
             return packetSize;
         }
@@ -373,35 +250,44 @@ class CAPacket {
     public class TextDynamic implements PacketElement {
 
         private int mClientHostId;
-        private StringBuilder mText;
+        private int mModAttribute;
+        private StringBuilder mText0;
 
         public TextDynamic() {
-            mText = new StringBuilder();
+            mText0 = new StringBuilder();
         }
 
         public int getPacketType() {return PID_TEXT_DYNAMIC;}
         public int getClientHostId() {return mClientHostId;}
-        public String getText() {return mText.toString();}
+        public int getModAttribute() {return mModAttribute;}
+        public String getText() {return mText0.toString();}
 
-        public void set(int clientHostId, String menuName) {
+        public void set(int clientHostId, int modAttribute, String menuName) {
             mClientHostId = clientHostId;
-            mText.setLength(0);
-            mText.append(menuName);
+            mModAttribute = modAttribute;
+            mText0.setLength(0);
+            mText0.append(menuName);
+            CA_ASSERT(mModAttribute <= 2,
+                    "Error in CAPacketTextDynamic::set()");
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
-            unpackerString(mText);
+            mModAttribute = (int)unpacker(8);
+            unpackerString(mText0);
             flushPacket();
+            CA_ASSERT(mModAttribute <= 2,
+                    "Error in CAPacketTextDynamic::unpack()");
         }
 
         public int pack() {
-            int len = mText.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + 1 + len;
-            packer(packetSize, 8);
+            int len = mText0.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 2 + len;
+            packer(packetSize, 16);
             packer(PID_TEXT_DYNAMIC, 8);
             packer(mClientHostId, 8);
-            packerString(mText.toString());
+            packer(mModAttribute, 8);
+            packerString(mText0.toString());
             flushPacket();
             return packetSize;
         }
@@ -412,50 +298,62 @@ class CAPacket {
     public class Button implements PacketElement {
 
         private int mClientHostId;
+        private int mModAttribute;
         private int mType;
         private int mValue;
-        private StringBuilder mText;
+        private StringBuilder mText0;
+        private StringBuilder mText1;
 
         public Button() {
-            mText = new StringBuilder();
+            mText0 = new StringBuilder();
+            mText1 = new StringBuilder();
         }
 
         public int getPacketType() {return PID_BUTTON;}
         public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
         public int getType() {return mType;}
         public int getValue() {return mValue;}
-        public String getText() {return mText.toString();}
+        public String getText0() {return mText0.toString();}
+        public String getText1() {return mText1.toString();}
 
-        public void set(int clientHostId, int type, int value, String menuName) {
+        public void set(int clientHostId, int modAttribute, int type, int value, String text0,
+                        String text1) {
             mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
             mType = type;
             mValue = value;
-            mText.setLength(0);
-            mText.append(menuName);
-            CA_ASSERT((mType <= 1) && (mValue <= 1),
+            mText0.setLength(0);
+            mText1.setLength(0);
+            mText0.append(text0);
+            mText1.append(text1);
+            CA_ASSERT((mType <= 1) && (mValue <= 1) && (mModAttribute <= 2),
                     "Error in CAPacketButton::set()");
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(8);
             mType = (int)unpacker(4);
             mValue = (int)unpacker(4);
-            unpackerString(mText);
+            unpackerString(mText0);
+            unpackerString(mText1);
             flushPacket();
-            CA_ASSERT((mType <= 1) && (mValue <= 1),
+            CA_ASSERT((mType <= 1) && (mValue <= 1) && (mModAttribute <= 2),
                     "Error in CAPacketButton::unpack()");
-
         }
 
         public int pack() {
-            int len = mText.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + 2 + len;
-            packer(packetSize, 8);
+            int len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
+            int packetSize = 3 + 3 + len;
+            packer(packetSize, 16);
             packer(PID_BUTTON, 8);
             packer(mClientHostId, 8);
+            packer(mModAttribute, 8);
             packer(mType, 4);
             packer(mValue, 4);
-            packerString(mText.toString());
+            packerString(mText0.toString());
+            packerString(mText1.toString());
             flushPacket();
             return packetSize;
         }
@@ -466,33 +364,45 @@ class CAPacket {
     public class CheckBox implements PacketElement {
 
         private int mClientHostId;
+        private int mModAttribute;
         private int mValue;
+        private StringBuilder mText0;
 
-        public CheckBox() {}
+        public CheckBox() {mText0 = new StringBuilder();}
 
         public int getPacketType() {return PID_CHECK_BOX;}
         public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
         public int getValue() {return mValue;}
+        public String getText0() {return mText0.toString();}
 
-        public void set(int clientHostId, int value) {
+        public void set(int clientHostId, int modAttribute, int value, String text0) {
             mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
             mValue = value;
-            CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::set()");
+            mText0.setLength(0);
+            mText0.append(text0);
+            CA_ASSERT((mValue <= 1) && (mModAttribute <= 2), "Error in CAPacketCheckBox::set()");
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(8);
             mValue = (int)unpacker(8);
+            unpackerString(mText0);
             flushPacket();
-            CA_ASSERT((mValue <= 1), "Error in CAPacketCheckBox::unpack()");
+            CA_ASSERT((mValue <= 1) && (mModAttribute <= 2), "Error in CAPacketCheckBox::unpack()");
         }
 
         public int pack() {
-            int packetSize = 2 + 2;
-            packer(packetSize, 8);
+            int len = mText0.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 3 + len;
+            packer(packetSize, 16);
             packer(PID_CHECK_BOX, 8);
             packer(mClientHostId, 8);
+            packer(mModAttribute, 8);
             packer(mValue, 8);
+            packerString(mText0.toString());
             flushPacket();
             return packetSize;
         }
@@ -503,40 +413,57 @@ class CAPacket {
     public class DropSelect implements PacketElement {
 
         private int mClientHostId;
+        private int mModAttribute;
         private int mValue;
-        private StringBuilder mText;
+        private StringBuilder mText0;
+        private StringBuilder mText1;
 
         public DropSelect() {
-            mText = new StringBuilder();
+            mText0 = new StringBuilder();
+            mText1 = new StringBuilder();
         }
 
         public int getPacketType() {return PID_DROP_SELECT;}
         public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
         public int getValue() {return mValue;}
-        public String getText() {return mText.toString();}
+        public String getText0() {return mText0.toString();}
+        public String getText1() {return mText1.toString();}
 
-        public void set(int clientHostId, int value, String menuName) {
+        public void set(int clientHostId, int modAttribute, int value, String text0, String text1) {
             mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
             mValue = value;
-            mText.setLength(0);
-            mText.append(menuName);
+            mText0.setLength(0);
+            mText1.setLength(0);
+            mText0.append(text0);
+            mText1.append(text1);
+            CA_ASSERT(mModAttribute <= 2,
+                    "Error in CAPacketDropSelect::set()");
+
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(8);
             mValue = (int)unpacker(8);
-            unpackerString(mText);
+            unpackerString(mText0);
+            unpackerString(mText1);
             flushPacket();
+            CA_ASSERT(mModAttribute <= 2,
+                    "Error in CAPacketDropSelect::unpack()");
         }
 
         public int pack() {
-            int len = mText.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + 2 + len;
-            packer(packetSize, 8);
+            int len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
+            int packetSize = 3 + 3 + len;
+            packer(packetSize, 16);
             packer(PID_DROP_SELECT, 8);
             packer(mClientHostId, 8);
+            packer(mModAttribute, 8);
             packer(mValue, 8);
-            packerString(mText.toString());
+            packerString(mText0.toString());
+            packerString(mText1.toString());
             flushPacket();
             return packetSize;
         }
@@ -547,60 +474,75 @@ class CAPacket {
     public class EditNumber implements PacketElement {
 
         private int mClientHostId;
+        private int mModAttribute;
         private int mDigitsBeforeDecimal;
         private int mDigitsAfterDecimal;
         private long mMinValue;
         private long mMaxValue;
         private long mValue;
+        private StringBuilder mText0;
 
-        public EditNumber() {}
+        public EditNumber() {mText0 = new StringBuilder();}
 
         public int getPacketType() {return PID_EDIT_NUMBER;}
         public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
         public int getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;}
         public int getDigitsAfterDecimal() {return mDigitsAfterDecimal;}
         public long getMinValue() {return mMinValue;}
         public long getMaxValue() {return mMaxValue;}
         public long getValue() {return mValue;}
+        public String getText0() {return mText0.toString();}
 
-        public void set(int clientHostId, int digitsBeforeDecimal, int digitsAfterDecimal,
-                        long minValue, long maxValue, long value) {
+        public void set(int clientHostId, int modAttribute, int digitsBeforeDecimal,
+                        int digitsAfterDecimal, long minValue, long maxValue, long value,
+                        String text0) {
             mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
             mDigitsBeforeDecimal = digitsBeforeDecimal;
             mDigitsAfterDecimal = digitsAfterDecimal;
             mMinValue = minValue;
             mMaxValue = maxValue;
             mValue = value;
+            mText0.setLength(0);
+            mText0.append(text0);
             CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
                             (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
-                            (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                            (mMinValue <= 99999999) && (mMaxValue <= 99999999) &&
+                            (mModAttribute <= 2),
                     "Error in CAPacketEditNumber::set()");
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(8);
             mDigitsBeforeDecimal = (int)unpacker(4);
             mDigitsAfterDecimal = (int)unpacker(4);
             mMinValue = (long)unpacker(32);
             mMaxValue = (long)unpacker(32);
             mValue = (long)unpacker(32);
+            unpackerString(mText0);
             flushPacket();
             CA_ASSERT((mDigitsBeforeDecimal <= 8) && (mDigitsAfterDecimal <= 8) &&
                             (mDigitsBeforeDecimal+mDigitsAfterDecimal <= 8) &&
-                            (mMinValue <= 99999999) && (mMaxValue <= 99999999),
+                            (mMinValue <= 99999999) && (mMaxValue <= 99999999) &&
+                            (mModAttribute <= 2),
                     "Error in CAPacketEditNumber::unpack()");
         }
 
         public int pack() {
-            int packetSize = 2 + 14;
-            packer(packetSize, 8);
+            int len = mText0.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 15 + len;
+            packer(packetSize, 16);
             packer(PID_EDIT_NUMBER, 8);
             packer(mClientHostId, 8);
+            packer(mModAttribute, 8);
             packer(mDigitsBeforeDecimal, 4);
             packer(mDigitsAfterDecimal, 4);
             packer(mMinValue, 32);
             packer(mMaxValue, 32);
             packer(mValue, 32);
+            packerString(mText0.toString());
             flushPacket();
             return packetSize;
         }
@@ -611,6 +553,7 @@ class CAPacket {
     public class TimeBox implements PacketElement {
 
         private int mClientHostId;
+        private int mModAttribute;
         private int mEnableMask;
         private int mHours;
         private int mMinutes;
@@ -618,11 +561,13 @@ class CAPacket {
         private int mMilliseconds;
         private int mMicroseconds;
         private int mNanoseconds;
+        private StringBuilder mText0;
 
-        public TimeBox() {}
+        public TimeBox() {mText0 = new StringBuilder();}
 
         public int getPacketType() {return PID_TIME_BOX;}
         public int getClientHostId() {return mClientHostId;}
+        public int getModAttribute() {return mModAttribute;}
         public int getEnableMask() {return mEnableMask;}
         public int getHours() {return mHours;}
         public int getMinutes() {return mMinutes;}
@@ -630,10 +575,13 @@ class CAPacket {
         public int getMilliseconds() {return mMilliseconds;}
         public int getMicroseconds() {return mMicroseconds;}
         public int getNanoseconds() {return mNanoseconds;}
+        public String getText0() {return mText0.toString();}
 
-        public void set(int clientHostId, int enableMask, int hours, int minutes, int seconds,
-                        int milliseconds, int microseconds, int nanoseconds ) {
+        public void set(int clientHostId, int modAttribute, int enableMask, int hours, int minutes,
+                        int seconds, int milliseconds, int microseconds, int nanoseconds,
+                        String text0) {
             mClientHostId = clientHostId;
+            mModAttribute = modAttribute;
             mEnableMask = enableMask;
             mHours = hours;
             mMinutes = minutes;
@@ -641,13 +589,17 @@ class CAPacket {
             mMilliseconds = milliseconds;
             mMicroseconds = microseconds;
             mNanoseconds = nanoseconds;
+            mText0.setLength(0);
+            mText0.append(text0);
             CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) &&
                     (mSeconds <=59) && (mMilliseconds <= 999) && (mMicroseconds <= 999) &&
-                    (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
+                    (mNanoseconds <= 999) && (mModAttribute <= 2),
+                    "Error in CAPacketTimeBox::set()");
         }
 
         public void unpack() {
             mClientHostId = (int)unpacker(8);
+            mModAttribute = (int)unpacker(8);
             mEnableMask = (int)unpacker(6);
             mHours = (int)unpacker(10);
             mMinutes = (int)unpacker(6);
@@ -656,18 +608,22 @@ class CAPacket {
             mMicroseconds = (int)unpacker(10);
             mNanoseconds = (int)unpacker(10);
             unpacker(6); // Unused
+            unpackerString(mText0);
             flushPacket();
             CA_ASSERT((mEnableMask <= 0x3F) && (mHours <= 999) && (mMinutes <= 59) &&
                     (mSeconds <=59) && (mMilliseconds <= 999) && (mMicroseconds <= 999) &&
-                    (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
+                    (mNanoseconds <= 999) && (mModAttribute <= 2),
+                    "Error in CAPacketTimeBox::set()");
         }
 
         public int pack() {
             int unused = 0;
-            int packetSize = 2 + 9;
-            packer(packetSize, 8);
+            int len = mText0.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 10 + len;
+            packer(packetSize, 16);
             packer(PID_TIME_BOX, 8);
             packer(mClientHostId, 8);
+            packer(mModAttribute, 8);
             packer(mEnableMask, 6);
             packer(mHours, 10);
             packer(mMinutes, 6);
@@ -676,6 +632,7 @@ class CAPacket {
             packer(mMicroseconds, 10);
             packer(mNanoseconds, 10);
             packer(unused, 6);
+            packerString(mText0.toString());
             flushPacket();
             return packetSize;
         }
@@ -694,8 +651,8 @@ class CAPacket {
         public void unpack() {}
 
         public int pack() {
-            int packetSize = 2;
-            packer(packetSize, 8);
+            int packetSize = 3;
+            packer(packetSize, 16);
             packer(PID_SCRIPT_END, 8);
             flushPacket();
             return packetSize;
@@ -729,8 +686,8 @@ class CAPacket {
         }
 
         public int pack() {
-            int packetSize = 2 + 2;
-            packer(packetSize, 8);
+            int packetSize = 3 + 2;
+            packer(packetSize, 16);
             packer(PID_MENU_SELECT, 8);
             packer(mMode, 8);
             packer(mMenuNumber, 8);
@@ -764,8 +721,8 @@ class CAPacket {
 
         public int pack() {
             int len = mLog.length() + 1;  // 1 for the null terminator
-            int packetSize = 2 + len;
-            packer(packetSize, 8);
+            int packetSize = 3 + len;
+            packer(packetSize, 16);
             packer(PID_LOGGER, 8);
             packerString(mLog.toString());
             flushPacket();
@@ -810,8 +767,8 @@ class CAPacket {
         }
 
         public int pack() {
-            int packetSize = 2 + 3;
-            packer(packetSize, 8);
+            int packetSize = 3 + 3;
+            packer(packetSize, 16);
             packer(PID_CAM_STATE, 8);
             packer(mMultiplier, 8);
             packer(mFocus, 8);
@@ -948,8 +905,8 @@ class CAPacket {
 
         public int pack() {
             int unused = 0;
-            int packetSize = 2 + 17;
-            packer(packetSize, 8);
+            int packetSize = 3 + 17;
+            packer(packetSize, 16);
             packer(PID_CAM_SETTINGS, 8);
             packer(mCamPortNumber, 8);
             packer(mMode, 2);
@@ -1053,8 +1010,8 @@ class CAPacket {
         public int pack() {
 
             int unused=0;
-            int packetSize = 2 + 13;
-            packer(packetSize, 8);
+            int packetSize = 3 + 13;
+            packer(packetSize, 16);
             packer(PID_INTERVALOMETER, 8);
             packer(mStartHours, 10);
             packer(mStartMinutes, 6);
@@ -1102,8 +1059,8 @@ class CAPacket {
         }
 
         public int pack() {
-            int packetSize = 2 + 1;
-            packer(packetSize, 8);
+            int packetSize = 3 + 1;
+            packer(packetSize, 16);
             packer(PID_INTER_MODULE_LOGIC, 8);
             packer(mLatchEnable, 1);
             packer(mLogic, 7);
@@ -1143,8 +1100,8 @@ class CAPacket {
 
         public int pack() {
             int unused = 0;
-            int packetSize = 2 + 1;
-            packer(packetSize, 8);
+            int packetSize = 3 + 1;
+            packer(packetSize, 16);
             packer(PID_CONTROL_FLAGS, 8);
             packer(mSlaveModeEnable, 1);
             packer(mExtraMessagesEnable, 1);

@@ -14,24 +14,23 @@ from enum import Enum
 class scriptState(Enum):
     INITIAL_STATE = 0
     MENU_HEADER   = 1
-    NEW_ROW       = 2
-    NEW_CELL      = 3
-    CONTINUE_CELL = 4
-    SCRIPT_END    = 5
+    MENU_DATA     = 2
+    SCRIPT_END    = 3
 
 ByteWriter = collections.namedtuple('ByteWriter', ['used', 'value'])
 gClientHostId = 0
 gScriptState = scriptState.INITIAL_STATE
-gCellPercentageSum = 0
 gBytesWritten = 0
 
 # Constants
-KEY_TOKEN_LIST = ['MENU_HEADER','NEW_ROW', 'NEW_CELL', 'COND_START',
-                  'COND_END', 'TEXT_STATIC', 'TEXT_DYNAMIC', 'BUTTON',
+KEY_TOKEN_LIST = ['MENU_HEADER', 'TEXT_STATIC', 'TEXT_DYNAMIC', 'BUTTON',
                   'CHECK_BOX', 'DROP_SELECT', 'EDIT_NUMBER', 'TIME_BOX',
                   'SCRIPT_END']
 
-MAX_BUFFER_SIZE = 64
+MAX_STRING_SIZE = 512
+MAX_PACKET_DATA_SIZE = 128
+# Packets can have 2 strings
+MAX_PACKET_SIZE = (MAX_STRING_SIZE * 2 + 128)
 
 ###############################################################################
 ## Cleanly exits
@@ -66,7 +65,7 @@ def commentRemover(line):
     
 ###############################################################################
 ## This takes a single string (line) and converts it into a list of tokens
-##   where each token in the list is a single word execpt for words grouped 
+##   where each token in the list is a single word except for words grouped 
 ##   inside ""
 ###############################################################################
 def createLineTokenList(line):
@@ -82,7 +81,8 @@ def createLineTokenList(line):
                 print("Error -- Mismatched quotes on line -- ")
                 print(line)
                 exitMenuProcessor()
-            tokenList += line[:s0].split()
+            if (len(tokenList) == 1):
+                tokenList += line[:s0].split()
             if (s1-s0 <= 1):
                 print("Error -- Empty string on line -- ")
                 print(line)
@@ -170,7 +170,7 @@ def writeString(val):
         exitMenuProcessor()
         
     val = val[1:-1] # remove the starting and ending quotes from the string
-    if (len(val) >= MAX_BUFFER_SIZE-1): #-1 is for null terminator
+    if (len(val) >= MAX_STRING_SIZE-1): #-1 is for null terminator
         print("Error -- String too long -- ")
         print(line)
         exitMenuProcessor()
@@ -185,31 +185,53 @@ def writeString(val):
 ###############################################################################
 ## Writes a line size to the CA6 output
 ###############################################################################
-def writeSize(val, strVal):
-    if (strVal):
-        if (strVal[0] != "\""):
+def writeSize(val, strVal0, strVal1):
+    if (val > MAX_PACKET_DATA_SIZE):
+        print("Error pack size not large enough")
+        exitMenuProcessor()
+
+    if (strVal0):
+        if (strVal0[0] != "\""):
             print("Error -- String did not start with  -- ")
             print(line)
             exitMenuProcessor()
-        if (strVal[-1] != "\""):
+        if (strVal0[-1] != "\""):
             print("Error -- String did not end with  -- ")
             print(line)
             exitMenuProcessor()
                 
-        strVal = strVal[1:-1] # remove the starting and ending quotes from the string
-        if (len(strVal) >= MAX_BUFFER_SIZE-1): #-1 is for null terminator
+        strVal0 = strVal0[1:-1] # remove the starting and ending quotes from the string
+        if (len(strVal0) >= MAX_STRING_SIZE-1): #-1 is for null terminator
             print("Error -- String too long -- ")
             print(line)
             exitMenuProcessor()
         
-        val = val + len(strVal) + 1
+        val = val + len(strVal0) + 1
+    if (strVal1):
+        if (strVal1[0] != "\""):
+            print("Error -- String did not start with  -- ")
+            print(line)
+            exitMenuProcessor()
+        if (strVal1[-1] != "\""):
+            print("Error -- String did not end with  -- ")
+            print(line)
+            exitMenuProcessor()
+                
+        strVal1 = strVal1[1:-1] # remove the starting and ending quotes from the string
+        if (len(strVal1) >= MAX_STRING_SIZE-1): #-1 is for null terminator
+            print("Error -- String too long -- ")
+            print(line)
+            exitMenuProcessor()
+        
+        val = val + len(strVal1) + 1
 
-    if ((val >= 256) or (val < 0)):
+    if ((val >= MAX_PACKET_SIZE) or (val < 0)):
         print("Error -- Invalid packet size -- ")
         print(line)
         exitMenuProcessor()
     
-    fout.write("  " + str(val) + ",")
+    fout.write("  " + str(val&0xff) + "," + str(val>>8) + ",")
+    increaseBytesWritten()
     increaseBytesWritten()
     
 ###############################################################################
@@ -218,15 +240,9 @@ def writeSize(val, strVal):
 ###############################################################################
 def scriptStateCheck(newState, lineine, cellPercentage=0):
     global gScriptState
-    global gCellPercentageSum
     
     if (newState == scriptState.SCRIPT_END):
         gScriptState = newState
-        if ((gCellPercentageSum != 0) and (gCellPercentageSum != 100)):
-            print("Error -- Invalid cell sum at end (should be 0 or 100) -- ")
-            print(gCellPercentageSum)
-            print(line)
-            exitMenuProcessor()
         return
     
     if (gScriptState == scriptState.INITIAL_STATE):
@@ -237,47 +253,19 @@ def scriptStateCheck(newState, lineine, cellPercentage=0):
             print(line)
             exitMenuProcessor()
     elif (gScriptState == scriptState.MENU_HEADER):
-        if (newState == scriptState.NEW_ROW):
+        if (newState == scriptState.MENU_DATA):
             gScriptState = newState
         else:
             print("Error -- Invalid state after MENU_HEADER -- ")
             print(line)
             exitMenuProcessor()
-    elif (gScriptState == scriptState.NEW_ROW):
-        if ((gCellPercentageSum != 0) and (gCellPercentageSum != 100)):
-            print("Error -- Invalid cell sum (should be 0 or 100) -- ")
-            print(gCellPercentageSum)
-            print(line)
-            exitMenuProcessor()
-        if (newState == scriptState.NEW_CELL):
-            gCellPercentageSum = cellPercentage
+    elif (gScriptState == scriptState.MENU_DATA):
+        if (newState == scriptState.MENU_DATA):
+            gScriptState = newState
+        elif (newState == scriptState.SCRIPT_END):
             gScriptState = newState
         else:
-            print("Error -- Invalid state after NEW_ROW -- ")
-            print(line)
-            exitMenuProcessor()
-    elif (gScriptState == scriptState.NEW_CELL):
-        if (newState == scriptState.NEW_ROW):
-            gScriptState = newState
-        elif (newState == scriptState.NEW_CELL):
-            gCellPercentageSum = gCellPercentageSum + cellPercentage
-            gScriptState = newState
-        elif (newState == scriptState.CONTINUE_CELL):
-            gScriptState = newState
-        else:
-            print("Error -- Invalid state after NEW_CELL -- ")
-            print(line)
-            exitMenuProcessor()
-    elif (gScriptState == scriptState.CONTINUE_CELL):
-        if (newState == scriptState.NEW_ROW):
-            gScriptState = newState
-        elif (newState == scriptState.NEW_CELL):
-            gCellPercentageSum = gCellPercentageSum + cellPercentage
-            gScriptState = newState
-        elif (newState == scriptState.CONTINUE_CELL):
-            gScriptState = newState
-        else:
-            print("Error -- Invalid state after CONTINUE_CELL -- ")
+            print("Error -- Invalid state after MENU_DATA -- ")
             print(line)
             exitMenuProcessor()
     elif (gScriptState == scriptState.SCRIPT_END):
@@ -298,169 +286,139 @@ def procMenuHeader(tokenList, line):
     scriptStateCheck(scriptState.MENU_HEADER, line)
     byteWriter = ByteWriter(0,0)
     checkTokenCountMismatch(len(tokenList), 4, line)
-    writeSize(4, tokenList[3])
+    writeSize(7, tokenList[3], None)
     fout.write("PID_MENU_HEADER,")
     increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 255, 8, byteWriter);
-    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 255, 8, byteWriter);
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 65536, 16, byteWriter);
+    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 65536, 16, byteWriter);
     writeString(tokenList[3])
     writeLineComment(tokenList, -1)
 
-def procNewRow(tokenList, line):
-    scriptStateCheck(scriptState.NEW_ROW, line)
-    checkTokenCountMismatch(len(tokenList), 1, line)
-    writeSize(2, None)
-    fout.write("PID_NEW_ROW,")
-    increaseBytesWritten()
-    writeLineComment(tokenList, -1)
-
-def procNewCell(tokenList, line):
-    scriptStateCheck(scriptState.NEW_CELL, line, int(tokenList[1]))
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(4, None)
-    fout.write("PID_NEW_CELL,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 100, 8, byteWriter);
-    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 2, 8, byteWriter);
-    writeLineComment(tokenList, -1)
-
-def procCondStart(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
-    global gClientHostId
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(4, None)
-    fout.write("PID_COND_START,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 1, 4, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 1, 4, byteWriter)
-    gClientHostId = writeLineComment(tokenList, gClientHostId)
-
-def procCondEnd(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
-    checkTokenCountMismatch(len(tokenList), 1, line)
-    writeSize(2, None)
-    fout.write("PID_COND_END,")
-    increaseBytesWritten()
-    writeLineComment(tokenList, -1)
-    
 def procTextStatic(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
+    scriptStateCheck(scriptState.MENU_DATA, line)
     checkTokenCountMismatch(len(tokenList), 2, line)
-    writeSize(2, tokenList[1])
+    writeSize(3, tokenList[1], None)
     fout.write("PID_TEXT_STATIC,")
     increaseBytesWritten()
     writeString(tokenList[1])
     writeLineComment(tokenList, -1)
 
 def procTextDynamic(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
-    global gClientHostId
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 2, line)
-    writeSize(3, tokenList[1])
-    fout.write("PID_TEXT_DYNAMIC,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    writeString(tokenList[1])
-    gClientHostId = writeLineComment(tokenList, gClientHostId)
-
-def procButton(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
-    global gClientHostId
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 4, line)
-    writeSize(4, tokenList[3])
-    fout.write("PID_BUTTON,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 1, 4, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 1, 4, byteWriter)
-    writeString(tokenList[3])
-    gClientHostId = writeLineComment(tokenList, gClientHostId)
-
-def procCheckBox(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
-    global gClientHostId
-    byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 2, line)
-    writeSize(4, None)
-    fout.write("PID_CHECK_BOX,")
-    increaseBytesWritten()
-    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 1, 8, byteWriter)
-    gClientHostId = writeLineComment(tokenList, gClientHostId)
-
-def procDropSelect(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
+    scriptStateCheck(scriptState.MENU_DATA, line)
     global gClientHostId
     byteWriter = ByteWriter(0,0)
     checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(4, tokenList[2])
-    fout.write("PID_DROP_SELECT,")
+    writeSize(5, tokenList[2], None)
+    fout.write("PID_TEXT_DYNAMIC,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 255, 8, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
     writeString(tokenList[2])
     gClientHostId = writeLineComment(tokenList, gClientHostId)
 
-def procEditNumber(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
+def procButton(tokenList, line):
+    scriptStateCheck(scriptState.MENU_DATA, line)
     global gClientHostId
     byteWriter = ByteWriter(0,0)
     checkTokenCountMismatch(len(tokenList), 6, line)
-    writeSize(16, None)
+    writeSize(6, tokenList[4], tokenList[5])
+    fout.write("PID_BUTTON,")
+    increaseBytesWritten()
+    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
+    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 1, 4, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[3], 0, 1, 4, byteWriter)
+    writeString(tokenList[4])
+    writeString(tokenList[5])
+    gClientHostId = writeLineComment(tokenList, gClientHostId)
+
+def procCheckBox(tokenList, line):
+    scriptStateCheck(scriptState.MENU_DATA, line)
+    global gClientHostId
+    byteWriter = ByteWriter(0,0)
+    checkTokenCountMismatch(len(tokenList), 4, line)
+    writeSize(6, tokenList[3], None)
+    fout.write("PID_CHECK_BOX,")
+    increaseBytesWritten()
+    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
+    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 1, 8, byteWriter)
+    writeString(tokenList[3])
+    gClientHostId = writeLineComment(tokenList, gClientHostId)
+
+def procDropSelect(tokenList, line):
+    scriptStateCheck(scriptState.MENU_DATA, line)
+    global gClientHostId
+    byteWriter = ByteWriter(0,0)
+    checkTokenCountMismatch(len(tokenList), 5, line)
+    writeSize(6, tokenList[3], tokenList[4])
+    fout.write("PID_DROP_SELECT,")
+    increaseBytesWritten()
+    byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
+    byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 255, 8, byteWriter)
+    writeString(tokenList[3])
+    writeString(tokenList[4])
+    gClientHostId = writeLineComment(tokenList, gClientHostId)
+
+def procEditNumber(tokenList, line):
+    scriptStateCheck(scriptState.MENU_DATA, line)
+    global gClientHostId
+    byteWriter = ByteWriter(0,0)
+    checkTokenCountMismatch(len(tokenList), 8, line)
+    writeSize(18, tokenList[7], None)
     fout.write("PID_EDIT_NUMBER,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 8, 4, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
     byteWriter = writeBoundsCheckedNumber(tokenList[2], 0, 8, 4, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[3], 0, 99999999, 32, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[3], 0, 8, 4, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[4], 0, 99999999, 32, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[5], 0, 99999999, 32, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[6], 0, 99999999, 32, byteWriter)
+    writeString(tokenList[7])
     gClientHostId = writeLineComment(tokenList, gClientHostId)
     
-    if (int(tokenList[1])+int(tokenList[2]) > 8): #doing this check after initial checks above
+    if (int(tokenList[2])+int(tokenList[3]) > 8): #doing this check after initial checks above
         print("Error -- digits_before_decimal and digits_after_decimal can't exceed 8 -- ")
         print(line)
         exitMenuProcessor()
 
 def procTimeBox(tokenList, line):
-    scriptStateCheck(scriptState.CONTINUE_CELL, line)
+    scriptStateCheck(scriptState.MENU_DATA, line)
     global gClientHostId
     byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 13, line)
-    writeSize(11, None)
+    checkTokenCountMismatch(len(tokenList), 15, line)
+    writeSize(13, tokenList[14], None)
     fout.write("PID_TIME_BOX,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[1],  0, 1,   1,  byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
     byteWriter = writeBoundsCheckedNumber(tokenList[2],  0, 1,   1,  byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[3],  0, 1,   1,  byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[4],  0, 1,   1,  byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[5],  0, 1,   1,  byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[6],  0, 1,   1,  byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[7],  0, 999, 10, byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[8],  0, 59,  6,  byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[7],  0, 1,   1,  byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[8],  0, 999, 10, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[9],  0, 59,  6,  byteWriter)
-    byteWriter = writeBoundsCheckedNumber(tokenList[10], 0, 999, 10, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[10],  0, 59,  6,  byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[11], 0, 999, 10, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[12], 0, 999, 10, byteWriter)
+    byteWriter = writeBoundsCheckedNumber(tokenList[13], 0, 999, 10, byteWriter)
     byteWriter = writeBoundsCheckedNumber(0            , 0, 1,   6,  byteWriter) #unused
+    writeString(tokenList[14])
     gClientHostId = writeLineComment(tokenList, gClientHostId)
 
 def procScriptEnd(tokenList, line):
     scriptStateCheck(scriptState.SCRIPT_END, line)
     checkTokenCountMismatch(len(tokenList), 1, line)
-    writeSize(2, None)
+    writeSize(3, None, None)
     fout.write("PID_SCRIPT_END,")
     increaseBytesWritten()
     writeLineComment(tokenList, -1)
 
-FUNC_LIST = [procMenuHeader, procNewRow, procNewCell, procCondStart, 
-             procCondEnd, procTextStatic, procTextDynamic, procButton,
+FUNC_LIST = [procMenuHeader, procTextStatic, procTextDynamic, procButton,
              procCheckBox, procDropSelect, procEditNumber, procTimeBox,
              procScriptEnd]
 

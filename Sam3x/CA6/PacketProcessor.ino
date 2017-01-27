@@ -14,73 +14,49 @@ void processIncomingPacket() {
         CAU::log("%d PID_MENU_HEADER - %d %d %s\n", packetSize, unpack.getMajorVersion(), unpack.getMinorVersion(), unpack.getMenuName());
         break;
       }
-      case PID_NEW_ROW: {
-        CAPacketNewRow unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_NEW_ROW\n", packetSize);
-        break;
-      }
-      case PID_NEW_CELL: {
-        CAPacketNewCell unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_NEW_CELL - %d %d\n", packetSize, unpack.getColumnPercentage(), unpack.getJustification());
-        break;
-      }
-      case PID_COND_START: {
-        CAPacketCondStart unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_COND_START - %d %d %d\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue());
-        break;
-      }
-      case PID_COND_END: {
-        CAPacketCondEnd unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_COND_END\n", packetSize);
-        break;
-      }
       case PID_TEXT_STATIC: {
         CAPacketTextStatic unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TEXT_STATIC - %s\n", packetSize, unpack.getText());
+        CAU::log("%d PID_TEXT_STATIC - %s\n", packetSize, unpack.getText0());
         break;
       }
       case PID_TEXT_DYNAMIC: {
         CAPacketTextDynamic unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TEXT_DYNAMIC - %d %s\n", packetSize, unpack.getClientHostId(), unpack.getText());
+        CAU::log("%d PID_TEXT_DYNAMIC - %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0());
         break;
       }
       case PID_BUTTON: {
         CAPacketButton unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_Button - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getType(), unpack.getValue(), unpack.getText());
+        CAU::log("%d PID_Button - %d %d %d %d %s %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getType(), unpack.getValue(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_CHECK_BOX: {
         CAPacketCheckBox unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_CHECK_BOX - %d %d\n", packetSize, unpack.getClientHostId(), unpack.getValue());
+        CAU::log("%d PID_CHECK_BOX - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0());
         break;
       }
       case PID_DROP_SELECT: {
         CAPacketDropSelect unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_DROP_SELECT - %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getValue(), unpack.getText());
+        CAU::log("%d PID_DROP_SELECT - %d %d %d %s %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_EDIT_NUMBER: {
         CAPacketEditNumber unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_EDIT_NUMBER - %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), unpack.getDigitsBeforeDecimal(),
-                  unpack.getDigitsAfterDecimal(), unpack.getMinValue(), unpack.getMaxValue(), unpack.getValue());
+        CAU::log("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getDigitsBeforeDecimal(),
+                  unpack.getDigitsAfterDecimal(), unpack.getMinValue(), unpack.getMaxValue(), unpack.getValue(), unpack.getText0());
         break;
       }
       case PID_TIME_BOX: {
         CAPacketTimeBox unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), unpack.getEnableMask(),
+        CAU::log("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getEnableMask(),
                   unpack.getHours(), unpack.getMinutes(), unpack.getSeconds(), unpack.getMilliseconds(), unpack.getMicroseconds(),
-                  unpack.getNanoseconds());
+                  unpack.getNanoseconds(), unpack.getText0());
         break;
       }
       case PID_SCRIPT_END: {

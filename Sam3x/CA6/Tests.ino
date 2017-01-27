@@ -107,24 +107,18 @@ void toggleLed()
 void caTestPackets()
 {
   const uint8 sData[] PROGMEM = {
-  17,PID_MENU_HEADER,1,2,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
-  2,PID_NEW_ROW,  // NEW_ROW
-  4,PID_NEW_CELL,40,0,  // NEW_CELL 40 0
-  4,PID_NEW_CELL,10,2,  // NEW_CELL 10 2
-  4,PID_NEW_CELL,50,1,  // NEW_CELL 50 1
-  14,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
-  16,PID_TEXT_DYNAMIC,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
-  11,PID_BUTTON,1,17,'B','u','t','t','o','n',0,  // BUTTON 1 1 "Button"  **gClientHostId_1**
-  4,PID_CHECK_BOX,2,0,  // CHECK_BOX 0  **gClientHostId_2**
-  11,PID_DROP_SELECT,3,1,'n','o','|','y','e','s',0,  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
-  16,PID_EDIT_NUMBER,4,50,0,0,0,0,159,134,1,0,80,195,0,0,  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
-  4,PID_COND_START,5,0,  // COND_START 0 0  **gClientHostId_5**
-  11,PID_TIME_BOX,6,223,24,59,122,62,125,144,1,  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
-  2,PID_COND_END,  // COND_END
-  2,PID_SCRIPT_END,  // SCRIPT_END
-  };  // Total Bytes = 122
-
-  const uint8 BUF_SIZE = 122;
+  20,0,PID_MENU_HEADER,1,0,2,0,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
+  15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
+  18,0,PID_TEXT_DYNAMIC,0,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC 0 "Dynamic Text"  **gClientHostId_0**
+  30,0,PID_BUTTON,1,0,17,'T','h','i','s',' ','i','s',' ','a',' ','b','u','t','t','o','n',0,'B','u','t','t','o','n',0,  // BUTTON 0 1 1 "This is a button" "Button"  **gClientHostId_1**
+  26,0,PID_CHECK_BOX,2,1,0,'T','h','i','s',' ','i','s',' ','a',' ','c','h','e','c','k',' ','b','o','x',0,  // CHECK_BOX 1 0 "This is a check box"  **gClientHostId_2**
+  35,0,PID_DROP_SELECT,3,2,1,'T','h','i','s',' ','i','s',' ','a',' ','d','r','o','p',' ','s','e','l','e','c','t',0,'n','o','|','y','e','s',0,  // DROP_SELECT 2 1 "This is a drop select" "no|yes"  **gClientHostId_3**
+  41,0,PID_EDIT_NUMBER,4,0,50,0,0,0,0,159,134,1,0,80,195,0,0,'T','h','i','s',' ','i','s',' ','a','n',' ','e','d','i','t',' ','n','u','m','b','e','r',0,  // EDIT_NUMBER 0 2 3 0 99999 50000 "This is an edit number"  **gClientHostId_4**
+  32,0,PID_TIME_BOX,5,0,223,24,59,122,62,125,144,1,'T','h','i','s',' ','i','s',' ','a',' ','t','i','m','e',' ','b','o','x',0,  // TIME_BOX 0 1 1 1 1 1 0 99 59 40 999 500 400 "This is a time box"  **gClientHostId_5**
+  3,0,PID_SCRIPT_END,  // SCRIPT_END
+  };  // Total Bytes = 220
+  
+  const uint8 BUF_SIZE = 220;
   uint8 data[BUF_SIZE];
   const uint8 *dataPtr = data;
   uint8 totalUnpackSize=0;
@@ -134,11 +128,12 @@ void caTestPackets()
    data[i] = pgm_read_byte_near(sData+i);
   }
 
-  uint8 dataA[256];
-  uint8 packType, packSize, unpackSize;
-  memset(dataA, 0, 256);
+  uint8 dataA[512];
+  uint8 packType;
+  uint16 packSize, unpackSize;
+  memset(dataA, 0, 512);
   CAPacket unpack0(STATE_UNPACKER, data, BUF_SIZE);
-  CAPacket pack0(STATE_PACKER, dataA, 256);
+  CAPacket pack0(STATE_PACKER, dataA, 512);
 
   {  // MENU_HEADER 1 2 "UI Test Menu"
     CAPacketMenuHeader unpack1(unpack0);          // Update per type
@@ -160,80 +155,6 @@ void caTestPackets()
     }
   }
 
-  {  // NEW_ROW
-    CAPacketNewRow unpack1(unpack0);              // Update per type
-    CAPacketNewRow pack1(pack0);                  // Update per type
-  
-    //pack1.set();                                // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    //unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_NEW_ROW) {                // Update per type
-      CAU::log("ERROR - NEW_ROW test failed\n");
-    }
-  }
-
-  {  // NEW_CELL 40 0
-    CAPacketNewCell unpack1(unpack0);             // Update per type
-    CAPacketNewCell pack1(pack0);                 // Update per type
-  
-    pack1.set(40, 0);                             // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_NEW_CELL ||               // Update per type
-        unpack1.getColumnPercentage() != 40 ||
-        unpack1.getJustification() != 0) {
-      CAU::log("ERROR - NEW_CELL 0 test failed\n");
-    }
-  }
-
-  {  // NEW_CELL 10 2
-    CAPacketNewCell unpack1(unpack0);             // Update per type
-    CAPacketNewCell pack1(pack0);                 // Update per type
-  
-    pack1.set(10, 2);                             // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_NEW_CELL ||               // Update per type
-        unpack1.getColumnPercentage() != 10 ||
-        unpack1.getJustification() != 2) {
-      CAU::log("ERROR - NEW_CELL 2 test failed\n");
-    }
-  }
-
-  {  // NEW_CELL 50 1
-    CAPacketNewCell unpack1(unpack0);             // Update per type
-    CAPacketNewCell pack1(pack0);                 // Update per type
-  
-    pack1.set(50, 1);                             // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_NEW_CELL ||               // Update per type
-        unpack1.getColumnPercentage() != 50 ||
-        unpack1.getJustification() != 1) {
-      CAU::log("ERROR - NEW_CELL 1 test failed\n");
-    }
-  }
-
   {  // TEXT_STATIC "Static Text"
     CAPacketTextStatic unpack1(unpack0);          // Update per type
     CAPacketTextStatic pack1(pack0);              // Update per type
@@ -247,16 +168,16 @@ void caTestPackets()
     if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_TEXT_STATIC ||            // Update per type
-        strcmp(unpack1.getText(), "Static Text") != 0) {
+        strcmp(unpack1.getText0(), "Static Text") != 0) {
       CAU::log("ERROR - TEXT_STATIC test failed\n");
     }
   }
 
-  {  // TEXT_DYNAMIC "Dynamic Text"  **gClientHostId_0**
+  {  // TEXT_DYNAMIC 0 "Dynamic Text"  **gClientHostId_0**
     CAPacketTextDynamic unpack1(unpack0);         // Update per type
     CAPacketTextDynamic pack1(pack0);             // Update per type
   
-    pack1.set(0, "Dynamic Text");                 // Update per type
+    pack1.set(0, 0, "Dynamic Text");              // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -266,16 +187,17 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_TEXT_DYNAMIC ||           // Update per type
         unpack1.getClientHostId() != 0 ||
-        strcmp(unpack1.getText(), "Dynamic Text") != 0) {
+        unpack1.getModAttribute() != 0 ||
+        strcmp(unpack1.getText0(), "Dynamic Text") != 0) {
       CAU::log("ERROR - TEXT_DYNAMIC test failed\n");
     }
   }
 
-  { // BUTTON 1 1 "Button"  **gClientHostId_1**
+  { // BUTTON 0 1 1 "This is a button" "Button"  **gClientHostId_1**
     CAPacketButton unpack1(unpack0);              // Update per type
     CAPacketButton pack1(pack0);                  // Update per type
   
-    pack1.set(1, 1, 1, "Button");                 // Update per type
+    pack1.set(1, 0, 1, 1, "This is a button", "Button"); // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -285,18 +207,20 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_BUTTON ||                 // Update per type
         unpack1.getClientHostId() != 1 ||
+        unpack1.getModAttribute() != 0 ||
         unpack1.getType() != 1 ||
         unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText(), "Button") != 0) {
+        strcmp(unpack1.getText0(), "This is a button") != 0 ||
+        strcmp(unpack1.getText1(), "Button") != 0) {
       CAU::log("ERROR - BUTTON test failed\n");
     }
   }
 
-  {  // CHECK_BOX 0  **gClientHostId_2**
+  {  // CHECK_BOX 1 0 "This is a check box"  **gClientHostId_2**
     CAPacketCheckBox unpack1(unpack0);            // Update per type
     CAPacketCheckBox pack1(pack0);                // Update per type
   
-    pack1.set(2, 0);                              // Update per type
+    pack1.set(2, 1, 0, "This is a check box");    // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -306,16 +230,18 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_CHECK_BOX ||              // Update per type
         unpack1.getClientHostId() != 2 ||
-        unpack1.getValue() != 0 ) {
+        unpack1.getModAttribute() != 1 ||
+        unpack1.getValue() != 0 ||
+        strcmp(unpack1.getText0(), "This is a check box") != 0) {
       CAU::log("ERROR - CHECK_BOX test failed\n");
     }
   }
 
-  {  // DROP_SELECT 1 "no|yes"  **gClientHostId_3**
+  {  // DROP_SELECT 2 1 "This is a drop select" "no|yes"  **gClientHostId_3**
     CAPacketDropSelect unpack1(unpack0);          // Update per type
     CAPacketDropSelect pack1(pack0);              // Update per type
   
-    pack1.set(3, 1, "no|yes");                    // Update per type
+    pack1.set(3, 2, 1, "This is a drop select", "no|yes"); // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -325,17 +251,19 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_DROP_SELECT ||            // Update per type
         unpack1.getClientHostId() != 3 ||
+        unpack1.getModAttribute() != 2 ||
         unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText(), "no|yes") != 0) {
+        strcmp(unpack1.getText0(), "This is a drop select") != 0 ||
+        strcmp(unpack1.getText1(), "no|yes") != 0) {
       CAU::log("ERROR - DROP_SELECT test failed\n");
     }
   }
 
-  {  // EDIT_NUMBER 2 3 0 99999 50000  **gClientHostId_4**
+  {  // EDIT_NUMBER 0 2 3 0 99999 50000 "This is an edit number"  **gClientHostId_4**
     CAPacketEditNumber unpack1(unpack0);          // Update per type
     CAPacketEditNumber pack1(pack0);              // Update per type
   
-    pack1.set(4, 2, 3, 0, 99999, 50000);          // Update per type
+    pack1.set(4, 0, 2, 3, 0, 99999, 50000, "This is an edit number"); // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -345,41 +273,22 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_EDIT_NUMBER ||            // Update per type
         unpack1.getClientHostId() != 4 ||
+        unpack1.getModAttribute() != 0 ||
         unpack1.getDigitsBeforeDecimal() != 2 ||
         unpack1.getDigitsAfterDecimal() != 3 ||
         unpack1.getMinValue() != 0 ||
         unpack1.getMaxValue() != 99999 ||
-        unpack1.getValue() != 50000 ) {
+        unpack1.getValue() != 50000 ||
+        strcmp(unpack1.getText0(), "This is an edit number") != 0) {
       CAU::log("ERROR - EDIT_NUMBER test failed\n");
     }
   }
 
-  {  // COND_START 0 0  **gClientHostId_5**
-    CAPacketCondStart unpack1(unpack0);           // Update per type
-    CAPacketCondStart pack1(pack0);               // Update per type
-  
-    pack1.set(5, 0, 0);                           // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_COND_START ||             // Update per type
-        unpack1.getClientHostId() != 5 ||
-        unpack1.getModAttribute() != 0 ||
-        unpack1.getValue() != 0 ) {
-      CAU::log("ERROR - COND_START test failed\n");
-    }
-  }
-
-
-  {  // TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400  **gClientHostId_6**
+  {  // TIME_BOX 0 1 1 1 1 1 0 99 59 40 999 500 400 "This is a time box"  **gClientHostId_5**
     CAPacketTimeBox unpack1(unpack0);             // Update per type
     CAPacketTimeBox pack1(pack0);                 // Update per type
   
-    pack1.set(6, 0x1f, 99, 59, 40, 999, 500, 400);// Update per type
+    pack1.set(5, 0, 0x1f, 99, 59, 40, 999, 500, 400, "This is a time box"); // Update per type
     unpackSize = unpack0.unpackSize();
     packType = unpack0.unpackType();
     unpack1.unpack();
@@ -388,35 +297,19 @@ void caTestPackets()
     if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_TIME_BOX ||               // Update per type
-        unpack1.getClientHostId() != 6 ||
+        unpack1.getClientHostId() != 5 ||
+        unpack1.getModAttribute() != 0 ||
         unpack1.getEnableMask() != 0x1f ||
         unpack1.getHours() != 99 ||
         unpack1.getMinutes() != 59 ||
         unpack1.getSeconds() != 40 ||
         unpack1.getMilliseconds() != 999 ||
         unpack1.getMicroseconds() != 500 ||
-        unpack1.getNanoseconds() != 400 ) {
+        unpack1.getNanoseconds() != 400 ||
+        strcmp(unpack1.getText0(), "This is a time box") != 0) {
       CAU::log("ERROR - TIME_BOX test failed\n");
     }
   }
-
-  {  // COND_END
-    CAPacketCondEnd unpack1(unpack0);             // Update per type
-    CAPacketCondEnd pack1(pack0);                 // Update per type
-  
-    //pack1.set();                                // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    //unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_COND_END) {               // Update per type
-      CAU::log("ERROR - COND_END test failed\n");
-    }
-  }
-
 
   {  // SCRIPT_END
     CAPacketScriptEnd unpack1(unpack0);           // Update per type

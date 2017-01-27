@@ -1,23 +1,16 @@
 MENU_HEADER 1 2 "UI Test Menu"
-NEW_ROW
-NEW_CELL 40 0
-NEW_CELL 10 2
-NEW_CELL 50 1
-  TEXT_STATIC  "Static Text"
-  TEXT_DYNAMIC "Dynamic Text"
-#Here's another comment
-  BUTTON 1 1 "Button"
-  CHECK_BOX 0
-  DROP_SELECT 1 "no|yes"
-  EDIT_NUMBER 2 3 0 99999 50000
-COND_START 0 0
-  TIME_BOX 1 1 1 1 1 0 99 59 40 999 500 400
-COND_END
+    TEXT_STATIC  "Static Text"
+    TEXT_DYNAMIC 0 "Dynamic Text"  #Comment
+    #Here is a comment
+    BUTTON 0 1 1 "This is a button" "Button"
+    CHECK_BOX 1 0 "This is a check box"
+    DROP_SELECT 2 1 "This is a drop select" "no|yes"
+    EDIT_NUMBER 0 2 3 0 99999 50000 "This is an edit number"
+    TIME_BOX 0 1 1 1 1 1 0 99 59 40 999 500 400 "This is a time box"
 SCRIPT_END
 
 #uncomment following lines one at a time to test errors
-#TEXT ""                     #should be error since since string empty
-#T3XT "test"                 #should be error since keyword not recognized
-#TEXT "hi" "                 #should be error since not matching quotes
-#CHECK_BOX id99 true 0       #should fail due to the wrong number of tokens
-
+#TEXT_STATIC ""             #should be error since since string empty
+#T3XT_STATIC "test"         #should be error since keyword not recognized
+#TEXT_STATIC "hi" "         #should be error since not matching quotes
+#CHECK_BOX 0 1              #should fail due to the wrong number of tokens

@@ -27,26 +27,6 @@ public class CAPacketHelper {
                 unpack.unpack();
                 ret = unpack;
             } break;
-            case CAPacket.PID_NEW_ROW: {
-                CAPacket.NewRow unpack = unpacker.new NewRow();
-                unpack.unpack();
-                ret = unpack;
-            } break;
-            case CAPacket.PID_NEW_CELL: {
-                CAPacket.NewCell unpack = unpacker.new NewCell();
-                unpack.unpack();
-                ret = unpack;
-            } break;
-            case CAPacket.PID_COND_START: {
-                CAPacket.CondStart unpack = unpacker.new CondStart();
-                unpack.unpack();
-                ret = unpack;
-            } break;
-            case CAPacket.PID_COND_END: {
-                CAPacket.CondEnd unpack = unpacker.new CondEnd();
-                unpack.unpack();
-                ret = unpack;
-            } break;
             case CAPacket.PID_TEXT_STATIC: {
                 CAPacket.TextStatic unpack = unpacker.new TextStatic();
                 unpack.unpack();
@@ -158,63 +138,6 @@ public class CAPacketHelper {
                 Log.e("CA6", "Packet Test Error - MENU_HEADER test failed");
             }
         }
-        {   // NewRow Packet Test
-            CAPacket.NewRow pack1 = pack0.new NewRow();                         // Update per type
-            CAPacket.NewRow unpack1 = unpack0.new NewRow();                     // Update per type
-            //pack1.set();                                                      // Update per type
-            int packSize = pack1.pack();
-            int unpackSize = unpack0.unpackSize();
-            short packType = unpack0.unpackType();
-            //unpack1.unpack();
-            if (packSize != unpackSize ||
-                    packType != CAPacket.PID_NEW_ROW) {                        // Update per type
-                Log.e("CA6", "Packet Test Error - NEW_ROW test failed");
-            }
-        }
-        {   // NewCell Packet Test
-            CAPacket.NewCell pack1 = pack0.new NewCell();                       // Update per type
-            CAPacket.NewCell unpack1 = unpack0.new NewCell();                   // Update per type
-            pack1.set(100, 1);                                                  // Update per type
-            int packSize = pack1.pack();
-            int unpackSize = unpack0.unpackSize();
-            short packType = unpack0.unpackType();
-            unpack1.unpack();
-            if (packSize != unpackSize ||
-                    packType != CAPacket.PID_NEW_CELL ||                        // Update per type
-                    unpack1.getColumnPercentage() != 100 ||
-                    unpack1.getJustification() != 1) {
-                Log.e("CA6", "Packet Test Error - NEW_CELL test failed");
-            }
-        }
-        {   // CondStart Packet Test
-            CAPacket.CondStart pack1 = pack0.new CondStart();                   // Update per type
-            CAPacket.CondStart unpack1 = unpack0.new CondStart();               // Update per type
-            pack1.set(2, 1, 1);                                                 // Update per type
-            int packSize = pack1.pack();
-            int unpackSize = unpack0.unpackSize();
-            short packType = unpack0.unpackType();
-            unpack1.unpack();
-            if (packSize != unpackSize ||
-                    packType != CAPacket.PID_COND_START ||                      // Update per type
-                    unpack1.getClientHostId() != 2 ||
-                    unpack1.getModAttribute() != 1 ||
-                    unpack1.getValue() != 1) {
-                Log.e("CA6", "Packet Test Error - COND_START test failed");
-            }
-        }
-        {   // CondEnd Packet Test
-            CAPacket.CondEnd pack1 = pack0.new CondEnd();                       // Update per type
-            CAPacket.CondEnd unpack1 = unpack0.new CondEnd();                   // Update per type
-            //pack1.set();                                                      // Update per type
-            int packSize = pack1.pack();
-            int unpackSize = unpack0.unpackSize();
-            short packType = unpack0.unpackType();
-            //unpack1.unpack();
-            if (packSize != unpackSize ||
-                packType != CAPacket.PID_COND_END) {                            // Update per type
-                Log.e("CA6", "Packet Test Error - COND_END test failed");
-            }
-        }
         {   // TextStatic Packet Test
             CAPacket.TextStatic pack1 = pack0.new TextStatic();                 // Update per type
             CAPacket.TextStatic unpack1 = unpack0.new TextStatic();             // Update per type
@@ -225,14 +148,14 @@ public class CAPacketHelper {
             unpack1.unpack();
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_TEXT_STATIC ||                     // Update per type
-                    unpack1.getText().equals("static") != true) {
+                    unpack1.getText0().equals("static") != true) {
                 Log.e("CA6", "Packet Test Error - TEXT_STATIC test failed");
             }
         }
         {   // TextDynamic Packet Test
             CAPacket.TextDynamic pack1 = pack0.new TextDynamic();               // Update per type
             CAPacket.TextDynamic unpack1 = unpack0.new TextDynamic();           // Update per type
-            pack1.set(245, "Dynamic");                                          // Update per type
+            pack1.set(245, 1, "Dynamic");                                       // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -240,6 +163,7 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_TEXT_DYNAMIC ||                    // Update per type
                     unpack1.getClientHostId() != 245 ||
+                    unpack1.getModAttribute() != 1 ||
                     unpack1.getText().equals("Dynamic") != true) {
                 Log.e("CA6", "Packet Test Error - TEXT_DYNAMIC test failed");
             }
@@ -247,7 +171,7 @@ public class CAPacketHelper {
         {   // Button Packet Test
             CAPacket.Button pack1 = pack0.new Button();                         // Update per type
             CAPacket.Button unpack1 = unpack0.new Button();                     // Update per type
-            pack1.set(23, 1, 1, "Button1");                                     // Update per type
+            pack1.set(23, 0, 1, 1, "Starter1", "Button1");                      // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -255,16 +179,18 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_BUTTON ||                          // Update per type
                     unpack1.getClientHostId() != 23 ||
+                    unpack1.getModAttribute() != 0 ||
                     unpack1.getType() != 1 ||
                     unpack1.getValue() != 1 ||
-                    unpack1.getText().equals("Button1") != true) {
+                    unpack1.getText0().equals("Starter1") != true ||
+                    unpack1.getText1().equals("Button1") != true) {
                 Log.e("CA6", "Packet Test Error - BUTTON test failed");
             }
         }
         {   // CheckBox Packet Test
             CAPacket.CheckBox pack1 = pack0.new CheckBox();                     // Update per type
             CAPacket.CheckBox unpack1 = unpack0.new CheckBox();                 // Update per type
-            pack1.set(234, 1);                                                  // Update per type
+            pack1.set(234, 2, 1, "text123");                                    // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -272,14 +198,16 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_CHECK_BOX ||                       // Update per type
                     unpack1.getClientHostId() != 234 ||
-                    unpack1.getValue() != 1) {
+                    unpack1.getModAttribute() != 2 ||
+                    unpack1.getValue() != 1 ||
+                    unpack1.getText0().equals("text123") != true) {
                 Log.e("CA6", "Packet Test Error - CHECK_BOX test failed");
             }
         }
         {   // DropSelect Packet Test
             CAPacket.DropSelect pack1 = pack0.new DropSelect();                 // Update per type
             CAPacket.DropSelect unpack1 = unpack0.new DropSelect();             // Update per type
-            pack1.set(7, 1, "no|yes");                                          // Update per type
+            pack1.set(7, 0, 1, "abc", "no|yes");                                // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -287,15 +215,17 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_DROP_SELECT ||                     // Update per type
                     unpack1.getClientHostId() != 7 ||
+                    unpack1.getModAttribute() != 0 ||
                     unpack1.getValue() != 1 ||
-                    unpack1.getText().equals("no|yes") != true) {
+                    unpack1.getText0().equals("abc") != true ||
+                    unpack1.getText1().equals("no|yes") != true) {
                 Log.e("CA6", "Packet Test Error - DROP_SELECT test failed");
             }
         }
         {   // EditNumber Packet Test
             CAPacket.EditNumber pack1 = pack0.new EditNumber();                 // Update per type
             CAPacket.EditNumber unpack1 = unpack0.new EditNumber();             // Update per type
-            pack1.set(32, 2, 6, 0, 99999999, 12345678);                         // Update per type
+            pack1.set(32, 0, 2, 6, 0, 99999999, 12345678, "xyz");               // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -303,18 +233,20 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_EDIT_NUMBER ||                     // Update per type
                     unpack1.getClientHostId() != 32 ||
+                    unpack1.getModAttribute() != 0 ||
                     unpack1.getDigitsBeforeDecimal() != 2 ||
                     unpack1.getDigitsAfterDecimal() != 6 ||
                     unpack1.getMinValue() != 0 ||
                     unpack1.getMaxValue() != 99999999 ||
-                    unpack1.getValue() != 12345678) {
+                    unpack1.getValue() != 12345678 ||
+                    unpack1.getText0().equals("xyz") != true) {
                 Log.e("CA6", "Packet Test Error - EDIT_NUMBER test failed");
             }
         }
         {   // TimeBox Packet Test
             CAPacket.TimeBox pack1 = pack0.new TimeBox();                       // Update per type
             CAPacket.TimeBox unpack1 = unpack0.new TimeBox();                   // Update per type
-            pack1.set(17, 0x3F, 999, 59, 58, 998, 997, 996);                    // Update per type
+            pack1.set(17, 1, 0x3F, 999, 59, 58, 998, 997, 996, "blah");         // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -322,13 +254,15 @@ public class CAPacketHelper {
             if (packSize != unpackSize ||
                     packType != CAPacket.PID_TIME_BOX ||                        // Update per type
                     unpack1.getClientHostId() != 17 ||
+                    unpack1.getModAttribute() != 1 ||
                     unpack1.getEnableMask() != 0x3F ||
                     unpack1.getHours() != 999 ||
                     unpack1.getMinutes() != 59 ||
                     unpack1.getSeconds() != 58 ||
                     unpack1.getMilliseconds() != 998 ||
                     unpack1.getMicroseconds() != 997 ||
-                    unpack1.getNanoseconds() != 996) {
+                    unpack1.getNanoseconds() != 996 ||
+                    unpack1.getText0().equals("blah") != true) {
                 Log.e("CA6", "Packet Test Error - TIME_BOX test failed");
             }
         }
