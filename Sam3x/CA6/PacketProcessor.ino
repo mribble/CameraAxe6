@@ -69,9 +69,7 @@ void processIncomingPacket() {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
         CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
-
         g_ctx.procTable.funcInit[1](0);
-        //ph.writePacketLogger("Message from sam3x");
         break;
       }
       case PID_LOGGER: {

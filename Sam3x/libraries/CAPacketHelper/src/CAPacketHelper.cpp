@@ -36,8 +36,8 @@ boolean CAPacketHelper::readOnePacket(uint8 *data) {
 
 void CAPacketHelper::writeOnePacket(uint8 *data) {
     uint8 val;
-    uint8 bufSize = data[0];  // First byte is the size
-
+    uint16 bufSize = genPacketSize(data[0], data[1]);
+    
     if (bufSize >= MAX_PACKET_SIZE) {
         CA_ASSERT(0, "Exceeded Max packet size");
         return;
@@ -48,13 +48,16 @@ void CAPacketHelper::writeOnePacket(uint8 *data) {
 }
 
 void CAPacketHelper::writeMenu(const uint8 *sData, uint16 sz) {
-    uint8 currentPacketSize = 0;
-    uint8 currentPacketIndex = 0;
+    uint16 currentPacketSize = 0;
+    uint16 currentPacketIndex = 0;
     for(uint16 i=0; i<sz; ++i)
     {
         if (currentPacketSize == 0) {
-            currentPacketSize = pgm_read_byte_near(sData+i);
-            mData[currentPacketIndex++] = currentPacketSize;
+            uint16 b0 = pgm_read_byte_near(sData+(i++));
+            uint16 b1 = pgm_read_byte_near(sData+i);
+            currentPacketSize = genPacketSize(b0, b1);
+            mData[currentPacketIndex++] = b0;
+            mData[currentPacketIndex++] = b1;
         }
         else {
             mData[currentPacketIndex++] = pgm_read_byte_near(sData+i);

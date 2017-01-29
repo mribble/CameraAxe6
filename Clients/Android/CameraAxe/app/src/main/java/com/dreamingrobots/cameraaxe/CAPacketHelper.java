@@ -103,6 +103,7 @@ public class CAPacketHelper {
                 ret = unpack;
             } break;
             default: {
+                Log.e("CA6", "Invalid incoming packet");
                 ret = null;
             } break;
         }
