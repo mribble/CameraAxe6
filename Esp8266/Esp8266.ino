@@ -70,28 +70,45 @@ void setup() {
   }
 }
 
+#define PACKET_SIZE_SIZE 2
+
+uint16 genPacketSize(uint8 b0, uint8 b1) {
+  uint16 ret = uint16(b0) + (uint16(b1)<<8);
+  return ret;
+}
+
+uint8 getPacketSize(uint16 val, uint8 byteNumber) {
+  if (byteNumber == 0) {
+    return val && 0xFF;
+  } else {
+    return val >> 8;
+  }
+}
+
 void loop() {
-  int udpSize = gUDP.parsePacket();
-  int serialSize = Serial.available();
-  static uint8 gPacketSize = 0;
+  uint16 udpSize = gUDP.parsePacket();
+  uint16 serialSize = Serial.available();
+  static uint16 gPacketSize = 0;
   static IPAddress gIp;
-  char buf[256];
+  uint8 buf[2048];
 
   if (udpSize > 0) {
     gIp = gUDP.remoteIP();
-    udpSize = gUDP.readBytes(buf, 256);
+    udpSize = gUDP.readBytes(buf, 2048);
     Serial.write(buf, udpSize);
   }
 
   if (serialSize > 0) {
     
-    if (gPacketSize == 0) {
-      Serial.readBytes(&gPacketSize, 1);
+    if (gPacketSize == 0 && serialSize >= PACKET_SIZE_SIZE) {
+      uint8 ibuf[PACKET_SIZE_SIZE];
+      Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
+      gPacketSize = genPacketSize(ibuf[0], ibuf[1]);
     }
-
-    if (serialSize >= gPacketSize-1) {
-      buf[0] = gPacketSize;
-      Serial.readBytes(buf+1, gPacketSize-1);
+    if (gPacketSize != 0 && serialSize >= gPacketSize-PACKET_SIZE_SIZE) {
+      buf[0] = getPacketSize(gPacketSize, 0);
+      buf[1] = getPacketSize(gPacketSize, 1);
+      Serial.readBytes(buf+PACKET_SIZE_SIZE, gPacketSize-PACKET_SIZE_SIZE);
       gUDP.beginPacket(gIp, gPort+1);
       gUDP.write(buf, gPacketSize);
       gUDP.endPacket();

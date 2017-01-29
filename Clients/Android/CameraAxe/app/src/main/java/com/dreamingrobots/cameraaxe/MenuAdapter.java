@@ -70,7 +70,7 @@ public class MenuAdapter extends BaseAdapter{
                 }
                 TextView tView = (TextView) v.findViewById(R.id.dml_text_static);
                 CAPacket.TextStatic p = (CAPacket.TextStatic)mData.get(position);
-                tView.setText(p.getText());
+                tView.setText(p.getText0());
                 break;
             }
             case CAPacket.PID_TEXT_DYNAMIC:

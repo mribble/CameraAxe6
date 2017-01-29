@@ -26,10 +26,10 @@ void setup() {
 }
 
 void loop() {
-  //caRunTests();
   if (SerialUSB.available()) {
     processCommand();
   }
+  caRunTests();
   processIncomingPacket();
 
   if (g_ctx.active) {
