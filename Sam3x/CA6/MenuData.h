@@ -16,6 +16,14 @@ extern void MenuSoundReceivePackets(uint8 modId, uint8 *packet);
 extern void MenuSoundActiveInit(uint8 modId);
 extern uint8 MenuSoundTriggerCheck(uint8 modId);
 
+// Test Menu
+extern void MenuTestInit(uint8 modId);
+extern void MenuTestSendPackets(uint8 modId);
+extern void MenuTestReceivePackets(uint8 modId, uint8 *packet);
+extern void MenuTestActiveInit(uint8 modId);
+extern uint8 MenuTestTriggerCheck(uint8 modId);
+
+
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.

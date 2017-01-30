@@ -1,7 +1,0 @@
-# This menu is for the sound module
-MENU_HEADER 0 1 "Sound"
-    TEXT_STATIC  "Sound Menu Line 1"
-    TEXT_STATIC  "Sound Menu Line 2"
-    EDIT_NUMBER 0 3 0 0 511 100 "Sound Trigger Level"
-    TEXT_DYNAMIC 0 "Current Sound Level (0-511) ???"
-SCRIPT_END

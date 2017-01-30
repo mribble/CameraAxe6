@@ -14,3 +14,7 @@ SCRIPT_END
 #T3XT_STATIC "test"         #should be error since keyword not recognized
 #TEXT_STATIC "hi" "         #should be error since not matching quotes
 #CHECK_BOX 0 1              #should fail due to the wrong number of tokens
+
+#Not used
+MENU_HEADER 1 2 "UI Test Menu"
+SCRIPT_END

@@ -484,14 +484,22 @@ fout = open(outFileName, 'w')
 
 checkDuplicateTokens(KEY_TOKEN_LIST)
 
-fout.write("  const uint8 sData[] PROGMEM = {\n");
-
+# Menu Mode
+gScriptState = scriptState.INITIAL_STATE
+menuCount = 0
+fout.write("  const uint8 sDataMenu[] PROGMEM = {\n");
 for line in fin.readlines():
     processLine(line)
+    if (gScriptState == scriptState.SCRIPT_END):
+        fout.write("  };  // Total Bytes = ")
+        fout.write(str(gBytesWritten))
+        fout.write("\n")
+        if (menuCount == 0):
+            gScriptState = scriptState.INITIAL_STATE
+            gBytesWritten = 0
+            menuCount = menuCount+1
+            fout.write("\n  const uint8 sDataActive[] PROGMEM = {\n");
 
-fout.write("  };  // Total Bytes = ")
-fout.write(str(gBytesWritten))
-fout.write("\n")
 fout.close()
 fin.close()
 print("Success!")

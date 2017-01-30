@@ -106,7 +106,7 @@ void toggleLed()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPackets()
 {
-  const uint8 sData[] PROGMEM = {
+  const uint8 sDataMenu[] PROGMEM = {
   20,0,PID_MENU_HEADER,1,0,2,0,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
   15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   18,0,PID_TEXT_DYNAMIC,0,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,  // TEXT_DYNAMIC 0 "Dynamic Text"  **gClientHostId_0**
@@ -125,7 +125,7 @@ void caTestPackets()
   // Move progmem data to a buffer for this test
   for(uint16 i=0; i<BUF_SIZE; ++i)
   {
-   data[i] = pgm_read_byte_near(sData+i);
+   data[i] = pgm_read_byte_near(sDataMenu+i);
   }
 
   uint8 dataA[512];
