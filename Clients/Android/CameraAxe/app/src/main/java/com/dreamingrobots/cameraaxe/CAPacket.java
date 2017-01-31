@@ -252,21 +252,26 @@ class CAPacket {
         private int mClientHostId;
         private int mModAttribute;
         private StringBuilder mText0;
+        private StringBuilder mText1;
 
-        public TextDynamic() {
+        public TextDynamic(){
             mText0 = new StringBuilder();
+            mText1 = new StringBuilder();
         }
 
         public int getPacketType() {return PID_TEXT_DYNAMIC;}
         public int getClientHostId() {return mClientHostId;}
         public int getModAttribute() {return mModAttribute;}
-        public String getText() {return mText0.toString();}
+        public String getText0() {return mText0.toString();}
+        public String getText1() {return mText1.toString();}
 
-        public void set(int clientHostId, int modAttribute, String menuName) {
+        public void set(int clientHostId, int modAttribute, String text0, String text1) {
             mClientHostId = clientHostId;
             mModAttribute = modAttribute;
             mText0.setLength(0);
-            mText0.append(menuName);
+            mText0.append(text0);
+            mText1.setLength(0);
+            mText1.append(text1);
             CA_ASSERT(mModAttribute <= 2,
                     "Error in CAPacketTextDynamic::set()");
         }
@@ -275,19 +280,21 @@ class CAPacket {
             mClientHostId = (int)unpacker(8);
             mModAttribute = (int)unpacker(8);
             unpackerString(mText0);
+            unpackerString(mText1);
             flushPacket();
             CA_ASSERT(mModAttribute <= 2,
                     "Error in CAPacketTextDynamic::unpack()");
         }
 
         public int pack() {
-            int len = mText0.length() + 1;  // 1 for the null terminator
+            int len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
             int packetSize = 3 + 2 + len;
             packer(packetSize, 16);
             packer(PID_TEXT_DYNAMIC, 8);
             packer(mClientHostId, 8);
             packer(mModAttribute, 8);
             packerString(mText0.toString());
+            packerString(mText1.toString());
             flushPacket();
             return packetSize;
         }

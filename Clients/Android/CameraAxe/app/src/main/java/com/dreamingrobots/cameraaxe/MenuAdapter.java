@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import static java.lang.Integer.parseInt;
 
 /**
  * Adapter for dynamic menu generation
@@ -33,7 +32,8 @@ public class MenuAdapter extends BaseAdapter{
     public void addPacket(CAPacket.PacketElement packet) {
         if (packet.getPacketType() == CAPacket.PID_MENU_HEADER ||
                 packet.getPacketType() == CAPacket.PID_TEXT_STATIC ||
-                packet.getPacketType() == CAPacket.PID_EDIT_NUMBER) {
+                packet.getPacketType() == CAPacket.PID_TEXT_DYNAMIC ||
+                packet.getPacketType() == CAPacket.PID_EDIT_NUMBER ) {
             mData.add(packet);
             notifyDataSetChanged();
         }
@@ -79,16 +79,35 @@ public class MenuAdapter extends BaseAdapter{
                 break;
             }
             case CAPacket.PID_TEXT_STATIC: {
+                final ViewHolder holder;
                 if (v == null) {
                     v = (LinearLayout) mInflater.inflate(R.layout.dm_text_static, parent, false);
+                    holder = new ViewHolder();
+                    holder.textView0 = (TextView) v.findViewById(R.id.text0);
+                    v.setTag(holder);
+                } else {
+                    holder = (ViewHolder)v.getTag();
                 }
-                TextView text0 = (TextView) v.findViewById(R.id.text0);
                 CAPacket.TextStatic p = (CAPacket.TextStatic)mData.get(position);
-                text0.setText(p.getText0());
+                holder.textView0.setText(p.getText0());
                 break;
             }
-            case CAPacket.PID_TEXT_DYNAMIC:
+            case CAPacket.PID_TEXT_DYNAMIC: {
+                final ViewHolder holder;
+                if (v == null) {
+                    v = (LinearLayout) mInflater.inflate(R.layout.dm_text_dynamic, parent, false);
+                    holder = new ViewHolder();
+                    holder.textView0 = (TextView) v.findViewById(R.id.text0);
+                    holder.textView1 = (TextView) v.findViewById(R.id.text1);
+                    v.setTag(holder);
+                } else {
+                    holder = (ViewHolder)v.getTag();
+                }
+                CAPacket.TextDynamic p = (CAPacket.TextDynamic)mData.get(position);
+                holder.textView0.setText(p.getText0());
+                holder.textView1.setText(p.getText1());
                 break;
+            }
             case CAPacket.PID_BUTTON:
                 break;
             case CAPacket.PID_CHECK_BOX:
@@ -98,9 +117,9 @@ public class MenuAdapter extends BaseAdapter{
             case CAPacket.PID_EDIT_NUMBER: {
                 final ViewHolder holder;
                 if (v == null) {
-                    v = (LinearLayout) mInflater.inflate(R.layout.dm_edit_number, null);
+                    v = (LinearLayout) mInflater.inflate(R.layout.dm_edit_number, parent, false);
                     holder = new ViewHolder();
-                    holder.textView = (TextView) v.findViewById(R.id.text0);
+                    holder.textView0 = (TextView) v.findViewById(R.id.text0);
                     holder.editText = (EditText) v.findViewById(R.id.value);
                     v.setTag(holder);
                 } else {
@@ -138,7 +157,7 @@ public class MenuAdapter extends BaseAdapter{
                 });
 
                 CAPacket.EditNumber p = (CAPacket.EditNumber) mData.get(position);
-                holder.textView.setText(p.getText0());
+                holder.textView0.setText(p.getText0());
                 holder.editText.setText(Long.toString(p.getValue()));
                 holder.editText.setId(position);
                 break;
@@ -153,7 +172,8 @@ public class MenuAdapter extends BaseAdapter{
         return v;
     }
     public static class ViewHolder {
-        public TextView textView;
+        public TextView textView0;
+        public TextView textView1;
         public EditText editText;
         public int position;
     }

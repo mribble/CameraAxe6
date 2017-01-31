@@ -23,7 +23,7 @@ void processIncomingPacket() {
       case PID_TEXT_DYNAMIC: {
         CAPacketTextDynamic unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TEXT_DYNAMIC - %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0());
+        CAU::log("%d PID_TEXT_DYNAMIC - %d %d %s %d\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_BUTTON: {

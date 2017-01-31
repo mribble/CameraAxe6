@@ -103,7 +103,8 @@ public:
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     const char* getText0() {return mText0.c_str();};
-    void set(uint8 clientHostId, uint8 modAttribute, String text0);
+    const char* getText1() {return mText1.c_str();};
+    void set(uint8 clientHostId, uint8 modAttribute, String text0, String text1);
     void unpack();
     uint8 pack();
 private:
@@ -111,6 +112,7 @@ private:
     uint8 mClientHostId;
     uint8 mModAttribute;
     String mText0;
+    String mText1;
 };
 
 class CAPacketButton {

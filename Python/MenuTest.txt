@@ -1,6 +1,6 @@
 MENU_HEADER 0 1 "Menu Tester"
     TEXT_STATIC  "Static Text"
-    TEXT_DYNAMIC 0 "Dynamic Text"
+    TEXT_DYNAMIC 0 "Dynamic Text" "123"
     BUTTON 0 1 1 "This is a button" "Button"
     CHECK_BOX 1 0 "This is a check box"
     DROP_SELECT 2 1 "This is a drop select" "no|yes"
