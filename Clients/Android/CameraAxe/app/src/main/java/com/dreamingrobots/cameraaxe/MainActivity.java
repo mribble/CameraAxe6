@@ -1,18 +1,14 @@
 package com.dreamingrobots.cameraaxe;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-
-import static android.os.Build.VERSION_CODES.N;
 
 /**
  * The main UI activity for the Android Udp application.
@@ -52,12 +48,25 @@ public class MainActivity extends AppCompatActivity {
                 (RetainedNetworkFragment)fm.findFragmentByTag(TAG_RETAINED_FRAGMENT);
         if (mRetainedNetworkFragment == null) {
             mRetainedNetworkFragment = new RetainedNetworkFragment();
-            fm.beginTransaction().add(mRetainedNetworkFragment, TAG_RETAINED_FRAGMENT).commit();
+            fm.beginTransaction().add(mRetainedNetworkFragment, TAG_RETAINED_FRAGMENT)
+                    .disallowAddToBackStack()
+                    .commit();
         }
 
         // Run a packet tester - This code can be removed someday
         CAPacketHelper tester = new CAPacketHelper();
         tester.testPackets();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment f = getSupportFragmentManager().findFragmentByTag(TAG_RETAINED_FRAGMENT);
+
+        if (f instanceof RetainedNetworkFragment) {
+            // do nothing to prevent a bug
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
