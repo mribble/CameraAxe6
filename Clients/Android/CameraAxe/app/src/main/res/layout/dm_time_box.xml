@@ -14,7 +14,6 @@
     <EditText
         android:id="@+id/value"
         android:layout_width="0dp"
-        android:maxLength="8"
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"

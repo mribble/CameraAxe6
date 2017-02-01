@@ -1,6 +1,7 @@
 package com.dreamingrobots.cameraaxe;
 
 import android.os.Message;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -46,6 +47,11 @@ public class UdpClientThread extends Thread {
 
     @Override
     public void run() {
+
+        if (mState == UdpClientState.RECEIVE) {
+            Log.i("CA6", "Receive thread started: " + mIpAddress + " : " + mIpPort);
+        }
+
         try {
             mSocket = new DatagramSocket(mIpPort);
             mAddress = InetAddress.getByName(mIpAddress);
@@ -82,6 +88,10 @@ public class UdpClientThread extends Thread {
             if(mSocket != null){
                 mSocket.close();
             }
+        }
+
+        if (mState == UdpClientState.RECEIVE) {
+            Log.i("CA6", "Receive thread ended");
         }
     }
 }

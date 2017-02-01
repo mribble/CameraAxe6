@@ -172,10 +172,11 @@ CAPacketTextDynamic::CAPacketTextDynamic(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketTextDynamic::set(uint8 clientHostId, uint8 modAttribute, String text0) {
+void CAPacketTextDynamic::set(uint8 clientHostId, uint8 modAttribute, String text0, String text1) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
     mText0 = text0;
+    mText1 = text1;
     CA_ASSERT(mModAttribute <= 2,
         "Error in CAPacketTextDynamic::set()");
 }
@@ -184,19 +185,21 @@ void CAPacketTextDynamic::unpack() {
     mClientHostId = mCAP->unpacker(8);
     mModAttribute = mCAP->unpacker(8);
     mCAP->unpackerString(mText0);
+    mCAP->unpackerString(mText1);
     mCAP->flushPacket();
     CA_ASSERT(mModAttribute <= 2,
         "Error in CAPacketTextDynamic::unpack()");
 }
 
 uint8 CAPacketTextDynamic::pack() {
-    uint8 len = mText0.length() + 1;  // 1 for the null terminator
+    uint8 len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
     uint8 packetSize = 3 + 2 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TEXT_DYNAMIC, 8);
     mCAP->packer(mClientHostId, 8);
     mCAP->packer(mModAttribute, 8);
     mCAP->packerString(mText0.c_str());
+    mCAP->packerString(mText1.c_str());
     mCAP->flushPacket();
     return packetSize;
 }

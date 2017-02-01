@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import static android.os.Build.VERSION_CODES.N;
+
 /**
  * The main UI activity for the Android Udp application.
  * The major tasks for this activity are:
@@ -17,8 +19,8 @@ import android.widget.ListView;
  * + Start threads to handle networking
  */
 public class MainActivity extends AppCompatActivity {
+    final static int mIpPort = 4045;
     EditText mIpAddress;
-    EditText mIpPort;
     Button mSendMessageButton;
     MenuAdapter mAdapter;
 
@@ -34,27 +36,26 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup all hooks back to the UI elements for easy access later
         mIpAddress = (EditText) findViewById(R.id.ip_address);
-        mIpPort = (EditText) findViewById(R.id.ip_port);
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
 
         // Setup handler to update UI when network packets are received
         mUdpHandler = new UdpClientHandler(mAdapter);
 
-        final String ipAddress = mIpAddress.getText().toString();
-        final int ipPort = Integer.parseInt(mIpPort.getText().toString());
-
-        // The receive thread runs in a loop looking for new incoming data
-        mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE, ipAddress,
-                ipPort+1, mUdpHandler);
-        mUdpReceiveThread.start();
-
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final String ipAddress = mIpAddress.getText().toString();
+                if (mUdpReceiveThread == null) {
+                    // The receive thread runs in a loop looking for new incoming data
+                    mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE,
+                            ipAddress, mIpPort + 1, mUdpHandler);
+                    mUdpReceiveThread.start();
+                }
+
                 // The send thread sends a message and the thread ends
                 mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress,
-                        ipPort, mUdpHandler);
+                        mIpPort, mUdpHandler);
                 mUdpSendThread.start();
             }
         });

@@ -14,6 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Set IP address" />
+
     <EditText
         android:id="@+id/ip_address"
         android:layout_width="match_parent"
@@ -21,17 +22,6 @@
         android:digits="0123456789."
         android:inputType="numberDecimal"
         android:text="192.168.0.8" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set port" />
-
-    <EditText
-        android:id="@+id/ip_port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:text="4045" />
 
     <Button
         android:id="@+id/send_message_button"
@@ -46,8 +36,10 @@
         android:text="--Dynamic Menu--" />
 
     <ListView
-        android:layout_width="match_parent"
         android:id="@+id/dynamic_menu_list"
-        android:layout_height="wrap_content"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stackFromBottom="true"
+        android:transcriptMode="normal" />
 
 </LinearLayout>

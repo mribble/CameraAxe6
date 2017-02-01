@@ -1,6 +1,6 @@
 MENU_HEADER 1 2 "UI Test Menu"
     TEXT_STATIC  "Static Text"
-    TEXT_DYNAMIC 0 "Dynamic Text"  #Comment
+    TEXT_DYNAMIC 0 "Dynamic Text" "123"  #Comment
     #Here is a comment
     BUTTON 0 1 1 "This is a button" "Button"
     CHECK_BOX 1 0 "This is a check box"
@@ -14,3 +14,7 @@ SCRIPT_END
 #T3XT_STATIC "test"         #should be error since keyword not recognized
 #TEXT_STATIC "hi" "         #should be error since not matching quotes
 #CHECK_BOX 0 1              #should fail due to the wrong number of tokens
+
+#Not used
+MENU_HEADER 1 2 "UI Test Menu"
+SCRIPT_END

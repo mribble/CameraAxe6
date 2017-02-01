@@ -307,13 +307,14 @@ def procTextDynamic(tokenList, line):
     scriptStateCheck(scriptState.MENU_DATA, line)
     global gClientHostId
     byteWriter = ByteWriter(0,0)
-    checkTokenCountMismatch(len(tokenList), 3, line)
-    writeSize(5, tokenList[2], None)
+    checkTokenCountMismatch(len(tokenList), 4, line)
+    writeSize(5, tokenList[2], tokenList[3])
     fout.write("PID_TEXT_DYNAMIC,")
     increaseBytesWritten()
     byteWriter = writeBoundsCheckedNumber(gClientHostId, 0, 255, 8, byteWriter)
     byteWriter = writeBoundsCheckedNumber(tokenList[1], 0, 2, 8, byteWriter);  #mod_attribute
     writeString(tokenList[2])
+    writeString(tokenList[3])
     gClientHostId = writeLineComment(tokenList, gClientHostId)
 
 def procButton(tokenList, line):
@@ -484,14 +485,22 @@ fout = open(outFileName, 'w')
 
 checkDuplicateTokens(KEY_TOKEN_LIST)
 
-fout.write("  const uint8 sData[] PROGMEM = {\n");
-
+# Menu Mode
+gScriptState = scriptState.INITIAL_STATE
+menuCount = 0
+fout.write("  const uint8 sDataMenu[] PROGMEM = {\n");
 for line in fin.readlines():
     processLine(line)
+    if (gScriptState == scriptState.SCRIPT_END):
+        fout.write("  };  // Total Bytes = ")
+        fout.write(str(gBytesWritten))
+        fout.write("\n")
+        if (menuCount == 0):
+            gScriptState = scriptState.INITIAL_STATE
+            gBytesWritten = 0
+            menuCount = menuCount+1
+            fout.write("\n  const uint8 sDataActive[] PROGMEM = {\n");
 
-fout.write("  };  // Total Bytes = ")
-fout.write(str(gBytesWritten))
-fout.write("\n")
 fout.close()
 fin.close()
 print("Success!")

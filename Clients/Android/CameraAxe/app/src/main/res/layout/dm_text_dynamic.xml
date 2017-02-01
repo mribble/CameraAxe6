@@ -6,9 +6,18 @@
 
     <TextView
         android:id="@+id/text0"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="2"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:minHeight="44dp" />
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:textStyle="italic"
         android:minHeight="44dp" />
 </LinearLayout>
 

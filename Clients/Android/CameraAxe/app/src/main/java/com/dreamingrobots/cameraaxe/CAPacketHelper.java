@@ -156,7 +156,7 @@ public class CAPacketHelper {
         {   // TextDynamic Packet Test
             CAPacket.TextDynamic pack1 = pack0.new TextDynamic();               // Update per type
             CAPacket.TextDynamic unpack1 = unpack0.new TextDynamic();           // Update per type
-            pack1.set(245, 1, "Dynamic");                                       // Update per type
+            pack1.set(245, 1, "Dynamic", "123");                                // Update per type
             int packSize = pack1.pack();
             int unpackSize = unpack0.unpackSize();
             short packType = unpack0.unpackType();
@@ -165,7 +165,8 @@ public class CAPacketHelper {
                     packType != CAPacket.PID_TEXT_DYNAMIC ||                    // Update per type
                     unpack1.getClientHostId() != 245 ||
                     unpack1.getModAttribute() != 1 ||
-                    unpack1.getText().equals("Dynamic") != true) {
+                    unpack1.getText0().equals("Dynamic") != true ||
+                    unpack1.getText1().equals("123") != true) {
                 Log.e("CA6", "Packet Test Error - TEXT_DYNAMIC test failed");
             }
         }

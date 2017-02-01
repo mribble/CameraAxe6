@@ -3,7 +3,7 @@
 
 #include <CAPacket.h>
 
-#define NUM_MENUS   2  /* Includes 1 for the null menu */
+#define NUM_MENUS   3  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 
@@ -16,11 +16,11 @@ struct CtxModules
 
 struct CtxProcTable
 {
-  void (*funcInit[NUM_MENUS])(uint8)                   {NULL, MenuSoundInit};
-  void (*funcSendPackets[NUM_MENUS])(uint8)            {NULL, MenuSoundSendPackets};
-  void (*funcReceivePackets[NUM_MENUS])(uint8, uint8*) {NULL, MenuSoundReceivePackets};
-  void (*funcActiveInit[NUM_MENUS])(uint8)             {NULL, MenuSoundActiveInit};
-  uint8 (*funcTriggerCheck[NUM_MENUS])(uint8)          {NULL, MenuSoundTriggerCheck};
+  void (*funcInit[NUM_MENUS])(uint8)                   {NULL, MenuSoundInit, MenuTestInit};
+  void (*funcSendPackets[NUM_MENUS])(uint8)            {NULL, MenuSoundSendPackets, MenuTestSendPackets};
+  void (*funcReceivePackets[NUM_MENUS])(uint8, uint8*) {NULL, MenuSoundReceivePackets, MenuTestReceivePackets};
+  void (*funcActiveInit[NUM_MENUS])(uint8)             {NULL, MenuSoundActiveInit, MenuTestActiveInit};
+  uint8 (*funcTriggerCheck[NUM_MENUS])(uint8)          {NULL, MenuSoundTriggerCheck, MenuTestTriggerCheck};
 };
 
 struct Context {
