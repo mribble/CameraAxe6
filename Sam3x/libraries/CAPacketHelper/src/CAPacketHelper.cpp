@@ -66,7 +66,6 @@ void CAPacketHelper::writeMenu(const uint8 *sData, uint16 sz) {
                 mPacker.resetBuffer();
                 currentPacketIndex = 0;
                 currentPacketSize = 0;
-                delay(500);
             }
         }
     }

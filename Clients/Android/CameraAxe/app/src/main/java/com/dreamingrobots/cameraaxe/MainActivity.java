@@ -3,6 +3,8 @@ package com.dreamingrobots.cameraaxe;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,14 +22,11 @@ import static android.os.Build.VERSION_CODES.N;
  */
 public class MainActivity extends AppCompatActivity {
     final static int mIpPort = 4045;
+    private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
     EditText mIpAddress;
     Button mSendMessageButton;
-    MenuAdapter mAdapter;
 
-    // Setup threading for UDP network packets
-    UdpClientHandler mUdpHandler;
-    UdpClientThread mUdpSendThread;
-    UdpClientThread mUdpReceiveThread;
+    private RetainedNetworkFragment mRetainedNetworkFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,72 +37,35 @@ public class MainActivity extends AppCompatActivity {
         mIpAddress = (EditText) findViewById(R.id.ip_address);
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
 
-        // Setup handler to update UI when network packets are received
-        mUdpHandler = new UdpClientHandler(mAdapter);
-
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String ipAddress = mIpAddress.getText().toString();
-                if (mUdpReceiveThread == null) {
-                    // The receive thread runs in a loop looking for new incoming data
-                    mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE,
-                            ipAddress, mIpPort + 1, mUdpHandler);
-                    mUdpReceiveThread.start();
-                }
-
-                // The send thread sends a message and the thread ends
-                mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress,
-                        mIpPort, mUdpHandler);
-                mUdpSendThread.start();
+                mRetainedNetworkFragment.startReceiveThread(ipAddress, mIpPort);
+                mRetainedNetworkFragment.sendMessage(ipAddress, mIpPort);
             }
         });
 
-        // Create a new adapter and listView that displays the dynamic menu
-        mAdapter = new MenuAdapter(this);
-        ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
-        listViewItems.setAdapter(mAdapter);
+        FragmentManager fm = getSupportFragmentManager();
+        mRetainedNetworkFragment =
+                (RetainedNetworkFragment)fm.findFragmentByTag(TAG_RETAINED_FRAGMENT);
+        if (mRetainedNetworkFragment == null) {
+            mRetainedNetworkFragment = new RetainedNetworkFragment();
+            fm.beginTransaction().add(mRetainedNetworkFragment, TAG_RETAINED_FRAGMENT).commit();
+        }
 
         // Run a packet tester - This code can be removed someday
         CAPacketHelper tester = new CAPacketHelper();
         tester.testPackets();
     }
 
-    /**
-     * Internal class to update UI based on messages from UdpClientThread thread.
-     */
-    public class UdpClientHandler extends Handler {
-        static final int UPDATE_MESSAGE = 0;
-        static final int UPDATE_PACKET = 1;
-        //private MenuAdapter mAdapter;
-
-        private void updateMessage(String msg) {
-            Log.e("CA6", msg);
-        }
-
-        private void updatePacket(CAPacket.PacketElement packet) {
-            mAdapter.addPacket(packet);
-        }
-
-        UdpClientHandler(MenuAdapter adapter) {
-            super();
-            //this.mAdapter = adapter;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-
-            switch (msg.what) {
-                case UPDATE_MESSAGE:
-                    updateMessage((String) msg.obj);
-                    break;
-                case UPDATE_PACKET:
-                    updatePacket((CAPacket.PacketElement)msg.obj);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Create a new adapter and listView that displays the dynamic menu
+        // Must be in postCreate because adapter is created during RetainedNetworkFragment.onCreate
+        ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
+        listViewItems.setAdapter(mRetainedNetworkFragment.getAdapter());
     }
 }

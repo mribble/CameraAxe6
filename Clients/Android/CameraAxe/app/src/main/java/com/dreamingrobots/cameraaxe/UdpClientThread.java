@@ -1,5 +1,6 @@
 package com.dreamingrobots.cameraaxe;
 
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
@@ -21,12 +22,12 @@ public class UdpClientThread extends Thread {
     private UdpClientState mState;
     private String mIpAddress;
     private int mIpPort;
-    private MainActivity.UdpClientHandler mHandler;
+    private UdpClientHandler mHandler;
     private DatagramSocket mSocket;
     private InetAddress mAddress;
 
     public UdpClientThread(UdpClientState state, String address, int port,
-                           MainActivity.UdpClientHandler handler) {
+                           UdpClientHandler handler) {
         super();
 
         mState = state;
@@ -36,12 +37,12 @@ public class UdpClientThread extends Thread {
     }
 
     private void sendUiMessage(String state) {
-        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_MESSAGE,
+        mHandler.sendMessage(Message.obtain(mHandler, UdpClientHandler.UPDATE_MESSAGE,
                 state));
     }
 
     private void sendPacketMessage(CAPacket.PacketElement packet) {
-        mHandler.sendMessage(Message.obtain(mHandler, MainActivity.UdpClientHandler.UPDATE_PACKET,
+        mHandler.sendMessage(Message.obtain(mHandler, UdpClientHandler.UPDATE_PACKET,
                 packet));
     }
 
@@ -92,6 +93,42 @@ public class UdpClientThread extends Thread {
 
         if (mState == UdpClientState.RECEIVE) {
             Log.i("CA6", "Receive thread ended");
+        }
+    }
+
+    /**
+     * Internal class to update UI based on messages from UdpClientThread thread.
+     */
+    static public class UdpClientHandler extends Handler {
+        static final int UPDATE_MESSAGE = 0;
+        static final int UPDATE_PACKET = 1;
+        private MenuAdapter mAdapter;
+
+        public UdpClientHandler(MenuAdapter adapter) {
+            mAdapter = adapter;
+        }
+
+        public void updateMessage(String msg) {
+            Log.e("CA6", msg);
+        }
+
+        public void updatePacket(CAPacket.PacketElement packet) {
+            mAdapter.addPacket(packet);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+                case UPDATE_MESSAGE:
+                    updateMessage((String) msg.obj);
+                    break;
+                case UPDATE_PACKET:
+                    updatePacket((CAPacket.PacketElement)msg.obj);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
     }
 }
