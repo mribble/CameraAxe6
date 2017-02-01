@@ -48,12 +48,9 @@ public class UdpClientThread extends Thread {
     @Override
     public void run() {
 
-        if (mState == UdpClientThread.UdpClientState.SEND) {
-            Log.i("CA6", "Send thread started");
-        } else {
-            Log.i("CA6", "Receive thread started");
+        if (mState == UdpClientState.RECEIVE) {
+            Log.i("CA6", "Receive thread started: " + mIpAddress + " : " + mIpPort);
         }
-
 
         try {
             mSocket = new DatagramSocket(mIpPort);
@@ -93,9 +90,7 @@ public class UdpClientThread extends Thread {
             }
         }
 
-        if (mState == UdpClientThread.UdpClientState.SEND) {
-            Log.i("CA6", "Send thread ended");
-        } else {
+        if (mState == UdpClientState.RECEIVE) {
             Log.i("CA6", "Receive thread ended");
         }
     }
