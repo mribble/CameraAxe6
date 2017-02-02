@@ -25,6 +25,7 @@ public:
     
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
+    void writePacketTextDynamic(uint8 clientHostId, uint8 modAttribute, const char* text1);
 
 private:
     HardwareSerial *mSerial;

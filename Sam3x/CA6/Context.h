@@ -35,6 +35,8 @@ struct Context {
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CtxProcTable procTable;
 
+  uint8 fakeModule = 0;
+
 // todo remove
 //  PacketInterModuleLogic interModuleLogic;
 //  PacketCamSettings camSettings[NUM_CAMERAS];

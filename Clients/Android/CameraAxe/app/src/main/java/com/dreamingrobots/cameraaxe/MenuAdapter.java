@@ -29,18 +29,78 @@ public class MenuAdapter extends BaseAdapter{
     private ArrayList<CAPacket.PacketElement> mData = new ArrayList<CAPacket.PacketElement>();
     private Activity mActivity;
     private LayoutInflater mInflater;
+    private boolean mLoadingMenu = false;
 
     public MenuAdapter(Activity activity) {
         mActivity = activity;
         mInflater =  mActivity.getLayoutInflater();
     }
 
-    public void addPacket(CAPacket.PacketElement packet) {
-        if (packet.getPacketType() >= CAPacket.PID_MENU_HEADER &&
-                packet.getPacketType() <= CAPacket.PID_TIME_BOX) {
-            mData.add(packet);
-            notifyDataSetChanged();
+    private int findMatchingClientHostIdIndex(CAPacket.PacketElement ref, ArrayList<CAPacket.PacketElement> list) {
+        if (ref.getClientHostId() == -1) {
+            Log.e("CA6", "Not a valid ref index");
+            return -1;
         }
+
+        for (int i = 0; i < mData.size(); i++) {
+            if (ref.getPacketType() == mData.get(i).getPacketType()) {
+                if (ref.getClientHostId() == ref.getClientHostId()) {
+                    return i;
+                }
+            }
+        }
+        Log.e("CA6", "Could not find a matching index");
+        return -1;
+    }
+
+    public void addPacket(CAPacket.PacketElement packet) {
+        if (mLoadingMenu || packet.getPacketType() == CAPacket.PID_MENU_HEADER) {
+            mLoadingMenu = true;
+            // Loading new menu packets
+            if (packet.getPacketType() >= CAPacket.PID_MENU_HEADER &&
+                    packet.getPacketType() <= CAPacket.PID_TIME_BOX) {
+                mData.add(packet);
+            }
+            if (packet.getPacketType() == CAPacket.PID_SCRIPT_END) {
+                mLoadingMenu = false;
+            }
+        } else {
+            // Sending update packets
+            int index = 0;
+            switch (packet.getPacketType()) {
+                case CAPacket.PID_TEXT_DYNAMIC:
+                    index = findMatchingClientHostIdIndex(packet, mData);
+                    CAPacket.TextDynamic src = (CAPacket.TextDynamic)packet;
+                    CAPacket.TextDynamic dst = (CAPacket.TextDynamic)mData.get(index);
+                    dst.set(dst.getClientHostId(), src.getModAttribute(), dst.getText0(), src.getText1());
+                    break;
+                case CAPacket.PID_BUTTON:
+                    Log.e("CA6", "PID_BUTTON not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_MENU_SELECT:
+                    Log.e("CA6", "PID_MENU_SELECT not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_LOGGER:
+                    Log.e("CA6", "PID_LOGGER not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_CAM_STATE:
+                    Log.e("CA6", "PID_CAM_STATE not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_CAM_SETTINGS:
+                    Log.e("CA6", "PID_CAM_SETTINGS not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_INTERVALOMETER:
+                    Log.e("CA6", "PID_INTERVALOMETER not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_INTER_MODULE_LOGIC:
+                    Log.e("CA6", "PID_INTER_MODULE_LOGIC not yet implemented in MenuAdapter::addPacket");
+                    break;
+                default:
+                    Log.e("CA6", "Not valid MenuAdapter::addPacket: "+packet.getPacketType());
+                    break;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -158,7 +218,8 @@ public class MenuAdapter extends BaseAdapter{
                 CAPacket.DropSelect p = (CAPacket.DropSelect)mData.get(position);
                 holder.textView0.setText(p.getText0());
                 String[] items = p.getText1().split("\\|", -1);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity, android.R.layout.simple_spinner_item, items);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+                        android.R.layout.simple_spinner_item, items);
                 holder.dropSelect.setAdapter(adapter);
                 break;
             }

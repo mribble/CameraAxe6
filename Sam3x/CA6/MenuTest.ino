@@ -28,6 +28,17 @@ void MenuTestInit(uint8 modId)
 
 // Sends packets to host
 void MenuTestSendPackets(uint8 modId) {
+  static uint32 t = 0;
+  static uint32 c = 0;
+
+  if (millis() > t) {
+    t = millis()+500;
+    c = (++c)%1000;
+    char buf[10];
+    sprintf(buf, "%d", c);
+    // Update packet every 500 ms
+    //g_ctx.packetHelper.writePacketTextDynamic(0, 0, buf);
+  }
 }
 
 // Receives packets from host

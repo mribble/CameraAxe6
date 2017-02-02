@@ -23,6 +23,7 @@ void setup() {
 void loop() {
   caRunTests();
   processIncomingPacket();
+  sendMenuPackets();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
@@ -32,6 +33,21 @@ void loop() {
   else {
     checkModulePorts();
     delay(100);
+  }
+}
+
+// This sends the packets from each menu
+void sendMenuPackets() {
+  uint8 i;
+  
+  for (i=0; i<NUM_MODULES; ++i) {
+    uint8 modId = g_ctx.modules[i].modId;
+    if (modId) {
+      g_ctx.procTable.funcSendPackets[modId](i);
+    }
+  }
+  if (g_ctx.fakeModule) {
+    g_ctx.procTable.funcSendPackets[g_ctx.fakeModule](0);
   }
 }
 

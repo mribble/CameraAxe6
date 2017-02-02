@@ -162,6 +162,7 @@ class CAPacket {
     **********************************************************************************************/
     public interface PacketElement {
         public int getPacketType();
+        public int getClientHostId();
         public void unpack();
         public int pack();
     }
@@ -180,6 +181,7 @@ class CAPacket {
         }
 
         public int getPacketType() {return PID_MENU_HEADER;}
+        public int getClientHostId() {return -1;}
         public int getMajorVersion() {return mMajorVersion;}
         public int getMinorVersion() {return mMinorVersion;}
         public String getMenuName() {return mMenuName.toString();}
@@ -222,6 +224,7 @@ class CAPacket {
         }
 
         public int getPacketType() {return PID_TEXT_STATIC;}
+        public int getClientHostId() {return -1;}
         public String getText0() {return mText0.toString();}
 
         public void set(String text0) {
@@ -652,6 +655,7 @@ class CAPacket {
         public ScriptEnd() {}
 
         public int getPacketType() {return PID_SCRIPT_END;}
+        public int getClientHostId() {return -1;}
 
         public void set() {}
 
@@ -676,6 +680,7 @@ class CAPacket {
         public MenuSelect() {}
 
         public int getPacketType() {return PID_MENU_SELECT;}
+        public int getClientHostId() {return -1;}
         public int getMode() {return mMode;}
         public int getMenuNumber() {return mMenuNumber;}
 
@@ -714,6 +719,7 @@ class CAPacket {
         }
 
         public int getPacketType() {return PID_LOGGER;}
+        public int getClientHostId() {return -1;}
         public String getLog() {return mLog.toString();}
 
         public void set(String log) {
@@ -756,6 +762,7 @@ class CAPacket {
         public CamState() {}
 
         public int getPacketType() {return PID_CAM_STATE;}
+        public int getClientHostId() {return -1;}
         public int getMultiplier() {return mMultiplier;}
         public int getFocus() {return mFocus;}
         public int getShutter() {return mShutter;}
@@ -820,6 +827,7 @@ class CAPacket {
         public CamSettings() {}
 
         public int getPacketType() {return PID_CAM_SETTINGS;}
+        public int getClientHostId() {return -1;}
         public int  getCamPortNumber() {return mCamPortNumber;}
         public int  getMode() {return mMode;}
         public int  getDelayHours() {return mDelayHours;}
@@ -959,6 +967,7 @@ class CAPacket {
         public Intervalometer() {}
 
         public int getPacketType() {return PID_INTERVALOMETER;}
+        public int getClientHostId() {return -1;}
         public int getStartHours() {return mStartHours;}
         public int getStartMinutes() {return mStartMinutes;}
         public int getStartSeconds() {return mStartSeconds;}
@@ -1047,6 +1056,7 @@ class CAPacket {
         public InterModuleLogic() {}
 
         public int getPacketType() {return PID_INTER_MODULE_LOGIC;}
+        public int getClientHostId() {return -1;}
         public int getLatchEnable() {return mLatchEnable;}
         public int getLogic() {return mLogic;}
 
@@ -1086,6 +1096,7 @@ class CAPacket {
         public ControlFlags() {}
 
         public int getPacketType() {return PID_CONTROL_FLAGS;}
+        public int getClientHostId() {return -1;}
         public int getSlaveModeEnable() {return mSlaveModeEnable;}
         public int getExtraMessagesEnable() {return mExtraMessagesEnable;}
 

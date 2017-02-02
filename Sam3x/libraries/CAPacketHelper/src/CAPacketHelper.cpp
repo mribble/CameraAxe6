@@ -78,3 +78,11 @@ void CAPacketHelper::writePacketLogger(const char* str) {
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
+
+void CAPacketHelper::writePacketTextDynamic(uint8 clientHostId, uint8 modAttribute, const char* text1) {
+    CAPacketTextDynamic pack0(mPacker);
+    pack0.set(clientHostId, modAttribute, "0", text1);
+    uint8 packSize = pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
