@@ -38,8 +38,9 @@ void CA6_EspClass::reprogramESP() {
     input = SerialUSB.read();
   }
 // get rid of any remaining characters in the input buffer so they don't disrupt packet processing
-  while (SerialUSB.available()) {
+  while (SerialUSB.available() > 0) {
     input = SerialUSB.read();
+    delay(10);
   }
   SerialUSB.println(F("ESP8266 Programing complete, back to data mode"));
   delay(2000);
@@ -58,8 +59,9 @@ void CA6_EspClass::resetESP() {
     input = SerialUSB.read();
   }
   // get rid of any remaining characters in the input buffer so they don't disrupt packet processing
-  while (SerialUSB.available()) {
+  while (SerialUSB.available() > 0) {
     input = SerialUSB.read();
+    delay(10);
   }
   SerialUSB.println(F("ESP8266 Reset complete, back to data mode"));
 }
