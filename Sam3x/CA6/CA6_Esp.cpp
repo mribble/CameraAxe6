@@ -11,8 +11,8 @@ void CA6_EspClass::init() {
   espGpio0pp = CAU::getModulePin(0, 1); // Use module0 3rd wire for ESP GPIO0/Flash
   espResetpp = CAU::getModulePin(0, 2); // Use module0 4th wire for ESP RESET
   // next pair in case you want to use AUX pins
-  //  espGpio0pp = CAU::getAuxPin(24); // Use module0 3rd wire for ESP GPIO0/Flash
-  //  espResetpp = CAU::getAuxPin(25); // Use module0 4th wire for ESP RESET
+  //  espGpio0pp = CAU::getAuxPin(24); // Aux 24 is same as Due pin 44
+  //  espResetpp = CAU::getAuxPin(25); // Aux 25 is same as Due pin 45
   CAU::pinMode(espGpio0pp, OUTPUT);
   CAU::digitalWrite(espGpio0pp, HIGH);
   CAU::pinMode(espResetpp, OUTPUT);
@@ -28,30 +28,40 @@ void CA6_EspClass::reprogramESP() {
   CAU::digitalWrite(espResetpp, HIGH);
   delay(50);
   CAU::digitalWrite(espGpio0pp, HIGH);
-  SerialUSB.println(F("ESP8266 is in Flash Programing mode, type y when complete"));
+  SerialUSB.println(F("ESP8266 is in Flash Programing mode, Upload the ESP8266 sketch now"));
+  SerialUSB.println(F(" - wait until upload has completed and (hopefully) ESP8266 has Connected, then type y"));
+  SerialUSB.println(F(" - if the ESP8266 does not reconnect to a network, type y then repeat the programming"));
   // Need to wait here until reprogramming is done to avoid packet errors and disruption of reprogram data stream
   input = ' ';
   while (input != 'y') {
     while (!SerialUSB.available());
     input = SerialUSB.read();
   }
-  SerialUSB.println(F("ESP8266 Programing complete"));
-  SerialUSB.println(F("ESP8266 will be reset - Please wait a few seconds for network connection"));
-  CAU::digitalWrite(espResetpp, LOW);
-  delay(10);
-  CAU::digitalWrite(espResetpp, HIGH);
-  // delay here to allow ESP to connect to a network *** may want to read from ESP serial to get past the start up messages from WiFiManager
+// get rid of any remaining characters in the input buffer so they don't disrupt packet processing
+  while (SerialUSB.available()) {
+    input = SerialUSB.read();
+  }
+  SerialUSB.println(F("ESP8266 Programing complete, back to data mode"));
   delay(2000);
-  return;
 }
 
 void CA6_EspClass::resetESP() {
-  SerialUSB.println(F("ESP8266 will be reset - Please wait a few seconds for network connection"));
+  byte input;
+  SerialUSB.println(F("ESP8266 will be reset - When complete, type y"));
   CAU::digitalWrite(espResetpp, LOW);
   delay(10);
   CAU::digitalWrite(espResetpp, HIGH);
   delay(10);
-  return;
+  input = ' ';
+  while (input != 'y') {
+    while (!SerialUSB.available());
+    input = SerialUSB.read();
+  }
+  // get rid of any remaining characters in the input buffer so they don't disrupt packet processing
+  while (SerialUSB.available()) {
+    input = SerialUSB.read();
+  }
+  SerialUSB.println(F("ESP8266 Reset complete, back to data mode"));
 }
 
 CA6_EspClass CA6_Esp;

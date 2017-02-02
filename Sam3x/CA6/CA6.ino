@@ -22,7 +22,7 @@ void setup() {
 
   ca6_esp.init();
 
-  g_ctx.packetHelper.init(9600);
+  g_ctx.packetHelper.init(74880);
 }
 
 void loop() {
