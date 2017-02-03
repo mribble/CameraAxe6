@@ -19,7 +19,7 @@ WiFiUDP gUDP;
 //#define SETUP_STA_NETWORK
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(74880);
 
 #ifdef SETUP_WIFI_MANAGER
   // Use wifi manager to try and connect to to a local network
