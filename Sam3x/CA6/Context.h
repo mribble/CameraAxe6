@@ -35,7 +35,10 @@ struct Context {
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CtxProcTable procTable;
 
+  CAEsp8266 esp8266;
+  
   uint8 fakeModule = 0;
+  
 
 // todo remove
 //  PacketInterModuleLogic interModuleLogic;

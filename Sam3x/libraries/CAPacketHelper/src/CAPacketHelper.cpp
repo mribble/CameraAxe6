@@ -71,6 +71,10 @@ void CAPacketHelper::writeMenu(const uint8 *sData, uint16 sz) {
     }
 }
 
+void CAPacketHelper::flushGarbagePackets() {
+    while (mSerial->read() != -1){}   // flush out all the writes
+ }
+
 void CAPacketHelper::writePacketLogger(const char* str) {
     CAPacketLogger pack0(mPacker);
     pack0.set(str);

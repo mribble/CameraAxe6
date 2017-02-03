@@ -4,14 +4,12 @@
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
 #include <CATickTimer.h>
+#include <CAEsp8266.h>
 #include "MenuData.h"
 #include "Context.h"
 
-#include "CA6_Esp.h"
 // Initialize the context
 Context g_ctx;
-
-CA6_EspClass ca6_esp;
 
 void setup() {
   // This could be bigger, just want to know if the size starts getting really large
@@ -20,15 +18,13 @@ void setup() {
   CAU::logInit(9600);
   CAU::initializeAnalog();
 
-  ca6_esp.init();
-
+  g_ctx.esp8266.init();
   g_ctx.packetHelper.init(74880);
 }
 
 void loop() {
-  if (SerialUSB.available()) {
-    processCommand();
-  }
+
+  processTerminalCmds();
   caRunTests();
   processIncomingPacket();
   sendMenuPackets();

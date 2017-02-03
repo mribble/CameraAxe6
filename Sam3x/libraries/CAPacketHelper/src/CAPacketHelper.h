@@ -22,6 +22,7 @@ public:
     boolean readOnePacket(uint8 *data);
     void writeOnePacket(uint8 *data);
     void writeMenu(const uint8 *sData, uint16 sz);
+    void flushGarbagePackets();
     
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
