@@ -27,7 +27,7 @@ void loop() {
   processTerminalCmds();
   caRunTests();
   processIncomingPacket();
-  sendMenuPackets();
+//  sendMenuPackets();
 
   if (g_ctx.active) {
     if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
@@ -35,7 +35,7 @@ void loop() {
     }
   }
   else {
-    checkModulePorts();
+    //checkModulePorts();
     delay(100);
   }
 }
