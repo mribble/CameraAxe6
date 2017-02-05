@@ -44,6 +44,9 @@ enum unioWriteStatus { EEPROM_WRITE_PROTECTED_NONE    = 0x00, // None write prot
                        EEPROM_WRITE_PROTECTED_HALF    = 0x08, // Upper half write protected
                        EEPROM_WRITE_PROTECTED_ALL     = 0x0c, // All write protect
                      };
+
+#define EEPROM_ADDR 0
+#define EEPROM_MAGIC_VAL ((uint32)0xdeadc0de)
                      
 class CAEeprom
 {
@@ -53,6 +56,8 @@ public:
     boolean write(const uint8 *buf, uint16 addr, uint16 len);
     boolean statusRead(unioReadStatus *status);
     boolean statusWrite(unioWriteStatus status);
+    boolean readModuleId(uint8 *val);
+    boolean writeModuleId(uint8 val);
 
 private:
     void    standbyPulse();

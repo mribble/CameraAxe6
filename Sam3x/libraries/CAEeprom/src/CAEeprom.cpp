@@ -123,6 +123,36 @@ boolean CAEeprom::statusWrite(unioWriteStatus status)
     return CA_TRUE;
 }
 
+boolean CAEeprom::readModuleId(uint8 *val) {
+    uint8 buf[5];
+    if (read(buf, EEPROM_ADDR, 5)) {
+        if ((buf[0] == ((EEPROM_MAGIC_VAL>>0)&0xff)) &&
+            (buf[1] == ((EEPROM_MAGIC_VAL>>8)&0xff)) &&
+            (buf[2] == ((EEPROM_MAGIC_VAL>>16)&0xff)) &&
+            (buf[3] == ((EEPROM_MAGIC_VAL>>24)&0xff))) {
+            *val = buf[4];
+            return true;
+        } else {
+            CAU::log("Module eeprom magic value check failed\n");
+            *val = 0;
+            return false;
+        } 
+    }
+    
+    *val = 0;
+    return false;
+}
+
+boolean CAEeprom::writeModuleId(uint8 val) {
+    uint8 buf[5] = {(EEPROM_MAGIC_VAL>>0)&0xff,
+                    (EEPROM_MAGIC_VAL>>8)&0xff,
+                    (EEPROM_MAGIC_VAL>>16)&0xff,
+                    (EEPROM_MAGIC_VAL>>24)&0xff,
+                    val};
+    return write(buf, EEPROM_ADDR, 5);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //PRIVATE
 ////////////////////////////////////////////////////////////////////////////////

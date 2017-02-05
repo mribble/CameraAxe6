@@ -15,12 +15,13 @@ void processTerminalCmds() {
       break;
     case 't': // Program a test module in module port 3
       CAEeprom eeprom(CA_MODULE3);
-      uint8 testModuleId = 2;
-      if (eeprom.write(&testModuleId, 0x02, 1)) {
-        CAU::log("Success - Writting test module\n");
-        testModuleId = 0;
-        if (eeprom.read(&testModuleId, 0x02, 1)) {
-          if (testModuleId == 2) {
+      const uint8 testModuleId = 2;
+      uint8 val = 0;
+
+      if (eeprom.writeModuleId(testModuleId)) {
+        CAU::log("Success - Writing test module\n");
+        if (eeprom.readModuleId(&val)) {
+          if (val == testModuleId) {
             CAU::log("Success - Reading test module\n");
           } else {
             CAU::log("Fail - Reading test module\n");
@@ -29,7 +30,7 @@ void processTerminalCmds() {
           CAU::log("Fail - Reading test module 2\n");
         }
       } else {
-        CAU::log("Fail - Writting test module\n");
+        CAU::log("Fail - Writing test module\n");
       }
       break;
     }

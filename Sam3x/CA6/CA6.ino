@@ -35,7 +35,7 @@ void loop() {
     }
   }
   else {
-    //checkModulePorts();
+    checkModulePorts();
     delay(100);
   }
 }
@@ -68,15 +68,14 @@ void photoModeSetup() {
 }
 
 void checkModulePorts() {
-  uint8 i;
-  for(i=0; i<NUM_MODULES; ++i) {
-    uint8 val;
+  for(uint8 i=0; i<NUM_MODULES; ++i) {
+    uint8 val = 0;
     CAEeprom moduleEeprom(unioDevice(CA_MODULE0+i));
-    if (moduleEeprom.read(&val, 0x10, 1)) {
-      CA_ASSERT(val, "Value should never be zero.");  // Zero is reserved for unconnected modules
+    if (moduleEeprom.readModuleId(&val)) {
       if (g_ctx.modules[i].modId != val) {
         g_ctx.modules[i].modId = val;
         // todo send update to host about changing modules
+        CAU::log("Module detected - %d\n",val);
       }
     }
     else {
@@ -84,6 +83,7 @@ void checkModulePorts() {
         // Module has been unplugged
         g_ctx.modules[i].modId = 0;
         // todo send update to host about changing modules
+        CAU::log("Module unplugged\n");
       }
     }
   }
