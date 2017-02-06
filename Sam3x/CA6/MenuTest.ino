@@ -1,6 +1,14 @@
 
-void MenuTestInit(uint8 modId)
-{
+void MenuTest_Info(MenuData *data) {
+  data->menuId = 2;
+  data->modulePort0 = 0; // None
+  data->modulePort1 = 0; // None
+  data->modulePort2 = 0; // None
+  data->modulePort3 = 2; // Test Module
+  data->name = "Test Menu";
+}
+
+void MenuTest_MenuInit() {
   const uint8 sDataMenu[] PROGMEM = {
   19,0,PID_MENU_HEADER,0,0,1,0,'M','e','n','u',' ','T','e','s','t','e','r',0,  // MENU_HEADER 0 1 "Menu Tester"
   15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
@@ -13,21 +21,22 @@ void MenuTestInit(uint8 modId)
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 223
 
+  // This menu has no IO to setup
+  g_ctx.packetHelper.writeMenu(sDataMenu, 223);
+}
+
+void MenuTest_PhotoInit() {
   const uint8 sDataActive[] PROGMEM = {
   26,0,PID_MENU_HEADER,1,0,2,0,'M','e','n','u',' ','T','e','s','t','e','r',' ','A','c','t','i','v','e',0,  // MENU_HEADER 1 2 "Menu Tester Active"
   23,0,PID_TEXT_STATIC,'N','o','t','h','i','n','g',' ','t','o',' ','s','e','e',' ','h','e','r','e',0,  // TEXT_STATIC "Nothing to see here"
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 52
-  
-  g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate = 0;
-  CAU::pinMode(g_ctx.modules[modId].modStore.menuSoundData.ppSound, ANALOG_INPUT);
-  g_ctx.modules[modId].modStore.menuSoundData.ppSound = CAU::getModulePin(modId, 0);
-  uint8 *data = 0;
-  g_ctx.packetHelper.writeMenu(sDataMenu, 223);
+
+  // This menu has no IO to setup
+  g_ctx.packetHelper.writeMenu(sDataActive, 52);
 }
 
-// Sends packets to host
-void MenuTestSendPackets(uint8 modId) {
+void MenuTest_MenuRun() {
   static uint32 t = 0;
   static uint32 c = 0;
 
@@ -41,15 +50,8 @@ void MenuTestSendPackets(uint8 modId) {
   }
 }
 
-// Receives packets from host
-void MenuTestReceivePackets(uint8 modId, uint8 *packet) {
+void MenuTest_PhotoRun() {
+  // Nothing
 }
 
-void MenuTestActiveInit(uint8 modId) {
-}
-
-// Handle the actual triggering
-uint8 MenuTestTriggerCheck(uint8 modId) {
-  return 0;
-}
 

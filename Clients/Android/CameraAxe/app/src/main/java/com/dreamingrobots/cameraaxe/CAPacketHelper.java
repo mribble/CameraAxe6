@@ -113,7 +113,7 @@ public class CAPacketHelper {
 
     public int writePacketMenuSelect(int mode, int menuNumber) {
         CAPacket.MenuSelect pack0 = mPacker.new MenuSelect();
-        pack0.set(1, 1);
+        pack0.set(mode, menuNumber);
         int packSize = pack0.pack();
         mPacker.resetBuffer();
         return packSize;

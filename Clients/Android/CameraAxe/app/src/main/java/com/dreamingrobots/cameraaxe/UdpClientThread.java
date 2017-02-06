@@ -62,7 +62,7 @@ public class UdpClientThread extends Thread {
             if (mState == UdpClientThread.UdpClientState.SEND) {
                 // send a packet
                 CAPacketHelper ph = new CAPacketHelper();
-                int packSize = ph.writePacketMenuSelect(1, 2);
+                int packSize = ph.writePacketMenuSelect(0, 2);
                 DatagramPacket packet = new DatagramPacket(ph.getData(), packSize, mAddress,
                         mIpPort);
                 mSocket.send(packet);

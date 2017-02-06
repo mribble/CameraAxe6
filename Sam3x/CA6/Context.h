@@ -10,17 +10,15 @@
 struct CtxModules
 {
   uint8 modId = 0;
-  uint8 latchedTriggers = 0;
-  ModStore modStore;
 };
 
 struct CtxProcTable
 {
-  void (*funcInit[NUM_MENUS])(uint8)                   {NULL, MenuSoundInit, MenuTestInit};
-  void (*funcSendPackets[NUM_MENUS])(uint8)            {NULL, MenuSoundSendPackets, MenuTestSendPackets};
-  void (*funcReceivePackets[NUM_MENUS])(uint8, uint8*) {NULL, MenuSoundReceivePackets, MenuTestReceivePackets};
-  void (*funcActiveInit[NUM_MENUS])(uint8)             {NULL, MenuSoundActiveInit, MenuTestActiveInit};
-  uint8 (*funcTriggerCheck[NUM_MENUS])(uint8)          {NULL, MenuSoundTriggerCheck, MenuTestTriggerCheck};
+  void (*funcInfo[NUM_MENUS])(MenuData*) {NULL, MenuSound_Info, MenuTest_Info};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, MenuSound_PhotoRun, MenuTest_PhotoRun};
 };
 
 struct Context {
@@ -28,7 +26,7 @@ struct Context {
   Context(){}
 
   uint8 active = 0;
-  CAPacketInterModuleLogicBase interModuleLogic;
+  uint8 menuId = 0;
   CAPacketCamSettingsBase camSettings[NUM_CAMERAS];
 
   CtxModules modules[NUM_MODULES];
@@ -36,13 +34,6 @@ struct Context {
   CtxProcTable procTable;
 
   CAEsp8266 esp8266;
-  
-  uint8 fakeModule = 0;
-  
-
-// todo remove
-//  PacketInterModuleLogic interModuleLogic;
-//  PacketCamSettings camSettings[NUM_CAMERAS];
 };
 
 #endif // CONTEXT_H

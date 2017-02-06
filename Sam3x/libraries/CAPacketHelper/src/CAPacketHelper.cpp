@@ -7,7 +7,7 @@
 void CAPacketHelper::init(uint32 baud) {
     mSerial = &Serial1;
     mSerial->begin(baud);
-    delay(5000);
+    delay(500);
     while (mSerial->read() != -1){}   // flush out all the initialization writes
 }
 

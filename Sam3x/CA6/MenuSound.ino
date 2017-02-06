@@ -1,6 +1,21 @@
+typedef struct {
+  uint32 nextSendUpdate;
+  hwPortPin ppSound;
+  uint16 triggerVal;
+} MenuSoundData;
 
-void MenuSoundInit(uint8 modId)
-{
+MenuSoundData gMenuSoundData;
+
+void MenuSound_Info(MenuData *data) {
+  data->menuId = 1;
+  data->modulePort0 = 1; // Sound Module
+  data->modulePort1 = 0; // None
+  data->modulePort2 = 0; // None
+  data->modulePort3 = 2; // None
+  data->name = "Sound Menu";
+}
+
+void MenuSound_MenuInit() {
   const uint8 sDataMenu[] PROGMEM = {
   13,0,PID_MENU_HEADER,0,0,1,0,'S','o','u','n','d',0,  // MENU_HEADER 0 1 "Sound"
   38,0,PID_EDIT_NUMBER,0,0,3,0,0,0,0,255,1,0,0,100,0,0,0,'S','o','u','n','d',' ','T','r','i','g','g','e','r',' ','L','e','v','e','l',0,  // EDIT_NUMBER 0 3 0 0 511 100 "Sound Trigger Level"  **gClientHostId_0**
@@ -8,6 +23,13 @@ void MenuSoundInit(uint8 modId)
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 91
 
+  gMenuSoundData.nextSendUpdate = 0;
+  gMenuSoundData.ppSound = CAU::getModulePin(0, 0);
+  CAU::pinMode(gMenuSoundData.ppSound, ANALOG_INPUT);
+  g_ctx.packetHelper.writeMenu(sDataMenu, 91);
+}
+
+void MenuSound_PhotoInit() {
   const uint8 sDataActive[] PROGMEM = {
   22,0,PID_MENU_HEADER,0,0,1,0,'S','o','u','n','d',' ','-',' ','A','c','t','i','v','e',0,  // MENU_HEADER 0 1 "Sound - Active"
   30,0,PID_TEXT_DYNAMIC,2,0,'S','o','u','n','d',' ','T','r','i','g','g','e','r',' ','L','e','v','e','l',':',0,'?','?','?',0,  // TEXT_DYNAMIC 0 "Sound Trigger Level:" "???"  **gClientHostId_2**
@@ -15,66 +37,36 @@ void MenuSoundInit(uint8 modId)
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 79
 
-  
-  g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate = 0;
-  CAU::pinMode(g_ctx.modules[modId].modStore.menuSoundData.ppSound, ANALOG_INPUT);
-  g_ctx.modules[modId].modStore.menuSoundData.ppSound = CAU::getModulePin(modId, 0);
-  uint8 *data = 0;
-  g_ctx.packetHelper.writeMenu(sDataMenu, 91);
+  gMenuSoundData.nextSendUpdate = 0;
+  gMenuSoundData.ppSound = CAU::getModulePin(0, 0);
+  CAU::pinMode(gMenuSoundData.ppSound, ANALOG_INPUT);
+  g_ctx.packetHelper.writeMenu(sDataActive, 79);
 }
 
-// Sends packets to host
-void MenuSoundSendPackets(uint8 modId)
-{
+void MenuSound_MenuRun() {
   if (!g_ctx.active)
   {
     uint32 updateFrequency = 100;  // 100 ms
     uint32 curTime = millis();
-    uint32 nextUpdate = g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate;
+    uint32 nextUpdate = gMenuSoundData.nextSendUpdate;
     
     if ((curTime >= nextUpdate) && (curTime+updateFrequency >= nextUpdate)) // Handles wraparounds
     {
-      uint16 val = CAU::analogRead(g_ctx.modules[modId].modStore.menuSoundData.ppSound);
+      uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
       // todo convert val to string
       // todo send packet to rfduino
-      g_ctx.modules[modId].modStore.menuSoundData.nextSendUpdate = curTime;
+      gMenuSoundData.nextSendUpdate = curTime;
     }
   }
   else
   {
     //todo
-  }
+  }  
 }
 
-// Receives packets from host
-void MenuSoundReceivePackets(uint8 modId, uint8 *packet)
-{
-  if (!g_ctx.active)
-  {
-    if (packet[0] == 0) // first byte must be clientHostId
-    {
-      //CAPacket packetProcessor;
-      //PacketEditNumber packEditNumber;
-      //packetProcessor.unpackEditNumber(packet, &packEditNumber);
-      //g_ctx.modules[modId].modStore.menuSoundData.triggerVal = packEditNumber.value;
-    }
-    else
-    {
-      CA_ASSERT(0, "Not a valid clientHostId");
-    }
-  }
-}
-
-void MenuSoundActiveInit(uint8 modId)
-{
-  
-}
-
-// Handle the actual triggering
-uint8 MenuSoundTriggerCheck(uint8 modId)
-{
-  uint16 triggerVal = g_ctx.modules[modId].modStore.menuSoundData.triggerVal;
-  uint16 val = CAU::analogRead(g_ctx.modules[modId].modStore.menuSoundData.ppSound);
+void MenuSound_PhotoRun() {
+  uint16 triggerVal = gMenuSoundData.triggerVal;
+  uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
   uint8 ret;
   
   if (val > 512)

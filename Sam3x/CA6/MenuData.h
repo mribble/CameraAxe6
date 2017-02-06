@@ -9,36 +9,32 @@
 // needed to store the Menu*Data for each module there is union of all the Menu*Data to fine the worst case size.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct MenuData {
+  uint8 menuId;
+  uint8 modulePort0;
+  uint8 modulePort1;
+  uint8 modulePort2;
+  uint8 modulePort3;
+  char* name;
+};
+
 // Sound Menu
-extern void MenuSoundInit(uint8 modId);
-extern void MenuSoundSendPackets(uint8 modId);
-extern void MenuSoundReceivePackets(uint8 modId, uint8 *packet);
-extern void MenuSoundActiveInit(uint8 modId);
-extern uint8 MenuSoundTriggerCheck(uint8 modId);
+extern void MenuSound_Info(MenuData *data);
+extern void MenuSound_MenuInit();
+extern void MenuSound_PhotoInit();
+extern void MenuSound_MenuRun();
+extern void MenuSound_PhotoRun();
 
 // Test Menu
-extern void MenuTestInit(uint8 modId);
-extern void MenuTestSendPackets(uint8 modId);
-extern void MenuTestReceivePackets(uint8 modId, uint8 *packet);
-extern void MenuTestActiveInit(uint8 modId);
-extern uint8 MenuTestTriggerCheck(uint8 modId);
-
+extern void MenuTest_Info(MenuData *data);
+extern void MenuTest_MenuInit();
+extern void MenuTest_PhotoInit();
+extern void MenuTest_MenuRun();
+extern void MenuTest_PhotoRun();
 
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.
 
-typedef struct {
-  uint32 nextSendUpdate;
-  hwPortPin ppSound;
-  uint16 triggerVal;
-} MenuSoundData;
-
-// Add new Menu*Data structs above this and add that struct to the union below
-
-typedef union
-{
-  MenuSoundData menuSoundData;
-} ModStore;
-
 #endif // MENU_DATA_H
+

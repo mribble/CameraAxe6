@@ -12,9 +12,6 @@
 Context g_ctx;
 
 void setup() {
-  // This could be bigger, just want to know if the size starts getting really large
-  CA_ASSERT(sizeof(ModStore) < 1024, "modStore is getting large.");
-
   CAU::logInit(9600);
   CAU::initializeAnalog();
 
@@ -23,47 +20,15 @@ void setup() {
 }
 
 void loop() {
-
-  processTerminalCmds();
-  caRunTests();
   processIncomingPacket();
-//  sendMenuPackets();
 
-  if (g_ctx.active) {
-    if (interModuleLogicArbiter()) {  // True means we need to trigger cameras and flashes
-      cameraFlashHandler();
-    }
-  }
-  else {
+  if (g_ctx.active) {       // Photo Mode
+    cameraFlashHandler();
+  } else {                  // Menu Mode
+    caRunTests();
+    processTerminalCmds();
     checkModulePorts();
     delay(100);
-  }
-}
-
-// This sends the packets from each menu
-void sendMenuPackets() {
-  uint8 i;
-  
-  for (i=0; i<NUM_MODULES; ++i) {
-    uint8 modId = g_ctx.modules[i].modId;
-    if (modId) {
-      g_ctx.procTable.funcSendPackets[modId](i);
-    }
-  }
-  if (g_ctx.fakeModule) {
-    g_ctx.procTable.funcSendPackets[g_ctx.fakeModule](0);
-  }
-}
-
-// This is the work that happens switching from menu mode to photo mode.
-void photoModeSetup() {
-  uint8 i;
-
-  for(i=0; i<NUM_MODULES; ++i) {
-    uint8 modId = g_ctx.modules[i].modId;
-    if (modId) {
-      g_ctx.procTable.funcActiveInit[modId](i);
-    }
   }
 }
 
@@ -88,64 +53,6 @@ void checkModulePorts() {
     }
   }
 }
-
-// This handles collecting all the module results and seeing if a full trigger happened
-uint8 interModuleLogicArbiter() {
-  uint8 i, ret;
-  uint8 trig[NUM_MODULES] = {0,0,0,0};
-
-  if (g_ctx.interModuleLogic.getLatchEnable()) {
-    for(i=0; i<NUM_MODULES; ++i) {
-      int8 modId = g_ctx.modules[i].modId;
-      if (modId) {
-        g_ctx.modules[i].latchedTriggers |= g_ctx.procTable.funcTriggerCheck[modId](i);
-        trig[i] = g_ctx.modules[i].latchedTriggers;
-      }
-      else {
-        trig[i] = 1;
-      }
-    }
-  }
-  else {
-    for (i=0; i<NUM_MODULES; ++i) {
-      uint8 modId = g_ctx.modules[i].modId;
-      if(modId) {
-        trig[i] = g_ctx.procTable.funcTriggerCheck[modId](i);
-      }
-      else {
-        trig[i] = 1;
-      }
-    }
-  }
-
-  CA_ASSERT(NUM_MODULES == 4, "Code below assumes 4 modules");
-  switch (g_ctx.interModuleLogic.getLogic()) {
-    case 0:  // or
-      ret = (trig[0] || trig[1] || trig[2] || trig[3]);
-      break;
-    case 1:   // and
-      ret = (trig[0] && trig[1] && trig[2] && trig[3]);
-      break;
-    case 2:   // (module0 || module1) && (module2 || module 3)
-      ret = (trig[0] || trig[1]) && (trig[2] || trig[3]);
-      break;
-    case 3:   // (module0 && module1) || (module2 && module3)
-      ret = (trig[0] || trig[1]) && (trig[2] || trig[3]);
-      break;
-    default:
-      CA_ASSERT(0, "invalid interModuleLogic");
-      break;
-  }
-
-  if (ret == CA_TRUE && g_ctx.interModuleLogic.getLatchEnable()) {
-    for(i=0; i<NUM_MODULES; ++i) {
-      g_ctx.modules[i].latchedTriggers = 0;
-    }
-  }
-
-  return ret;
-}
-
 
 void cameraFlashHandler() {
   hwPortPin ppFocus, ppShutter;
