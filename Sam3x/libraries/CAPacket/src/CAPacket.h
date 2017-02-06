@@ -19,9 +19,8 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_CAM_STATE           = 12,
                 PID_CAM_SETTINGS        = 13,
                 PID_INTERVALOMETER      = 14,
-                PID_INTER_MODULE_LOGIC  = 15,
-                PID_CONTROL_FLAGS       = 16,
-                PID_END_SENTINEL        = 17, // Must be last
+                PID_CONTROL_FLAGS       = 15,
+                PID_END_SENTINEL        = 16, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -341,15 +340,6 @@ private:
     uint16 mIntervalMilliseconds;
     uint16 mIntervalMicroseconds;
     uint16 mRepeats;
-};
-
-class CAPacketInterModuleLogic : public CAPacketInterModuleLogicBase {
-public:
-    CAPacketInterModuleLogic(CAPacket& caPacket);
-    void unpack();
-    uint8 pack();
-private:
-    CAPacket* mCAP;
 };
 
 class CAPacketControlFlags {

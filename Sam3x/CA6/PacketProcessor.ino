@@ -105,12 +105,6 @@ void processIncomingPacket() {
         unpack.getRepeats());
         break;
       }
-      case PID_INTER_MODULE_LOGIC: {
-        CAPacketInterModuleLogic unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_INTER_MODULE_LOGIC - %d %d\n", packetSize, unpack.getLatchEnable(), unpack.getLogic());
-        break;
-      }
       case PID_CONTROL_FLAGS: {
         CAPacketControlFlags unpack(mUnpacker);
         unpack.unpack();

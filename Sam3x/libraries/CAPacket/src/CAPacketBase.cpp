@@ -60,18 +60,4 @@ void CAPacketCamSettingsBase::set(uint8 camPortNumber, uint8 mode, uint16 delayH
                 "Error in CAPacketCamSettingsBase::set()");
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// InterModuleLogic Packet Class
-///////////////////////////////////////////////////////////////////////////////
-CAPacketInterModuleLogicBase::CAPacketInterModuleLogicBase() {
-    mLatchEnable = 0;
-    mLogic = 0;
-}
-
-void CAPacketInterModuleLogicBase::set(uint8 latchEnable, uint8 logic) {
-    mLatchEnable = latchEnable;
-    mLogic = logic;
-    CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
-                "Error in CAPacketInterModuleLogicBase::set()");
-}
 

@@ -64,15 +64,4 @@ protected:
     uint16 mMirrorLockupMilliseconds;
 };
 
-class CAPacketInterModuleLogicBase {
-public:
-    CAPacketInterModuleLogicBase();
-    uint8 getLatchEnable() {return mLatchEnable;};
-    uint8 getLogic() {return mLogic;};
-    void set(uint8 latchEnable, uint8 logic);
-protected:
-    uint8 mLatchEnable;
-    uint8 mLogic;
-};
-
 #endif // __CAPACKET_H__

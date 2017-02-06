@@ -1046,47 +1046,7 @@ class CAPacket {
         }
     }
     /***********************************************************************************************
-     * InterModuleLogic Packet Class
-     **********************************************************************************************/
-    public class InterModuleLogic implements PacketElement {
-
-        private int mLatchEnable;
-        private int mLogic;
-
-        public InterModuleLogic() {}
-
-        public int getPacketType() {return PID_INTER_MODULE_LOGIC;}
-        public int getClientHostId() {return -1;}
-        public int getLatchEnable() {return mLatchEnable;}
-        public int getLogic() {return mLogic;}
-
-        public void set(int latchEnable, int logic) {
-            mLatchEnable = latchEnable;
-            mLogic = logic;
-            CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3),
-                        "Error in InterModuleLogic::set()");
-        }
-
-        public void unpack() {
-            mLatchEnable = (int)unpacker(1);
-            mLogic =  (int)unpacker(7);
-            flushPacket();
-            CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3),
-                        "Error in InterModuleLogic::unpack()");
-        }
-
-        public int pack() {
-            int packetSize = 3 + 1;
-            packer(packetSize, 16);
-            packer(PID_INTER_MODULE_LOGIC, 8);
-            packer(mLatchEnable, 1);
-            packer(mLogic, 7);
-            flushPacket();
-            return packetSize;
-        }
-    }
-    /***********************************************************************************************
-     * InterModuleLogic Packet Class
+     * ControlFlags Packet Class
      **********************************************************************************************/
     public class ControlFlags implements PacketElement {
 

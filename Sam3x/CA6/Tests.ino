@@ -445,23 +445,6 @@ void caTestPackets()
     } 
   }
 
-  { // INTER_MODULE_LOGIC Packet Test
-    CAPacketInterModuleLogic unpack11(unpack10);  // Update per type
-    CAPacketInterModuleLogic pack11(pack10);      // Update per type
-    
-    pack11.set(1, 3);                             // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
-    unpack11.unpack();
-    if (packSize != unpackSize ||
-          packType != PID_INTER_MODULE_LOGIC ||   // Update per type
-          unpack11.getLatchEnable() != 1 ||
-          unpack11.getLogic() != 3 ) {
-      CAU::log("ERROR - INTER_MODULE_LOGIC test failed\n");
-    } 
-  }
-
   { // CONTROL_FLAGS Packet Test
     CAPacketControlFlags unpack11(unpack10);      // Update per type
     CAPacketControlFlags pack11(pack10);          // Update per type

@@ -757,33 +757,6 @@ uint8 CAPacketIntervalometer::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// InterModuleLogic Packet Class ** Derived from InterModuleLogicBase
-///////////////////////////////////////////////////////////////////////////////
-CAPacketInterModuleLogic::CAPacketInterModuleLogic(CAPacket& caPacket) {
-    mLatchEnable = 0;
-    mLogic = 0;
-    mCAP = &caPacket;
-}
-
-void CAPacketInterModuleLogic::unpack() {
-    mLatchEnable = mCAP->unpacker(1);
-    mLogic = mCAP->unpacker(7);
-    mCAP->flushPacket();
-    CA_ASSERT((mLatchEnable <= 1) && (mLogic <= 3), 
-                "Error in CAPacketInterModuleLogic::unpack()");
-}
-
-uint8 CAPacketInterModuleLogic::pack() {
-    uint8 packetSize = 3 + 1;
-    mCAP->packer(packetSize, 16);
-    mCAP->packer(PID_INTER_MODULE_LOGIC, 8);
-    mCAP->packer(mLatchEnable, 1);
-    mCAP->packer(mLogic, 7);
-    mCAP->flushPacket();
-    return packetSize;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // ControlFlags Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketControlFlags::CAPacketControlFlags(CAPacket& caPacket) {

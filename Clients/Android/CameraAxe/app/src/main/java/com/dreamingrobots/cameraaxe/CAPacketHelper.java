@@ -92,11 +92,6 @@ public class CAPacketHelper {
                 unpack.unpack();
                 ret = unpack;
             } break;
-            case CAPacket.PID_INTER_MODULE_LOGIC: {
-                CAPacket.InterModuleLogic unpack = unpacker.new InterModuleLogic();
-                unpack.unpack();
-                ret = unpack;
-            } break;
             case CAPacket.PID_CONTROL_FLAGS: {
                 CAPacket.ControlFlags unpack = unpacker.new ControlFlags();
                 unpack.unpack();
@@ -381,21 +376,6 @@ public class CAPacketHelper {
                     unpack1.getIntervalMicroseconds() != 905 ||
                     unpack1.getRepeats() != 9999) {
                 Log.e("CA6", "Packet Test Error - INTERVALOMETER test failed");
-            }
-        }
-        {   // InterModuleLogic Packet Test
-            CAPacket.InterModuleLogic pack1 = pack0.new InterModuleLogic();     // Update per type
-            CAPacket.InterModuleLogic unpack1 = unpack0.new InterModuleLogic(); // Update per type
-            pack1.set(1, 2);                                                    // Update per type
-            int packSize = pack1.pack();
-            int unpackSize = unpack0.unpackSize();
-            short packType = unpack0.unpackType();
-            unpack1.unpack();
-            if (packSize != unpackSize ||
-                    packType != CAPacket.PID_INTER_MODULE_LOGIC ||              // Update per type
-                    unpack1.getLatchEnable() != 1 ||
-                    unpack1.getLogic() != 2) {
-                Log.e("CA6", "Packet Test Error - INTER_MODULE_LOGIC test failed");
             }
         }
         {   // ControlFlags Packet Test
