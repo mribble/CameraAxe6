@@ -15,12 +15,14 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_TIME_BOX            =  8,
                 PID_SCRIPT_END          =  9,
                 PID_MENU_SELECT         = 10,
-                PID_LOGGER              = 11,
-                PID_CAM_STATE           = 12,
-                PID_CAM_SETTINGS        = 13,
-                PID_INTERVALOMETER      = 14,
-                PID_CONTROL_FLAGS       = 15,
-                PID_END_SENTINEL        = 16, // Must be last
+                PID_MENU_LIST           = 11,
+                PID_MODULE_LIST         = 12,
+                PID_LOGGER              = 13,
+                PID_CAM_STATE           = 14,
+                PID_CAM_SETTINGS        = 15,
+                PID_INTERVALOMETER      = 16,
+                PID_CONTROL_FLAGS       = 17,
+                PID_END_SENTINEL        = 18, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -260,6 +262,63 @@ private:
     CAPacket* mCAP;
     uint8 mMode;
     uint8 mMenuNumber;
+};
+
+class CAPacketMenuList {
+public:
+    CAPacketMenuList(CAPacket& caPacket);
+    uint8 getMenuId() {return mMenuId;};
+    uint8 getModuleId0() {return mModuleId0;};
+    uint8 getModuleMask0() {return mModuleMask0;};
+    uint8 getModuleId1() {return mModuleId1;};
+    uint8 getModuleMask1() {return mModuleMask1;};
+    uint8 getModuleId2() {return mModuleId2;};
+    uint8 getModuleMask2() {return mModuleMask2;};
+    uint8 getModuleId3() {return mModuleId3;};
+    uint8 getModuleMask3() {return mModuleMask3;};
+    uint8 getModuleTypeId0() {return mModuleTypeId0;};
+    uint8 getModuleTypeMask0() {return mModuleTypeMask0;};
+    uint8 getModuleTypeId1() {return mModuleTypeId1;};
+    uint8 getModuleTypeMask1() {return mModuleTypeMask1;};
+    const char* getMenuName() {return mMenuName.c_str();};
+    void set(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1, uint8 moduleMask1,
+                uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
+                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+                String menuName);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mMenuId;
+    uint8 mModuleId0;
+    uint8 mModuleMask0;
+    uint8 mModuleId1;
+    uint8 mModuleMask1;
+    uint8 mModuleId2;
+    uint8 mModuleMask2;
+    uint8 mModuleId3;
+    uint8 mModuleMask3;
+    uint8 mModuleTypeId0;
+    uint8 mModuleTypeMask0;
+    uint8 mModuleTypeId1;
+    uint8 mModuleTypeMask1;
+    String mMenuName;
+};
+
+class CAPacketModuleList {
+public:
+    CAPacketModuleList(CAPacket& caPacket);
+    uint8 getModuleId() {return mModuleId;};
+    uint8 getModuleTypeId() {return mModuleTypeId;};
+    const char* getModuleName() {return mModuleName.c_str();};
+    void set(uint8 moduleId, uint8 moduleTypeId, String moduleName);
+    void unpack();
+    uint8 pack();
+private:
+    CAPacket* mCAP;
+    uint8 mModuleId;
+    uint8 mModuleTypeId;
+    String mModuleName;
 };
 
 class CAPacketLogger {

@@ -72,6 +72,16 @@ public class CAPacketHelper {
                 unpack.unpack();
                 ret = unpack;
             } break;
+            case CAPacket.PID_MENU_LIST: {
+                CAPacket.MenuList unpack = unpacker.new MenuList();
+                unpack.unpack();
+                ret = unpack;
+            } break;
+            case CAPacket.PID_MODULE_LIST: {
+                CAPacket.ModuleList unpack = unpacker.new ModuleList();
+                unpack.unpack();
+                ret = unpack;
+            } break;
             case CAPacket.PID_LOGGER: {
                 CAPacket.Logger unpack = unpacker.new Logger();
                 unpack.unpack();
@@ -289,6 +299,49 @@ public class CAPacketHelper {
                     unpack1.getMode() != 1 ||
                     unpack1.getMenuNumber() != 44) {
                 Log.e("CA6", "Packet Test Error - MENU_SELECT test failed");
+            }
+        }
+        {   // MenuList Packet Test
+            CAPacket.MenuList pack1 = pack0.new MenuList();                     // Update per type
+            CAPacket.MenuList unpack1 = unpack0.new MenuList();                 // Update per type
+            pack1.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "mName");      // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_MENU_LIST ||                       // Update per type
+                    unpack1.getMenuId() != 1 ||
+                    unpack1.getModuleId0() != 2 ||
+                    unpack1.getModuleMask0() != 3 ||
+                    unpack1.getModuleId1() != 4 ||
+                    unpack1.getModuleMask1() != 5 ||
+                    unpack1.getModuleId2() != 6 ||
+                    unpack1.getModuleMask2() != 7 ||
+                    unpack1.getModuleId3() != 8 ||
+                    unpack1.getModuleMask3() != 9 ||
+                    unpack1.getModuleTypeId0() != 10 ||
+                    unpack1.getModuleTypeMask0() != 11 ||
+                    unpack1.getModuleTypeId1() != 12 ||
+                    unpack1.getModuleTypeMask1() != 13 ||
+                    unpack1.getMenuName().equals("mName") != true) {
+                Log.e("CA6", "Packet Test Error - MENU_LIST test failed");
+            }
+        }
+        {   // ModuleList Packet Test
+            CAPacket.ModuleList pack1 = pack0.new ModuleList();                 // Update per type
+            CAPacket.ModuleList unpack1 = unpack0.new ModuleList();             // Update per type
+            pack1.set(244, 254, "module12");                                    // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_MODULE_LIST ||                     // Update per type
+                    unpack1.getModuleId() != 244 ||
+                    unpack1.getModuleTypeId() != 254 ||
+                    unpack1.getModuleName().equals("module12") != true) {
+                Log.e("CA6", "Packet Test Error - MODULE_LIST test failed");
             }
         }
         {   // Logger Packet Test

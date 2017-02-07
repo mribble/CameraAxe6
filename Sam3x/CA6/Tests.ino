@@ -334,7 +334,7 @@ void caTestPackets()
   CAPacket unpack10(STATE_UNPACKER, dataA, 256);
   CAPacket pack10(STATE_PACKER, dataA, 256);
 
-  { // ACTIVATE Packet Test
+  { // MENU_SELECT Packet Test
     CAPacketMenuSelect unpack11(unpack10);        // Update per type
     CAPacketMenuSelect pack11(pack10);            // Update per type
     
@@ -348,6 +348,53 @@ void caTestPackets()
           unpack11.getMode() != 1 ||
           unpack11.getMenuNumber() != 23) {
       CAU::log("ERROR - MENU_SELECT test failed\n");
+    } 
+  }
+
+  { // MENU_LIST Packet Test
+    CAPacketMenuList unpack11(unpack10);          // Update per type
+    CAPacketMenuList pack11(pack10);              // Update per type
+    
+    pack11.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_MENU_LIST ||            // Update per type
+          unpack11.getMenuId() != 1 ||
+          unpack11.getModuleId0() != 2 ||
+          unpack11.getModuleMask0() != 3 ||
+          unpack11.getModuleId1() != 4 ||
+          unpack11.getModuleMask1() != 5 ||
+          unpack11.getModuleId2() != 6 ||
+          unpack11.getModuleMask2() != 7 ||
+          unpack11.getModuleId3() != 8 ||
+          unpack11.getModuleMask3() != 9 ||
+          unpack11.getModuleTypeId0() != 10 ||
+          unpack11.getModuleTypeMask0() != 11 ||
+          unpack11.getModuleTypeId1() != 12 ||
+          unpack11.getModuleTypeMask1() != 13 ||
+          strcmp(unpack11.getMenuName(), "menuList") != 0) {
+      CAU::log("ERROR - MENU_LIST test failed\n");
+    } 
+  }
+
+  { // MODULE_LIST Packet Test
+    CAPacketModuleList unpack11(unpack10);        // Update per type
+    CAPacketModuleList pack11(pack10);            // Update per type
+    
+    pack11.set(33, 44, "moduleList");             // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_MODULE_LIST ||          // Update per type
+          unpack11.getModuleId() != 33 ||
+          unpack11.getModuleTypeId() != 44 ||
+          strcmp(unpack11.getModuleName(), "moduleList") != 0) {
+      CAU::log("ERROR - MODULE_LIST test failed\n");
     } 
   }
   

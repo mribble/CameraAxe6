@@ -531,6 +531,127 @@ uint8 CAPacketMenuSelect::pack() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// MenuList Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketMenuList::CAPacketMenuList(CAPacket& caPacket) {
+    mMenuId = 0;
+    mModuleId0 = 0;
+    mModuleMask0 = 0;
+    mModuleId1 = 0;
+    mModuleMask1 = 0;
+    mModuleId2 = 0;
+    mModuleMask2 = 0;
+    mModuleId3 = 0;
+    mModuleMask3 = 0;
+    mModuleTypeId0 = 0;
+    mModuleTypeMask0 = 0;
+    mModuleTypeId1 = 0;
+    mModuleTypeMask1 = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketMenuList::set(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1, uint8 moduleMask1,
+                uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
+                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+                String menuName) {
+    mMenuId = menuId;
+    mModuleId0 = moduleId0;
+    mModuleMask0 = moduleMask0;
+    mModuleId1 = moduleId1;
+    mModuleMask1 = moduleMask1;
+    mModuleId2 = moduleId2;
+    mModuleMask2 = moduleMask2;
+    mModuleId3 = moduleId3;
+    mModuleMask3 = moduleMask3;
+    mModuleTypeId0 = moduleTypeId0;
+    mModuleTypeMask0 = moduleTypeMask0;
+    mModuleTypeId1 = moduleTypeId1;
+    mModuleTypeMask1 = moduleTypeMask1;
+    mMenuName = menuName;
+    CA_ASSERT(mModuleMask0 <= 0xf && mModuleMask1 <= 0xf &&
+        mModuleMask2 <= 0xf && mModuleMask3 <= 0xf &&
+        mModuleTypeMask0 <= 0xf && mModuleTypeMask1 <= 0xf , "Error in MenuList::set()");
+}
+
+void CAPacketMenuList::unpack() {
+    mMenuId = mCAP->unpacker(8);
+    mModuleId0 = mCAP->unpacker(8);
+    mModuleMask0 = mCAP->unpacker(4);
+    mModuleId1 = mCAP->unpacker(8);
+    mModuleMask1 = mCAP->unpacker(4);
+    mModuleId2 = mCAP->unpacker(8);
+    mModuleMask2 = mCAP->unpacker(4);
+    mModuleId3 = mCAP->unpacker(8);
+    mModuleMask3 = mCAP->unpacker(4);
+    mModuleTypeId0 = mCAP->unpacker(8);
+    mModuleTypeMask0 = mCAP->unpacker(4);
+    mModuleTypeId1 = mCAP->unpacker(8);
+    mModuleTypeMask1 = mCAP->unpacker(4);
+    mCAP->unpackerString(mMenuName);
+    mCAP->flushPacket();
+    CA_ASSERT(mModuleMask0 <= 0xf && mModuleMask1 <= 0xf &&
+            mModuleMask2 <= 0xf && mModuleMask3 <= 0xf &&
+            mModuleTypeMask0 <= 0xf && mModuleTypeMask1 <= 0xf , "Error in MenuList::unpack()");
+}
+
+uint8 CAPacketMenuList::pack() {
+    int len = mMenuName.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 3 + 10 + len;
+    mCAP->packer(packetSize, 16);
+    mCAP->packer(PID_MENU_LIST, 8);
+    mCAP->packer(mMenuId, 8);
+    mCAP->packer(mModuleId0, 8);
+    mCAP->packer(mModuleMask0, 4);
+    mCAP->packer(mModuleId1, 8);
+    mCAP->packer(mModuleMask1, 4);
+    mCAP->packer(mModuleId2, 8);
+    mCAP->packer(mModuleMask2, 4);
+    mCAP->packer(mModuleId3, 8);
+    mCAP->packer(mModuleMask3, 4);
+    mCAP->packer(mModuleTypeId0, 8);
+    mCAP->packer(mModuleTypeMask0, 4);
+    mCAP->packer(mModuleTypeId1, 8);
+    mCAP->packer(mModuleTypeMask1, 4);
+    mCAP->packerString(mMenuName.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ModuleList Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketModuleList::CAPacketModuleList(CAPacket& caPacket) {
+    mModuleId = 0;
+    mModuleTypeId = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketModuleList::set(uint8 moduleId, uint8 moduleTypeId, String moduleName) {
+    mModuleId = moduleId;
+    mModuleTypeId = moduleTypeId;
+    mModuleName = moduleName;
+}
+
+void CAPacketModuleList::unpack() {
+    mModuleId = mCAP->unpacker(8);
+    mModuleTypeId = mCAP->unpacker(8);
+    mCAP->unpackerString(mModuleName);
+    mCAP->flushPacket();
+}
+
+uint8 CAPacketModuleList::pack() {
+    int len = mModuleName.length() + 1;  // 1 for the null terminator
+    uint8 packetSize = 3 + 2 + len;
+    mCAP->packer(packetSize, 16);
+    mCAP->packer(PID_MODULE_LIST, 8);
+    mCAP->packer(mModuleId, 8);
+    mCAP->packer(mModuleTypeId, 8);
+    mCAP->packerString(mModuleName.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Logger Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketLogger::CAPacketLogger(CAPacket& caPacket) {

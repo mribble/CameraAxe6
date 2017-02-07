@@ -80,6 +80,12 @@ public class MenuAdapter extends BaseAdapter{
                 case CAPacket.PID_MENU_SELECT:
                     Log.e("CA6", "PID_MENU_SELECT not yet implemented in MenuAdapter::addPacket");
                     break;
+                case CAPacket.PID_MENU_LIST:
+                    Log.e("CA6", "PID_MENU_LIST not yet implemented in MenuAdapter::addPacket");
+                    break;
+                case CAPacket.PID_MODULE_LIST:
+                    Log.e("CA6", "PID_MODULE_LIST not yet implemented in MenuAdapter::addPacket");
+                    break;
                 case CAPacket.PID_LOGGER:
                     Log.e("CA6", "PID_LOGGER not yet implemented in MenuAdapter::addPacket");
                     break;
@@ -91,9 +97,6 @@ public class MenuAdapter extends BaseAdapter{
                     break;
                 case CAPacket.PID_INTERVALOMETER:
                     Log.e("CA6", "PID_INTERVALOMETER not yet implemented in MenuAdapter::addPacket");
-                    break;
-                case CAPacket.PID_INTER_MODULE_LOGIC:
-                    Log.e("CA6", "PID_INTER_MODULE_LOGIC not yet implemented in MenuAdapter::addPacket");
                     break;
                 default:
                     Log.e("CA6", "Not valid MenuAdapter::addPacket: "+packet.getPacketType());

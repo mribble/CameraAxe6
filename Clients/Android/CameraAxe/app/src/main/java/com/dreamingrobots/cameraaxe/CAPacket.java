@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.nio.charset.Charset;
 
+import static android.R.attr.mode;
+
 /**
  * CAPacket is the base class that manages packet construction
  * PacketElement is an interface for all the different packet types.  Each packet type has it's
@@ -24,13 +26,14 @@ class CAPacket {
     static final int PID_TIME_BOX                   = 8;
     static final int PID_SCRIPT_END                 = 9;   // Must be last of menu based packets
     static final int PID_MENU_SELECT                = 10;
-    static final int PID_LOGGER                     = 11;
-    static final int PID_CAM_STATE                  = 12;
-    static final int PID_CAM_SETTINGS               = 13;
-    static final int PID_INTERVALOMETER             = 14;
-    static final int PID_INTER_MODULE_LOGIC         = 15;
-    static final int PID_CONTROL_FLAGS              = 16;
-    private static final int PID_END_SENTINEL       = 17;   // Must be last
+    static final int PID_MENU_LIST                  = 11;
+    static final int PID_MODULE_LIST                = 12;
+    static final int PID_LOGGER                     = 13;
+    static final int PID_CAM_STATE                  = 14;
+    static final int PID_CAM_SETTINGS               = 15;
+    static final int PID_INTERVALOMETER             = 16;
+    static final int PID_CONTROL_FLAGS              = 17;
+    private static final int PID_END_SENTINEL       = 18;   // Must be last
 
     private int mBitsUsed;  // Bits in use that didn't fill a full byte
     private int mBitsVal;   // Value of bits that didn't fill a full byte
@@ -708,15 +711,163 @@ class CAPacket {
         }
     }
     /***********************************************************************************************
+     * MenuList Packet Class
+     **********************************************************************************************/
+    public class MenuList implements PacketElement {
+
+        private int mMenuId;
+        private int mModuleId0;
+        private int mModuleMask0;
+        private int mModuleId1;
+        private int mModuleMask1;
+        private int mModuleId2;
+        private int mModuleMask2;
+        private int mModuleId3;
+        private int mModuleMask3;
+        private int mModuleTypeId0;
+        private int mModuleTypeMask0;
+        private int mModuleTypeId1;
+        private int mModuleTypeMask1;
+        private StringBuilder mMenuName;
+
+        public MenuList() {mMenuName = new StringBuilder();}
+
+        public int getPacketType() {return PID_MENU_LIST;}
+        public int getClientHostId() {return -1;}
+        public int getMenuId() {return mMenuId;}
+        public int getModuleId0() {return mModuleId0;}
+        public int getModuleMask0() {return mModuleMask0;}
+        public int getModuleId1() {return mModuleId1;}
+        public int getModuleMask1() {return mModuleMask1;}
+        public int getModuleId2() {return mModuleId2;}
+        public int getModuleMask2() {return mModuleMask2;}
+        public int getModuleId3() {return mModuleId3;}
+        public int getModuleMask3() {return mModuleMask3;}
+        public int getModuleTypeId0() {return mModuleTypeId0;}
+        public int getModuleTypeMask0() {return mModuleTypeMask0;}
+        public int getModuleTypeId1() {return mModuleTypeId1;}
+        public int getModuleTypeMask1() {return mModuleTypeMask1;}
+        public String getMenuName() {return mMenuName.toString();}
+
+        public void set(int menuId, int moduleId0, int moduleMask0,  int moduleId1, int moduleMask1,
+                        int moduleId2, int moduleMask2, int moduleId3, int moduleMask3,
+                        int moduleTypeId0, int moduleTypeMask0, int moduleTypeId1, int moduleTypeMask1,
+                        String menuName) {
+            mMenuId = menuId;
+            mModuleId0 = moduleId0;
+            mModuleMask0 = moduleMask0;
+            mModuleId1 = moduleId1;
+            mModuleMask1 = moduleMask1;
+            mModuleId2 = moduleId2;
+            mModuleMask2 = moduleMask2;
+            mModuleId3 = moduleId3;
+            mModuleMask3 = moduleMask3;
+            mModuleTypeId0 = moduleTypeId0;
+            mModuleTypeMask0 = moduleTypeMask0;
+            mModuleTypeId1 = moduleTypeId1;
+            mModuleTypeMask1 = moduleTypeMask1;
+            mMenuName.setLength(0);
+            mMenuName.append(menuName);
+            flushPacket();
+            CA_ASSERT(mModuleMask0 <= 0xf && mModuleMask1 <= 0xf &&
+                    mModuleMask2 <= 0xf && mModuleMask3 <= 0xf &&
+                    mModuleTypeMask0 <= 0xf && mModuleTypeMask1 <= 0xf , "Error in MenuList::set()");
+        }
+
+        public void unpack() {
+            mMenuId = (int)unpacker(8);
+            mModuleId0 = (int)unpacker(8);
+            mModuleMask0 = (int)unpacker(4);
+            mModuleId1 = (int)unpacker(8);
+            mModuleMask1 = (int)unpacker(4);
+            mModuleId2 = (int)unpacker(8);
+            mModuleMask2 = (int)unpacker(4);
+            mModuleId3 = (int)unpacker(8);
+            mModuleMask3 = (int)unpacker(4);
+            mModuleTypeId0 = (int)unpacker(8);
+            mModuleTypeMask0 = (int)unpacker(4);
+            mModuleTypeId1 = (int)unpacker(8);
+            mModuleTypeMask1 = (int)unpacker(4);
+            unpackerString(mMenuName);
+            CA_ASSERT(mModuleMask0 <= 0xf && mModuleMask1 <= 0xf &&
+                    mModuleMask2 <= 0xf && mModuleMask3 <= 0xf &&
+                    mModuleTypeMask0 <= 0xf && mModuleTypeMask1 <= 0xf , "Error in MenuList::unpack()");
+        }
+
+        public int pack() {
+            int len = mMenuName.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 10 + len;
+            packer(packetSize, 16);
+            packer(PID_MENU_LIST, 8);
+            packer(mMenuId, 8);
+            packer(mModuleId0, 8);
+            packer(mModuleMask0, 4);
+            packer(mModuleId1, 8);
+            packer(mModuleMask1, 4);
+            packer(mModuleId2, 8);
+            packer(mModuleMask2, 4);
+            packer(mModuleId3, 8);
+            packer(mModuleMask3, 4);
+            packer(mModuleTypeId0, 8);
+            packer(mModuleTypeMask0, 4);
+            packer(mModuleTypeId1, 8);
+            packer(mModuleTypeMask1, 4);
+            packerString(mMenuName.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * ModuleList Packet Class
+     **********************************************************************************************/
+    public class ModuleList implements PacketElement {
+
+        private int mModuleId;
+        private int mModuleTypeId;
+        private StringBuilder mModuleName;
+
+        public ModuleList() {mModuleName = new StringBuilder();}
+
+        public int getPacketType() {return PID_MODULE_LIST;}
+        public int getClientHostId() {return -1;}
+        public int getModuleId() {return mModuleId;}
+        public int getModuleTypeId() {return mModuleTypeId;}
+        public String getModuleName() {return mModuleName.toString();}
+
+        public void set(int moduleId, int moduleTypeId, String moduleName) {
+            mModuleId = moduleId;
+            mModuleTypeId = moduleTypeId;
+            mModuleName.setLength(0);
+            mModuleName.append(moduleName);
+        }
+
+        public void unpack() {
+            mModuleId = (int)unpacker(8);
+            mModuleTypeId = (int)unpacker(8);
+            unpackerString(mModuleName);
+            flushPacket();
+        }
+
+        public int pack() {
+            int len = mModuleName.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 2 + len;
+            packer(packetSize, 16);
+            packer(PID_MODULE_LIST, 8);
+            packer(mModuleId, 8);
+            packer(mModuleTypeId, 8);
+            packerString(mModuleName.toString());
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
      * Log Packet Class
      **********************************************************************************************/
     public class Logger implements PacketElement {
 
         private StringBuilder mLog;
 
-        public Logger() {
-            mLog = new StringBuilder();
-        }
+        public Logger() {mLog = new StringBuilder();}
 
         public int getPacketType() {return PID_LOGGER;}
         public int getClientHostId() {return -1;}
