@@ -70,7 +70,9 @@ void processIncomingPacket() {
         unpack.unpack();
         CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
         g_ctx.menuId = unpack.getMenuNumber();
+        g_ctx.state = CA_STATE_LOADING_MENU;
         g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
+        g_ctx.state = CA_STATE_MENU_MODE;
         break;
       }
       case PID_MENU_LIST: {

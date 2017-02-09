@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.util.Log.i;
+
 /**
  * Adapter for dynamic menu generation
  */
@@ -38,7 +40,7 @@ public class DynamicMenuAdapter extends BaseAdapter{
 
     private int findMatchingClientHostIdIndex(CAPacket.PacketElement ref, ArrayList<CAPacket.PacketElement> list) {
         if (ref.getClientHostId() == -1) {
-            Log.e("CA6", "Not a valid ref index");
+            // Not a valid ref index (switched menus)
             return -1;
         }
 
@@ -49,7 +51,7 @@ public class DynamicMenuAdapter extends BaseAdapter{
                 }
             }
         }
-        Log.e("CA6", "Could not find a matching index");
+            // Could not find a matching index  (switched menus)
         return -1;
     }
 
@@ -75,9 +77,11 @@ public class DynamicMenuAdapter extends BaseAdapter{
             switch (packet.getPacketType()) {
                 case CAPacket.PID_TEXT_DYNAMIC:
                     index = findMatchingClientHostIdIndex(packet, mData);
-                    CAPacket.TextDynamic src = (CAPacket.TextDynamic)packet;
-                    CAPacket.TextDynamic dst = (CAPacket.TextDynamic)mData.get(index);
-                    dst.set(dst.getClientHostId(), src.getModAttribute(), dst.getText0(), src.getText1());
+                    if (index != -1) {  // -1 means we switched menus and this packet can be dropped
+                        CAPacket.TextDynamic src = (CAPacket.TextDynamic) packet;
+                        CAPacket.TextDynamic dst = (CAPacket.TextDynamic) mData.get(index);
+                        dst.set(dst.getClientHostId(), src.getModAttribute(), dst.getText0(), src.getText1());
+                    }
                     break;
                 case CAPacket.PID_BUTTON:
                     Log.e("CA6", "PID_BUTTON not yet implemented in DynamicMenuAdapter::addPacket");

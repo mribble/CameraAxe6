@@ -39,24 +39,17 @@ void MenuSound_PhotoInit() {
 }
 
 void MenuSound_MenuRun() {
-  if (!g_ctx.active)
+  uint32 updateFrequency = 100;  // 100 ms
+  uint32 curTime = millis();
+  uint32 nextUpdate = gMenuSoundData.nextSendUpdate;
+  
+  if ((curTime >= nextUpdate) && (curTime+updateFrequency >= nextUpdate)) // Handles wraparounds
   {
-    uint32 updateFrequency = 100;  // 100 ms
-    uint32 curTime = millis();
-    uint32 nextUpdate = gMenuSoundData.nextSendUpdate;
-    
-    if ((curTime >= nextUpdate) && (curTime+updateFrequency >= nextUpdate)) // Handles wraparounds
-    {
-      uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
-      // todo convert val to string
-      // todo send packet to rfduino
-      gMenuSoundData.nextSendUpdate = curTime;
-    }
+    uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
+    // todo convert val to string
+    // todo send packet to rfduino
+    gMenuSoundData.nextSendUpdate = curTime;
   }
-  else
-  {
-    //todo
-  }  
 }
 
 void MenuSound_PhotoRun() {

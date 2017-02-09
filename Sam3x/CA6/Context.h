@@ -21,11 +21,17 @@ struct CtxProcTable
   void (*funcPhotoRun[NUM_MENUS])()      {NULL, MenuSound_PhotoRun, MenuTest_PhotoRun};
 };
 
+enum CAState {
+  CA_STATE_LOADING_MENU,
+  CA_STATE_MENU_MODE,
+  CA_STATE_PHOTO_MODE,
+};
+
 struct Context {
   // Constructor with initialization list
   Context(){}
 
-  uint8 active = 0;
+  CAState state = CA_STATE_LOADING_MENU;
   uint8 menuId = 0;
   CAPacketCamSettingsBase camSettings[NUM_CAMERAS];
 

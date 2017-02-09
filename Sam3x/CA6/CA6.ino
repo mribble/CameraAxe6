@@ -20,15 +20,16 @@ void setup() {
 }
 
 void loop() {
+  caRunTests();
   processIncomingPacket();
-
-  if (g_ctx.active) {       // Photo Mode
-    cameraFlashHandler();
-  } else {                  // Menu Mode
-    caRunTests();
-    processTerminalCmds();
-    checkModulePorts();
-    delay(100);
+  processTerminalCmds();
+  checkModulePorts();
+    
+  if (g_ctx.state == CA_STATE_MENU_MODE) {
+    g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
+    delay(50);
+  } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
   }
 }
 

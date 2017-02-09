@@ -41,7 +41,7 @@ void MenuTest_MenuRun() {
     char buf[10];
     sprintf(buf, "%d", c);
     // Update packet every 500 ms
-    //g_ctx.packetHelper.writePacketTextDynamic(0, 0, buf);
+    g_ctx.packetHelper.writePacketTextDynamic(0, 0, buf);
   }
 }
 
