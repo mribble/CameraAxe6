@@ -14,7 +14,7 @@ struct CtxModules
 
 struct CtxProcTable
 {
-  void (*funcInfo[NUM_MENUS])(MenuData*) {NULL, MenuSound_Info, MenuTest_Info};
+  void (*funcInfo[NUM_MENUS])()          {NULL, MenuSound_Info, MenuTest_Info};
   void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit};
   void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit};
   void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun};

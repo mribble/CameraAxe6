@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 /**
  * The main UI activity for the Android Udp application.
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
     EditText mIpAddress;
     Button mSendMessageButton;
+    Spinner mSpinner;
 
     private RetainedNetworkFragment mRetainedNetworkFragment;
 
@@ -32,14 +34,29 @@ public class MainActivity extends AppCompatActivity {
         // Setup all hooks back to the UI elements for easy access later
         mIpAddress = (EditText) findViewById(R.id.ip_address);
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
+        mSpinner = (Spinner)findViewById(R.id.spinner_menu_list);
 
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mRetainedNetworkFragment.reset();
                 final String ipAddress = mIpAddress.getText().toString();
                 mRetainedNetworkFragment.startReceiveThread(ipAddress, mIpPort);
-                mRetainedNetworkFragment.sendMessage(ipAddress, mIpPort);
+
+                int packSize;
+                CAPacketHelper ph0 = new CAPacketHelper();
+
+                MenuName menuName = (MenuName)mSpinner.getSelectedItem();
+
+                // Only load the menu names the first time.  Then reload the menu every time after that
+                if (menuName == null) {
+                    packSize = ph0.writePacketMenuList();
+                    mRetainedNetworkFragment.sendMessage(ipAddress, mIpPort, ph0, packSize);
+                } else {
+                    packSize = ph0.writePacketMenuSelect(0, menuName.getMenuId());
+                    mRetainedNetworkFragment.sendMessage(ipAddress, mIpPort, ph0, packSize);
+                }
             }
         });
 
@@ -75,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
         // Create a new adapter and listView that displays the dynamic menu
         // Must be in postCreate because adapter is created during RetainedNetworkFragment.onCreate
         ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
-        listViewItems.setAdapter(mRetainedNetworkFragment.getAdapter());
+        listViewItems.setAdapter(mRetainedNetworkFragment.getDynamicMenuAdapter());
+
+        Spinner spinner = (Spinner)findViewById(R.id.spinner_menu_list);
+        spinner.setAdapter(mRetainedNetworkFragment.getMenuListAdapter());
     }
 }

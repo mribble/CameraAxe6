@@ -79,6 +79,9 @@ void processIncomingPacket() {
         CAU::log("%d PID_MENU_LIST - %d %d %x %d %x %d %x %d %x %d %x %d %x %s\n", packetSize, unpack.getMenuId(), unpack.getModuleId0(), unpack.getModuleMask0(),
                   unpack.getModuleId1(), unpack.getModuleMask1(), unpack.getModuleId2(), unpack.getModuleMask2(), unpack.getModuleId3(), unpack.getModuleMask3(),
                   unpack.getModuleTypeId0(), unpack.getModuleTypeMask0(), unpack.getModuleTypeId1(), unpack.getModuleTypeMask1(), unpack.getMenuName());
+        for(int i=1; i<NUM_MENUS; ++i) {
+          g_ctx.procTable.funcInfo[i]();
+        }
         break;
       }
       case PID_MODULE_LIST: {

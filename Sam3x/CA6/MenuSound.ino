@@ -6,13 +6,8 @@ typedef struct {
 
 MenuSoundData gMenuSoundData;
 
-void MenuSound_Info(MenuData *data) {
-  data->menuId = 1;
-  data->modulePort0 = 1; // Sound Module
-  data->modulePort1 = 0; // None
-  data->modulePort2 = 0; // None
-  data->modulePort3 = 2; // None
-  data->name = "Sound Menu";
+void MenuSound_Info() {
+  g_ctx.packetHelper.writePacketMenuList(1, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Sound Menu");
 }
 
 void MenuSound_MenuInit() {

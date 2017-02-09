@@ -10,6 +10,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.List;
+
+import static com.dreamingrobots.cameraaxe.UdpClientThread.UdpClientHandler.UPDATE_MESSAGE;
+import static com.dreamingrobots.cameraaxe.UdpClientThread.UdpClientHandler.UPDATE_PACKET;
 
 
 /**
@@ -25,6 +29,8 @@ public class UdpClientThread extends Thread {
     private UdpClientHandler mHandler;
     private DatagramSocket mSocket;
     private InetAddress mAddress;
+    private CAPacketHelper mPacketHelper;
+    private int mPacketHelperSize;
 
     public UdpClientThread(UdpClientState state, String address, int port,
                            UdpClientHandler handler) {
@@ -34,15 +40,29 @@ public class UdpClientThread extends Thread {
         mIpAddress = address;
         mIpPort = port;
         mHandler = handler;
+        mPacketHelper = new CAPacketHelper();
+        mPacketHelperSize = 0;
+    }
+
+    public UdpClientThread(UdpClientState state, String address, int port,
+                           UdpClientHandler handler, CAPacketHelper packetHelper, int packetSize) {
+        super();
+        // This constructor is just for sending packets
+        mState = state;
+        mIpAddress = address;
+        mIpPort = port;
+        mHandler = handler;
+        mPacketHelper = packetHelper;
+        mPacketHelperSize = packetSize;
     }
 
     private void sendUiMessage(String state) {
-        mHandler.sendMessage(Message.obtain(mHandler, UdpClientHandler.UPDATE_MESSAGE,
+        mHandler.sendMessage(Message.obtain(mHandler, UPDATE_MESSAGE,
                 state));
     }
 
     private void sendPacketMessage(CAPacket.PacketElement packet) {
-        mHandler.sendMessage(Message.obtain(mHandler, UdpClientHandler.UPDATE_PACKET,
+        mHandler.sendMessage(Message.obtain(mHandler, UPDATE_PACKET,
                 packet));
     }
 
@@ -61,20 +81,17 @@ public class UdpClientThread extends Thread {
 
             if (mState == UdpClientThread.UdpClientState.SEND) {
                 // send a packet
-                CAPacketHelper ph = new CAPacketHelper();
-                int packSize = ph.writePacketMenuSelect(0, 2);
-                DatagramPacket packet = new DatagramPacket(ph.getData(), packSize, mAddress,
+                DatagramPacket packet = new DatagramPacket(mPacketHelper.getData(), mPacketHelperSize, mAddress,
                         mIpPort);
                 mSocket.send(packet);
             }
             else if (mState == UdpClientThread.UdpClientState.RECEIVE) {
                 byte[] data = new byte[256];
-                CAPacketHelper ph = new CAPacketHelper();
                 while (!Thread.currentThread().isInterrupted()) {
                     // receive packets
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     mSocket.receive(packet);
-                    CAPacket.PacketElement receivedData = ph.processIncomingPacket(packet.getData(),
+                    CAPacket.PacketElement receivedData = mPacketHelper.processIncomingPacket(packet.getData(),
                             packet.getLength());
                     sendPacketMessage(receivedData);
                 }
@@ -102,10 +119,12 @@ public class UdpClientThread extends Thread {
     static public class UdpClientHandler extends Handler {
         static final int UPDATE_MESSAGE = 0;
         static final int UPDATE_PACKET = 1;
-        private MenuAdapter mAdapter;
+        private DynamicMenuAdapter mDynamicMenuAdapter;
+        private MenuNameAdapter mMenuListAdapter;
 
-        public UdpClientHandler(MenuAdapter adapter) {
-            mAdapter = adapter;
+        public UdpClientHandler(DynamicMenuAdapter dynamicMenuAdapter, MenuNameAdapter menuListAdapter) {
+            mDynamicMenuAdapter = dynamicMenuAdapter;
+            mMenuListAdapter = menuListAdapter;
         }
 
         public void updateMessage(String msg) {
@@ -113,7 +132,18 @@ public class UdpClientThread extends Thread {
         }
 
         public void updatePacket(CAPacket.PacketElement packet) {
-            mAdapter.addPacket(packet);
+            if (packet.getPacketType() == CAPacket.PID_MENU_LIST) {
+                CAPacket.MenuList p = (CAPacket.MenuList) packet;
+                MenuName mn = new MenuName(p.getMenuId(), p.getModuleId0(), p.getModuleMask0(),
+                        p.getModuleId1(), p.getModuleMask1(),
+                        p.getModuleId2(), p.getModuleMask2(),
+                        p.getModuleId3(), p.getModuleMask3(),
+                        p.getModuleTypeId0(), p.getModuleTypeMask0(),
+                        p.getModuleTypeId1(), p.getModuleTypeMask1(), p.getMenuName());
+                mMenuListAdapter.add(mn);
+            } else {
+                mDynamicMenuAdapter.addPacket(packet);
+            }
         }
 
         @Override

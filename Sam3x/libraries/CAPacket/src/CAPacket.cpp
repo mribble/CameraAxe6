@@ -550,8 +550,8 @@ CAPacketMenuList::CAPacketMenuList(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketMenuList::set(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1, uint8 moduleMask1,
-                uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
+void CAPacketMenuList::set(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1,
+                uint8 moduleMask1, uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
                 uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
                 String menuName) {
     mMenuId = menuId;

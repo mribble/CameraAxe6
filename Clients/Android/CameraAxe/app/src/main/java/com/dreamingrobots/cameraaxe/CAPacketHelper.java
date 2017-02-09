@@ -7,7 +7,7 @@ import android.util.Log;
  */
 
 public class CAPacketHelper {
-    private static final int mDataSize = 256;
+    private static final int mDataSize = 2048;
     private byte[] mData = new byte[mDataSize];
     private CAPacket mPacker = new CAPacket(CAPacket.STATE_PACKER, mData, mDataSize);
 
@@ -119,6 +119,14 @@ public class CAPacketHelper {
     public int writePacketMenuSelect(int mode, int menuNumber) {
         CAPacket.MenuSelect pack0 = mPacker.new MenuSelect();
         pack0.set(mode, menuNumber);
+        int packSize = pack0.pack();
+        mPacker.resetBuffer();
+        return packSize;
+    }
+
+    public int writePacketMenuList() {
+        CAPacket.MenuList pack0 = mPacker.new MenuList();
+        pack0.set(0,0,0,0,0,0,0,0,0,0,0,0,0,"0"); // Contents don't matter this just triggers a reply
         int packSize = pack0.pack();
         mPacker.resetBuffer();
         return packSize;

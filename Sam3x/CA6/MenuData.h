@@ -9,24 +9,15 @@
 // needed to store the Menu*Data for each module there is union of all the Menu*Data to fine the worst case size.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct MenuData {
-  uint8 menuId;
-  uint8 modulePort0;
-  uint8 modulePort1;
-  uint8 modulePort2;
-  uint8 modulePort3;
-  char* name;
-};
-
 // Sound Menu
-extern void MenuSound_Info(MenuData *data);
+extern void MenuSound_Info();
 extern void MenuSound_MenuInit();
 extern void MenuSound_PhotoInit();
 extern void MenuSound_MenuRun();
 extern void MenuSound_PhotoRun();
 
 // Test Menu
-extern void MenuTest_Info(MenuData *data);
+extern void MenuTest_Info();
 extern void MenuTest_MenuInit();
 extern void MenuTest_PhotoInit();
 extern void MenuTest_MenuRun();

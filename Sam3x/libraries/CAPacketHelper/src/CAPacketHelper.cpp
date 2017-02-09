@@ -90,3 +90,15 @@ void CAPacketHelper::writePacketTextDynamic(uint8 clientHostId, uint8 modAttribu
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
+
+void CAPacketHelper::writePacketMenuList(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1,
+                uint8 moduleMask1, uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
+                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+                String menuName) {
+    CAPacketMenuList pack0(mPacker);
+    pack0.set(menuId, moduleId0, moduleMask0,  moduleId1, moduleMask1, moduleId2, moduleMask2, moduleId3, moduleMask3,
+                moduleTypeId0, moduleTypeMask0, moduleTypeId1, moduleTypeMask1, menuName);
+    uint8 packSize = pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}

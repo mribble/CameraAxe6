@@ -1,11 +1,6 @@
 
-void MenuTest_Info(MenuData *data) {
-  data->menuId = 2;
-  data->modulePort0 = 0; // None
-  data->modulePort1 = 0; // None
-  data->modulePort2 = 0; // None
-  data->modulePort3 = 2; // Test Module
-  data->name = "Test Menu";
+void MenuTest_Info() {
+  g_ctx.packetHelper.writePacketMenuList(2, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Test Menu");
 }
 
 void MenuTest_MenuInit() {

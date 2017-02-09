@@ -27,6 +27,10 @@ public:
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
     void writePacketTextDynamic(uint8 clientHostId, uint8 modAttribute, const char* text1);
+    void writePacketMenuList(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1, uint8 moduleMask1,
+                uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
+                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+                String menuName);
 
 private:
     HardwareSerial *mSerial;

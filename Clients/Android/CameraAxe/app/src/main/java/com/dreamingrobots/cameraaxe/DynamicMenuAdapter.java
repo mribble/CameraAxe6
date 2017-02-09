@@ -24,14 +24,14 @@ import java.util.List;
  * Adapter for dynamic menu generation
  */
 
-public class MenuAdapter extends BaseAdapter{
+public class DynamicMenuAdapter extends BaseAdapter{
 
     private ArrayList<CAPacket.PacketElement> mData = new ArrayList<CAPacket.PacketElement>();
     private Activity mActivity;
     private LayoutInflater mInflater;
     private boolean mLoadingMenu = false;
 
-    public MenuAdapter(Activity activity) {
+    public DynamicMenuAdapter(Activity activity) {
         mActivity = activity;
         mInflater =  mActivity.getLayoutInflater();
     }
@@ -51,6 +51,11 @@ public class MenuAdapter extends BaseAdapter{
         }
         Log.e("CA6", "Could not find a matching index");
         return -1;
+    }
+
+    public  void reset() {
+        mData.clear();
+        notifyDataSetChanged();
     }
 
     public void addPacket(CAPacket.PacketElement packet) {
@@ -75,31 +80,31 @@ public class MenuAdapter extends BaseAdapter{
                     dst.set(dst.getClientHostId(), src.getModAttribute(), dst.getText0(), src.getText1());
                     break;
                 case CAPacket.PID_BUTTON:
-                    Log.e("CA6", "PID_BUTTON not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_BUTTON not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_MENU_SELECT:
-                    Log.e("CA6", "PID_MENU_SELECT not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_MENU_SELECT not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_MENU_LIST:
-                    Log.e("CA6", "PID_MENU_LIST not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_MENU_LIST not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_MODULE_LIST:
-                    Log.e("CA6", "PID_MODULE_LIST not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_MODULE_LIST not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_LOGGER:
-                    Log.e("CA6", "PID_LOGGER not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_LOGGER not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_CAM_STATE:
-                    Log.e("CA6", "PID_CAM_STATE not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_CAM_STATE not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_CAM_SETTINGS:
-                    Log.e("CA6", "PID_CAM_SETTINGS not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_CAM_SETTINGS not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 case CAPacket.PID_INTERVALOMETER:
-                    Log.e("CA6", "PID_INTERVALOMETER not yet implemented in MenuAdapter::addPacket");
+                    Log.e("CA6", "PID_INTERVALOMETER not yet implemented in DynamicMenuAdapter::addPacket");
                     break;
                 default:
-                    Log.e("CA6", "Not valid MenuAdapter::addPacket: "+packet.getPacketType());
+                    Log.e("CA6", "Not valid DynamicMenuAdapter::addPacket: "+packet.getPacketType());
                     break;
             }
         }
