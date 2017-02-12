@@ -24,10 +24,10 @@ void loop() {
   processIncomingPacket();
   processTerminalCmds();
   checkModulePorts();
-    
+
   if (g_ctx.state == CA_STATE_MENU_MODE) {
     g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
-    delay(50);
+    delay(100);
   } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
     g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
   }

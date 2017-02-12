@@ -34,7 +34,7 @@ public:
 
 private:
     HardwareSerial *mSerial;
-    uint8 mSize;
+    uint16 mSize;
     CAPacket mPacker;
     CAPacket mUnpacker;
     uint8 mData[MAX_PACKET_SIZE];

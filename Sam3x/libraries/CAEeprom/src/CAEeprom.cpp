@@ -35,19 +35,19 @@ boolean CAEeprom::read(uint8 *buf, uint16 addr, uint16 len)
     cmd[2] = (uint8)(addr >> 8);
     cmd[3] = (uint8)(addr & 0xff);
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
     if (!sendRawBytes(cmd, 4, CA_FALSE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
     if (!readRawBytes(buf, len))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
-    interrupts();
+    //interrupts();
     return CA_TRUE;
 }
 
@@ -89,19 +89,19 @@ boolean CAEeprom::statusRead(unioReadStatus *status)
     cmd[0] = m_deviceAddr;
     cmd[1] = UNIO_CMD_RDSR;
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
     if (!sendRawBytes(cmd, 2, CA_FALSE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
     if (!readRawBytes((uint8*)status, 1))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
-    interrupts();
+    //interrupts();
     return CA_TRUE;
 }
 
@@ -112,14 +112,14 @@ boolean CAEeprom::statusWrite(unioWriteStatus status)
     cmd[1] = UNIO_CMD_WRSR;
     cmd[2] = (uint8)status;
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
     if (!sendRawBytes(cmd, 3, CA_TRUE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
-    interrupts();
+    //interrupts();
     return CA_TRUE;
 }
 
@@ -266,15 +266,15 @@ boolean CAEeprom::writeEnable()
     cmd[0] = m_deviceAddr;
     cmd[1] = UNIO_CMD_WREN;
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
     if (!sendRawBytes(cmd, 2, CA_TRUE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
     
-    interrupts();
+    //interrupts();
     return CA_TRUE;
 }
 
@@ -284,14 +284,14 @@ boolean CAEeprom::writeDisable()
     cmd[0] = m_deviceAddr;
     cmd[1] = UNIO_CMD_WRDI;
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
     if (!sendRawBytes(cmd, 2, CA_TRUE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
-    interrupts();
+    //interrupts();
     return CA_TRUE;
 }
 
@@ -308,19 +308,19 @@ boolean CAEeprom::writeStart(const uint8 *buf, uint16 addr, uint16 len)
     cmd[2] = (uint8)(addr >> 8);
     cmd[3] = (uint8)(addr & 0xff);
     standbyPulse();
-    noInterrupts();
+    //noInterrupts();
     startHeader();
      if (!sendRawBytes(cmd, 4, CA_FALSE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
     if (!sendRawBytes(buf, len, CA_TRUE))
     {
-        interrupts();
+        //interrupts();
         return CA_FALSE;
     }
-    interrupts();
+    //interrupts();
     return true;
 }
 
@@ -335,20 +335,20 @@ boolean CAEeprom::writeWaitComplete()
     {
         CAU::digitalWrite(m_hwPortPin, HIGH);
         delayMicroseconds(UNIO_DELAY_TSS);
-        noInterrupts();
+        //noInterrupts();
         startHeader();
         if (!sendRawBytes(cmd, 2, CA_FALSE))
         {
-            interrupts();
+            //interrupts();
             return CA_FALSE;
         }
         if (!readRawBytes(&stat, 1))
         if (!sendRawBytes(cmd, 2, CA_FALSE))
         {
-            interrupts();
+            //interrupts();
             return CA_FALSE;
         }
-        interrupts();  // Enable interrupts briefly between loops
+        //interrupts();  // Enable interrupts briefly between loops
     } while (stat & 0x01);
 
     return CA_TRUE;

@@ -15,18 +15,22 @@ boolean CAPacketHelper::readOnePacket(uint8 *data) {
     boolean ret = CA_FALSE;
     uint8 avaliableBytes = mSerial->available();
     
-    // To read one packet you need to know the first byte in a packet is the size.  This code assumes that.
-    // The second byte is always the packet type, but this code doesn't need to know that.
+    // To read one packet you need to know the first two bytes in a packet is the size.  This code assumes that.
+    // The third byte is always the packet type, but this code doesn't need to know that.
     
-    if (avaliableBytes) {
+    if (avaliableBytes >= 2) {
         if (mSize == 0) {
-            mSerial->readBytes((char*)&mSize, 1);
+            uint8 buf[2];
+            mSerial->readBytes((char*)buf, 2);
+            avaliableBytes -= 2;
+            mSize = genPacketSize(buf[0], buf[1]);
             CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
         }
-        
-        if (avaliableBytes >= mSize-1) {
-            data[0] = mSize;
-            mSerial->readBytes(data+1, mSize-1);
+
+        if (avaliableBytes >= mSize-2) {
+            data[0] = getPacketSize(mSize, 0);
+            data[1] = getPacketSize(mSize, 1);
+            mSerial->readBytes(data+2, mSize-2);
             mSize = 0;
             ret = CA_TRUE;
         }
