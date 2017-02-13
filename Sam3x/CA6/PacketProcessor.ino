@@ -71,8 +71,13 @@ void processIncomingPacket() {
         CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
         g_ctx.menuId = unpack.getMenuNumber();
         g_ctx.state = CA_STATE_LOADING_MENU;
-        g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
-        g_ctx.state = CA_STATE_MENU_MODE;
+        if (unpack.getMode() == 0) {
+          g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
+          g_ctx.state = CA_STATE_MENU_MODE;
+        } else {
+          g_ctx.procTable.funcPhotoInit[g_ctx.menuId]();
+          g_ctx.state = CA_STATE_PHOTO_MODE;
+        }
         break;
       }
       case PID_MENU_LIST: {
