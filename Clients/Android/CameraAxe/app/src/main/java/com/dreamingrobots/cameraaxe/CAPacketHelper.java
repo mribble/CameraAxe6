@@ -2,6 +2,8 @@ package com.dreamingrobots.cameraaxe;
 
 import android.util.Log;
 
+import static android.R.attr.mode;
+
 /**
  * CAPacketHelper class makes processing incoming packets and sending them easier
  */
@@ -127,6 +129,14 @@ public class CAPacketHelper {
     public int writePacketMenuList() {
         CAPacket.MenuList pack0 = mPacker.new MenuList();
         pack0.set(0,0,0,0,0,0,0,0,0,0,0,0,0,"0"); // Contents don't matter this just triggers a reply
+        int packSize = pack0.pack();
+        mPacker.resetBuffer();
+        return packSize;
+    }
+
+    public int writePacketEditNumber(int clientHostId, int value) {
+        CAPacket.EditNumber pack0 = mPacker.new EditNumber();
+        pack0.set(clientHostId,0,0,0,0,0,value,"0");  // All the 0 contents don't matter
         int packSize = pack0.pack();
         mPacker.resetBuffer();
         return packSize;

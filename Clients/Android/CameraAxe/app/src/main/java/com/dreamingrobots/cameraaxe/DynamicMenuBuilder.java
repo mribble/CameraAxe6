@@ -25,11 +25,13 @@ public class DynamicMenuBuilder {
     private LayoutInflater mInflater;
     private boolean mLoadingMenu = false;
     private LinearLayout mParentView;
+    private RetainedFragment mRetainedFragment;
 
-    public DynamicMenuBuilder(Activity activity, LinearLayout parentView) {
+    public DynamicMenuBuilder(Activity activity, LinearLayout parentView, RetainedFragment retainedFragment) {
         mActivity = activity;
         mInflater =  mActivity.getLayoutInflater();
         mParentView = parentView;
+        mRetainedFragment = retainedFragment;
     }
 
     private int findMatchingClientHostIdIndex(CAPacket.PacketElement ref, ArrayList<CAPacket.PacketElement> list) {
@@ -263,7 +265,12 @@ public class DynamicMenuBuilder {
                                 p.getDigitsBeforeDecimal(), p.getDigitsAfterDecimal(),
                                 p.getMinValue(), p.getMaxValue(),
                                 val, p.getText0());
-                    }
+
+                        CAPacketHelper ph0 = new CAPacketHelper();
+                        int packSize = ph0.writePacketEditNumber(p.getClientHostId(), val);
+                        mRetainedFragment.sendMessage(ph0, packSize);
+
+                        }
                 });
 
                 CAPacket.EditNumber p = (CAPacket.EditNumber) mData.get(position);

@@ -13,18 +13,22 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dreamingrobots.cameraaxe.MainActivity.mIpPort;
+
 
 /**
  *  Handle networking in a retained fragment so threads aren't lost on a configuration change
  */
-public class RetainedNetworkFragment extends Fragment {
+public class RetainedFragment extends Fragment {
 
     // Setup threading for UDP network packets
-    UdpClientThread.UdpClientHandler mUdpHandler;
-    UdpClientThread mUdpSendThread;
-    UdpClientThread mUdpReceiveThread;
-    MenuNameAdapter mMenuListAdapter;
-    DynamicMenuBuilder mDynamicMenuBuilder;
+    private UdpClientThread.UdpClientHandler mUdpHandler;
+    private UdpClientThread mUdpSendThread;
+    private UdpClientThread mUdpReceiveThread;
+    private MenuNameAdapter mMenuListAdapter;
+    private DynamicMenuBuilder mDynamicMenuBuilder;
+    private String mIpAddress;
+    private int mIpPort;
 
 
 
@@ -38,7 +42,7 @@ public class RetainedNetworkFragment extends Fragment {
 
     public void setDynamicMenuBuilder(LinearLayout parentView) {
         if (mDynamicMenuBuilder == null) {
-            mDynamicMenuBuilder = new DynamicMenuBuilder(getActivity(), parentView);
+            mDynamicMenuBuilder = new DynamicMenuBuilder(getActivity(), parentView, this);
             mMenuListAdapter = new MenuNameAdapter(getActivity(), R.layout.menu_name_item, new ArrayList<MenuName>());
             mUdpHandler = new UdpClientThread.UdpClientHandler(mDynamicMenuBuilder, mMenuListAdapter);
         } else {
@@ -54,9 +58,14 @@ public class RetainedNetworkFragment extends Fragment {
         }
     }
 
-    public void sendMessage(final String ipAddress, final int ipPort, CAPacketHelper ph, int packSize) {
-        mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, ipAddress,
-                ipPort, mUdpHandler, ph, packSize);
+    public void setNetwork(final String ipAddress, final int ipPort) {
+        mIpAddress = ipAddress;
+        mIpPort = ipPort;
+    }
+
+    public void sendMessage(CAPacketHelper ph, int packSize) {
+        mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, mIpAddress,
+                mIpPort, mUdpHandler, ph, packSize);
         mUdpSendThread.start();
     }
 
