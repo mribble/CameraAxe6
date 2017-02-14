@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     EditText mIpAddress;
     Button mSendMessageButton;
     Spinner mSpinner;
+    LinearLayout mDynamicMenuList;
 
     private RetainedNetworkFragment mRetainedNetworkFragment;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mIpAddress = (EditText) findViewById(R.id.ip_address);
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
         mSpinner = (Spinner)findViewById(R.id.spinner_menu_list);
+        mDynamicMenuList = (LinearLayout)findViewById(R.id.dynamic_menu_list);
 
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
@@ -89,12 +92,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Create a new adapter and listView that displays the dynamic menu
+        // Create populate the new LinearLayout containing the dynamic menu from retained packet data
+        // and reattach a retained adapter to the new listView for the menu name spinner.
         // Must be in postCreate because adapter is created during RetainedNetworkFragment.onCreate
-        ListView listViewItems = (ListView)findViewById(R.id.dynamic_menu_list);
-        listViewItems.setAdapter(mRetainedNetworkFragment.getDynamicMenuAdapter());
 
-        Spinner spinner = (Spinner)findViewById(R.id.spinner_menu_list);
-        spinner.setAdapter(mRetainedNetworkFragment.getMenuListAdapter());
+        mRetainedNetworkFragment.setDynamicMenuBuilder(mDynamicMenuList);
+        mSpinner.setAdapter(mRetainedNetworkFragment.getMenuListAdapter());
     }
 }

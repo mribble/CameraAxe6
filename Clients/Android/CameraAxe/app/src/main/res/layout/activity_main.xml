@@ -50,11 +50,13 @@
         android:layout_gravity="center_horizontal"
         android:text="Send Message"/>
 
-    <ListView
-        android:id="@+id/dynamic_menu_list"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stackFromBottom="true"
-        android:transcriptMode="normal"/>
-
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/dynamic_menu_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>    </ScrollView>
 </LinearLayout>

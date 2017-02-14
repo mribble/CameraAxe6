@@ -4,7 +4,11 @@ package com.dreamingrobots.cameraaxe;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +23,8 @@ public class RetainedNetworkFragment extends Fragment {
     UdpClientThread.UdpClientHandler mUdpHandler;
     UdpClientThread mUdpSendThread;
     UdpClientThread mUdpReceiveThread;
-    DynamicMenuAdapter mDynamicMenuAdapter;
     MenuNameAdapter mMenuListAdapter;
+    DynamicMenuBuilder mDynamicMenuBuilder;
 
 
 
@@ -28,16 +32,19 @@ public class RetainedNetworkFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mDynamicMenuAdapter = new DynamicMenuAdapter(getActivity());
-        mMenuListAdapter = new MenuNameAdapter(getActivity(), R.layout.menu_name_item, new ArrayList<MenuName>());
-
-        mUdpHandler = new UdpClientThread.UdpClientHandler(mDynamicMenuAdapter, mMenuListAdapter);
     }
 
-    public DynamicMenuAdapter getDynamicMenuAdapter() {
-        return mDynamicMenuAdapter;
-    }
     public ArrayAdapter getMenuListAdapter() { return mMenuListAdapter; }
+
+    public void setDynamicMenuBuilder(LinearLayout parentView) {
+        if (mDynamicMenuBuilder == null) {
+            mDynamicMenuBuilder = new DynamicMenuBuilder(getActivity(), parentView);
+            mMenuListAdapter = new MenuNameAdapter(getActivity(), R.layout.menu_name_item, new ArrayList<MenuName>());
+            mUdpHandler = new UdpClientThread.UdpClientHandler(mDynamicMenuBuilder, mMenuListAdapter);
+        } else {
+            mDynamicMenuBuilder.updateActivity(getActivity(), parentView);
+        }
+    }
 
     public void startReceiveThread(final String ipAddress, final int ipPort) {
         if (mUdpReceiveThread == null) {
@@ -54,6 +61,6 @@ public class RetainedNetworkFragment extends Fragment {
     }
 
     public void reset() {
-        getDynamicMenuAdapter().reset();
+        mDynamicMenuBuilder.reset();
     }
 }

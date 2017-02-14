@@ -119,11 +119,11 @@ public class UdpClientThread extends Thread {
     static public class UdpClientHandler extends Handler {
         static final int UPDATE_MESSAGE = 0;
         static final int UPDATE_PACKET = 1;
-        private DynamicMenuAdapter mDynamicMenuAdapter;
+        private DynamicMenuBuilder mDynamicMenuBuilder;
         private MenuNameAdapter mMenuListAdapter;
 
-        public UdpClientHandler(DynamicMenuAdapter dynamicMenuAdapter, MenuNameAdapter menuListAdapter) {
-            mDynamicMenuAdapter = dynamicMenuAdapter;
+        public UdpClientHandler(DynamicMenuBuilder dynamicMenuBuilder, MenuNameAdapter menuListAdapter) {
+            mDynamicMenuBuilder = dynamicMenuBuilder;
             mMenuListAdapter = menuListAdapter;
         }
 
@@ -142,7 +142,7 @@ public class UdpClientThread extends Thread {
                         p.getModuleTypeId1(), p.getModuleTypeMask1(), p.getMenuName());
                 mMenuListAdapter.add(mn);
             } else {
-                mDynamicMenuAdapter.addPacket(packet);
+                mDynamicMenuBuilder.addPacket(packet);
             }
         }
 
