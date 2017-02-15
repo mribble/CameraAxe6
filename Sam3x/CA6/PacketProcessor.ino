@@ -1,4 +1,10 @@
-void processIncomingPacket() {
+
+ // processIncomingPacket() handles packets coming from the client (Android) to the host (sam3x).
+ // Some packets always do the same thing so we handle those in this function and return null.
+ // Other packets are menu specific and have to be handled outside this function.  In those cases we return
+ // the packet from this function.  In these cases the caller must delete tthe packet when it's done.
+ 
+ CAPacketElement* processIncomingPacket() {
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
   uint8 *mData = ph.getData();
@@ -6,12 +12,14 @@ void processIncomingPacket() {
   if (ph.readOnePacket(mData)) {
     uint8 packetSize = mUnpacker.unpackSize();
     uint8 packetType = mUnpacker.unpackType();
+    CAPacketElement *ret = NULL;
 
     switch (packetType) {
       case PID_MENU_HEADER: {
         CAPacketMenuHeader unpack(mUnpacker);
         unpack.unpack();
         CAU::log("%d PID_MENU_HEADER - %d %d %s\n", packetSize, unpack.getMajorVersion(), unpack.getMinorVersion(), unpack.getMenuName());
+        CAU::log("Should never be called.\n");
         break;
       }
       case PID_TEXT_STATIC: {
@@ -45,10 +53,11 @@ void processIncomingPacket() {
         break;
       }
       case PID_EDIT_NUMBER: {
-        CAPacketEditNumber unpack(mUnpacker);
-        unpack.unpack();
-        CAU::log("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getDigitsBeforeDecimal(),
-                  unpack.getDigitsAfterDecimal(), unpack.getMinValue(), unpack.getMaxValue(), unpack.getValue(), unpack.getText0());
+        CAPacketEditNumber *unpack = new CAPacketEditNumber(mUnpacker);
+        unpack->unpack();
+        CAU::log("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack->getClientHostId(), unpack->getModAttribute(), unpack->getDigitsBeforeDecimal(),
+                  unpack->getDigitsAfterDecimal(), unpack->getMinValue(), unpack->getMaxValue(), unpack->getValue(), unpack->getText0());
+        ret = unpack;
         break;
       }
       case PID_TIME_BOX: {
@@ -63,6 +72,7 @@ void processIncomingPacket() {
         CAPacketScriptEnd unpack(mUnpacker);
         unpack.unpack();
         CAU::log("%d PID_SCRIPT_END\n", packetSize);
+        CAU::log("Should never be called.\n");
         break;
       }
       case PID_MENU_SELECT: {
@@ -138,5 +148,30 @@ void processIncomingPacket() {
       break;
     }
     mUnpacker.resetBuffer();
+    return ret;
   }
 }
+
+CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8 clientHostId, uint32 &val) {
+  if (p != NULL) {
+    if (p->getPacketType() == PID_EDIT_NUMBER) {
+      if (p->getClientHostId() == clientHostId) {
+        CAPacketEditNumber *p1 = (CAPacketEditNumber*) p;
+        val = p1->getValue();
+        delete p;
+        return NULL;
+      }
+    }
+  }
+  return p;
+}
+
+void incomingPacketFinish(CAPacketElement* p) {
+  if (p != NULL) {
+    delete p;
+    CAU::log("Invalid packet found during incomingPacketCheckFinish()");
+  }
+}
+
+
+

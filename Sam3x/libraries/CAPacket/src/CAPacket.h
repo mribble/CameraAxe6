@@ -27,6 +27,8 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
 
+#define NULL_CLIENT_HOST_ID 0xff
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  CAPacket - This class handles converting from variables the app uses to a packed byte stream sent over the
 //                  network.  This class manages the data buffer for either packing or unpacking modes.  Packing
@@ -61,6 +63,19 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  CAPacketElement - This is an interface class for all the specific packet types that follow.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CAPacketElement {
+public:
+    virtual uint8 getPacketType() = 0;
+    virtual uint8 getClientHostId() = 0;
+    virtual void unpack() = 0;
+    virtual uint16 pack() = 0;
+protected:
+    CAPacket* mCAP;    
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Below are many classes.  One for each packet type.
 //   * All these classes have a constructor that attaches a reference of CAPacket to this class.
 //   * All these classes have get*() methods to access private data members.
@@ -70,55 +85,58 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-class CAPacketMenuHeader {
+class CAPacketMenuHeader : public CAPacketElement {
 public:
     CAPacketMenuHeader(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_MENU_HEADER;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint16 getMajorVersion() {return mMajorVersion;};
     uint16 getMinorVersion() {return mMinorVersion;};
     const char* getMenuName() {return mMenuName.c_str();};
     void set(uint16 majorVersion, uint16 minorVersion, String menuName);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint16 mMajorVersion;
     uint16 mMinorVersion;
     String mMenuName;
 };
 
-class CAPacketTextStatic {
+class CAPacketTextStatic : public CAPacketElement {
 public:
     CAPacketTextStatic(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_TEXT_STATIC;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     const char* getText0() {return mText0.c_str();};
     void set(String text0);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     String mText0;
 };
 
-class CAPacketTextDynamic {
+class CAPacketTextDynamic : public CAPacketElement {
 public:
     CAPacketTextDynamic(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_TEXT_DYNAMIC;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     const char* getText0() {return mText0.c_str();};
     const char* getText1() {return mText1.c_str();};
     void set(uint8 clientHostId, uint8 modAttribute, String text0, String text1);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     String mText0;
     String mText1;
 };
 
-class CAPacketButton {
+class CAPacketButton : public CAPacketElement {
 public:
     CAPacketButton(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_BUTTON;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     uint8 getType() {return mType;};
@@ -127,9 +145,8 @@ public:
     const char* getText1() {return mText1.c_str();};
     void set(uint8 clientHostId, uint8 modAttribute, uint8 type, uint8 value, String text0, String text1);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     uint8 mType;
@@ -138,27 +155,28 @@ private:
     String mText1;
 };
 
-class CAPacketCheckBox {
+class CAPacketCheckBox : public CAPacketElement {
 public:
     CAPacketCheckBox(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_CHECK_BOX;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     uint8 getValue() {return mValue;};
     const char* getText0() {return mText0.c_str();};
     void set(uint8 clientHostId, uint8 modAttribute, uint8 value, String text0);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     uint8 mValue;
     String mText0;
 };
 
-class CAPacketDropSelect {
+class CAPacketDropSelect : public CAPacketElement {
 public:
     CAPacketDropSelect(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_DROP_SELECT;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     uint8 getValue() {return mValue;};
@@ -166,9 +184,8 @@ public:
     const char* getText1() {return mText1.c_str();};
     void set(uint8 clientHostId, uint8 modAttribute, uint8 value, String text0, String text1);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     uint8 mValue;
@@ -176,9 +193,10 @@ private:
     String mText1;
 };
 
-class CAPacketEditNumber {
+class CAPacketEditNumber : public CAPacketElement {
 public:
     CAPacketEditNumber(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_EDIT_NUMBER;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     uint8 getDigitsBeforeDecimal() {return mDigitsBeforeDecimal;};
@@ -190,9 +208,8 @@ public:
     void set(uint8 clientHostId, uint8 modAttribute, uint8 digitsBeforeDecimal, uint8 digitsAfterDecimal, 
                 uint32 minValue, uint32 maxValue, uint32 value, String text0);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     uint8 mDigitsBeforeDecimal;
@@ -203,7 +220,7 @@ private:
     String mText0;
 };
 
-class CAPacketTimeBox {
+class CAPacketTimeBox : public CAPacketElement {
 public:
     const uint8 HOUR_MASK           = 0x01;
     const uint8 MINUTE_MASK         = 0x02;
@@ -212,6 +229,7 @@ public:
     const uint8 MICROSECOND_MASK    = 0x10;
     const uint8 NANOSECOND_MASK     = 0x20;
     CAPacketTimeBox(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_TIME_BOX;};
     uint8 getClientHostId() {return mClientHostId;};
     uint8 getModAttribute() {return mModAttribute;};
     uint8 getEnableMask() {return mEnableMask;};
@@ -225,9 +243,8 @@ public:
     void set(uint8 clientHostId, uint8 modAttribute, uint8 enableMask, uint16 hours, uint8 minutes, uint8 seconds,
                 uint16 milliseconds, uint16 microseconds, uint16 nanoseconds, String text0);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mClientHostId;
     uint8 mModAttribute;
     uint8 mEnableMask;
@@ -240,33 +257,37 @@ private:
     String mText0;
 };
 
-class CAPacketScriptEnd {
+class CAPacketScriptEnd : public CAPacketElement {
 public:
     CAPacketScriptEnd(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_SCRIPT_END;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     void set();
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
 };
 
-class CAPacketMenuSelect {
+class CAPacketMenuSelect : public CAPacketElement {
 public:
     CAPacketMenuSelect(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_MENU_SELECT;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint8 getMode() {return mMode;};
     uint8 getMenuNumber() {return mMenuNumber;};
     void set(uint8 activate, uint8 menuNumber);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mMode;
     uint8 mMenuNumber;
 };
 
-class CAPacketMenuList {
+class CAPacketMenuList : public CAPacketElement {
 public:
     CAPacketMenuList(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_MENU_LIST;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint8 getMenuId() {return mMenuId;};
     uint8 getModuleId0() {return mModuleId0;};
     uint8 getModuleMask0() {return mModuleMask0;};
@@ -286,9 +307,8 @@ public:
                 uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
                 String menuName);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mMenuId;
     uint8 mModuleId0;
     uint8 mModuleMask0;
@@ -305,35 +325,37 @@ private:
     String mMenuName;
 };
 
-class CAPacketModuleList {
+class CAPacketModuleList : public CAPacketElement {
 public:
     CAPacketModuleList(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_MODULE_LIST;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint8 getModuleId() {return mModuleId;};
     uint8 getModuleTypeId() {return mModuleTypeId;};
     const char* getModuleName() {return mModuleName.c_str();};
     void set(uint8 moduleId, uint8 moduleTypeId, String moduleName);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mModuleId;
     uint8 mModuleTypeId;
     String mModuleName;
 };
 
-class CAPacketLogger {
+class CAPacketLogger : public CAPacketElement {
 public:
     CAPacketLogger(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_LOGGER;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     const char* getLog() {return mLog.c_str();};
     void set(String log);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     String mLog;
 };
 
-class CAPacketCamState {
+class CAPacketCamState : public CAPacketElement {
 public:
     const uint8 CAM0    = 0x01;
     const uint8 CAM1    = 0x02;
@@ -344,31 +366,35 @@ public:
     const uint8 CAM6    = 0x40;
     const uint8 CAM7    = 0x80;
     CAPacketCamState(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_CAM_STATE;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint8 getMultiplier() {return mMultiplier;};
     uint8 getFocus() {return mFocus;};
     uint8 getShutter() {return mShutter;};
     void set(uint8 multiplier, uint8 focus, uint8 shutter);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mMultiplier;
     uint8 mFocus;
     uint8 mShutter;
 };
 
-class CAPacketCamSettings : public CAPacketCamSettingsBase {
+class CAPacketCamSettings : public CAPacketCamSettingsBase, public CAPacketElement  {
 public:
     CAPacketCamSettings(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_CAM_SETTINGS;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
 };
 
-class CAPacketIntervalometer {
+class CAPacketIntervalometer : public CAPacketElement {
 public:
     CAPacketIntervalometer(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_INTERVALOMETER;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint16 getStartHours() {return mStartHours;};
     uint8 getStartMinutes() {return mStartMinutes;};
     uint8 getStartSeconds() {return mStartSeconds;};
@@ -385,9 +411,8 @@ public:
                 uint8 intervalSeconds, uint16 intervalMilliseconds, uint16 intervalMicroseconds,
                 uint16 repeats);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint16 mStartHours;
     uint8 mStartMinutes;
     uint8 mStartSeconds;
@@ -401,16 +426,17 @@ private:
     uint16 mRepeats;
 };
 
-class CAPacketControlFlags {
+class CAPacketControlFlags : public CAPacketElement {
 public:
     CAPacketControlFlags(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_CONTROL_FLAGS;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint8 getSlaveModeEnable() {return mSlaveModeEnable;};
     uint8 getExtraMessagesEnable() {return mExtraMessagesEnable;};
     void set(uint8 slaveModeEnabe, uint8 extraMessagesEnable);
     void unpack();
-    uint8 pack();
+    uint16 pack();
 private:
-    CAPacket* mCAP;
     uint8 mSlaveModeEnable;
     uint8 mExtraMessagesEnable;
 };

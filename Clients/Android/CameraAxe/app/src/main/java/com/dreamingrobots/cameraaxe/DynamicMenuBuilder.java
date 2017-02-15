@@ -42,7 +42,7 @@ public class DynamicMenuBuilder {
 
         for (int i=0; i<mData.size(); i++) {
             if (ref.getPacketType() == mData.get(i).getPacketType()) {
-                if (ref.getClientHostId() == ref.getClientHostId()) {
+                if (ref.getClientHostId() == mData.get(i).getClientHostId()) {
                     return i;
                 }
             }

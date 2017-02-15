@@ -1,7 +1,8 @@
 typedef struct {
   uint32 nextSendUpdate;
   hwPortPin ppSound;
-  uint16 triggerVal;
+  uint32 triggerVal;
+  uint8 mode;
 } MenuSoundData;
 
 MenuSoundData gMenuSoundData;
@@ -18,6 +19,7 @@ void MenuSound_MenuInit() {
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 92
 
+  gMenuSoundData.mode = MENU_INIT_MODE;
   gMenuSoundData.nextSendUpdate = millis();
   gMenuSoundData.ppSound = CAU::getModulePin(0, 0);
   CAU::pinMode(gMenuSoundData.ppSound, ANALOG_INPUT);
@@ -32,6 +34,7 @@ void MenuSound_PhotoInit() {
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 79
 
+  gMenuSoundData.mode = PHOTO_INIT_MODE;
   gMenuSoundData.nextSendUpdate = millis();
   gMenuSoundData.ppSound = CAU::getModulePin(0, 0);
   CAU::pinMode(gMenuSoundData.ppSound, ANALOG_INPUT);
@@ -42,26 +45,41 @@ void MenuSound_MenuRun() {
   uint32 updateFrequency = 500;  // 500 ms
   uint32 curTime = millis();
   uint32 nextUpdate = gMenuSoundData.nextSendUpdate;
+
+  gMenuSoundData.mode = MENU_RUN_MODE;
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckEditNumber(packet, 0, gMenuSoundData.triggerVal);
+  incomingPacketFinish(packet);
   
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*8)) { // Handles wraparounds
+  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
     uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
     g_ctx.packetHelper.writePacketTextDynamic(1, 0, String(val).c_str());
-    gMenuSoundData.nextSendUpdate = curTime;
+    gMenuSoundData.nextSendUpdate = curTime + updateFrequency;
   }
 }
 
 void MenuSound_PhotoRun() {
   uint16 triggerVal = gMenuSoundData.triggerVal;
   uint16 val = CAU::analogRead(gMenuSoundData.ppSound);
-  uint8 ret;
+  uint32 updateFrequency = 500;  // 500 ms
+  uint32 curTime = millis();
+  uint32 nextUpdate = gMenuSoundData.nextSendUpdate;
+  uint8 trigger;
+
+  if (gMenuSoundData.mode != PHOTO_RUN_MODE) {
+    // Run this code just once
+    gMenuSoundData.mode = PHOTO_RUN_MODE;
+    g_ctx.packetHelper.writePacketTextDynamic(2, 0, String(triggerVal).c_str());
+  }
+  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
+    g_ctx.packetHelper.writePacketTextDynamic(3, 0, String(val).c_str());
+    gMenuSoundData.nextSendUpdate = curTime + updateFrequency;
+  }
+
+  CAPacketElement *packet = processIncomingPacket();
+  incomingPacketFinish(packet);
+
+  trigger = (val >= triggerVal) ? CA_TRUE : CA_FALSE;
   
-  if (val > 512)
-  {
-    ret = (val-512) > triggerVal ? CA_TRUE : CA_FALSE;
-  }
-  else
-  {
-    ret = val > triggerVal ? CA_TRUE : CA_FALSE;
-  }
 }
 

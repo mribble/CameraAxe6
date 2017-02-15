@@ -21,7 +21,6 @@ void setup() {
 
 void loop() {
   caRunTests();
-  processIncomingPacket();
   processTerminalCmds();
   checkModulePorts();
 
@@ -30,6 +29,12 @@ void loop() {
     delay(100);
   } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
     g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
+  } else {
+    // Menus hanlde processing packets so only do this here if no menus are running
+    CAPacketElement *packet = processIncomingPacket();
+    if (packet) {
+      delete packet;
+    }
   }
 }
 
