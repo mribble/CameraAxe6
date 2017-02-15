@@ -60,7 +60,7 @@ void checkModulePorts() {
   }
 }
 
-void cameraFlashHandler() {
+void triggerCameras() {
   hwPortPin ppFocus, ppShutter;
   uint8 i;
 

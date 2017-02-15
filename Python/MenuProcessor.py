@@ -485,7 +485,7 @@ fout = open(outFileName, 'w')
 
 checkDuplicateTokens(KEY_TOKEN_LIST)
 
-# Menu Mode
+# Creates both Menu and Photo Mode Menus
 gScriptState = scriptState.INITIAL_STATE
 menuCount = 0
 fout.write("  const uint8 sDataMenu[] PROGMEM = {\n");
@@ -497,6 +497,7 @@ for line in fin.readlines():
         fout.write("\n")
         if (menuCount == 0):
             gScriptState = scriptState.INITIAL_STATE
+            gClientHostId = 0
             gBytesWritten = 0
             menuCount = menuCount+1
             fout.write("\n  const uint8 sDataActive[] PROGMEM = {\n");

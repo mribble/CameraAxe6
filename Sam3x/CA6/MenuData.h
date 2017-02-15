@@ -27,11 +27,5 @@ extern void MenuTest_PhotoRun();
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.
 
-#define MENU_INIT_MODE  0
-#define MENU_RUN_MODE   1
-#define PHOTO_INIT_MODE 2
-#define PHOTO_RUN_MODE  3
-
-
 #endif // MENU_DATA_H
 

@@ -1,3 +1,9 @@
+typedef struct {
+  uint32 nextSendUpdate;
+  uint32 count;
+} MenuTestData;
+
+MenuTestData gMenuTestData;
 
 void MenuTest_Info() {
   g_ctx.packetHelper.writePacketMenuList(2, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Test Menu");
@@ -16,6 +22,8 @@ void MenuTest_MenuInit() {
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 223
 
+  gMenuTestData.nextSendUpdate = millis();
+  gMenuTestData.count = 0;
   // This menu has no IO to setup
   g_ctx.packetHelper.writeMenu(sDataMenu, 223);
 }
@@ -32,21 +40,28 @@ void MenuTest_PhotoInit() {
 }
 
 void MenuTest_MenuRun() {
-  static uint32 t = 0;
-  static uint32 c = 0;
+  uint32 updateFrequency = 1000;  // 1000 ms
+  uint32 curTime = millis();
+  uint32 nextUpdate = gMenuTestData.nextSendUpdate;
 
-  if (millis() > t) {
-    t = millis()+500;
-    c = (++c)%1000;
-    char buf[10];
-    sprintf(buf, "%d", c);
-    // Update packet every 500 ms
-    g_ctx.packetHelper.writePacketTextDynamic(0, 0, buf);
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  incomingPacketFinish(packet);
+
+  // Handle outgoing packets
+  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
+     gMenuTestData.count = (++gMenuTestData.count)%10000;
+    g_ctx.packetHelper.writePacketTextDynamic(0, 0, String(gMenuTestData.count).c_str());
+    gMenuTestData.nextSendUpdate = curTime + updateFrequency;
   }
 }
 
 void MenuTest_PhotoRun() {
-  // Nothing
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  incomingPacketFinish(packet);
+
+  // This menu does nothing
 }
 
 

@@ -169,7 +169,7 @@ CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8 clientH
 void incomingPacketFinish(CAPacketElement* p) {
   if (p != NULL) {
     delete p;
-    CAU::log("Invalid packet found during incomingPacketCheckFinish()");
+    CAU::log("Invalid packet found during incomingPacketCheckFinish()\n");
   }
 }
 
