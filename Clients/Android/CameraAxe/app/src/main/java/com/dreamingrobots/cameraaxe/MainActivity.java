@@ -1,8 +1,10 @@
 package com.dreamingrobots.cameraaxe;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -18,7 +20,7 @@ import android.widget.Spinner;
  * + Handle UI inputs/outputs
  * + Start threads to handle networking
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
     final static int mIpPort = 4045;
     private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
     EditText mIpAddress;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     Spinner mSpinner;
     LinearLayout mDynamicMenuList;
     CheckBox mCheckboxPhotoMode;
+    Button mCameraSettingsButton;
 
     private RetainedFragment mRetainedFragment;
 
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         mSpinner = (Spinner)findViewById(R.id.spinner_menu_list);
         mDynamicMenuList = (LinearLayout)findViewById(R.id.dynamic_menu_list);
         mCheckboxPhotoMode = (CheckBox)findViewById(R.id.checkbox_photo_mode);
+        mCameraSettingsButton = (Button)findViewById(R.id.camera_settings_button);
 
         // When this button is clicked we generate a network packet and spawn a thread
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +73,14 @@ public class MainActivity extends AppCompatActivity {
                 mRetainedFragment.setNetwork(ipAddress, mIpPort);
                 mRetainedFragment.sendMessage(ph0, packSize);
 
+            }
+        });
+
+        mCameraSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CameraSettingsActivity.class);
+                startActivity(intent);
             }
         });
 
