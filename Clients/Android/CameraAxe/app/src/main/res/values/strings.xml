@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Camera Axe</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="camera_settings_mode_prompt">Choose a mode</string>
+    <string-array name="camera_settings_mode_array">
+        <item>Camera</item>
+        <item>Camera Prefocus</item>
+        <item>Flash</item>
+    </string-array>
 </resources>
