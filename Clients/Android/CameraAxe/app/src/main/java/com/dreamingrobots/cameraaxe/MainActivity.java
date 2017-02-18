@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -21,7 +21,10 @@ import android.widget.Spinner;
  * + Start threads to handle networking
  */
 public class MainActivity extends FragmentActivity {
-    final static int mIpPort = 4045;
+    static final int MAX_CAMERAS = 8;
+    static final int CAMERA_SETTINGS_REQUEST = 2;
+    static final String CAMERA_SETTING_HANDLE = "CAM_SET_HANDLE";
+    static final int mIpPort = 4045;
     private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
     EditText mIpAddress;
     Button mSendMessageButton;
@@ -79,8 +82,8 @@ public class MainActivity extends FragmentActivity {
         mCameraSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), CameraSettingsActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, CameraSettingsActivity.class);
+                startActivityForResult(intent, CAMERA_SETTINGS_REQUEST);
             }
         });
 
@@ -96,6 +99,23 @@ public class MainActivity extends FragmentActivity {
         // Run a packet tester - This code can be removed someday
         CAPacketHelper tester = new CAPacketHelper();
         tester.testPackets();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_SETTINGS_REQUEST && data != null) {
+            String m0 = data.getStringExtra(CAMERA_SETTING_HANDLE+0);
+            String m1 = data.getStringExtra(CAMERA_SETTING_HANDLE+1);
+            String m2 = data.getStringExtra(CAMERA_SETTING_HANDLE+2);
+            String m3 = data.getStringExtra(CAMERA_SETTING_HANDLE+3);
+            String m4 = data.getStringExtra(CAMERA_SETTING_HANDLE+4);
+            String m5 = data.getStringExtra(CAMERA_SETTING_HANDLE+5);
+            String m6 = data.getStringExtra(CAMERA_SETTING_HANDLE+6);
+            String m7 = data.getStringExtra(CAMERA_SETTING_HANDLE+7);
+
+            Log.e("CA6", m0+m1+m2+m3+m4+m5+m6+m7);
+        }
     }
 
     @Override

@@ -1,32 +1,54 @@
 package com.dreamingrobots.cameraaxe;
 
-import android.app.ActionBar;
+
+import android.support.v4.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.app.FragmentTransaction;
+
+import java.util.List;
 
 public class CameraSettingsActivity extends FragmentActivity {
     CameraSettingsPagerAdapter mCameraSettingsPagerAdapter;
     ViewPager mViewPager;
+    String[] mData = new String[MainActivity.MAX_CAMERAS];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_settings);
 
-        // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
+        // Create the adapter that will return a fragment for each of the three primary sections of the app.
         mCameraSettingsPagerAdapter = new CameraSettingsPagerAdapter(getSupportFragmentManager());
-        mViewPager = (ViewPager)findViewById(R.id.camera_settings_pager);
+        mViewPager = (ViewPager) findViewById(R.id.camera_settings_pager);
         mViewPager.setAdapter(mCameraSettingsPagerAdapter);
+    }
+
+    public void setCameraData(int index, String data) {
+        mData[index] = data;
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Save any fragments that didn't get saved during onPause
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for (int j = 0; j < fragments.size(); j++) {
+            if (fragments.get(j) != null) {
+                int val = ((CameraSettingsFragment) fragments.get(j)).getCameraNumber();
+                mData[val] = "Robin" + val;
+            }
+        }
+
+        // Send all the data back to the parent activity
+        Intent intent = new Intent();
+        for (int i = 0; i < MainActivity.MAX_CAMERAS; i++) {
+            intent.putExtra(MainActivity.CAMERA_SETTING_HANDLE + i, mData[i]);
+        }
+        setResult(MainActivity.CAMERA_SETTINGS_REQUEST, intent);
+        super.onBackPressed();
     }
 
     // Since this is an object collection, use a FragmentStatePagerAdapter, and not a FragmentPagerAdapter.
@@ -39,34 +61,14 @@ public class CameraSettingsActivity extends FragmentActivity {
         public Fragment getItem(int i) {
             Fragment fragment = new CameraSettingsFragment();
             Bundle args = new Bundle();
-            args.putInt(CameraSettingsFragment.ARG_OBJECT, i + 1);
+            args.putInt(CameraSettingsFragment.ARG_OBJECT, i);
             fragment.setArguments(args);
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return 8;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "OBJECT " + (position + 1);
-        }
-    }
-
-    // Instances of this class are fragments representing single camera setting menu
-    public static class CameraSettingsFragment extends Fragment {
-        public static final String ARG_OBJECT = "object";
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.camera_settings, container, false);
-            Bundle args = getArguments();
-
-            ((TextView) rootView.findViewById(R.id.camera_settings_text))
-                    .setText(Integer.toString(args.getInt(ARG_OBJECT)));
-            return rootView;
+            return MainActivity.MAX_CAMERAS;
         }
     }
 }
