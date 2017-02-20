@@ -142,6 +142,23 @@ public class CAPacketHelper {
         return packSize;
     }
 
+    public int writePacketCamSettings(int camPortNumber, int mode, int delayHours, int delayMinutes,
+                                      int delaySeconds, int delayMilliseconds, int delayMicroseconds,
+                                      int durationHours, int durationMinutes, int durationSeconds,
+                                      int durationMilliseconds, int durationMicroseconds, int sequencer,
+                                      int applyIntervalometer, int smartPreview, int mirrorLockupEnable,
+                                      int mirrorLockupMinutes, int mirrorLockupSeconds,
+                                      int mirrorLockupMilliseconds) {
+        CAPacket.CamSettings pack0 = mPacker.new CamSettings();
+        pack0.set(camPortNumber, mode, delayHours, delayMinutes, delaySeconds, delayMilliseconds, delayMicroseconds,
+                durationHours, durationMinutes, durationSeconds, durationMilliseconds, durationMicroseconds, sequencer,
+                applyIntervalometer, smartPreview, mirrorLockupEnable, mirrorLockupMinutes, mirrorLockupSeconds,
+                mirrorLockupMilliseconds);
+        int packSize = pack0.pack();
+        mPacker.resetBuffer();
+        return packSize;
+    }
+
     public void testPackets() {
         CAPacket pack0 = new CAPacket(CAPacket.STATE_PACKER, mData, mDataSize);
         CAPacket unpack0 = new CAPacket(CAPacket.STATE_UNPACKER, mData, mDataSize);

@@ -1,11 +1,8 @@
 package com.dreamingrobots.cameraaxe;
 
 
-import android.support.v4.app.Fragment;
-
-import static java.util.ResourceBundle.getBundle;
-
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +29,23 @@ public class CameraSettingsFragment extends Fragment {
         return rootView;
     }
 
+    public byte[] getCameraSettings() {
+        CAPacketHelper ph = new CAPacketHelper();
+        int packetSize = ph.writePacketCamSettings(mCameraNumber, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+        byte[] ret = new byte[packetSize];
+        for(int i = 0; i < packetSize; i++) {
+            ret[i] = ph.getData()[i];
+        }
+        return ret;
+    }
+
     public int getCameraNumber() {
         return mCameraNumber;
     }
 
     @Override
     public void onPause() {
-        ((CameraSettingsActivity) getActivity()).setCameraData(mCameraNumber, "Batman" + mCameraNumber);
+        ((CameraSettingsActivity) getActivity()).setCameraData(mCameraNumber, getCameraSettings());
         super.onPause();
     }
 }

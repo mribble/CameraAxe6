@@ -58,8 +58,6 @@ public class MainActivity extends FragmentActivity {
                 final String ipAddress = mIpAddress.getText().toString();
                 mRetainedFragment.startReceiveThread(ipAddress, mIpPort);
 
-                CAPacketHelper ph0 = new CAPacketHelper();
-
                 MenuName menuName = (MenuName)mSpinner.getSelectedItem();
                 if (mCheckboxPhotoMode.isChecked()) {
                     menuMode = 1;
@@ -68,6 +66,7 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 // Only load the menu names the first time.  Then reload the menu every time after that
+                CAPacketHelper ph0 = new CAPacketHelper();
                 if (menuName == null) {
                     packSize = ph0.writePacketMenuList();
                 } else {
@@ -105,16 +104,16 @@ public class MainActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_SETTINGS_REQUEST && data != null) {
-            String m0 = data.getStringExtra(CAMERA_SETTING_HANDLE+0);
-            String m1 = data.getStringExtra(CAMERA_SETTING_HANDLE+1);
-            String m2 = data.getStringExtra(CAMERA_SETTING_HANDLE+2);
-            String m3 = data.getStringExtra(CAMERA_SETTING_HANDLE+3);
-            String m4 = data.getStringExtra(CAMERA_SETTING_HANDLE+4);
-            String m5 = data.getStringExtra(CAMERA_SETTING_HANDLE+5);
-            String m6 = data.getStringExtra(CAMERA_SETTING_HANDLE+6);
-            String m7 = data.getStringExtra(CAMERA_SETTING_HANDLE+7);
+            byte[] m0 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+0);
+            byte[] m1 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+1);
+            byte[] m2 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+2);
+            byte[] m3 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+3);
+            byte[] m4 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+4);
+            byte[] m5 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+5);
+            byte[] m6 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+6);
+            byte[] m7 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+7);
 
-            Log.e("CA6", m0+m1+m2+m3+m4+m5+m6+m7);
+            //todo save these packets
         }
     }
 
