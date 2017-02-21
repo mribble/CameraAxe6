@@ -66,14 +66,14 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 // Only load the menu names the first time.  Then reload the menu every time after that
-                CAPacketHelper ph0 = new CAPacketHelper();
+                CAPacketHelper ph = new CAPacketHelper();
                 if (menuName == null) {
-                    packSize = ph0.writePacketMenuList();
+                    packSize = ph.writePacketMenuList();
                 } else {
-                    packSize = ph0.writePacketMenuSelect(menuMode, menuName.getMenuId());
+                    packSize = ph.writePacketMenuSelect(menuMode, menuName.getMenuId());
                 }
                 mRetainedFragment.setNetwork(ipAddress, mIpPort);
-                mRetainedFragment.sendMessage(ph0, packSize);
+                mRetainedFragment.sendMessage(ph, packSize);
 
             }
         });
@@ -104,17 +104,15 @@ public class MainActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_SETTINGS_REQUEST && data != null) {
-            byte[] m0 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+0);
-            byte[] m1 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+1);
-            byte[] m2 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+2);
-            byte[] m3 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+3);
-            byte[] m4 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+4);
-            byte[] m5 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+5);
-            byte[] m6 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+6);
-            byte[] m7 = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+7);
-
-            //todo save these packets
-        }
+            CAPacketHelper ph = new CAPacketHelper();
+            for(int i = 0; i< MainActivity.MAX_CAMERAS; i++) {
+                byte[]m = data.getByteArrayExtra(CAMERA_SETTING_HANDLE+i);
+                if (m != null) {
+                    ph.setData(m);
+                    mRetainedFragment.sendMessage(ph, m.length);
+                }
+            }
+         }
     }
 
     @Override

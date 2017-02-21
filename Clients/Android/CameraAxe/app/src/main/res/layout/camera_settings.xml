@@ -251,6 +251,7 @@
             android:text="Apply Intervalometer"/>
 
         <CheckBox
+            android:id="@+id/apply_intervalometer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -291,11 +292,17 @@
             android:gravity="center_vertical"
             android:text="Mirror Lockup"/>
 
+        <CheckBox
+            android:layout_width="0dp"
+            android:id="@+id/cam_mirror_enable"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
         <EditText
             android:id="@+id/cam_mirror_lockup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:digits="0123456789."
             android:inputType="numberDecimal"
             android:text="59.59.999"/>

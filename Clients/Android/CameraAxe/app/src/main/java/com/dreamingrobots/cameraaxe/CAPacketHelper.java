@@ -16,6 +16,7 @@ public class CAPacketHelper {
     public byte[] getData() {
         return mData;
     }
+    public void setData(byte[] data) { mData = data; }
 
     public CAPacket.PacketElement processIncomingPacket(byte[] buf, int bufSize) {
         CAPacket unpacker = new CAPacket(CAPacket.STATE_UNPACKER, buf, bufSize);
