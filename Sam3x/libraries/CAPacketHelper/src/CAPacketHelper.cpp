@@ -4,10 +4,8 @@
 #include <CAUtility.h>
 #endif
 
-void CAPacketHelper::init(uint32 baud) {
-    mSerial = &Serial1;
-    mSerial->begin(baud);
-    delay(500);
+void CAPacketHelper::init(HardwareSerial *serial) {
+    mSerial = serial;
     while (mSerial->read() != -1){}   // flush out all the initialization writes
 }
 

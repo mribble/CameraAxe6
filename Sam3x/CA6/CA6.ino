@@ -15,8 +15,8 @@ void setup() {
   CAU::logInit(9600);
   CAU::initializeAnalog();
 
-  g_ctx.esp8266.init();
-  g_ctx.packetHelper.init(74880);
+  g_ctx.esp8266.init(74880);
+  g_ctx.packetHelper.init(g_ctx.esp8266.getSerial());
 }
 
 void loop() {

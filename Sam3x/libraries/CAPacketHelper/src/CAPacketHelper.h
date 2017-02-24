@@ -18,7 +18,7 @@ public:
     CAPacket& getUnpacker() {return mUnpacker;};
     uint8* getData() {return mData;};
     
-    void init(uint32 baud);
+    void init(HardwareSerial *serial);
     boolean readOnePacket(uint8 *data);
     void writeOnePacket(uint8 *data);
     void writeMenu(const uint8 *sData, uint16 sz);

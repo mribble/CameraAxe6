@@ -9,62 +9,6 @@ void caRunTests()
   //caTestAuxPort();
   //caTestEeprom();
   //caTestAnalog();
-  //caTestRFD();
-  //caTestEsp8266();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestRFD - Test communications with BLE module
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*void caTestRFD()
-{
-  // This test sends a packet from SAM to RFduino.  Then RFduino returns it with the current code there.
-  uint8 bufSize;
-  uint8 header;
-  uint8 data[64];
-  uint8 data2[64];
-  CAPacket packetProcessor;
-  PacketTextDynamic packTextDynamic;
-  uint8 packetType;
-
-  packTextDynamic.client_host_id = 1;
-  packTextDynamic.text_string = "SAM456";
-  packetProcessor.packTextDynamic(&packTextDynamic, data);
-  g_ctx.bleSerial.write(data);
-  delay(4000);
-
-  if (g_ctx.bleSerial.read(&bufSize, &header, data))
-  {
-    packetProcessor.unpackTextDynamic((uint8*)data, &packTextDynamic, (char*)data2);
-    if (strcmp((char*)packTextDynamic.text_string, "SAM456") != 0)
-    {
-      CAU::log("  Failed strcmp - %s\n", packTextDynamic.text_string);
-    }
-    else
-    {
-      CAU::log("Done - RFD\n");
-    }
-  }
-}*/
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestEsp8266 - Test communications with ESP8266 module
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestEsp8266()
-{
-  char buf[64];
-  static bool first = true;
-
-  if (first) {
-    first = false;
-    Serial1.begin(9600);
-  }
-
-  if (Serial1.available()) {
-    SerialUSB.write(Serial1.read());
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
