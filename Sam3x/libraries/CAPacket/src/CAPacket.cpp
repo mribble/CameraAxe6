@@ -915,3 +915,34 @@ uint16 CAPacketControlFlags::pack() {
     return packetSize;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Echo Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketEcho::CAPacketEcho(CAPacket& caPacket) {
+    mCAP = &caPacket;
+}
+
+void CAPacketEcho::set(uint8 mode, String str) {
+    mMode = mode;
+    mString = str;
+    CA_ASSERT((mMode <= 1), "Error in CAPacketEcho::set()");
+}
+
+void CAPacketEcho::unpack() {
+    mMode = mCAP->unpacker(8);
+    mCAP->unpackerString(mString);
+    mCAP->flushPacket();
+    CA_ASSERT((mMode <= 1), "Error in CAPacketEcho::unpack()");
+
+}
+
+uint16 CAPacketEcho::pack() {
+    uint16 len = mString.length() + 1;  // 1 for the null terminator
+    uint16 packetSize = 3 + 1 + len;
+    mCAP->packer(packetSize, 16);
+    mCAP->packer(PID_ECHO, 8);
+    mCAP->packer(mMode, 8);
+    mCAP->packerString(mString.c_str());
+    mCAP->flushPacket();
+    return packetSize;
+}

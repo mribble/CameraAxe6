@@ -115,6 +115,18 @@ public class DynamicMenuBuilder {
                 case CAPacket.PID_INTERVALOMETER:
                     Log.e("CA6", "PID_INTERVALOMETER not yet implemented in DynamicMenuBuilder::addPacket");
                     break;
+                case CAPacket.PID_CONTROL_FLAGS:
+                    Log.e("CA6", "PID_CONTROL_FLAGS not yet implemented in DynamicMenuBuilder::addPacket");
+                    break;
+                case CAPacket.PID_ECHO:
+                    CAPacket.Echo p = (CAPacket.Echo)packet;
+                    if (p.getMode() == 0) { // 0 means back to sam3x
+                        CAPacketHelper ph0 = new CAPacketHelper();
+                        int packSize = ph0.writePacketEcho(p.getMode(), p.getString());
+                        mRetainedFragment.sendMessage(ph0, packSize);
+                    }
+                    Log.e("CA6", "PID_ECHO not yet implemented in DynamicMenuBuilder::addPacket");
+                    break;
                 default:
                     Log.e("CA6", "Not valid DynamicMenuBuilder::addPacket: "+packet.getPacketType());
                     break;

@@ -22,7 +22,8 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_CAM_SETTINGS        = 15,
                 PID_INTERVALOMETER      = 16,
                 PID_CONTROL_FLAGS       = 17,
-                PID_END_SENTINEL        = 18, // Must be last
+                PID_ECHO                = 18,
+                PID_END_SENTINEL        = 19, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -439,6 +440,21 @@ public:
 private:
     uint8 mSlaveModeEnable;
     uint8 mExtraMessagesEnable;
+};
+
+class CAPacketEcho : public CAPacketElement {
+public:
+    CAPacketEcho(CAPacket& caPacket);
+    uint8 getPacketType() {return PID_ECHO;};
+    uint8 getClientHostId() {return NULL_CLIENT_HOST_ID;};
+    uint8 getMode() {return mMode;};
+    const char* getString() {return mString.c_str();};
+    void set(uint8 mode, String str);
+    void unpack();
+    uint16 pack();
+private:
+    uint8 mMode;
+    String mString;
 };
 
 #endif // __CAPACKET_H__

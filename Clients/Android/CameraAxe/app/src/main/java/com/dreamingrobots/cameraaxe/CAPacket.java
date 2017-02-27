@@ -33,7 +33,8 @@ class CAPacket {
     static final int PID_CAM_SETTINGS               = 15;
     static final int PID_INTERVALOMETER             = 16;
     static final int PID_CONTROL_FLAGS              = 17;
-    private static final int PID_END_SENTINEL       = 18;   // Must be last
+    static final int PID_ECHO                       = 18;
+    private static final int PID_END_SENTINEL       = 19;   // Must be last
 
     private int mBitsUsed;  // Bits in use that didn't fill a full byte
     private int mBitsVal;   // Value of bits that didn't fill a full byte
@@ -1235,6 +1236,46 @@ class CAPacket {
             packer(mSlaveModeEnable, 1);
             packer(mExtraMessagesEnable, 1);
             packer(unused, 6);
+            flushPacket();
+            return packetSize;
+        }
+    }
+    /***********************************************************************************************
+     * Echo Packet Class
+     **********************************************************************************************/
+    public class Echo implements PacketElement {
+
+        private StringBuilder mString;
+        private int mMode;
+
+        public Echo() {mString = new StringBuilder();}
+
+        public int getPacketType() {return PID_ECHO;}
+        public int getClientHostId() {return -1;}
+        public int getMode() {return mMode;}
+        public String getString() {return mString.toString();}
+
+        public void set(int mode, String str) {
+            mMode = mode;
+            mString.setLength(0);
+            mString.append(str);
+            CA_ASSERT((mMode <= 1), "Error in CAPacketEcho::set()");
+        }
+
+        public void unpack() {
+            mMode = (int)unpacker(8);
+            unpackerString(mString);
+            flushPacket();
+            CA_ASSERT((mMode <= 1), "Error in CAPacketEcho::unpack()");
+        }
+
+        public int pack() {
+            int len = mString.length() + 1;  // 1 for the null terminator
+            int packetSize = 3 + 1 + len;
+            packer(packetSize, 16);
+            packer(PID_ECHO, 8);
+            packer(mMode, 8);
+            packerString(mString.toString());
             flushPacket();
             return packetSize;
         }

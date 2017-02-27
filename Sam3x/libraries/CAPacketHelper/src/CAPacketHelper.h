@@ -31,6 +31,7 @@ public:
                 uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
                 uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
                 String menuName);
+    void writePacketEcho(uint8 mode, const char* str);
 
 private:
     HardwareSerial *mSerial;

@@ -1,5 +1,6 @@
 void caRunTests()
 {
+  //caTestNetworkEcho();
   //caTestTickTimer();
   //caTestPackets();
   //caTestBlinkLed();
@@ -10,6 +11,36 @@ void caRunTests()
   //caTestEeprom();
   //caTestAnalog();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// caTestNetworkEcho - Tests performance of a round trip network
+// returns  - NA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void caTestNetworkEcho() {
+  bool done = false;
+
+  g_ctx.echoReceived = 0;
+
+  uint32 endTime;
+  uint32 startTime = millis();
+  g_ctx.packetHelper.writePacketEcho(0, "01234");  // 0 means back to sam3x
+  for(uint16 i=0; i<5000; ++i) {
+    processIncomingPacket();
+    if (g_ctx.echoReceived) {
+      endTime = millis();
+      done = true;
+      break;
+    }
+    delay(1);
+  }
+
+  if (done) {
+    CAU::log("Time in milliseconds: %d\n", endTime-startTime);
+  } else {
+    CAU::log("ERROR - Packet was never returned.\n");
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestTickTimer - Tests the CATickTimer class
@@ -450,6 +481,23 @@ void caTestPackets()
           unpack11.getSlaveModeEnable() != 1 ||
           unpack11.getExtraMessagesEnable() != 1 ) {
       CAU::log("ERROR - CONTROL_FLAGS test failed\n");
+    } 
+  }
+
+  { // ECHO Packet Test
+    CAPacketEcho unpack11(unpack10);              // Update per type
+    CAPacketEcho pack11(pack10);                  // Update per type
+    
+    pack11.set(1, "Echo Packet");                 // Update per type
+    uint8 packSize = pack11.pack();
+    uint8 unpackSize = unpack10.unpackSize();
+    uint8 packType = unpack10.unpackType();
+    unpack11.unpack();
+    if (packSize != unpackSize ||
+          packType != PID_ECHO ||                 // Update per type
+          unpack11.getMode() != 1 ||
+          strcmp(unpack11.getString(), "Echo Packet") != 0) {
+      CAU::log("ERROR - ECHO test failed\n");
     } 
   }
 

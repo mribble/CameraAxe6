@@ -40,6 +40,7 @@ struct Context {
   CtxProcTable procTable;
 
   CAEsp8266 esp8266;
+  uint8 echoReceived = 0;
 };
 
 #endif // CONTEXT_H

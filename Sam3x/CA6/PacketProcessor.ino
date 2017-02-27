@@ -145,7 +145,21 @@
         CAU::log("%d PID_CONTROL_FLAGS - %d %d\n", packetSize, unpack.getSlaveModeEnable(), unpack.getExtraMessagesEnable());
         break;
       }
-      break;
+      case PID_ECHO: {
+        CAPacketEcho unpack(mUnpacker);
+        unpack.unpack();
+        if (unpack.getMode() == 1) { // 1 means echo back to Android
+          g_ctx.packetHelper.writePacketEcho(1, unpack.getString());
+        } else {
+          g_ctx.echoReceived = 1;
+        }
+        CAU::log("%d PID_ECHO - %d %s\n", packetSize, unpack.getMode(), unpack.getString());
+        break;
+      }
+      default: {
+        CAU::log("Unknown packet\n");
+        break;
+      }
     }
     mUnpacker.resetBuffer();
     return ret;

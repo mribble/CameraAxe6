@@ -110,6 +110,11 @@ public class CAPacketHelper {
                 unpack.unpack();
                 ret = unpack;
             } break;
+            case CAPacket.PID_ECHO: {
+                CAPacket.Echo unpack = unpacker.new Echo();
+                unpack.unpack();
+                ret = unpack;
+            } break;
             default: {
                 Log.e("CA6", "Invalid incoming packet");
                 ret = null;
@@ -155,6 +160,14 @@ public class CAPacketHelper {
                 durationHours, durationMinutes, durationSeconds, durationMilliseconds, durationMicroseconds, sequencer,
                 applyIntervalometer, smartPreview, mirrorLockupEnable, mirrorLockupMinutes, mirrorLockupSeconds,
                 mirrorLockupMilliseconds);
+        int packSize = pack0.pack();
+        mPacker.resetBuffer();
+        return packSize;
+    }
+
+    public int writePacketEcho(int mode, String str) {
+        CAPacket.Echo pack0 = mPacker.new Echo();
+        pack0.set(mode, str);
         int packSize = pack0.pack();
         mPacker.resetBuffer();
         return packSize;
@@ -480,6 +493,21 @@ public class CAPacketHelper {
                     unpack1.getSlaveModeEnable() != 1 ||
                     unpack1.getExtraMessagesEnable() != 1) {
                 Log.e("CA6", "Packet Test Error - CONTROL_FLAGS test failed");
+            }
+        }
+        {   // Echo Packet Test
+            CAPacket.Echo pack1 = pack0.new Echo();                             // Update per type
+            CAPacket.Echo unpack1 = unpack0.new Echo();                         // Update per type
+            pack1.set(1, "Echo Packet");                                        // Update per type
+            int packSize = pack1.pack();
+            int unpackSize = unpack0.unpackSize();
+            short packType = unpack0.unpackType();
+            unpack1.unpack();
+            if (packSize != unpackSize ||
+                    packType != CAPacket.PID_ECHO ||                            // Update per type
+                    unpack1.getMode() != 1 ||
+                    unpack1.getString().equals("Echo Packet") != true) {
+                Log.e("CA6", "Packet Test Error - ECHO test failed");
             }
         }
     }

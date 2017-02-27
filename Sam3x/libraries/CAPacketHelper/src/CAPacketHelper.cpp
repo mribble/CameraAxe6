@@ -80,7 +80,7 @@ void CAPacketHelper::flushGarbagePackets() {
 void CAPacketHelper::writePacketLogger(const char* str) {
     CAPacketLogger pack0(mPacker);
     pack0.set(str);
-    uint8 packSize = pack0.pack();
+    uint16 packSize = pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
@@ -88,7 +88,7 @@ void CAPacketHelper::writePacketLogger(const char* str) {
 void CAPacketHelper::writePacketTextDynamic(uint8 clientHostId, uint8 modAttribute, const char* text1) {
     CAPacketTextDynamic pack0(mPacker);
     pack0.set(clientHostId, modAttribute, "0", text1);
-    uint8 packSize = pack0.pack();
+    uint16 packSize = pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
@@ -100,7 +100,15 @@ void CAPacketHelper::writePacketMenuList(uint8 menuId, uint8 moduleId0, uint8 mo
     CAPacketMenuList pack0(mPacker);
     pack0.set(menuId, moduleId0, moduleMask0,  moduleId1, moduleMask1, moduleId2, moduleMask2, moduleId3, moduleMask3,
                 moduleTypeId0, moduleTypeMask0, moduleTypeId1, moduleTypeMask1, menuName);
-    uint8 packSize = pack0.pack();
+    uint16 packSize = pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketEcho(uint8 mode, const char* str) {
+    CAPacketEcho pack0(mPacker);
+    pack0.set(mode, str);
+    uint16 packSize = pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
