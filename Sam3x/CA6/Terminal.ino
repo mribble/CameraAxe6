@@ -35,17 +35,19 @@ void processTerminalCmds() {
     case 's': // Serial commands from wireless get passed through to USB Serial (useful for testing) 
     {
       bool done = false;
-      HardwareSerial *serial = g_ctx.esp8266.getSerial();
+      HardwareSerial *modSerial = g_ctx.esp8266.getSerial();
       SerialUSB.print("Press 'd' to terminate wireless serial passthrough mode\n");
       while (!done) {
-        if (serial->available()) {
-          char c = serial->read();
+        if (modSerial->available()) {
+          char c = modSerial->read();
           SerialUSB.write(c);
         }
         if (SerialUSB.available()) {
           char c = SerialUSB.read();
           if (c == 'd') {
             done = true;
+          } else {
+            modSerial->write(c);
           }
         }
       }
