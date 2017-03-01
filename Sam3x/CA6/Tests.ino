@@ -1,5 +1,6 @@
 void caRunTests()
 {
+  //caTestSerialWritePerf();
   //caTestNetworkEcho();
   //caTestTickTimer();
   //caTestPackets();
@@ -10,6 +11,28 @@ void caRunTests()
   //caTestAuxPort();
   //caTestEeprom();
   //caTestAnalog();
+}
+
+void caTestSerialWritePerf() {
+  const uint32 bufSize = 20;
+  uint32 startTime = 0;
+  uint32 endTime = 0;
+  uint8 writeChars[bufSize];
+
+  Serial1.end();
+  Serial1.begin(9600);
+
+  // fill the write buffer
+  for (uint8 i = 0; i < bufSize; i++) {
+    writeChars[i] = char((i % 10) + '0');
+  }
+
+  startTime = micros();
+  Serial1.write(writeChars, bufSize);
+  endTime = micros();
+  delay(500); // Wait for values to finish being written
+
+  CAU::log("Serial Write perf (%d bytes): %d us\n", bufSize, endTime-startTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
