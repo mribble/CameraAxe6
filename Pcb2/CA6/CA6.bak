@@ -1,6 +1,7 @@
 EESchema Schematic File Version 2
 LIBS:CA6-rescue
 LIBS:CA6
+LIBS:CA6-cache
 EELAYER 25 0
 EELAYER END
 $Descr A2 23386 16535
@@ -1999,6 +2000,8 @@ F 3 "~" H 7400 12750 60  0000 C CNN
 	1    7400 12750
 	1    0    0    -1  
 $EndComp
+NoConn ~ 7700 12750
+NoConn ~ 7100 12750
 NoConn ~ 12750 14400
 NoConn ~ 12750 13800
 NoConn ~ 12750 13700
