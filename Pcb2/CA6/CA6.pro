@@ -1,4 +1,4 @@
-update=21/01/2017 6:32:02 PM
+update=3/3/2017 7:22:08 PM
 last_client=kicad
 [general]
 version=1
@@ -31,5 +31,5 @@ LibName1=CA6
 version=1
 LibDir=../pcb
 [eeschema/libraries]
-LibName1=CA6-rescue
-LibName2=CA6
+LibName1=CA6
+LibName2=C:/Program Files/KiCad/share/kicad/library/device
