@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb2/CA6/CA6.sch)
-    (date "3/4/2017 12:30:48 PM")
+    (date "3/4/2017 1:53:15 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -794,7 +794,13 @@
       (footprint CA6:HOLE_3.0mm)
       (libsource (lib CA6) (part HOLE))
       (sheetpath (names /) (tstamps /))
-      (tstamp 58C15241)))
+      (tstamp 58C15241))
+    (comp (ref BT1)
+      (value BATTERY)
+      (footprint CA6:BATTERY_4AA_12BH348-GR)
+      (libsource (lib CA6) (part BATTERY))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 58D3FF70)))
   (libparts
     (libpart (lib CA6) (part 11AA160)
       (footprints
@@ -961,6 +967,14 @@
         (pin (num 142) (name PB23) (type BiDi))
         (pin (num 143) (name PB24) (type BiDi))
         (pin (num 144) (name PB25) (type BiDi))))
+    (libpart (lib CA6) (part BATTERY)
+      (footprints
+        (fp BAT-HLD-001)
+        (fp BATTERY_4AA_12BH348-GR)
+        (fp BATTERY_4AA_12BH348-GR-NH))
+      (fields
+        (field (name Reference) BT)
+        (field (name Value) BATTERY)))
     (libpart (lib CA6) (part BSS138P)
       (fields
         (field (name Reference) Q)
