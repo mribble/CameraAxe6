@@ -82,7 +82,7 @@ void hostAnnounce (void) {
    ND_Packet localPacket;
 
    // client must check this ID string to determine that this is a CA6 discovery packet
-   DEBUG_MSG(3, "hostAnnounce", F(CA6_ANNOUNCE_ID));
+   DEBUG_MSG(4, "hostAnnounce", F(CA6_ANNOUNCE_ID));
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( !discovery.announce(&localPacket) ) {	           // to do: is there a reason to check for an ACK or not?
       DEBUG_MSG(1, F("hostAnnounce"), F("failed"));
@@ -206,11 +206,11 @@ void setup (void) {
         Serial.println(ESP.getChipId(), HEX);
      } else {
         // we get here if the credentials on the setup page are incorrect (or blank - easy way to exit)
-        DEBUG_MSG(3, F("Did not connect to local WiFi"), "use AP mode");
+        DEBUG_MSG(3, F("Did not connect to local WiFi"), F("use AP mode"));
         connectToAP = true;
      }
   } else {
-     DEBUG_MSG(3, F("No local networks"), "use AP mode");
+     DEBUG_MSG(3, F("No local networks"), F("use AP mode"));
      connectToAP = true;
   }
 
@@ -267,7 +267,8 @@ void loop (void) {
 
   if (udpSize > 0) {
     gIp = gUDP.remoteIP();
-    udpSize = gUDP.readBytes(buf, 2048);
+    udpSize = gUDP.read(buf, 2048);
+    DEBUG_MSG(2, "UDP packet rcvd", udpSize);
     Serial.write(buf, udpSize);
   }
 
