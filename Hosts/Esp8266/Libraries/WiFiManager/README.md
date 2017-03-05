@@ -179,6 +179,13 @@ void loop() {
 ```
 See example for a more complex version. [OnDemandConfigPortal](https://github.com/tzapu/WiFiManager/tree/master/examples/OnDemandConfigPortal)
 
+#### Exiting from the Configuration Portal
+Normally, once entered, the configuration portal will continue to loop until WiFi credentials have been successfully entered.
+If you'd prefer to exit without joining a WiFi network, say becuase you're going to put the ESP into AP mode, then press the "Exit" button
+on the main webpage.
+If you're using ```autoConnect``` then it will return ```false```.
+Alternatively, if you are using ```startConfigPortal``` it will return the ```WiFi.status()``` value.
+
 #### Custom Parameters
 You can use WiFiManager to collect more parameters than just SSID and password.
 This could be helpful for configuring stuff like MQTT host and port, [blynk](http://www.blynk.cc) or [emoncms](http://emoncms.org) tokens, just to name a few.
@@ -220,6 +227,20 @@ This will make use the specified IP configuration instead of using DHCP in stati
 wifiManager.setSTAStaticIPConfig(IPAddress(192,168,0,99), IPAddress(192,168,0,1), IPAddress(255,255,255,0));
 ```
 There are a couple of examples in the examples folder that show you how to set a static IP and even how to configure it through the web configuration portal.
+
+##### Saved Credentials Workaround
+There is an apparent bug in ESP8266WiFi that cuases the saved credentials to disappear.
+As a result, when WiFi Manager attempts to join a known network, the saved SSID and password are gone,
+resulting in the user having to log in again.
+The function ```setSaveCredentialsInEEPROM``` can be called to separately save the credentials in EEPROM and
+restore them when signing in to a known WiFi network.
+The function takes 2 arguments: a Boolean flag (```true``` or ```false```) and the base address in EEPROM to save the credentials
+(optional. If not supplied defaults to ```128```.)
+For example:
+```cpp
+wifiManager.setSaveCredentialsInEEPROM(true, 256);
+```
+Note that the EEPROM address range of the supplied base address plus 128 bytes must be reserved for this purpose.
 
 #### Custom HTML, CSS, Javascript
 There are various ways in which you can inject custom HTML, CSS or Javascript into the configuration portal.
