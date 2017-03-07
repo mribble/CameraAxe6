@@ -758,7 +758,7 @@ F 3 "~" H 14950 8850 60  0000 C CNN
 $EndComp
 Text Notes 1900 3350 0    118  ~ 24
 JTAG
-Text Notes 18500 14200 0    118  ~ 24
+Text Notes 18850 13900 0    118  ~ 24
 Connectivity Card
 Text Notes 9000 15350 0    118  ~ 24
 Power
@@ -938,8 +938,8 @@ F 3 "~" H 20550 13250 30  0000 C CNN
 	1    20550 13250
 	0    -1   -1   0   
 $EndComp
-Text Label 13650 900  0    60   ~ 0
-AUX01
+Text Label 13650 3100 0    60   ~ 0
+AUX45
 Text Label 3650 2350 0    60   ~ 0
 JTAG_TMS
 Text Label 3650 2450 0    60   ~ 0
@@ -952,8 +952,8 @@ Text Label 3650 2750 0    60   ~ 0
 M_RESET
 Text Label 6900 2550 2    60   ~ 0
 EEPROM_ID
-Text Label 12150 900  2    60   ~ 0
-AUX00
+Text Label 12150 3100 2    60   ~ 0
+AUX44
 Text Label 12150 1000 2    60   ~ 0
 AUX02
 Text Label 12150 1100 2    60   ~ 0
@@ -990,8 +990,6 @@ Text Label 13650 1700 0    60   ~ 0
 AUX17
 Text Label 13650 1800 0    60   ~ 0
 AUX19
-Text Label 8400 9150 2    60   ~ 0
-AUX00
 Text Label 19250 6300 0    60   ~ 0
 MOD0_AN1
 Text Label 19250 6400 0    60   ~ 0
@@ -1028,35 +1026,35 @@ Text Label 11800 4650 1    60   ~ 0
 LV_DETECT
 Text Label 9200 5750 1    60   ~ 0
 MOD3_MISO
-Text Label 8400 7350 2    60   ~ 0
+Text Label 8400 8050 2    60   ~ 0
 AUX13
-Text Label 8400 7250 2    60   ~ 0
+Text Label 8400 7650 2    60   ~ 0
 AUX14
-Text Label 8400 7150 2    60   ~ 0
+Text Label 8400 7550 2    60   ~ 0
 AUX15
-Text Label 8400 7050 2    60   ~ 0
+Text Label 8400 7450 2    60   ~ 0
 AUX16
-Text Label 8400 6950 2    60   ~ 0
+Text Label 8400 7350 2    60   ~ 0
 AUX17
-Text Label 8400 6850 2    60   ~ 0
+Text Label 8400 7250 2    60   ~ 0
 AUX18
-Text Label 8400 6750 2    60   ~ 0
+Text Label 8400 7150 2    60   ~ 0
 AUX19
-Text Label 8400 6650 2    60   ~ 0
+Text Label 8400 7050 2    60   ~ 0
 AUX20
-Text Label 8400 6550 2    60   ~ 0
+Text Label 8400 6950 2    60   ~ 0
 AUX21
-Text Label 9700 5750 1    60   ~ 0
+Text Label 8400 6850 2    60   ~ 0
 AUX22
-Text Label 9800 5750 1    60   ~ 0
+Text Label 8400 6750 2    60   ~ 0
 AUX23
-Text Label 9900 5750 1    60   ~ 0
+Text Label 8400 6650 2    60   ~ 0
 AUX24
-Text Label 10000 5750 1    60   ~ 0
+Text Label 8400 6550 2    60   ~ 0
 AUX25
-Text Label 10100 5750 1    60   ~ 0
+Text Label 9700 5750 1    60   ~ 0
 AUX26
-Text Label 10200 5750 1    60   ~ 0
+Text Label 9800 5750 1    60   ~ 0
 AUX27
 Text Label 11300 5750 1    60   ~ 0
 MOD0_SCL
@@ -1126,19 +1124,19 @@ Text Label 9400 10250 3    60   ~ 0
 MOD0_RX
 Text Label 9300 5750 1    60   ~ 0
 EEPROM_ID
-Text Label 8400 9350 2    60   ~ 0
-CAM0F
-Text Label 8400 9450 2    60   ~ 0
-CAM0S
 Text Label 8400 9550 2    60   ~ 0
-CAM1F
+CAM0F
 Text Label 8400 9650 2    60   ~ 0
+CAM0S
+Text Label 8400 9750 2    60   ~ 0
+CAM1F
+Text Label 9200 10250 3    60   ~ 0
 CAM1S
 Text Label 8400 8250 2    60   ~ 0
 UOTGID
-Text Label 8400 9750 2    60   ~ 0
+Text Label 10400 10250 3    60   ~ 0
 CAM2F
-Text Label 9200 10250 3    60   ~ 0
+Text Label 10500 10250 3    60   ~ 0
 CAM2S
 Text Label 10600 10250 3    60   ~ 0
 CAM3F
@@ -1220,13 +1218,13 @@ Text Label 12100 5750 1    60   ~ 0
 MOD2_AN1
 Text Label 12200 5750 1    60   ~ 0
 MOD3_AN1
-Text Label 10300 5750 1    60   ~ 0
+Text Label 9900 5750 1    60   ~ 0
 AUX28
-Text Label 10400 5750 1    60   ~ 0
+Text Label 10000 5750 1    60   ~ 0
 AUX29
-Text Label 10800 5750 1    60   ~ 0
+Text Label 10400 5750 1    60   ~ 0
 AUX33
-Text Label 10900 5750 1    60   ~ 0
+Text Label 10500 5750 1    60   ~ 0
 AUX34
 $Comp
 L ATSAM3X8EA-AU_LQFP-144 U16
@@ -1239,13 +1237,13 @@ F 3 "DOCUMENTATION" H 10950 8000 50  0001 C CNN
 	1    10950 8000
 	1    0    0    -1  
 $EndComp
-Text Label 11100 5750 1    60   ~ 0
+Text Label 10700 5750 1    60   ~ 0
 AUX36
-Text Label 12400 5750 1    60   ~ 0
+Text Label 10900 5750 1    60   ~ 0
 AUX38
 Text Label 11800 10250 3    60   ~ 0
 AUX_RX
-Text Label 11000 5750 1    60   ~ 0
+Text Label 10600 5750 1    60   ~ 0
 AUX35
 $Comp
 L GND #PWR043
@@ -1357,7 +1355,7 @@ F 3 "DOCUMENTATION" H 12900 2100 50  0001 C CNN
 	1    12900 2100
 	1    0    0    -1  
 $EndComp
-Text Label 12150 3100 2    60   ~ 0
+Text Label 12150 900  2    60   ~ 0
 AUX_TX
 $Comp
 L 3V3 #PWR046
@@ -1582,39 +1580,37 @@ Text Label 21100 7650 2    60   ~ 0
 MOD3_SCLK
 Text Label 21100 7750 2    60   ~ 0
 MOD3_CS
-Text Label 12300 5750 1    60   ~ 0
+Text Label 10800 5750 1    60   ~ 0
 AUX37
-Text Label 8400 9050 2    60   ~ 0
-AUX01
-Text Label 8400 8950 2    60   ~ 0
+Text Label 8400 9450 2    60   ~ 0
 AUX02
-Text Label 8400 8850 2    60   ~ 0
+Text Label 8400 9350 2    60   ~ 0
 AUX03
-Text Label 8400 8750 2    60   ~ 0
+Text Label 8400 9150 2    60   ~ 0
 AUX04
-Text Label 8400 8650 2    60   ~ 0
+Text Label 8400 9050 2    60   ~ 0
 AUX05
-Text Label 8400 8550 2    60   ~ 0
+Text Label 8400 8950 2    60   ~ 0
 AUX06
-Text Label 8400 8450 2    60   ~ 0
+Text Label 8400 8850 2    60   ~ 0
 AUX07
-Text Label 8400 8150 2    60   ~ 0
+Text Label 8400 8750 2    60   ~ 0
 AUX08
-Text Label 8400 8050 2    60   ~ 0
+Text Label 8400 8650 2    60   ~ 0
 AUX09
-Text Label 8400 7650 2    60   ~ 0
+Text Label 8400 8550 2    60   ~ 0
 AUX10
-Text Label 8400 7450 2    60   ~ 0
+Text Label 8400 8150 2    60   ~ 0
 AUX12
-Text Label 8400 7550 2    60   ~ 0
+Text Label 8400 8450 2    60   ~ 0
 AUX11
 Text Label 13500 7150 0    60   ~ 0
 MOD2_ID
-Text Label 10700 5750 1    60   ~ 0
+Text Label 10300 5750 1    60   ~ 0
 AUX32
-Text Label 10600 5750 1    60   ~ 0
+Text Label 10200 5750 1    60   ~ 0
 AUX31
-Text Label 10500 5750 1    60   ~ 0
+Text Label 10100 5750 1    60   ~ 0
 AUX30
 $Comp
 L JACK_RJ45 J8
@@ -1661,7 +1657,7 @@ F 3 "" H 19900 7550 60  0000 C CNN
 	1    19900 7550
 	1    0    0    -1  
 $EndComp
-Text Label 13500 7950 0    60   ~ 0
+Text Label 13500 7450 0    60   ~ 0
 MOD3_ID
 $Comp
 L JACK_STEREO CAM0
@@ -1768,12 +1764,8 @@ F 3 "" H 3050 3950 60  0000 C CNN
 	1    3050 3950
 	1    0    0    -1  
 $EndComp
-Text Label 13650 3100 0    60   ~ 0
+Text Label 13650 900  0    60   ~ 0
 AUX_RX
-Text Label 16450 900  0    60   ~ 0
-AUX01
-Text Label 14950 900  2    60   ~ 0
-AUX00
 Text Label 14950 1000 2    60   ~ 0
 AUX02
 Text Label 14950 1100 2    60   ~ 0
@@ -1858,7 +1850,7 @@ Text Label 16450 2900 0    60   ~ 0
 AUX41
 Text Label 16450 3000 0    60   ~ 0
 AUX43
-Text Label 14950 3100 2    60   ~ 0
+Text Label 14950 900  2    60   ~ 0
 AUX_TX
 $Comp
 L 3V3 #PWR060
@@ -1882,7 +1874,7 @@ F 3 "" H 14950 3300 60  0000 C CNN
 	1    14950 3300
 	1    0    0    -1  
 $EndComp
-Text Label 16450 3100 0    60   ~ 0
+Text Label 16450 900  0    60   ~ 0
 AUX_RX
 $Comp
 L IDC_50PIN(2X25) J7
@@ -1895,15 +1887,15 @@ F 3 "DOCUMENTATION" H 15700 2100 50  0001 C CNN
 	1    15700 2100
 	1    0    0    -1  
 $EndComp
-Text Label 13500 6650 0    60   ~ 0
+Text Label 12300 5750 1    60   ~ 0
 AUX41
-Text Label 13500 6250 0    60   ~ 0
+Text Label 11000 5750 1    60   ~ 0
 AUX39
-Text Label 13500 6350 0    60   ~ 0
+Text Label 11100 5750 1    60   ~ 0
 AUX40
-Text Label 13500 6750 0    60   ~ 0
+Text Label 12400 5750 1    60   ~ 0
 AUX42
-Text Label 13500 6850 0    60   ~ 0
+Text Label 13500 6250 0    60   ~ 0
 AUX43
 $Comp
 L R R30
@@ -2531,52 +2523,6 @@ Wire Wire Line
 Connection ~ 13650 3300
 Connection ~ 13650 3700
 Connection ~ 12150 3300
-Connection ~ 12150 900 
-Connection ~ 12150 1000
-Connection ~ 12150 1100
-Connection ~ 12150 1200
-Connection ~ 12150 1300
-Connection ~ 12150 1400
-Connection ~ 12150 1500
-Connection ~ 12150 1600
-Connection ~ 12150 1700
-Connection ~ 12150 1800
-Connection ~ 12150 1900
-Connection ~ 12150 2000
-Connection ~ 12150 2100
-Connection ~ 12150 2200
-Connection ~ 12150 2300
-Connection ~ 12150 2400
-Connection ~ 12150 2500
-Connection ~ 12150 2600
-Connection ~ 12150 2700
-Connection ~ 12150 2800
-Connection ~ 12150 2900
-Connection ~ 12150 3000
-Connection ~ 12150 3100
-Connection ~ 12150 3200
-Connection ~ 13650 3000
-Connection ~ 13650 2900
-Connection ~ 13650 2800
-Connection ~ 13650 2700
-Connection ~ 13650 2600
-Connection ~ 13650 2500
-Connection ~ 13650 2400
-Connection ~ 13650 2300
-Connection ~ 13650 2200
-Connection ~ 13650 2100
-Connection ~ 13650 2000
-Connection ~ 13650 1900
-Connection ~ 13650 1800
-Connection ~ 13650 1700
-Connection ~ 13650 1600
-Connection ~ 13650 1500
-Connection ~ 13650 1400
-Connection ~ 13650 1300
-Connection ~ 13650 1200
-Connection ~ 13650 1100
-Connection ~ 13650 1000
-Connection ~ 13650 900 
 Connection ~ 8400 13350
 Connection ~ 8400 13800
 Connection ~ 14200 3300
@@ -2611,8 +2557,6 @@ Connection ~ 19250 7150
 Connection ~ 19250 7850
 Connection ~ 19900 7150
 Connection ~ 19900 7550
-Wire Wire Line
-	12150 3200 12150 3300
 Wire Wire Line
 	7900 13800 7900 13800
 Connection ~ 7900 13800
@@ -2651,56 +2595,7 @@ Wire Wire Line
 	16450 3300 17000 3300
 Connection ~ 16450 3300
 Connection ~ 14950 3300
-Connection ~ 14950 900 
-Connection ~ 14950 1000
-Connection ~ 14950 1100
-Connection ~ 14950 1200
-Connection ~ 14950 1300
-Connection ~ 14950 1400
-Connection ~ 14950 1500
-Connection ~ 14950 1600
-Connection ~ 14950 1700
-Connection ~ 14950 1800
-Connection ~ 14950 1900
-Connection ~ 14950 2000
-Connection ~ 14950 2100
-Connection ~ 14950 2200
-Connection ~ 14950 2300
-Connection ~ 14950 2400
-Connection ~ 14950 2500
-Connection ~ 14950 2600
-Connection ~ 14950 2700
-Connection ~ 14950 2800
-Connection ~ 14950 2900
-Connection ~ 14950 3000
-Connection ~ 14950 3100
-Connection ~ 14950 3200
-Connection ~ 16450 3200
-Connection ~ 16450 3000
-Connection ~ 16450 2900
-Connection ~ 16450 2800
-Connection ~ 16450 2700
-Connection ~ 16450 2600
-Connection ~ 16450 2500
-Connection ~ 16450 2400
-Connection ~ 16450 2300
-Connection ~ 16450 2200
-Connection ~ 16450 2100
-Connection ~ 16450 2000
-Connection ~ 16450 1900
-Connection ~ 16450 1800
-Connection ~ 16450 1700
-Connection ~ 16450 1600
-Connection ~ 16450 1500
-Connection ~ 16450 1400
-Connection ~ 16450 1300
-Connection ~ 16450 1200
-Connection ~ 16450 1100
-Connection ~ 16450 1000
-Connection ~ 16450 900 
 Connection ~ 17000 3300
-Wire Wire Line
-	14950 3200 14950 3300
 Connection ~ 9600 14500
 Wire Wire Line
 	8400 13800 9600 13800
@@ -3427,7 +3322,6 @@ NoConn ~ 13500 6550
 NoConn ~ 13500 8350
 NoConn ~ 13500 8450
 NoConn ~ 8400 9250
-NoConn ~ 13800 850 
 $Comp
 L LED_LIGHT_PIPE U1
 U 1 1 58BE508D
@@ -3788,11 +3682,6 @@ F 3 "~" H 1350 13850 60  0000 C CNN
 	1    1350 13850
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	13650 3300 13650 3200
-Wire Wire Line
-	16450 3200 16450 3300
-Connection ~ 13650 3200
 $Comp
 L HOLE X4
 U 1 1 58C15241
@@ -3893,9 +3782,33 @@ U 1 1 58D3FF70
 P 7400 12800
 F 0 "BT1" H 7400 13000 50  0000 C CNN
 F 1 "BATTERY" H 7400 12610 50  0000 C CNN
-F 2 "CA6:BATTERY_4AA_12BH348-GR" H 7400 12800 60  0000 C CNN
+F 2 "CA6:BATTERY_4AA_12BH348-GR" H 7400 12800 60  0001 C CNN
 F 3 "" H 7400 12800 60  0000 C CNN
 	1    7400 12800
 	1    0    0    -1  
 $EndComp
+Text Label 13500 7950 0    60   ~ 0
+CC_RESET
+Text Label 13500 7550 0    60   ~ 0
+CC_PROG
+Text Label 12150 3200 2    60   ~ 0
+AUX46
+Text Label 13650 3200 0    60   ~ 0
+AUX47
+Text Label 13500 6350 0    60   ~ 0
+AUX44
+Text Label 13500 6650 0    60   ~ 0
+AUX45
+Text Label 13500 6750 0    60   ~ 0
+AUX46
+Text Label 13500 6850 0    60   ~ 0
+AUX47
+Text Label 14950 3100 2    60   ~ 0
+AUX44
+Text Label 14950 3200 2    60   ~ 0
+AUX46
+Text Label 16450 3100 0    60   ~ 0
+AUX45
+Text Label 16450 3200 0    60   ~ 0
+AUX47
 $EndSCHEMATC
