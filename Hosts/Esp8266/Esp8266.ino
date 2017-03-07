@@ -3,6 +3,7 @@
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
+#include <SoftwareSerial.h>
 #include <WiFiManager.h>         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
 #include <NetDiscovery.h>        // https://github.com/Rom3oDelta7/NetDiscovery
 #include <ArduinoOTA.h>	
@@ -10,18 +11,32 @@
 #include <EEPROM.h>
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
+
 #define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
 
 #ifdef DEBUG
-#define DEBUG_MSG(L, H, M)	       if ((L) <= DEBUG) {Serial.print("DEBUG> "); Serial.print(H); Serial.print(": "); Serial.println(M);}
+
+#define SERIAL_DEBUG              // use separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+
+#ifdef SERIAL_DEBUG
+
+#define DEBUG_TX      12
+#define DEBUG_RX      14
+SoftwareSerial SerialDebug(DEBUG_RX, DEBUG_TX, false, 256);
+#define SerialIO      SerialDebug
+
 #else
-#define DEBUG_MSG(...)            ;
+
+#define SerialIO      Serial
+
 #endif
 
-// Open Questions:
-// Is the port I'm using for UDP packets ok (4040)?
-// Is broadcasting to 255.255.255.255 or should I be doing something else?
-// Are the gateway and submask numbers ok?
+#define DEBUG_MSG(L, H, M)	       if ((L) <= DEBUG) {SerialIO.print("DEBUG> "); SerialIO.print(H); SerialIO.print(": "); SerialIO.println(M);}
+#else
+#define DEBUG_MSG(...) ;
+#endif
+
+
 
 // auto-discovery globals
 #define MCAST_PORT          7247
@@ -33,7 +48,7 @@ NetDiscovery   discovery;
 IPAddress      mcastIP(MCAST_ADDRESS);
 SimpleTimer    timer;
 
-#define AP_PASSWORD         "CA6admin"                    // to do: determine if this needs to be more secure
+#define AP_PASSWORD         "ca6admin"                    // to do: determine if this needs to be more secure
 #define RESET_PIN           4                             // force WiFiManager credentials to be cleared
 
 // WiFiManager globals
@@ -49,7 +64,7 @@ Form the SSID as an IP address so the user knows what address to connect to when
 (Even though the config page comes up automatically without the user having to use a browser)
 */
 String createUniqueSSID (void) {
-   uint8_t  mac[WL_MAC_ADDR_LENGTH];
+   uint8    mac[WL_MAC_ADDR_LENGTH];
    String   uSSID;
 
    WiFi.softAPmacAddress(mac);
@@ -63,7 +78,7 @@ String createUniqueSSID (void) {
  we use class A private addresses to have a large potential address space to avoid conflicts
 */
 IPAddress createUniqueIP (void) {
-   uint8_t   mac[WL_MAC_ADDR_LENGTH];
+   uint8     mac[WL_MAC_ADDR_LENGTH];
    IPAddress result;
 
    WiFi.softAPmacAddress(mac);
@@ -90,8 +105,11 @@ void hostAnnounce (void) {
 }
 
 void setup (void) {
-   Serial.begin(74880);
+   Serial.begin(74880);                     // SAM3X
    pinMode(RESET_PIN, INPUT_PULLUP);
+#ifdef SERIAL_DEBUG
+   SerialIO.begin(74880);                // console output
+#endif
 
   IPAddress AP_Address = createUniqueIP();                 // unique IP address for AP mode to prevent conflicts with multiple devices
 
@@ -100,10 +118,14 @@ void setup (void) {
   bool connectToAP = false;
   if ( netCount > 0 ) {
      // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
+#if 1
+     wifiManager.setDebugOutput(false);
+#else
 #ifdef DEBUG
      wifiManager.setDebugOutput(true);
 #else
      wifiManager.setDebugOutput(false);
+#endif
 #endif
 
      DEBUG_MSG(3, F("Network scan"), netCount);
@@ -113,8 +135,8 @@ void setup (void) {
      }
 
      wifiManager.setBreakAfterConfig(true);	                                                 // undocumented function to return if config unsuccessful/skipped
-     EEPROM.begin(256);
-     wifiManager.setSaveCredentialsInEEPROM(true, 128);                                       // [Local mod] forces credentials to be saved in EEPROM also
+     EEPROM.begin(128);                                                                       // allocates 128 bytes for wifiManager
+     wifiManager.setSaveCredentialsInEEPROM(true, 0);                                         // [Local mod] forces credentials to be saved in EEPROM also
 
      WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));	                   // workaround for callout issue - see above
 
@@ -141,8 +163,8 @@ void setup (void) {
         //WiFi.reconnect();                                        // supposedly required, but does not work if this is called
         DEBUG_MSG(1, F("AP IP"), WiFi.softAPIP().toString());
 #if DEBUG >= 3
-        Serial.println(F("Workaround AP diag:"));
-        WiFi.printDiag(Serial);
+        SerialIO.println(F("Workaround AP diag:"));
+        WiFi.printDiag(SerialIO);
 #endif
 
 #endif
@@ -160,50 +182,50 @@ void setup (void) {
         // ArduinoOTA.setPassword((const char *)"123");
 
         ArduinoOTA.onStart([]() {
-           Serial.println(F("Start"));
+           SerialIO.println(F("Start"));
         });
         ArduinoOTA.onEnd([]() {
-           Serial.println(F("\nEnd. Restarting ..."));
+           SerialIO.println(F("\nEnd. Restarting ..."));
            delay(5000);
            ESP.restart(); 
         });
         ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-           Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+           SerialIO.printf("Progress: %u%%\r", (progress / (total / 100)));
         });
         ArduinoOTA.onError([](ota_error_t error) {
-           Serial.printf("Error[%u]: ", error);
+           SerialIO.printf("Error[%u]: ", error);
            switch ( error ) {
            case OTA_AUTH_ERROR:
-              Serial.println(F("Auth Failed"));
+              SerialIO.println(F("Auth Failed"));
               break;
 
            case OTA_BEGIN_ERROR:
-              Serial.println(F("Begin Failed"));
+              SerialIO.println(F("Begin Failed"));
               break;
 
            case OTA_CONNECT_ERROR:
-              Serial.println(F("Connect Failed"));
+              SerialIO.println(F("Connect Failed"));
               break;
 
            case OTA_RECEIVE_ERROR:
-              Serial.println(F("Receive Failed"));
+              SerialIO.println(F("Receive Failed"));
               break;
 
            case OTA_END_ERROR:
-              Serial.println(F("End Failed"));
+              SerialIO.println(F("End Failed"));
               break;
 
            default:
-              Serial.println(F("Unknown error"));
+              SerialIO.println(F("Unknown error"));
               break;
            }
         });
         ArduinoOTA.begin();
-        Serial.println(F("OTA Ready:"));
-        Serial.print(F("\tIP address: "));
-        Serial.println(WiFi.localIP());
-        Serial.print(F("\tChip ID: "));
-        Serial.println(ESP.getChipId(), HEX);
+        SerialIO.println(F("OTA Ready:"));
+        SerialIO.print(F("\tIP address: "));
+        SerialIO.println(WiFi.localIP());
+        SerialIO.print(F("\tChip ID: "));
+        SerialIO.println(ESP.getChipId(), HEX);
      } else {
         // we get here if the credentials on the setup page are incorrect (or blank - easy way to exit)
         DEBUG_MSG(3, F("Did not connect to local WiFi"), F("use AP mode"));
@@ -222,24 +244,25 @@ void setup (void) {
      WiFi.softAP(createUniqueSSID().c_str(), AP_PASSWORD);
      WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
 #if DEBUG >= 3
-     Serial.println(F("AP Diag:"));
-     WiFi.printDiag(Serial);
+     SerialIO.println(F("AP Diag:"));
+     WiFi.printDiag(SerialIO);
 #endif
   }
 
-  // init autodiscovery
+  // init autodiscovery, again only applicable to local WiFi networks
   if ( discovery.begin(mcastIP, MCAST_PORT) ) {
      timer.setInterval(AD_ANNOUNCE_DELAY, hostAnnounce);
   } else {
      DEBUG_MSG(1, F("Cannot initialize discovery mcast group"), mcastIP);
+     // to do: indicate error on status LED when this is available
      //while ( true ) delay(1000);               // ESP will get a WDT reset if you don't have something in the loop
   }
   
 
   if ( gUDP.begin(gPort) == 1 ) {
-     Serial.printf("Connected UDP, port: %d\n", gPort);
+     SerialIO.printf("Connected UDP, port: %d\n", gPort);
   } else {
-     Serial.printf("UDP connection failed!\n");
+     SerialIO.printf("UDP connection failed!\n");
   }
 }
 
@@ -265,29 +288,48 @@ void loop (void) {
   static    IPAddress gIp;
   uint8     buf[2048];
 
+  // read from the client
   if (udpSize > 0) {
-    gIp = gUDP.remoteIP();
-    udpSize = gUDP.read(buf, 2048);
-    DEBUG_MSG(2, "UDP packet rcvd", udpSize);
-    Serial.write(buf, udpSize);
+     gIp = gUDP.remoteIP();
+     udpSize = gUDP.read(buf, 2048);
+     DEBUG_MSG(2, "UDP packet rcvd", udpSize);
+     DEBUG_MSG(2, F("Device IP"), gIp);
+     size_t len = Serial.write(buf, udpSize);
+     if ( len != udpSize ) {
+        DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
+     }
   }
 
   if (serialSize > 0) {
+     // data avilable from the SAM3X for the client
+     DEBUG_MSG(2, F("Client data available"), serialSize);
     
-    if (gPacketSize == 0 && serialSize >= PACKET_SIZE_SIZE) {
-      uint8 ibuf[PACKET_SIZE_SIZE];
-      Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
-      gPacketSize = genPacketSize(ibuf[0], ibuf[1]);
-    }
-    if (gPacketSize != 0 && serialSize >= gPacketSize-PACKET_SIZE_SIZE) {
-      buf[0] = getPacketSize(gPacketSize, 0);
-      buf[1] = getPacketSize(gPacketSize, 1);
-      Serial.readBytes(buf+PACKET_SIZE_SIZE, gPacketSize-PACKET_SIZE_SIZE);
-      gUDP.beginPacket(gIp, gPort+1);
-      gUDP.write(buf, gPacketSize);
-      gUDP.endPacket();
-      gPacketSize = 0;
-    }
+     if (gPacketSize == 0 && serialSize >= PACKET_SIZE_SIZE) {
+        // calculate the size of the packet from the first 2 bytes in the stream
+        uint8 ibuf[PACKET_SIZE_SIZE];
+        Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
+        gPacketSize = genPacketSize(ibuf[0], ibuf[1]);
+        DEBUG_MSG(3, F("packet size"), gPacketSize);
+     }
+     // the remaining bytes are the packet contents - copy from serial and send UDP packet
+     if (gPacketSize != 0 && serialSize >= gPacketSize-PACKET_SIZE_SIZE) {
+        buf[0] = getPacketSize(gPacketSize, 0);
+        buf[1] = getPacketSize(gPacketSize, 1);
+        Serial.readBytes(buf+PACKET_SIZE_SIZE, gPacketSize-PACKET_SIZE_SIZE);
+        if ( gUDP.beginPacket(gIp, gPort + 1) ) {
+           size_t length = gUDP.write(buf, gPacketSize);
+           if ( length == gPacketSize ) {
+              if ( gUDP.endPacket() == 0 ) {
+                 DEBUG_MSG(1, F("Packet send error"), (IPAddress)gIp);
+              }
+           } else {
+              DEBUG_MSG(1, F("Packet write failed"), length);
+           }
+           gPacketSize = 0;
+        } else {
+           DEBUG_MSG(1, F("Cannot create packet"), (IPAddress)gIp);
+        }
+     }
   }
   ArduinoOTA.handle();
   yield();
