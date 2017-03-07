@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source D:\_my\git\CameraAxe6\Pcb2\CA6\CA6.sch)
-    (date "3/6/2017 11:08:19 AM")
+    (source D:/_my/git/CameraAxe6/Pcb2/CA6/CA6.sch)
+    (date "3/7/2017 9:58:57 AM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -460,7 +460,7 @@
       (tstamp 544AEA8D))
     (comp (ref P2)
       (value "RFD22301 Breakout")
-      (footprint Socket_Strips:Socket_Strip_Straight_2x05_Pitch2.54mm)
+      (footprint Socket_Strips:Socket_Strip_Straight_1x10_Pitch2.54mm)
       (datasheet DOCUMENTATION)
       (libsource (lib CA6) (part JTAG_20021121-00010C4LF))
       (sheetpath (names /) (tstamps /))
@@ -1279,7 +1279,7 @@
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
     (library (logical CA6)
-      (uri CA6.lib)))
+      (uri D:\_my\git\CameraAxe6\Pcb2\CA6\CA6.lib)))
   (nets
     (net (code 1) (name "Net-(C20-Pad1)")
       (node (ref R28) (pin 1))
