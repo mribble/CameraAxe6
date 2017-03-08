@@ -33,20 +33,27 @@
             26588.5 -193765  26080.6 -193040  25706.4 -192237  25477.2 -191382
             25400 -190500  25400 -190500)
     )
-    (plane GND (polygon B.Cu 0  124460 -160020  83820 -160020  83820 -193040  27940 -193040
-            27940 -27940  124460 -27940))
+    (plane GND (polygon B.Cu 0  125730 -158750  82550 -158750  82550 -194310  26670 -194310
+            26670 -26670  125730 -26670))
     (plane GND (polygon F.Cu 0  66802 -176784  60198 -176784  60198 -173101  66802 -173101))
-    (keepout "" (polygon B.Cu 0  80645 -190754  78613 -190754  78613 -150304  80645 -150304))
-    (wire_keepout "" (polygon B.Cu 0  49530 -49530  109220 -49530  109220 -157480  104140 -157480
-            104140 -109982  49530 -109982  49530 -153670  57785 -153670
-            57785 -151384  60579 -151384  60579 -133350  57023 -133350  57023 -132334
-            79502 -132334  79502 -148082  78740 -148082  78740 -133350  61341 -133350
-            61341 -152273  60579 -152273  60579 -154940  49530 -154940  49530 -189230
+    (wire_keepout "" (polygon B.Cu 0  49530 -49530  109220 -49530  109220 -158750  80645 -158750
+            80645 -190754  78613 -190754  78613 -177800  49530 -177800  49530 -189230
             45720 -189230  45720 -46990  49530 -46990)
+      (window (polygon B.Cu 0  49530 -109982  49530 -158242  71120 -158242  71120 -163830
+            49530 -163830  49530 -175260  74930 -175260  74930 -165100  78613 -165100
+            78613 -152400  76835 -152400  76835 -151130  78105 -151130  78105 -150241
+            78740 -150241  78740 -150304  80645 -150304  80645 -156845  104140 -156845
+            104140 -126365  95885 -126365  95885 -123190  104140 -123190
+            104140 -109982))
       (window (polygon B.Cu 0  49530 -52832  49530 -108204  104140 -108204  104140 -52832))
     )
     (keepout "" (polygon F.Cu 0  118110 -195580  86360 -195580  86360 -162560  118110 -162560))
     (keepout "" (polygon B.Cu 0  118110 -195580  86360 -195580  86360 -162560  118110 -162560))
+    (keepout "" (polygon B.Cu 0  125730 -31750  120650 -31750  120650 -26670  125730 -26670))
+    (keepout "" (polygon B.Cu 0  31750 -31750  26670 -31750  26670 -26670  31750 -26670))
+    (keepout "" (polygon B.Cu 0  31750 -194310  26670 -194310  26670 -189230  31750 -189230))
+    (wire_keepout "" (polygon B.Cu 0  83375.5 -152019  82486.5 -152019  81724.5 -151257  80708.5 -151257
+            80708.5 -150304  83375.5 -150304))
     (via "Via[0-1]_609.6:355.6_um" "Via[0-1]_812.8:457.2_um")
     (rule
       (width 152.4)
@@ -1491,22 +1498,16 @@
       (pins D10-2 R8-2)
     )
     (net /CC_RX
-      (pins P2-3 U16-5)
+      (pins P2-10 U16-5)
     )
     (net /CC_TX
-      (pins P2-5 U16-6)
-    )
-    (net "Net-(P2-Pad4)"
-      (pins P2-4 R30-1)
+      (pins P2-9 U16-6)
     )
     (net /CC_RTS
-      (pins P2-7 U16-7)
+      (pins P2-8 U16-7)
     )
     (net /CC_CTS
-      (pins P2-9 U16-8)
-    )
-    (net "Net-(P2-Pad6)"
-      (pins P2-6 R22-1)
+      (pins P2-7 U16-8)
     )
     (net /AUX44
       (pins J6-45 J7-45 U16-71)
@@ -1521,10 +1522,16 @@
       (pins J6-48 J7-48 U16-66)
     )
     (net /CC_RESET
-      (pins P2-8 U16-55)
+      (pins P2-6 U16-55)
     )
     (net /CC_PROG
-      (pins P2-10 U16-59)
+      (pins P2-5 U16-59)
+    )
+    (net /CC_R_LED
+      (pins P2-3 R30-1)
+    )
+    (net /CC_G_LED
+      (pins P2-4 R22-1)
     )
     (class kicad_default "" /AUX02 /AUX03 /AUX04 /AUX05 /AUX06 /AUX07 /AUX08
       /AUX09 /AUX10 /AUX11 /AUX12 /AUX13 /AUX14 /AUX15 /AUX16 /AUX17 /AUX18
@@ -1532,22 +1539,24 @@
       /AUX29 /AUX30 /AUX31 /AUX32 /AUX33 /AUX34 /AUX35 /AUX36 /AUX37 /AUX38
       /AUX39 /AUX40 /AUX41 /AUX42 /AUX43 /AUX44 /AUX45 /AUX46 /AUX47 /AUX_RX
       /AUX_TX /CAM0F /CAM0S /CAM1F /CAM1S /CAM2F /CAM2S /CAM3F /CAM3S /CAM4F
-      /CAM4S /CAM5F /CAM5S /CAM6F /CAM6S /CAM7F /CAM7S /CC_CTS /CC_PROG /CC_RESET
-      /CC_RTS /CC_RX /CC_TX /EEPROM_ID /JTAG_TCK /JTAG_TDI /JTAG_TDO /JTAG_TMS
-      /LV_DETECT /MOD0_AN1 /MOD0_ID /MOD0_RX /MOD0_SCL /MOD0_SDA /MOD0_TX
-      /MOD1_AN1 /MOD1_ID /MOD1_RX /MOD1_SCL /MOD1_SDA /MOD1_TX /MOD2_AN1 /MOD2_AN2
-      /MOD2_AN3 /MOD2_AN4 /MOD2_AN5 /MOD2_ID /MOD3_AN1 /MOD3_CS /MOD3_ID /MOD3_MISO
-      /MOD3_MOSI /MOD3_SCLK /M_RESET /UOTGID /VBUS /VDDOUT /VDDPLL 3V3 5V
-      "Net-(C14-Pad1)" "Net-(C15-Pad1)" "Net-(C17-Pad1)" "Net-(C20-Pad1)"
-      "Net-(C24-Pad2)" "Net-(C25-Pad2)" "Net-(C42-Pad1)" "Net-(CAM0-Pad1)"
-      "Net-(CAM0-Pad2)" "Net-(CAM1-Pad1)" "Net-(CAM1-Pad2)" "Net-(CAM2-Pad1)"
-      "Net-(CAM2-Pad2)" "Net-(CAM3-Pad1)" "Net-(CAM3-Pad2)" "Net-(CAM4-Pad1)"
-      "Net-(CAM4-Pad2)" "Net-(CAM5-Pad1)" "Net-(CAM5-Pad2)" "Net-(CAM6-Pad1)"
-      "Net-(CAM6-Pad2)" "Net-(CAM7-Pad1)" "Net-(CAM7-Pad2)" "Net-(D1-Pad1)"
-      "Net-(D1-Pad2)" "Net-(D10-Pad2)" "Net-(D2-Pad2)" "Net-(D4-Pad2)" "Net-(D5-Pad2)"
-      "Net-(D6-Pad2)" "Net-(D7-Pad2)" "Net-(D8-Pad2)" "Net-(D9-Pad2)" "Net-(F1-Pad2)"
-      "Net-(J2-Pad2)" "Net-(P2-Pad4)" "Net-(P2-Pad6)" "Net-(R25-Pad2)" "Net-(R26-Pad2)"
-      "Net-(R27-Pad2)" "Net-(SW1-Pad3)"
+      /CAM4S /CAM5F /CAM5S /CAM6F /CAM6S /CAM7F /CAM7S /CC_CTS /CC_G_LED /CC_PROG
+      /CC_RESET /CC_RTS /CC_RX /CC_R_LED /CC_TX /EEPROM_ID /JTAG_TCK /JTAG_TDI
+      /JTAG_TDO /JTAG_TMS /LV_DETECT /MOD0_AN1 /MOD0_ID /MOD0_RX /MOD0_SCL
+      /MOD0_SDA /MOD0_TX /MOD1_AN1 /MOD1_ID /MOD1_RX /MOD1_SCL /MOD1_SDA /MOD1_TX
+      /MOD2_AN1 /MOD2_AN2 /MOD2_AN3 /MOD2_AN4 /MOD2_AN5 /MOD2_ID /MOD3_AN1
+      /MOD3_CS /MOD3_ID /MOD3_MISO /MOD3_MOSI /MOD3_SCLK /M_RESET /UOTGID
+      /VBUS /VDDOUT /VDDPLL 3V3 5V "Net-(C14-Pad1)" "Net-(C15-Pad1)" "Net-(C17-Pad1)"
+      "Net-(C20-Pad1)" "Net-(C24-Pad2)" "Net-(C25-Pad2)" "Net-(C42-Pad1)"
+      "Net-(CAM0-Pad1)" "Net-(CAM0-Pad2)" "Net-(CAM1-Pad1)" "Net-(CAM1-Pad2)"
+      "Net-(CAM2-Pad1)" "Net-(CAM2-Pad2)" "Net-(CAM3-Pad1)" "Net-(CAM3-Pad2)"
+      "Net-(CAM4-Pad1)" "Net-(CAM4-Pad2)" "Net-(CAM5-Pad1)" "Net-(CAM5-Pad2)"
+      "Net-(CAM6-Pad1)" "Net-(CAM6-Pad2)" "Net-(CAM7-Pad1)" "Net-(CAM7-Pad2)"
+      "Net-(D1-Pad1)" "Net-(D1-Pad2)" "Net-(D10-Pad2)" "Net-(D2-Pad2)" "Net-(D4-Pad2)"
+      "Net-(D5-Pad2)" "Net-(D6-Pad2)" "Net-(D7-Pad2)" "Net-(D8-Pad2)" "Net-(D9-Pad2)"
+      "Net-(F1-Pad2)" "Net-(J2-Pad2)" "Net-(P1-Pad7)" "Net-(P2-Pad4)" "Net-(P2-Pad6)"
+      "Net-(R25-Pad2)" "Net-(R26-Pad2)" "Net-(R27-Pad2)" "Net-(SW1-Pad3)"
+      "Net-(U12-Pad2)" "Net-(U16-Pad139)" "Net-(U16-Pad32)" "Net-(U16-Pad50)"
+      "Net-(U16-Pad51)" "Net-(U16-Pad69)"
       (circuit
         (use_via Via[0-1]_609.6:355.6_um)
       )
@@ -1597,36 +1606,27 @@
     (wire (path F.Cu 152.4  82054.7 -150482  80804 -150482)(net "/D-")(type protect))
     (wire (path F.Cu 152.4  82677 -149860  82054.7 -150482)(net "/D-")(type protect))
     (wire (path F.Cu 152.4  79360 -191455  79360 -188961  79248 -188849)(net "/D-")(type protect))
-    (wire (path F.Cu 152.4  79375 -149987  73914 -144526)(net /UOTGID)(type protect))
-    (wire (path B.Cu 152.4  80518 -149987  79375 -149987)(net /UOTGID)(type protect))
-    (wire (path B.Cu 152.4  81280 -150749  80518 -149987)(net /UOTGID)(type protect))
-    (wire (path B.Cu 152.4  81280 -156464  81280 -150749)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  81280 -185674  81280 -156464)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  81254.6 -185699  81280 -185674)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  81254.6 -187236  81254.6 -185699)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  69456.3 -143497  59404 -143497)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  69469 -143510  69456.3 -143497)(net /UOTGID)(type protect))
-    (wire (path B.Cu 152.4  72898 -143510  69469 -143510)(net /UOTGID)(type protect))
-    (wire (path B.Cu 152.4  73914 -144526  72898 -143510)(net /UOTGID)(type protect))
     (wire (path F.Cu 152.4  80660 -191455  80660 -190104)(net /UOTGID)(type protect))
     (wire (path F.Cu 152.4  80899 -187592  81254.6 -187236)(net /UOTGID)(type protect))
     (wire (path F.Cu 152.4  80899 -189865  80899 -187592)(net /UOTGID)(type protect))
     (wire (path F.Cu 152.4  80660 -190104  80899 -189865)(net /UOTGID)(type protect))
-    (wire (path F.Cu 152.4  83693 -152654  83693 -156972)(net /VBUS)(type protect))
+    (wire (path B.Cu 152.4  83693 -152654  83693 -150241)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  80804 -149987  81788 -149987)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  82169 -149606  81788 -149987)(net /VBUS)(type protect))
-    (wire (path B.Cu 152.4  82169 -151130  82169 -149606)(net /VBUS)(type protect))
-    (wire (path B.Cu 152.4  83693 -152654  82169 -151130)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  83718.9 -186462  83718.9 -192050)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  82169 -184912  83718.9 -186462)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  82169 -158496  82169 -184912)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  83693 -156972  82169 -158496)(net /VBUS)(type protect))
+    (wire (path F.Cu 152.4  83693 -152654  83693 -156972)(net /VBUS)(type protect))
+    (wire (path B.Cu 152.4  83058 -149606  82169 -149606)(net /VBUS)(type protect))
+    (wire (path B.Cu 152.4  83693 -150241  83058 -149606)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  74930 -191018  75194.2 -191018  76835 -192659)(net /VBUS)(type protect))
     (wire (path B.Cu 152.4  76835 -192659  84328 -192659)(net /VBUS)(type protect))
     (wire (path F.Cu 152.4  84328 -192659  83718.9 -192050  83693 -192024)(net /VBUS)(type protect))
     (wire (path F.Cu 304.8  74930 -191018  63808.2 -191018  62040 -189250)(net /VBUS)(type protect))
     (wire (path F.Cu 304.8  78710 -191455  78710 -190851  78105 -190246  75702.2 -190246
             74930 -191018)(net /VBUS)(type protect))
+    (wire (path F.Cu 152.4  80804 -146990  83817.4 -146990  83830.2 -146977)(net /VDDOUT)(type protect))
     (wire (path B.Cu 304.8  56515 -142748  56515 -153035)(net 3V3)(type protect))
     (wire (path B.Cu 304.8  63246 -155448  58928 -155448)(net 3V3)(type protect))
     (wire (path F.Cu 304.8  63256.2 -155458  63246 -155448)(net 3V3)(type protect))
@@ -1712,6 +1712,45 @@
     (wire (path F.Cu 304.8  70147.2 -175641  70147.2 -171747  65405 -167005  65405 -166243)(net 5V)(type protect))
     (wire (path F.Cu 304.8  75717.4 -184302  75717.4 -181211  70147.2 -175641)(net 5V)(type protect))
     (wire (path F.Cu 304.8  69570.6 -175412  69001.7 -175412)(net 5V)(type protect))
+    (wire (path F.Cu 152.4  80804 -147485  82715.1 -147485)(net GND)(type protect))
+    (wire (path F.Cu 152.4  84419.3 -147892  85333.8 -146977)(net GND)(type protect))
+    (wire (path F.Cu 152.4  83121.5 -147892  84419.3 -147892)(net GND)(type protect))
+    (wire (path F.Cu 152.4  82715.1 -147485  83121.5 -147892)(net GND)(type protect))
+    (wire (path F.Cu 152.4  80804 -146494  82740.5 -146494)(net GND)(type protect))
+    (wire (path F.Cu 152.4  84470.3 -146114  85333.8 -146977)(net GND)(type protect))
+    (wire (path F.Cu 152.4  83121.5 -146114  84470.3 -146114)(net GND)(type protect))
+    (wire (path F.Cu 152.4  82740.5 -146494  83121.5 -146114)(net GND)(type protect))
+    (wire (path F.Cu 152.4  80804 -142494  83312 -142494)(net GND)(type protect))
+    (wire (path F.Cu 152.4  85968.8 -142230  85968.8 -142748)(net GND)(type protect))
+    (wire (path F.Cu 152.4  85725 -141986  85968.8 -142230)(net GND)(type protect))
+    (wire (path F.Cu 152.4  83820 -141986  85725 -141986)(net GND)(type protect))
+    (wire (path F.Cu 152.4  83312 -142494  83820 -141986)(net GND)(type protect))
+    (wire (path F.Cu 152.4  80804 -140487  82651.6 -140487)(net GND)(type protect))
+    (wire (path F.Cu 152.4  83566 -139573  86730.8 -139573)(net GND)(type protect))
+    (wire (path F.Cu 152.4  82651.6 -140487  83566 -139573)(net GND)(type protect))
+    (wire (path F.Cu 152.4  66852.8 -152940  66852.8 -155118)(net GND)(type protect))
+    (wire (path F.Cu 304.8  66040 -157988  66040 -156962)(net GND)(type protect))
+    (wire (path B.Cu 152.4  66040 -156591  66040 -157988)(net GND)(type protect))
+    (wire (path B.Cu 152.4  67183 -155448  66040 -156591)(net GND)(type protect))
+    (wire (path F.Cu 152.4  66852.8 -155118  67183 -155448)(net GND)(type protect))
+    (wire (path F.Cu 152.4  59404 -141986  57912 -141986)(net GND)(type protect))
+    (wire (path F.Cu 304.8  55128.2 -142738  55118 -142748)(net GND)(type protect))
+    (wire (path F.Cu 304.8  55128.2 -142738  55128.2 -141478)(net GND)(type protect))
+    (wire (path F.Cu 152.4  55753 -143383  55118 -142748)(net GND)(type protect))
+    (wire (path F.Cu 152.4  56896 -143383  55753 -143383)(net GND)(type protect))
+    (wire (path F.Cu 152.4  57277 -143002  56896 -143383)(net GND)(type protect))
+    (wire (path F.Cu 152.4  57277 -142621  57277 -143002)(net GND)(type protect))
+    (wire (path F.Cu 152.4  57912 -141986  57277 -142621)(net GND)(type protect))
+    (wire (path F.Cu 152.4  62357 -131540  62357 -130175)(net GND)(type protect))
+    (wire (path F.Cu 304.8  60962.5 -127378  60960 -127381)(net GND)(type protect))
+    (wire (path F.Cu 304.8  60962.5 -127378  62242.7 -127378)(net GND)(type protect))
+    (wire (path B.Cu 152.4  60960 -128778  60960 -127381)(net GND)(type protect))
+    (wire (path B.Cu 152.4  62103 -129921  60960 -128778)(net GND)(type protect))
+    (wire (path F.Cu 152.4  62357 -130175  62103 -129921)(net GND)(type protect))
+    (wire (path F.Cu 152.4  78346.3 -131540  78346.3 -128511)(net GND)(type protect))
+    (wire (path F.Cu 152.4  77480.2 -127645  77480.2 -127000)(net GND)(type protect))
+    (wire (path F.Cu 152.4  78346.3 -128511  77480.2 -127645)(net GND)(type protect))
+    (wire (path F.Cu 304.8  62242.7 -127378  64020.7 -127378)(net GND)(type protect))
     (wire (path F.Cu 304.8  64556.6 -121412  64556.6 -123368  63947 -123977)(net GND)(type protect))
     (wire (path F.Cu 304.8  79010 -194130  81010 -194130)(net GND)(type protect))
     (wire (path F.Cu 304.8  83510 -194130  81010 -194130)(net GND)(type protect))
@@ -1719,8 +1758,7 @@
     (wire (path F.Cu 304.8  85968.8 -142748  85968.8 -142416  87617.3 -140767)(net GND)(type protect))
     (wire (path F.Cu 304.8  85968.8 -137287  85968.8 -136154  85979 -136144)(net GND)(type protect))
     (wire (path F.Cu 304.8  85968.8 -138811  85968.8 -137287)(net GND)(type protect))
-    (wire (path F.Cu 304.8  87617.3 -140767  87617.3 -140460  85968.8 -138811)(net GND)(type protect))
-    (wire (path F.Cu 304.8  55128.2 -141478  55128.2 -142738  55118 -142748)(net GND)(type protect))
+    (wire (path F.Cu 304.8  87617.3 -140767  87617.3 -140460  86730.8 -139573  85968.8 -138811)(net GND)(type protect))
     (wire (path F.Cu 304.8  109093 -119380  109093 -117729)(net GND)(type protect))
     (wire (path F.Cu 304.8  109093 -98425  109093 -96774)(net GND)(type protect))
     (wire (path F.Cu 304.8  109093 -74295  109093 -72644)(net GND)(type protect))
@@ -1764,23 +1802,13 @@
     (wire (path F.Cu 304.8  63947 -123977  63947 -125669)(net GND)(type protect))
     (wire (path F.Cu 304.8  64020.7 -125743  64008 -125730)(net GND)(type protect))
     (wire (path F.Cu 304.8  64020.7 -125743  64020.7 -127378)(net GND)(type protect))
-    (wire (path F.Cu 304.8  62242.7 -127378  64020.7 -127378)(net GND)(type protect))
-    (wire (path F.Cu 152.4  80804 -147485  79336.9 -147485  79248 -147574)(net GND)(type protect))
-    (wire (path F.Cu 152.4  80804 -146494  79311.5 -146494  79248 -146558)(net GND)(type protect))
-    (wire (path F.Cu 152.4  80804 -142494  79248 -142494)(net GND)(type protect))
-    (wire (path F.Cu 152.4  80804 -140487  79400.4 -140487  79375 -140462)(net GND)(type protect))
-    (wire (path F.Cu 152.4  78346.3 -131540  78346.3 -133083  78359 -133096)(net GND)(type protect))
-    (wire (path F.Cu 152.4  62357 -131540  62357 -133096)(net GND)(type protect))
-    (wire (path F.Cu 152.4  59404 -141986  60706 -141986)(net GND)(type protect))
     (wire (path F.Cu 304.8  55128.2 -139573  55179 -141427  55128.2 -141478)(net GND)(type protect))
-    (wire (path F.Cu 152.4  66852.8 -152940  66852.8 -151689  66802 -151638)(net GND)(type protect))
     (wire (path F.Cu 152.4  77355.7 -152940  77355.7 -151651  77343 -151638)(net GND)(type protect))
     (wire (path F.Cu 304.8  74930 -192522  74930 -192550  76510 -194130)(net GND)(type protect))
     (wire (path F.Cu 304.8  57150 -168320  57150 -170434)(net GND)(type protect))
     (wire (path F.Cu 304.8  53340 -168320  54610 -168320)(net GND)(type protect))
     (wire (path F.Cu 304.8  53340 -168320  53340 -170434)(net GND)(type protect))
     (wire (path F.Cu 304.8  61849 -156835  61849 -157734  61976 -157861)(net GND)(type protect))
-    (wire (path F.Cu 304.8  66040 -156962  66040 -157988)(net GND)(type protect))
     (wire (path F.Cu 304.8  76774 -162281  76774 -160518  76200 -159944)(net GND)(type protect))
     (wire (path F.Cu 304.8  91059 -151384  92710 -151384)(net GND)(type protect))
     (wire (path F.Cu 304.8  85333.8 -146977  85333.8 -148072  85344 -148082)(net GND)(type protect))
@@ -1818,20 +1846,16 @@
     (wire (path F.Cu 304.8  82778.6 -188443  83058 -188722)(net GND)(type protect))
     (wire (path F.Cu 304.8  82510 -191455  81310 -191455)(net GND)(type protect))
     (wire (path F.Cu 304.8  79010 -194130  76510 -194130  77510 -193130  77510 -191455)(net GND)(type protect))
-    (wire (path F.Cu 152.4  72136 -159944  71678.8 -159944  69723 -157988)(net "Net-(C14-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  78346.3 -154572  78346.3 -152940)(net "Net-(C14-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  76708 -156210  78346.3 -154572)(net "Net-(C14-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  70612 -156210  76708 -156210)(net "Net-(C14-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  69723 -157099  70612 -156210)(net "Net-(C14-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  69723 -157988  69723 -157099)(net "Net-(C14-Pad1)")(type protect))
+    (wire (path F.Cu 152.4  72136 -159944  71678.8 -159944)(net "Net-(C14-Pad1)")(type protect))
     (wire (path F.Cu 152.4  72136 -159944  72136 -161554  72887.8 -162306)(net "Net-(C14-Pad1)")(type protect))
     (wire (path F.Cu 152.4  78983.8 -127000  78983.8 -125423  79248 -125158)(net "Net-(C15-Pad1)")(type protect))
     (wire (path F.Cu 152.4  78854.3 -131540  78854.3 -129108  80137 -127826  80137 -127444
             79692.5 -127000  78983.8 -127000)(net "Net-(C15-Pad1)")(type protect))
-    (wire (path F.Cu 152.4  76200 -157556  76250.8 -157556  78854.3 -154953  78854.3 -152940)(net "Net-(C17-Pad1)")(type protect))
+    (wire (path F.Cu 152.4  76200 -157556  76250.8 -157556)(net "Net-(C17-Pad1)")(type protect))
     (wire (path F.Cu 152.4  76200 -157556  75996.8 -157556  74676 -158877)(net "Net-(C17-Pad1)")(type protect))
     (wire (path B.Cu 152.4  74676 -158877  74676 -161036)(net "Net-(C17-Pad1)")(type protect))
     (wire (path F.Cu 152.4  74676 -161036  75270.4 -161630  75270.4 -162281)(net "Net-(C17-Pad1)")(type protect))
+    (wire (path F.Cu 152.4  81483.2 -153848  81483.2 -155336  81493.4 -155346)(net "Net-(C20-Pad1)")(type protect))
     (wire (path F.Cu 152.4  88265 -151384  87376 -151384  84975.7 -148984  80804 -148984)(net "Net-(C42-Pad1)")(type protect))
     (wire (path F.Cu 304.8  66040 -189250  66197.8 -189250  71145.4 -184302)(net "Net-(F1-Pad2)")(type protect))
     (wire (path F.Cu 304.8  70040 -189250  68179 -189250)(net "Net-(J2-Pad2)")(type protect))
@@ -1840,10 +1864,6 @@
     (wire (path F.Cu 304.8  65405 -190500  60960 -186055)(net "Net-(J2-Pad2)")(type protect))
     (wire (path F.Cu 304.8  66929 -190500  65405 -190500)(net "Net-(J2-Pad2)")(type protect))
     (wire (path F.Cu 304.8  68179 -189250  66929 -190500)(net "Net-(J2-Pad2)")(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  79375 -149987 (net /UOTGID)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  81280 -156464 (net /UOTGID)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  69469 -143510 (net /UOTGID)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  73914 -144526 (net /UOTGID)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  82169 -149606 (net /VBUS)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  83693 -152654 (net /VBUS)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  76835 -192659 (net /VBUS)(type protect))
@@ -1858,8 +1878,12 @@
     (via "Via[0-1]_609.6:355.6_um"  87693.5 -138874 (net 3V3)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  67818 -168275 (net 3V3)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  63754 -168275 (net 3V3)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  85979 -136144 (net GND)(type protect))
+    (via "Via[0-1]_609.6:355.6_um"  66040 -157988 (net GND)(type protect))
+    (via "Via[0-1]_609.6:355.6_um"  67183 -155448 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  55118 -142748 (net GND)(type protect))
+    (via "Via[0-1]_609.6:355.6_um"  60960 -127381 (net GND)(type protect))
+    (via "Via[0-1]_609.6:355.6_um"  62103 -129921 (net GND)(type protect))
+    (via "Via[0-1]_609.6:355.6_um"  85979 -136144 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  109093 -117729 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  109093 -96774 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  109093 -72644 (net GND)(type protect))
@@ -1895,19 +1919,10 @@
     (via "Via[0-1]_609.6:355.6_um"  77343 -126111 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  70993 -124206 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  64008 -125730 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  79248 -147574 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  79248 -146558 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  79248 -142494 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  79375 -140462 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  78359 -133096 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  62357 -133096 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  60706 -141986 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  66802 -151638 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  77343 -151638 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  57150 -170434 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  53340 -170434 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  61976 -157861 (net GND)(type protect))
-    (via "Via[0-1]_609.6:355.6_um"  66040 -157988 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  92710 -151384 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  85344 -148082 (net GND)(type protect))
     (via "Via[0-1]_609.6:355.6_um"  93472 -144780 (net GND)(type protect))
