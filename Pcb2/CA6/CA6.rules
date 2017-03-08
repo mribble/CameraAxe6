@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 12897)
+    (start_pass_no 24759)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
@@ -122,8 +122,8 @@
     "Net-(CAM4-Pad1)" "Net-(CAM4-Pad2)" "Net-(CAM5-Pad1)" "Net-(CAM5-Pad2)" "Net-(CAM6-Pad1)" "Net-(CAM6-Pad2)" "Net-(CAM7-Pad1)" "Net-(CAM7-Pad2)"
     "Net-(D1-Pad1)" "Net-(D1-Pad2)" "Net-(F1-Pad2)" "Net-(J2-Pad2)" "Net-(R25-Pad2)" "Net-(R26-Pad2)" "Net-(R27-Pad2)" "Net-(SW1-Pad3)"
     "Net-(D2-Pad2)" "Net-(D4-Pad2)" "Net-(D5-Pad2)" "Net-(D6-Pad2)" "Net-(D7-Pad2)" "Net-(D8-Pad2)" "Net-(D9-Pad2)" "Net-(D10-Pad2)"
-    "/CC_RX" "/CC_TX" "Net-(P2-Pad4)" "/CC_RTS" "/CC_CTS" "Net-(P2-Pad6)" /AUX44 /AUX45
-    /AUX46 /AUX47 "/CC_RESET" "/CC_PROG"
+    "/CC_RX" "/CC_TX" "/CC_RTS" "/CC_CTS" /AUX44 /AUX45 /AUX46 /AUX47
+    "/CC_RESET" "/CC_PROG" "/CC_R_LED" "/CC_G_LED"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
