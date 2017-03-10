@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source D:/_my/git/CameraAxe6/Pcb2/CA6/CA6.sch)
-    (date "3/9/2017 12:52:39 PM")
+    (source D:/_my/git/CameraAxe6/Pcb/CA6.sch)
+    (date "3/10/2017 1:23:19 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -445,12 +445,6 @@
       (libsource (lib CA6) (part CRYSTAL_4))
       (sheetpath (names /) (tstamps /))
       (tstamp 544AE3F2))
-    (comp (ref LOGO2)
-      (value CA_LOGO_150)
-      (footprint CA6:CA_Logo_15mm)
-      (libsource (lib CA6) (part CA_Logo_150))
-      (sheetpath (names /) (tstamps /))
-      (tstamp 544AEA8D))
     (comp (ref P2)
       (value "Connection Card")
       (footprint Socket_Strips:Socket_Strip_Straight_1x10_Pitch2.54mm)
@@ -1269,10 +1263,10 @@
         (pin (num 4) (name VIN) (type BiDi))
         (pin (num 5) (name GND) (type power_in)))))
   (libraries
-    (library (logical CA6)
-      (uri D:\_my\git\CameraAxe6\Pcb2\CA6\CA6.lib))
     (library (logical device)
-      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib")))
+      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
+    (library (logical CA6)
+      (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib)))
   (nets
     (net (code 1) (name /M_RESET)
       (node (ref P1) (pin 10))
