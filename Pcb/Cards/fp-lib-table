@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name ESP8266)(type KiCad)(uri "F:\\Users\\dlenardon\\Documents\\electronics\\KiCAD libraries\\kicad-ESP8266-master\\ESP8266.pretty")(options "")(descr "ESP8266 footprints"))
+  (lib (name CA6)(type KiCad)(uri ${KIPRJMOD}/../CA6.pretty)(options "")(descr ""))
+)
