@@ -29,68 +29,6 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
-LIBS:w_rtx
-LIBS:ESP8266
-LIBS:74xgxx
-LIBS:ac-dc
-LIBS:actel
-LIBS:allegro
-LIBS:Altera
-LIBS:analog_devices
-LIBS:battery_management
-LIBS:bbd
-LIBS:bosch
-LIBS:brooktre
-LIBS:cmos_ieee
-LIBS:dc-dc
-LIBS:diode
-LIBS:elec-unifil
-LIBS:ESD_Protection
-LIBS:ftdi
-LIBS:gennum
-LIBS:graphic
-LIBS:hc11
-LIBS:ir
-LIBS:Lattice
-LIBS:logo
-LIBS:maxim
-LIBS:mechanical
-LIBS:microchip_dspic33dsc
-LIBS:microchip_pic10mcu
-LIBS:microchip_pic12mcu
-LIBS:microchip_pic16mcu
-LIBS:microchip_pic18mcu
-LIBS:microchip_pic32mcu
-LIBS:motor_drivers
-LIBS:motors
-LIBS:msp430
-LIBS:nordicsemi
-LIBS:NXP
-LIBS:nxp_1
-LIBS:nxp_armmcu
-LIBS:onsemi
-LIBS:Oscillators
-LIBS:Power_Management
-LIBS:powerint
-LIBS:pspice
-LIBS:references
-LIBS:relays
-LIBS:rfcom
-LIBS:sensors
-LIBS:silabs
-LIBS:stm8
-LIBS:stm32
-LIBS:supertex
-LIBS:switches
-LIBS:transf
-LIBS:triac_thyristor
-LIBS:ttl_ieee
-LIBS:video
-LIBS:wiznet
-LIBS:Worldsemi
-LIBS:Xicor
-LIBS:zetex
-LIBS:Zilog
 LIBS:ESP8266card-cache
 EELAYER 25 0
 EELAYER END
@@ -175,9 +113,7 @@ $EndComp
 Wire Wire Line
 	7650 2900 7500 2900
 Wire Wire Line
-	3550 3550 3550 3650
-Wire Wire Line
-	3550 3650 3550 3850
+	3550 3550 3550 3850
 Connection ~ 3550 3650
 $Comp
 L R R7
@@ -239,9 +175,7 @@ F 3 "" H 7500 4250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	7750 4250 7750 4400
-Wire Wire Line
-	7750 4400 7750 4550
+	7750 4250 7750 4550
 $Comp
 L R R8
 U 1 1 58C14421
@@ -254,11 +188,7 @@ F 3 "" H 7800 4150 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	8100 3700 8100 3750
-Wire Wire Line
-	8100 3750 8100 4050
-Wire Wire Line
-	8100 4050 8100 4150
+	8100 3700 8100 4150
 Connection ~ 8100 4050
 Connection ~ 8100 3750
 $Comp
@@ -284,16 +214,10 @@ F 3 "" H 4100 4550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3850 4350 4100 4350
-Wire Wire Line
-	4100 4350 4400 4350
-Wire Wire Line
-	4400 4350 4550 4350
+	3850 4350 4550 4350
 Connection ~ 4400 4350
 Wire Wire Line
-	4100 4750 4250 4750
-Wire Wire Line
-	4250 4750 4400 4750
+	4100 4750 4400 4750
 $Comp
 L GND #PWR04
 U 1 1 58C14A9E
@@ -332,7 +256,7 @@ F 1 "PWR_FLAG" H 4150 2230 50  0000 C CNN
 F 2 "" H 4150 2050 50  0000 C CNN
 F 3 "" H 4150 2050 50  0000 C CNN
 	1    4150 2050
-	0    -1   -1   0   
+	-1   0    0    1   
 $EndComp
 $Comp
 L CONN_01X10 P3
@@ -427,17 +351,13 @@ Connection ~ 6350 3150
 Wire Wire Line
 	5200 1700 5200 3200
 Wire Wire Line
-	6350 2800 6350 3150
-Wire Wire Line
-	6350 3150 6350 3650
+	6350 2800 6350 3650
 Text Label 6350 3550 1    60   ~ 0
 ESP_TX
 NoConn ~ 2600 3950
 NoConn ~ 2600 4250
 NoConn ~ 2600 4350
 Connection ~ 6500 3750
-Text Label 6500 3350 3    60   ~ 0
-ESP_RX
 Wire Wire Line
 	5000 1700 4800 1700
 Wire Wire Line
@@ -445,23 +365,17 @@ Wire Wire Line
 Wire Wire Line
 	5100 2150 4950 2150
 Wire Wire Line
-	4950 2150 4950 2350
-Wire Wire Line
-	4950 2350 4950 2650
+	4950 2150 4950 2650
 Connection ~ 4950 2350
 Wire Wire Line
 	5900 2150 6050 2150
 Wire Wire Line
 	6350 2800 6050 2800
 Wire Wire Line
-	5800 2900 6500 2900
-Wire Wire Line
-	6500 2900 7300 2900
+	5800 2900 7300 2900
 Connection ~ 6500 2900
 Wire Wire Line
 	5800 2600 5800 2900
-Wire Wire Line
-	6500 3750 6500 2900
 Wire Wire Line
 	6350 3850 6600 3850
 Wire Wire Line
@@ -501,7 +415,7 @@ U 1 1 58C2D9C6
 P 5450 3950
 F 0 "U1" H 5450 3850 50  0000 C CNN
 F 1 "ESP-12E/F" H 5450 4050 50  0000 C CNN
-F 2 "CA6:ESP-12E" H 5450 3950 50  0001 C CNN
+F 2 "CA6:ESP-12E-F-no-bottom-pads" H 5450 3950 50  0001 C CNN
 F 3 "" H 5450 3950 50  0001 C CNN
 	1    5450 3950
 	1    0    0    -1  
@@ -558,9 +472,7 @@ Wire Wire Line
 Wire Wire Line
 	6050 2150 6050 2300
 Wire Wire Line
-	6350 4250 6900 4250
-Wire Wire Line
-	6900 4250 7250 4250
+	6350 4250 7250 4250
 Wire Wire Line
 	3650 3650 3550 3650
 Wire Wire Line
@@ -568,21 +480,15 @@ Wire Wire Line
 Wire Wire Line
 	4550 3850 4150 3850
 Wire Wire Line
-	4150 3650 4500 3650
-Wire Wire Line
-	4500 3650 4550 3650
+	4150 3650 4550 3650
 Wire Wire Line
 	8050 3750 8100 3750
 Wire Wire Line
-	6350 3750 6500 3750
-Wire Wire Line
-	6500 3750 7550 3750
+	6350 3750 7550 3750
 Wire Wire Line
 	7500 4050 8100 4050
 Wire Wire Line
-	6350 4050 6800 4050
-Wire Wire Line
-	6800 4050 7000 4050
+	6350 4050 7000 4050
 Wire Wire Line
 	5900 1700 5900 2150
 Wire Wire Line
@@ -596,7 +502,7 @@ F 1 "PWR_FLAG" H 3300 1980 50  0000 C CNN
 F 2 "" H 3300 1800 50  0000 C CNN
 F 3 "" H 3300 1800 50  0000 C CNN
 	1    3300 1800
-	0    -1   -1   0   
+	1    0    0    -1  
 $EndComp
 $Comp
 L 3V3 #PWR09
@@ -653,4 +559,21 @@ F 3 "" H 8100 3700 60  0000 C CNN
 	1    8100 3700
 	1    0    0    -1  
 $EndComp
+$Comp
+L R R9
+U 1 1 58C41CF1
+P 6500 3500
+F 0 "R9" V 6580 3500 50  0000 C CNN
+F 1 "1K" V 6500 3500 50  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 6430 3500 50  0001 C CNN
+F 3 "" H 6500 3500 50  0000 C CNN
+	1    6500 3500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6500 3250 6500 2900
+Text Label 6400 3750 0    60   ~ 0
+ESP_RX
+Text Label 4100 3650 0    60   ~ 0
+ESP_RESET
 $EndSCHEMATC
