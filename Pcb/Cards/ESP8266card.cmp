@@ -1,122 +1,139 @@
-Cmp-Mod V01 Created by Cvpcb (2015-01-16 BZR 5376)-product   date = 3/11/2017 9:12:40 AM
+Cmp-Mod V01 Genere par PcbNew le 3/11/2017 9:13:12 PM
 
 BeginCmp
-TimeStamp = /58C1477A;
+TimeStamp = 58C332F3
+Path = /58BE5BC6
+Reference = P3;
+ValeurCmp = CA6_CONN_01X10;
+IdModule  = Pin_Header_Straight_1x10_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 58C3AEF7
+Path = /58C1477A
 Reference = C1;
 ValeurCmp = 10uF;
 IdModule  = CA6:c_1206;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C146DF;
+TimeStamp = 58C3AF01
+Path = /58C146DF
 Reference = C2;
 ValeurCmp = .1uF;
 IdModule  = CA6:c_0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C2DBF3;
+TimeStamp = 58C3AF0C
+Path = /58C2DBF3
 Reference = D1;
 ValeurCmp = diode_schottky_20V_1A;
 IdModule  = CA6:DO-214AC(SMA);
 EndCmp
 
 BeginCmp
-TimeStamp = /58C2E24B;
+TimeStamp = 58C3AF17
+Path = /58C2E24B
 Reference = D2;
 ValeurCmp = diode_schottky_20V_1A;
 IdModule  = CA6:DO-214AC(SMA);
 EndCmp
 
 BeginCmp
-TimeStamp = /58BF42D5;
-Reference = P1;
-ValeurCmp = Debug-SoftSerial-FTDI;
-IdModule  = CA6:SIL-6;
-EndCmp
-
-BeginCmp
-TimeStamp = /58C10A25;
-Reference = P2;
-ValeurCmp = ESP-Programming-FTDI;
-IdModule  = CA6:SIL-6;
-EndCmp
-
-BeginCmp
-TimeStamp = /58BE5BC6;
-Reference = P3;
-ValeurCmp = CA6_CONN_01X10;
-IdModule  = Pin_Headers:Pin_Header_Straight_1x10_Pitch2.54mm;
-EndCmp
-
-BeginCmp
-TimeStamp = /58C105F8;
+TimeStamp = 58C3AF5D
+Path = /58C105F8
 Reference = R1;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C106E5;
+TimeStamp = 58C3AF69
+Path = /58C106E5
 Reference = R2;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C13F04;
+TimeStamp = 58C3AF75
+Path = /58C13F04
 Reference = R3;
 ValeurCmp = 1K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C108B0;
+TimeStamp = 58C3AF81
+Path = /58C108B0
 Reference = R4;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C1084E;
+TimeStamp = 58C3AF8D
+Path = /58C1084E
 Reference = R5;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C14234;
+TimeStamp = 58C3AF99
+Path = /58C14234
 Reference = R6;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C13E97;
+TimeStamp = 58C3AFA5
+Path = /58C13E97
 Reference = R7;
 ValeurCmp = 1K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C14421;
+TimeStamp = 58C3AFB1
+Path = /58C14421
 Reference = R8;
 ValeurCmp = 10K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C41CF1;
+TimeStamp = 58C42252
+Path = /58C41CF1
 Reference = R9;
 ValeurCmp = 1K;
 IdModule  = CA6:SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /58C2D9C6;
+TimeStamp = 58C3491F
+Path = /58C10A25
+Reference = P2;
+ValeurCmp = ESP-Programming-FTDI;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x06_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 58C3AF26
+Path = /58BF42D5
+Reference = P1;
+ValeurCmp = Debug-SoftSerial-FTDI;
+IdModule  = Pin_Headers:Pin_Header_Angled_1x06_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = 58C3AFDF
+Path = /58C2D9C6
 Reference = U1;
 ValeurCmp = ESP-12E/F;
-IdModule  = CA6:ESP-12E;
+IdModule  = CA6:ESP-12E-F-no-bottom-pads;
 EndCmp
 
 EndListe
