@@ -1,0 +1,250 @@
+(pcb D:\_my\git\CameraAxe6\Pcb\Modules\Dev.dsn
+  (parser
+    (string_quote ")
+    (space_in_quoted_tokens on)
+    (host_cad "KiCad's Pcbnew")
+    (host_version "4.0.5")
+  )
+  (resolution um 10)
+  (unit um)
+  (structure
+    (layer F.Cu
+      (type signal)
+      (property
+        (index 0)
+      )
+    )
+    (layer B.Cu
+      (type signal)
+      (property
+        (index 1)
+      )
+    )
+    (boundary
+      (path pcb 0  25400 -63500  63500 -63500  63500 -25400  25400 -25400
+            25400 -63500  25400 -63500)
+    )
+    (plane GND (polygon B.Cu 0  62865 -61595  62865 -62865  26035 -62865  26035 -26035
+            62865 -26035))
+    (via "Via[0-1]_762:355.6_um")
+    (rule
+      (width 254)
+      (clearance 254.1)
+      (clearance 254.1 (type default_smd))
+      (clearance 63.5 (type smd_smd))
+    )
+  )
+  (placement
+    (component CA6:c_1206
+      (place C1 50800 -49530 front 0 (PN C))
+    )
+    (component "CA6:161-3334-E_Big_Pad"
+      (place J1 33020 -63500 front 90 (PN JACK_STEREO))
+    )
+    (component "CA6:RJ45_RJHSE-5080"
+      (place J2 50800 -58420 front 0 (PN JACK_RJ45))
+    )
+    (component Socket_Strips:Socket_Strip_Straight_2x04_Pitch2.54mm
+      (place P1 52070 -31750 front 90 (PN CONN_02X04))
+      (place P2 34290 -31750 front 90 (PN CONN_02X04))
+    )
+    (component CA6:SOT23
+      (place Q1 36830 -45720 front 90 (PN BSS138P))
+    )
+    (component "CA6:SOT-23_11AA160"
+      (place U1 46990 -41910 front 180 (PN 11AA160))
+    )
+    (component CA6:HOLE_3.0mm
+      (place X1 58420 -44450 front 0 (PN HOLE))
+      (place X2 30480 -44450 front 0 (PN HOLE))
+    )
+  )
+  (library
+    (image CA6:c_1206
+      (outline (path signal 149.86  2362.2 -1066.8  2362.2 1066.8))
+      (outline (path signal 149.86  -2362.2 1066.8  2362.2 1066.8))
+      (outline (path signal 149.86  2336.8 -1066.8  -2362.2 -1066.8))
+      (outline (path signal 149.86  -2362.2 -1066.8  -2362.2 1066.8))
+      (pin Rect[T]Pad_1600.2x1803.4_um 1 1397 0)
+      (pin Rect[T]Pad_1600.2x1803.4_um 2 -1397 0)
+    )
+    (image "CA6:161-3334-E_Big_Pad"
+      (outline (path signal 152.4  0 2997.2  2387.6 2997.2))
+      (outline (path signal 152.4  6248.4 2997.2  14503.4 2997.2))
+      (outline (path signal 152.4  13919.2 -2997.2  14503.4 -2997.2))
+      (outline (path signal 152.4  4318 -2997.2  9499.6 -2997.2))
+      (outline (path signal 152.4  0 -2997.2  482.6 -2997.2))
+      (outline (path signal 152.4  0 -2616.2  -2489.2 -2616.2))
+      (outline (path signal 152.4  -2489.2 -2616.2  -2489.2 2616.2))
+      (outline (path signal 152.4  -2489.2 2616.2  0 2616.2))
+      (outline (path signal 152.4  14503.4 2997.2  14503.4 -2997.2))
+      (outline (path signal 152.4  0 -2997.2  0 2997.2))
+      (pin Rect[T]Pad_2209.8x2794_um 1 4394.2 3708.4)
+      (pin Rect[T]Pad_2794x2794_um 2 11785.6 -3708.4)
+      (pin Rect[T]Pad_2209.8x2794_um 3 2387.6 -3708.4)
+      (pin Round[A]Pad_1701.8_um (rotate 270) @1 10515.6 0)
+      (pin Round[A]Pad_1701.8_um (rotate 270) @2 3505.2 0)
+    )
+    (image "CA6:RJ45_RJHSE-5080"
+      (outline (path signal 149.86  -7875 -7500  -7875 7500))
+      (outline (path signal 149.86  -7875 7500  7875 7500))
+      (outline (path signal 149.86  7875 7500  7875 -7500))
+      (outline (path signal 149.86  7875 -7500  -7875 -7500))
+      (pin Round[A]Pad_1600_um 5 -500 120)
+      (pin Round[A]Pad_1600_um 3 1530 120)
+      (pin Round[A]Pad_1600_um 6 -1530 1900)
+      (pin Round[A]Pad_1600_um 4 500 1900)
+      (pin Round[A]Pad_1600_um 8 -3560 1900)
+      (pin Round[A]Pad_1600_um 7 -2530 120)
+      (pin Round[A]Pad_1600_um 2 2530 1900)
+      (pin Round[A]Pad_1600_um 1 3560 120)
+      (keepout "" (circle F.Cu 3250 -6350 -2420))
+      (keepout "" (circle B.Cu 3250 -6350 -2420))
+      (keepout "" (circle F.Cu 3250 6350 -2420))
+      (keepout "" (circle B.Cu 3250 6350 -2420))
+    )
+    (image Socket_Strips:Socket_Strip_Straight_2x04_Pitch2.54mm
+      (outline (path signal 100  -3810 1270  -3810 -8890))
+      (outline (path signal 100  -3810 -8890  1270 -8890))
+      (outline (path signal 100  1270 -8890  1270 1270))
+      (outline (path signal 100  1270 1270  -3810 1270))
+      (outline (path signal 120  1330 -1270  1330 -8950))
+      (outline (path signal 120  1330 -8950  -3870 -8950))
+      (outline (path signal 120  -3870 -8950  -3870 1330))
+      (outline (path signal 120  -3870 1330  -1270 1330))
+      (outline (path signal 120  -1270 1330  -1270 -1270))
+      (outline (path signal 120  -1270 -1270  1330 -1270))
+      (outline (path signal 120  1330 0  1330 1330))
+      (outline (path signal 120  1330 1330  60 1330))
+      (outline (path signal 50  -4100 1550  -4100 -9150))
+      (outline (path signal 50  -4100 -9150  1550 -9150))
+      (outline (path signal 50  1550 -9150  1550 1550))
+      (outline (path signal 50  1550 1550  -4100 1550))
+      (pin Rect[A]Pad_1700x1700_um 1 0 0)
+      (pin Oval[A]Pad_1700x1700_um 2 -2540 0)
+      (pin Oval[A]Pad_1700x1700_um 3 0 -2540)
+      (pin Oval[A]Pad_1700x1700_um 4 -2540 -2540)
+      (pin Oval[A]Pad_1700x1700_um 5 0 -5080)
+      (pin Oval[A]Pad_1700x1700_um 6 -2540 -5080)
+      (pin Oval[A]Pad_1700x1700_um 7 0 -7620)
+      (pin Oval[A]Pad_1700x1700_um 8 -2540 -7620)
+    )
+    (image CA6:SOT23
+      (pin Rect[T]Pad_1200x1400_um 1 -1100 -2600)
+      (pin Rect[T]Pad_1200x1400_um 2 1100 -2600)
+      (pin Rect[T]Pad_2800x1400_um 3 0 0)
+    )
+    (image "CA6:SOT-23_11AA160"
+      (outline (path signal 149.86  -1498.6 431.8  1498.6 431.8))
+      (outline (path signal 149.86  1498.6 431.8  1498.6 -431.8))
+      (outline (path signal 149.86  1498.6 -431.8  -1498.6 -431.8))
+      (outline (path signal 149.86  -1498.6 -431.8  -1498.6 431.8))
+      (pin Rect[T]Pad_599.4x1000.8_um 1 -952.5 -1056.6)
+      (pin Rect[T]Pad_599.4x1000.8_um 3 0 1056.6)
+      (pin Rect[T]Pad_599.4x1000.8_um 2 952.5 -1056.6)
+    )
+    (image CA6:HOLE_3.0mm
+      (pin Round[A]Pad_7000_um @1 0 0)
+    )
+    (padstack Round[A]Pad_1600_um
+      (shape (circle F.Cu 1600))
+      (shape (circle B.Cu 1600))
+      (attach off)
+    )
+    (padstack Round[A]Pad_1701.8_um
+      (shape (circle F.Cu 1701.8))
+      (shape (circle B.Cu 1701.8))
+      (attach off)
+    )
+    (padstack Round[A]Pad_7000_um
+      (shape (circle F.Cu 7000))
+      (shape (circle B.Cu 7000))
+      (attach off)
+    )
+    (padstack Oval[A]Pad_1700x1700_um
+      (shape (path F.Cu 1700  0 0  0 0))
+      (shape (path B.Cu 1700  0 0  0 0))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_2209.8x2794_um
+      (shape (rect F.Cu -1104.9 -1397 1104.9 1397))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_2794x2794_um
+      (shape (rect F.Cu -1397 -1397 1397 1397))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_2800x1400_um
+      (shape (rect F.Cu -1400 -700 1400 700))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_599.4x1000.8_um
+      (shape (rect F.Cu -299.7 -500.4 299.7 500.4))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_1200x1400_um
+      (shape (rect F.Cu -600 -700 600 700))
+      (attach off)
+    )
+    (padstack Rect[T]Pad_1600.2x1803.4_um
+      (shape (rect F.Cu -800.1 -901.7 800.1 901.7))
+      (attach off)
+    )
+    (padstack Rect[A]Pad_1700x1700_um
+      (shape (rect F.Cu -850 -850 850 850))
+      (shape (rect B.Cu -850 -850 850 850))
+      (attach off)
+    )
+    (padstack "Via[0-1]_762:355.6_um"
+      (shape (circle F.Cu 762))
+      (shape (circle B.Cu 762))
+      (attach off)
+    )
+  )
+  (network
+    (net 3V3
+      (pins C1-1 J2-1 P1-2 P2-2 U1-2)
+    )
+    (net GND
+      (pins C1-2 J1-3 J2-8 P1-1 P2-1 Q1-2 U1-3)
+    )
+    (net /A0
+      (pins J1-1 J2-2 P1-3)
+    )
+    (net "Net-(J1-Pad2)"
+      (pins J1-2 Q1-3)
+    )
+    (net /ID
+      (pins J2-5 P1-4 U1-1)
+    )
+    (net /D1
+      (pins J2-3 P1-5 Q1-1)
+    )
+    (net /D3
+      (pins J2-6 P1-6)
+    )
+    (net /D2
+      (pins J2-4 P1-7)
+    )
+    (net /D4
+      (pins J2-7 P1-8)
+    )
+    (class kicad_default "" /A0 /D1 /D2 /D3 /D4 /ID 3V3 GND "Net-(J1-Pad2)"
+      (circuit
+        (use_via Via[0-1]_762:355.6_um)
+      )
+      (rule
+        (width 254)
+        (clearance 254.1)
+      )
+    )
+  )
+  (wiring
+    (wire (path F.Cu 254  54360 -58300  54360 -58035  56007 -56388  56007 -51435  54102 -49530
+            52197 -49530)(net 3V3)(type protect))
+    (wire (path F.Cu 254  49403 -49530  47625 -49530)(net GND)(type protect))
+    (wire (path F.Cu 254  39430 -44620  39430 -43120  39497 -43053)(net GND)(type protect))
+    (via "Via[0-1]_762:355.6_um"  47625 -49530 (net GND)(type protect))
+    (via "Via[0-1]_762:355.6_um"  39497 -43053 (net GND)(type protect))
+  )
+)
