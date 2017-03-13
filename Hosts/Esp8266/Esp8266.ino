@@ -16,7 +16,7 @@
 
 #ifdef DEBUG
 
-#define SERIAL_DEBUG              // use separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
 
 #ifdef SERIAL_DEBUG
 
@@ -33,7 +33,7 @@ SoftwareSerial SerialDebug(DEBUG_RX, DEBUG_TX, false, 256);
 
 #define DEBUG_MSG(L, H, M)	       if ((L) <= DEBUG) {SerialIO.print("DEBUG> "); SerialIO.print(H); SerialIO.print(": "); SerialIO.println(M);}
 #else // DEBUG
-	
+   
 #define SerialIO      Serial
 #define DEBUG_MSG(...) ;
 #endif // DEBUG
@@ -50,8 +50,7 @@ NetDiscovery   discovery;
 IPAddress      mcastIP(MCAST_ADDRESS);
 SimpleTimer    timer;
 
-#define AP_PASSWORD         "ca6admin"                    // to do: determine if this needs to be more secure
-#define RESET_PIN           4                             // force WiFiManager credentials to be cleared
+#define AP_PASSWORD         "ca6admin"                    // TODO: determine if this needs to be more secure
 
 // WiFiManager globals
 WiFiManager    wifiManager;
@@ -101,7 +100,7 @@ void hostAnnounce (void) {
    // client must check this ID string to determine that this is a CA6 discovery packet
    DEBUG_MSG(4, "hostAnnounce", F(CA6_ANNOUNCE_ID));
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
-   if ( !discovery.announce(&localPacket) ) {	           // to do: is there a reason to check for an ACK or not?
+   if ( !discovery.announce(&localPacket) ) {	           // TODO: is there a reason to check for an ACK or not?
       DEBUG_MSG(1, F("hostAnnounce"), F("failed"));
    }
 }
@@ -109,7 +108,6 @@ void hostAnnounce (void) {
 
 void setup (void) {
    Serial.begin(74880);                     // SAM3X
-   pinMode(RESET_PIN, INPUT_PULLUP);
 #ifdef SERIAL_DEBUG
    SerialIO.begin(74880);                // console output
 #endif
@@ -129,19 +127,15 @@ void setup (void) {
 #endif
 
      DEBUG_MSG(3, F("Network scan"), netCount);
-     if ( digitalRead(RESET_PIN) == LOW ) {	                 //reset settings option - for testing
-        DEBUG_MSG(3, F("WiFiManager reset"), F("Activated"));
-        wifiManager.resetSettings();
-     }
 
      wifiManager.setBreakAfterConfig(true);	                                                 // undocumented function to return if config unsuccessful/skipped
-     EEPROM.begin(128);                                                                       // allocates 128 bytes for wifiManager
-     wifiManager.setSaveCredentialsInEEPROM(true, 0);                                         // [Local mod] forces credentials to be saved in EEPROM also
+     EEPROM.begin(128);                                                                       // allocates 128 bytes for wifiManager (required by the library)
+     wifiManager.setSaveCredentialsInEEPROM(true);                                            // [Local mod] forces credentials to be saved in EEPROM also
 
      WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));	                   // workaround for callout issue - see above
 
      if ( wifiManager.autoConnect(createUniqueSSID().c_str(), AP_PASSWORD) ) {	             // establish a unique SSID for connection in AP mode
-        DEBUG_MSG(2, F("Connected (local WiFi)"), WiFi.localIP().toString());
+        SerialIO.printf("STA mode connection at %s\n", WiFi.localIP().toString().c_str());
 
         /*
          If we get to this point in the code, we are connected as a client and the ESP is in STA mode
@@ -161,7 +155,9 @@ void setup (void) {
         DEBUG_MSG(2, F("Host IP as SSID"), ssid);
         WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
         //WiFi.reconnect();                                        // supposedly required, but does not work if this is called
-        DEBUG_MSG(1, F("AP IP"), WiFi.softAPIP().toString());
+
+        SerialIO.print(F("AP+STA mode workaround ENABLED. AP address: "));
+        SerialIO.println(WiFi.softAPIP().toString());
 #if DEBUG >= 3
         SerialIO.println(F("Workaround AP diag:"));
         WiFi.printDiag(SerialIO);
@@ -238,7 +234,7 @@ void setup (void) {
 
   if ( connectToAP ) {
      // use AP mode	 - WiFiManager leaves the ESP in AP+STA mode if there was no connection made (eg STA mode)
-     DEBUG_MSG(2, F("Using AP Mode"), AP_Address.toString());
+     SerialIO.printf("AP mode connection at %s\n", AP_Address.toString().c_str());
 
      WiFi.mode(WIFI_AP);
      WiFi.softAP(createUniqueSSID().c_str(), AP_PASSWORD);
@@ -249,20 +245,23 @@ void setup (void) {
 #endif
   }
 
-  // init autodiscovery, again only applicable to local WiFi networks
-  if ( discovery.begin(mcastIP, MCAST_PORT) ) {
+  /* 
+   Setup common to all modes
+   */
+  if ( discovery.begin(mcastIP, MCAST_PORT) ) {                    // init autodiscovery
      timer.setInterval(AD_ANNOUNCE_DELAY, hostAnnounce);
+     SerialIO.println(F("Auto-discovery started"));
   } else {
-     DEBUG_MSG(1, F("Cannot initialize discovery mcast group"), mcastIP);
-     // to do: indicate error on status LED when this is available
-     //while ( true ) delay(1000);               // ESP will get a WDT reset if you don't have something in the loop
+     SerialIO.println(F("Auto-discovery FAILED"));
+     // TODO: indicate error on status LED when this is available
+     //while ( true ) delay(1000);                                 // ESP will get a WDT reset if you don't have something in the loop
   }
   
 
   if ( gUDP.begin(gPort) == 1 ) {
      SerialIO.printf("Connected UDP, port: %d\n", gPort);
   } else {
-     SerialIO.printf("UDP connection failed!\n");
+     SerialIO.println(F("UDP connection FAILED"));
   }
 }
 
@@ -283,17 +282,21 @@ uint8 getPacketSize(uint16 val, uint8 byteNumber) {
 
 #if DEBUG >= 4
 void hexDump (const uint8 *buf, const int len) {
-	SerialIO.printf("Dumping %d bytes:", len);
-	for ( int i = 0; i < len; i++) {
-		if ( i % 4 == 0 ) {
-			SerialIO.write(" ");
-		}
-		SerialIO.printf("%02x", buf[i]);
-	}
-	SerialIO.write("\n");
+   SerialIO.printf("Dumping %d bytes:", len);
+   for ( int i = 0; i < len; i++) {
+      if ( i % 4 == 0 ) {
+         SerialIO.write(" ");
+      }
+      SerialIO.printf("%02x", buf[i]);
+   }
+   SerialIO.write("\n");
 }
 #endif
 
+/*
+ Note: no serial I/O except to the SAM3x at this point
+ TODO: consider LED status to indicate errors
+ */
 void loop (void) {
   uint16    udpSize = gUDP.parsePacket();
   uint16    serialSize = Serial.available();
@@ -305,11 +308,11 @@ void loop (void) {
   if (udpSize > 0) {
      gIp = gUDP.remoteIP();
      udpSize = gUDP.read(buf, 2048);
-	  size_t len = Serial.write(buf, udpSize);
+     size_t len = Serial.write(buf, udpSize);
      DEBUG_MSG(2, "UDP packet rcvd", udpSize);
      DEBUG_MSG(2, F("Device IP"), gIp);
 #if DEBUG >= 4
-	  hexDump(buf, udpSize);
+     hexDump(buf, udpSize);
 #endif
      if ( len != udpSize ) {
         DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
