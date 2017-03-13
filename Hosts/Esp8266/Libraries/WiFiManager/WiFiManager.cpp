@@ -433,8 +433,6 @@ void WiFiManager::handleRoot() {
   if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
     return;
   }
-
-  WiFi.printDiag(Serial);
   
   String page = FPSTR(HTTP_HEAD);
   page.replace("{v}", "Options");
