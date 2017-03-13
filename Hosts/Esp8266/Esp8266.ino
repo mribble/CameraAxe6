@@ -12,7 +12,7 @@
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
 
-#define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
+//#define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
 
 #ifdef DEBUG
 
@@ -25,16 +25,18 @@
 SoftwareSerial SerialDebug(DEBUG_RX, DEBUG_TX, false, 256);
 #define SerialIO      SerialDebug
 
-#else
+#else // SERIAL_DEBUG
 
 #define SerialIO      Serial
 
-#endif
+#endif // SERIAL_DEBUG
 
 #define DEBUG_MSG(L, H, M)	       if ((L) <= DEBUG) {SerialIO.print("DEBUG> "); SerialIO.print(H); SerialIO.print(": "); SerialIO.println(M);}
-#else
+#else // DEBUG
+	
+#define SerialIO      Serial
 #define DEBUG_MSG(...) ;
-#endif
+#endif // DEBUG
 
 
 
@@ -104,6 +106,7 @@ void hostAnnounce (void) {
    }
 }
 
+
 void setup (void) {
    Serial.begin(74880);                     // SAM3X
    pinMode(RESET_PIN, INPUT_PULLUP);
@@ -118,14 +121,11 @@ void setup (void) {
   bool connectToAP = false;
   if ( netCount > 0 ) {
      // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
-#if 1
-     wifiManager.setDebugOutput(false);
-#else
+
 #ifdef DEBUG
      wifiManager.setDebugOutput(true);
 #else
      wifiManager.setDebugOutput(false);
-#endif
 #endif
 
      DEBUG_MSG(3, F("Network scan"), netCount);
@@ -281,6 +281,19 @@ uint8 getPacketSize(uint16 val, uint8 byteNumber) {
   }
 }
 
+#if DEBUG >= 4
+void hexDump (const uint8 *buf, const int len) {
+	SerialIO.printf("Dumping %d bytes:", len);
+	for ( int i = 0; i < len; i++) {
+		if ( i % 4 == 0 ) {
+			SerialIO.write(" ");
+		}
+		SerialIO.printf("%02x", buf[i]);
+	}
+	SerialIO.write("\n");
+}
+#endif
+
 void loop (void) {
   uint16    udpSize = gUDP.parsePacket();
   uint16    serialSize = Serial.available();
@@ -292,9 +305,12 @@ void loop (void) {
   if (udpSize > 0) {
      gIp = gUDP.remoteIP();
      udpSize = gUDP.read(buf, 2048);
+	  size_t len = Serial.write(buf, udpSize);
      DEBUG_MSG(2, "UDP packet rcvd", udpSize);
      DEBUG_MSG(2, F("Device IP"), gIp);
-     size_t len = Serial.write(buf, udpSize);
+#if DEBUG >= 4
+	  hexDump(buf, udpSize);
+#endif
      if ( len != udpSize ) {
         DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
      }
