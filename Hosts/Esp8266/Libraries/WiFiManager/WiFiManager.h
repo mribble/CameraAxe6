@@ -18,6 +18,8 @@
 #include <DNSServer.h>
 #include <memory>
 
+#define  EEPROM_KEY     0x7E              // key for storing WiFi credentials in EEPROM
+
 extern "C" {
   #include "user_interface.h"
 }
@@ -110,7 +112,7 @@ class WiFiManager
     //if this is true, remove duplicated Access Points - defaut true
     void          setRemoveDuplicateAPs(boolean removeDuplicates);
 	 // if this is true, save WiFi credentials in EEPROM
-	 void          setSaveCredentialsInEEPROM(const bool saveFlag, const int baseAddress = 128);
+	 void          setSaveCredentialsInEEPROM(const bool saveFlag, const int baseAddress = 0);
 
   private:
     std::unique_ptr<DNSServer>        dnsServer;
@@ -145,7 +147,7 @@ class WiFiManager
     boolean       _shouldBreakAfterConfig = false;
     boolean       _tryWPS                 = false;
 	 bool          _EEPROMCredentials      = false;
-	 int           _baseEEPROMAddress      = 128;
+	 int           _baseEEPROMAddress      = 0;
 
     const char*   _customHeadElement      = "";
 

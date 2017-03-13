@@ -235,12 +235,12 @@ resulting in the user having to log in again.
 The function ```setSaveCredentialsInEEPROM``` can be called to separately save the credentials in EEPROM and
 restore them when signing in to a known WiFi network.
 The function takes 2 arguments: a Boolean flag (```true``` or ```false```) and the base address in EEPROM to save the credentials
-(optional. If not supplied defaults to ```128```.)
+(optional. If not supplied defaults to ```0```.)
 For example:
 ```cpp
 wifiManager.setSaveCredentialsInEEPROM(true, 256);
 ```
-Note that the EEPROM address range of the supplied base address plus 128 bytes must be reserved for this purpose.
+Note that the EEPROM address range of the supplied base address plus 127 bytes __must be reserved for this purpose__.
 
 #### Custom HTML, CSS, Javascript
 There are various ways in which you can inject custom HTML, CSS or Javascript into the configuration portal.

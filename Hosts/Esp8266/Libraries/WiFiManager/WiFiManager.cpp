@@ -13,8 +13,6 @@
 #include "WiFiManager.h"
 #include "EEPROM.h"
 
-#define  EEPROM_KEY     0x7E
-
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
   _placeholder = NULL;
@@ -825,8 +823,8 @@ void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
  For this to work, the following criteria must be met:
  
  - EEPROM.begin() must have already been called
- - the EEPROM size must be at least 256
- - the EEPROM range of baseAddress:baseAddress+128 must be otherwise unused
+ - the EEPROM size must be at least 128
+ - the EEPROM range of baseAddress:baseAddress+127 must be otherwise unused
  
  Reconfigure the EEPROM defines if necessary.
 */
