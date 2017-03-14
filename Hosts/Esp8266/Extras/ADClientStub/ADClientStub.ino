@@ -1,7 +1,7 @@
 /*
  Test code for CA6 auto-discovery
  Simply listens for announcement packets and displays the IP and MAC address of the initiator
- This code assumes local WiFI network only
+ This utility will work on either lcoal networks or in AP mode (set network credentials accordingly)
  */
 
 #include <ESP8266WiFi.h>
@@ -21,8 +21,8 @@
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87
 #define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define SSID                "<ssid>"
-#define PASSWORD            "<password>"
+#define SSID                "CA6_10.215.126.227"
+#define PASSWORD            "ca6admin"
 
 NetDiscovery       discovery;
 IPAddress          mcastIP(MCAST_ADDRESS);               // multicast address
