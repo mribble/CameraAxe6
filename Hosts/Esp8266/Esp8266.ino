@@ -11,6 +11,7 @@
 #include <EEPROM.h>
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
+#define SKIP_CLIENT_ACK          // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
 #define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
 
@@ -198,7 +199,7 @@ typedef struct {
 
 CA6Client client;
 
-ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise.
+ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise. IDE issue ... again :-(
 
 /*
  Create and return a (reasonably) unique WiFi SSID using the ESP8266 WiFi MAC address
@@ -247,13 +248,19 @@ void autoDiscovery (void) {
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( discovery.announce(&localPacket) ) {
 #ifndef SKIP_CLIENT_ACK
-      if ( discovery.listen(&remotePacket) == ND_ACK ) {
+      if ( (discovery.listen(&remotePacket) == ND_ACK) && (client.state == C_PENDING || client.state == C_WAITING) ) {
          DEBUG_MSG(1, F("autoDiscovery"), F("ACK"));
          if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
             client.address = remotePacket.addressIP;
             client.state = C_ACKNOWLEDGED;
             DEBUG_MSG(1, F("Client acknowledged"), (IPAddress)client.address);
          }
+      }
+#else
+      // simulate an ACK if not already set as connected
+      if ( client.state == C_PENDING || client.state == C_WAITING ) {
+         client.state = C_ACKNOWLEDGED; 
+         DEBUG_MSG(1, F("Simulated client ACK"), "");
       }
 #endif
    } else {
@@ -510,6 +517,9 @@ void loop (void) {
       if ( client.udpSize > 0 ) {
          uint8 buf[2048];
          DEBUG_MSG(2, "UDP packet rcvd", client.udpSize);
+#ifdef SKIP_CLIENT_ACK
+         client.address == client.stream.remoteIP();              // force this for testing
+#endif
          // for security, verify that the client that sent the ACK is the same as the one that sent this packet
          if ( client.address == client.stream.remoteIP() ) {
             client.udpSize = client.stream.read(buf, sizeof(buf));
@@ -543,6 +553,10 @@ void loop (void) {
             buf[0] = getPacketSize(client.packetSize, 0);
             buf[1] = getPacketSize(client.packetSize, 1);
             Serial.readBytes(buf+PACKET_SIZE_SIZE, client.packetSize-PACKET_SIZE_SIZE);
+            /*
+             already verified that the request's UDP IP source addr matches the ACKing client,
+             so no need to further validate this
+             */
             if ( client.stream.beginPacket(client.address, client.port + 1) ) {
                size_t length = client.stream.write(buf, client.packetSize);
                if ( length == client.packetSize ) {
