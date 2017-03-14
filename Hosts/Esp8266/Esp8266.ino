@@ -12,12 +12,12 @@
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
 
-//#define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
+#define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
 
 #ifdef DEBUG
 
-#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
-
+//#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+              
 #ifdef SERIAL_DEBUG
 
 #define DEBUG_TX      12
@@ -121,27 +121,27 @@ void Led::setState(const LedState ledState) {
       digitalWrite(_ledPin, HIGH);
       _illuminated = true;
       _interval = 500L;
-      _timerID = timer.setTimeout(_interval, _toggle);
+      _timerID = timer.setInterval(_interval, _toggle);
       break;
 
    case BLINK_SLOW_OFF:
       digitalWrite(_ledPin, LOW);
       _illuminated = false;
       _interval = 500L;
-      _timerID = timer.setTimeout(_interval, _toggle);
+      _timerID = timer.setInterval(_interval, _toggle);
       break;
 
    case BLINK_FAST_ON:
       digitalWrite(_ledPin, HIGH);
       _illuminated = true;
       _interval = 125L;
-      _timerID = timer.setTimeout(_interval, _toggle);
+      _timerID = timer.setInterval(_interval, _toggle);
 
    case BLINK_FAST_OFF:
       digitalWrite(_ledPin, LOW);
       _illuminated = false;
       _interval = 125L;
-      _timerID = timer.setTimeout(_interval, _toggle);
+      _timerID = timer.setInterval(_interval, _toggle);
       break;
    }
 }
@@ -198,6 +198,7 @@ typedef struct {
 
 CA6Client client;
 
+ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise.
 
 /*
  Create and return a (reasonably) unique WiFi SSID using the ESP8266 WiFi MAC address
@@ -242,17 +243,19 @@ void autoDiscovery (void) {
    ND_Packet localPacket, remotePacket;
 
    // client must check this ID string to determine if this is a CA6 discovery packet
-   DEBUG_MSG(4, "autoDiscovery", F(CA6_ANNOUNCE_ID));
+   DEBUG_MSG(4, F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( discovery.announce(&localPacket) ) {
+#ifndef SKIP_CLIENT_ACK
       if ( discovery.listen(&remotePacket) == ND_ACK ) {
-         DEBUG_MSG(1, "autoDiscovery", "ACK");
-         if ( strcmp((char *)remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
+         DEBUG_MSG(1, F("autoDiscovery"), F("ACK"));
+         if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
             client.address = remotePacket.addressIP;
             client.state = C_ACKNOWLEDGED;
             DEBUG_MSG(1, F("Client acknowledged"), (IPAddress)client.address);
          }
       }
+#endif
    } else {
       DEBUG_MSG(1, F("autoDiscovery"), F("announce failed"));
    }
@@ -328,7 +331,7 @@ ConnectionMode connectToNetwork (void) {
          ArduinoOTA.onEnd([]() {
             SerialIO.println(F("\nEnd. Restarting ..."));
             delay(5000);
-            ESP.restart();
+            //ESP.restart();
          });
          ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
             SerialIO.printf("Progress: %u%%\r", (progress / (total / 100)));
@@ -453,20 +456,19 @@ void loop (void) {
    }
    if ( client.mode == NO_MODE ) {
       // initiate network connection - can only do this section once
+      greenLED.setState(ON);                                  // indicate WiFI config pending state
+      redLED.setState(ON);
       client.mode = connectToNetwork();
       client.state = C_PENDING;
 
       // initialize auto-discovery
       if ( discovery.begin(mcastIP, MCAST_PORT) ) {
          timer.setInterval(AD_ANNOUNCE_DELAY, autoDiscovery);
-         //SerialIO.println(F("Auto-discovery started"));
+         SerialIO.println(F("Auto-discovery started"));
       } else {
          SerialIO.println(F("Auto-discovery FAILED"));
          fatalError = true;
       }
-      // indicate WiFI config pending state
-      greenLED.setState(ON);
-      redLED.setState(ON);
    }
    if ( client.state == C_PENDING ) {
       // connected to network but no ACK from client yet
@@ -486,9 +488,13 @@ void loop (void) {
       }
       client.state = C_WAITING;       // just like pending, but leaves LED state as-is
    } else if ( client.state == C_ACKNOWLEDGED ) {
-      // ACK received from client - open UDP stream
+      // ACK received open UDP stream
       if ( client.stream.begin(client.port) ) {
-         SerialIO.printf("Client %s:%d connected\n", client.address.toString().c_str(), client.port);
+         /*
+          Any device could have opened up this port, but we'll consider this OK and validate
+          the addresses once we receive a packet (only time the address is available)
+          */
+         SerialIO.printf("Client connected on port %d\n", client.port);
          client.state = C_ESTABLISHED;
          greenLED.setState(ON);
          redLED.setState(OFF);
@@ -504,13 +510,18 @@ void loop (void) {
       if ( client.udpSize > 0 ) {
          uint8 buf[2048];
          DEBUG_MSG(2, "UDP packet rcvd", client.udpSize);
-         client.udpSize = client.stream.read(buf, sizeof(buf));
-         size_t len = Serial.write(buf, client.udpSize);
-   #if DEBUG >= 4
-         hexDump(buf, client.udpSize);
-   #endif
-         if ( len != client.udpSize ) {
-            DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
+         // for security, verify that the client that sent the ACK is the same as the one that sent this packet
+         if ( client.address == client.stream.remoteIP() ) {
+            client.udpSize = client.stream.read(buf, sizeof(buf));
+            size_t len = Serial.write(buf, client.udpSize);
+#if DEBUG >= 4
+            hexDump(buf, client.udpSize);
+#endif
+            if ( len != client.udpSize ) {
+               DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
+            }
+         } else {
+            DEBUG_MSG(1, F("UDP stream IP Address mismatch"), (IPAddress)client.stream.remoteIP());
          }
       }
 

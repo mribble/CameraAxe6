@@ -7,6 +7,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include "NetDiscovery.h"
+#include <array>
 
 
 #define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
@@ -28,14 +29,14 @@ IPAddress          mcastIP(MCAST_ADDRESS);               // multicast address
 
 void setup(void)
 {
-	Serial.begin(115200);
+	Serial.begin(74880);
 	WiFi.begin(SSID, PASSWORD);
 	while ( WiFi.status() != WL_CONNECTED ){
 		delay(500);
 		Serial.print(".");
 	}
 	Serial.println();
-	DEBUG_MSG(1, F("RECEIVER Connected. Local IP"), WiFi.localIP());
+	DEBUG_MSG(1, F("CLIENT Connected. Local IP"), WiFi.localIP());
 
 	if ( !discovery.begin(mcastIP, MCAST_PORT) ) {       // join mcast group
 		DEBUG_MSG(1, F("Cannot initialize discovery mcast group"), mcastIP);
@@ -43,28 +44,34 @@ void setup(void)
 	}
 }
 
-
+// this example just loops forever, not what a real client would do
 void loop(void)
 {
-	ND_Packet remotePacket;
+	ND_Packet remotePacket, localPacket;
+	uint8_t   addressMAC[WL_MAC_ADDR_LENGTH];
+	std::array<bool, 256> senderACK;
 
-	DEBUG_MSG(1, F("RECEIVER listening"), "");
-
+	DEBUG_MSG(1, F("CLIENT listening"), "");
+	senderACK.fill(false);	
 	while ( true ) {
 		// listen for announcement packets 
-		Serial.print(".");
+		Serial.write(".");
 		if ( discovery.listen(&remotePacket) == ND_ANNOUNCE ) {
+			// examine payload for the ID string 
+			DEBUG_MSG(2, F("Announcement from"), (IPAddress)remotePacket.addressIP);
 			if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {
-				Serial.print(F("Discovered device at "));
-				Serial.println((IPAddress)remotePacket.addressIP);
-				Serial.print(F("Remote MAC: "));
-				for ( int i = 0; i < WL_MAC_ADDR_LENGTH; i++ ) {
-					Serial.print(remotePacket.addressMAC[i], HEX);
-					if ( i < WL_MAC_ADDR_LENGTH - 1 ) {
-						Serial.print(".");
+				uint8_t senderID = remotePacket.addressIP[3];           // use the last octet in the IP address for unique identification
+				// only send an ACK once
+				if ( !senderACK[senderID] ) {
+					DEBUG_MSG(2, F("Sending ACK"), (IPAddress)remotePacket.addressIP);
+					strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
+					if ( discovery.ack(&localPacket) ) {
+						Serial.print(F("Discovered device at "));
+						Serial.println((IPAddress)remotePacket.addressIP);
+						senderACK[senderID] = true;
+						Serial.println();
 					}
-				}
-				Serial.println();
+				} 
 			}
 		}
 		yield();
