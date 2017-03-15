@@ -1,6 +1,6 @@
 /*
 SAM3X side of the serial I/O loopback test
-This verifies correct communiction from the ESPs hw UART to the Serial1 (19,18) ports on the Due
+This verifies correct communiction from the ESPs hw UART to the Serial1 (19,18) ports on the Due/SAM3x
 */
 
 #define BAUD_RATE      74880
