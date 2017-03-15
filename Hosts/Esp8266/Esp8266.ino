@@ -518,7 +518,7 @@ void loop (void) {
          uint8 buf[2048];
          DEBUG_MSG(2, "UDP packet rcvd", client.udpSize);
 #ifdef SKIP_CLIENT_ACK
-         client.address == client.stream.remoteIP();              // force this for testing
+         client.address = client.stream.remoteIP();              // force this for testing
 #endif
          // for security, verify that the client that sent the ACK is the same as the one that sent this packet
          if ( client.address == client.stream.remoteIP() ) {
