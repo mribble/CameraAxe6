@@ -463,8 +463,8 @@ void loop (void) {
    }
    if ( client.mode == NO_MODE ) {
       // initiate network connection - can only do this section once
-      greenLED.setState(ON);                                  // indicate WiFI config pending state
-      redLED.setState(ON);
+      greenLED.setState(BLINK_SLOW_ON);
+      redLED.setState(BLINK_SLOW_OFF);
       client.mode = connectToNetwork();
       client.state = C_PENDING;
 
@@ -486,8 +486,8 @@ void loop (void) {
          break;
 
       case AP_MODE:
-         greenLED.setState(BLINK_SLOW_ON);
-         redLED.setState(BLINK_SLOW_OFF);
+         greenLED.setState(BLINK_FAST_ON);
+         redLED.setState(OFF);
          break;
 
       default:
