@@ -9,10 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.data;
 
 public class CameraSettingsActivity extends FragmentActivity {
     CameraSettingsPagerAdapter mCameraSettingsPagerAdapter;
@@ -51,7 +48,7 @@ public class CameraSettingsActivity extends FragmentActivity {
         for (int i = 0; i < MainActivity.MAX_CAMERAS; i++) {
             intent.putExtra(MainActivity.CAMERA_SETTING_HANDLE + i, mDataArray[i]);
         }
-        setResult(MainActivity.CAMERA_SETTINGS_REQUEST, intent);
+        setResult(MainActivity.REQUEST_CAMERA_SETTINGS, intent);
         super.onBackPressed();
     }
 

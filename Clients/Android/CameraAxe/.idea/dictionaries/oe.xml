@@ -2,6 +2,7 @@
   <dictionary name="oe">
     <words>
       <w>intervalometer</w>
+      <w>uart</w>
       <w>unpacker</w>
     </words>
   </dictionary>
