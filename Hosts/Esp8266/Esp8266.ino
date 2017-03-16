@@ -422,7 +422,9 @@ void setup (void) {
    wifiManager.setSaveCredentialsInEEPROM(true);       // [Local mod] forces credentials to be saved in EEPROM also
                                                        
    greenLED.setToggleFunction(toggleGreenLED);         // init LED toggle functions for LED blinking
+   greenLED.setState(OFF);
    redLED.setToggleFunction(toggleRedLED);
+   redLED.setState(OFF);
 }
 
 #define PACKET_SIZE_SIZE 2
@@ -463,8 +465,8 @@ void loop (void) {
    }
    if ( client.mode == NO_MODE ) {
       // initiate network connection - can only do this section once
-      greenLED.setState(BLINK_SLOW_ON);
-      redLED.setState(BLINK_SLOW_OFF);
+      greenLED.setState(ON);                  // cannot blink yet because the WiFi Manager autoconnect function blocks
+      redLED.setState(ON);
       client.mode = connectToNetwork();
       client.state = C_PENDING;
 
@@ -574,7 +576,7 @@ void loop (void) {
       }
    }
 
+   timer.run();
    ArduinoOTA.handle();
    yield();
-   timer.run();
 }
