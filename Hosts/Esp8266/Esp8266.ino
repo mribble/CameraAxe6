@@ -3,7 +3,6 @@
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <SoftwareSerial.h>
 #include <WiFiManager.h>         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
 #include <NetDiscovery.h>        // https://github.com/Rom3oDelta7/NetDiscovery
 #include <ArduinoOTA.h>	
@@ -17,14 +16,11 @@
 
 #ifdef DEBUG
 
-//#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
               
 #ifdef SERIAL_DEBUG
 
-#define DEBUG_TX      12
-#define DEBUG_RX      14
-SoftwareSerial SerialDebug(DEBUG_RX, DEBUG_TX, false, 256);
-#define SerialIO      SerialDebug
+#define SerialIO      Serial1     // UART on GPIO2 - use a 4.7k pullup
 
 #else // SERIAL_DEBUG
 
