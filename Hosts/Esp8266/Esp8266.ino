@@ -9,6 +9,11 @@
 #include <SimpleTimer.h>
 #include <EEPROM.h>
 
+// ESP8266 SDK Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
+extern "C" {
+#include "user_interface.h"
+}
+
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
 #define SKIP_CLIENT_ACK          // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
@@ -20,7 +25,7 @@
               
 #ifdef SERIAL_DEBUG
 
-#define SerialIO      Serial1     // UART on GPIO2 - use a 4.7k pullup
+#define SerialIO      Serial1     // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
 
 #else // SERIAL_DEBUG
 
@@ -39,7 +44,7 @@ SimpleTimer    timer;
 
 // for LED status management
 
-typedef enum { OFF, ON, BLINK_SLOW_OFF, BLINK_FAST_OFF, BLINK_SLOW_ON, BLINK_FAST_ON } LedState;
+typedef enum { OFF, ON, BLINK_OFF, BLINK_ON } LedState;
 
 class Led {
 public:
@@ -48,23 +53,23 @@ public:
    LedState state = OFF;                         // TODO: not currently used - needed?
  
    // set the target LED state
-   void     setState (const LedState ledState);
+   void     setState (const LedState ledState, uint32 interval = 0);
    // toggle current state - called by function set by setToggleFunction()
    void     toggleState(void);
    /*
     function to be called to change physical pin state
-    necessary since the timer functions don't accept a parameter (e.g. a pin number)
+    necessary since we have to setup a callback within the setState function in the class
     need a function like this for each instantiation of the class
     */
-   void     setToggleFunction (void (*func)(void)) { _toggle = func; }
+   void     setToggleFunction (void (*func)(void *pArg));
 
 
 private:
-   int      _ledPin;
-   bool     _illuminated = false;                 // for blinking
-   long     _interval = 0;                        // blink interval  - only valid when blinking
-   int      _timerID = 0;                         // SimpleTimer callout for blinking
-   void     (*_toggle)(void) = nullptr;           // function to change pin value
+   int        _ledPin;
+   bool       _illuminated = false;                 // for blinking
+   void       (*_toggle)(void *pArg) = nullptr;     // function to change pin value
+   bool       _timerArmed = false;                  
+   os_timer_t _timer;                               // ESP OS software timer
 };
 
 /*
@@ -73,6 +78,15 @@ private:
 Led::Led (const int pin) {
    _ledPin = pin;
    pinMode(_ledPin, OUTPUT);
+}
+
+
+/*
+ callback function for the os_timer for blinking
+ */
+void Led::setToggleFunction (void (*func)(void *pArg)) {
+   _toggle = func;
+   os_timer_setfn(&_timer, _toggle, nullptr);
 }
 
 /*
@@ -93,52 +107,45 @@ void Led::toggleState (void) {
  set a new target state of the LED
  for blinking, the state indicates the initial condition of the LED - this allows us to have alternating LEDs
  */
-void Led::setState(const LedState ledState) {
+void Led::setState(const LedState ledState, const uint32 interval) {
    state = ledState;                     
-   if ( _timerID != 0 ) {
+   if ( _timerArmed ) {
       // reset the timer whenever we change the state
-      timer.disable(_timerID);
+      os_timer_disarm(&_timer);
+      _timerArmed = false;
    }
    switch ( ledState ) {
    case OFF:
-      _interval = 0;
-      _timerID = 0;
       digitalWrite(_ledPin, LOW);
       _illuminated = false;
       break;
 
    case ON:
-      _interval = 0;
-      _timerID = 0;
       digitalWrite(_ledPin, HIGH);
       _illuminated = true;
       break;
 
-   case BLINK_SLOW_ON:
+   case BLINK_ON:
+      // blink, with initial state ON
       digitalWrite(_ledPin, HIGH);
       _illuminated = true;
-      _interval = 500L;
-      _timerID = timer.setInterval(_interval, _toggle);
+      if ( interval > 5 ) {
+         // min interval - see ESP SDK documentation
+         os_timer_arm(&_timer, interval, true);
+         _timerArmed = true;
+      }
       break;
 
-   case BLINK_SLOW_OFF:
+   case BLINK_OFF:
+      // blink, with initial state OFF
       digitalWrite(_ledPin, LOW);
       _illuminated = false;
-      _interval = 500L;
-      _timerID = timer.setInterval(_interval, _toggle);
+      if ( interval > 5 ) {
+         os_timer_arm(&_timer, interval, true);
+         _timerArmed = true;
+      }
       break;
-
-   case BLINK_FAST_ON:
-      digitalWrite(_ledPin, HIGH);
-      _illuminated = true;
-      _interval = 125L;
-      _timerID = timer.setInterval(_interval, _toggle);
-
-   case BLINK_FAST_OFF:
-      digitalWrite(_ledPin, LOW);
-      _illuminated = false;
-      _interval = 125L;
-      _timerID = timer.setInterval(_interval, _toggle);
+   default:
       break;
    }
 }
@@ -147,14 +154,14 @@ Led greenLED(4);
 Led redLED(5);
 
 /*
- LED toggle functions called by SimpleTimer
- one per LED since no parameters are permitted
+ LED toggle functions 
+ TODO: use "this" construct instead
  */
-void toggleRedLED (void) {
+void toggleRedLED (void *pArg) {
    redLED.toggleState();
 }
 
-void toggleGreenLED (void) {
+void toggleGreenLED (void *pArg) {
    greenLED.toggleState();
 }
 
@@ -461,8 +468,8 @@ void loop (void) {
    }
    if ( client.mode == NO_MODE ) {
       // initiate network connection - can only do this section once
-      greenLED.setState(ON);                  // cannot blink yet because the WiFi Manager autoconnect function blocks
-      redLED.setState(ON);
+      greenLED.setState(BLINK_ON, 500UL);
+      redLED.setState(BLINK_OFF, 500UL);
       client.mode = connectToNetwork();
       client.state = C_PENDING;
 
@@ -479,12 +486,12 @@ void loop (void) {
       // connected to network but no ACK from client yet
       switch ( client.mode ) {
       case STA_MODE:
-         greenLED.setState(BLINK_SLOW_ON);
+         greenLED.setState(BLINK_ON, 500UL);
          redLED.setState(OFF);
          break;
 
       case AP_MODE:
-         greenLED.setState(BLINK_FAST_ON);
+         greenLED.setState(BLINK_ON, 125UL);
          redLED.setState(OFF);
          break;
 
@@ -506,8 +513,8 @@ void loop (void) {
       } else {
          // don't change state - will keep trying to establish connection
          DEBUG_MSG(1, F("UDP connection"), F("Failed"));
-         greenLED.setState(BLINK_FAST_ON);
-         redLED.setState(BLINK_FAST_OFF);
+         greenLED.setState(BLINK_ON, 125UL);
+         redLED.setState(BLINK_OFF, 125UL);
       }
    } else if ( client.state == C_ESTABLISHED ) {
       // end-to-end connection in place  Note: no serial I/O except to the SAM3x at this point
