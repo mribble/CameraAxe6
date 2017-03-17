@@ -58,8 +58,9 @@ public:
    void     toggleState(void);
    /*
     function to be called to change physical pin state
-    necessary since we have to setup a callback within the setState function in the class
-    need a function like this for each instantiation of the class
+    this workaround is necessary since the ESP SDK is in C so we cannot get fancy with "this" etc.
+    (the issue is pointers to member functions are not the same as pointers to functions)
+    need a function pointer for each instantiation of the class
     */
    void     setToggleFunction (void (*func)(void *pArg));
 
@@ -90,9 +91,10 @@ void Led::setToggleFunction (void (*func)(void *pArg)) {
 }
 
 /*
- This is called by the physical pin change function to change the current (temporal) state for blinking
+ This is called by the physical pin change "C" function to change the current (temporal) state for blinking
  */
 void Led::toggleState (void) {
+   os_intr_lock();                           // disable interrupts
    if ( _illuminated ) {
       _illuminated = false;
       digitalWrite(_ledPin, LOW);
@@ -100,6 +102,7 @@ void Led::toggleState (void) {
       _illuminated = true;
       digitalWrite(_ledPin, HIGH);
    }
+   os_intr_unlock();                        // enable interrupts again
 }
 
 
@@ -155,7 +158,7 @@ Led redLED(5);
 
 /*
  LED toggle functions 
- TODO: use "this" construct instead
+ see note in class declaration for why this is necessary
  */
 void toggleRedLED (void *pArg) {
    redLED.toggleState();
@@ -424,9 +427,9 @@ void setup (void) {
    wifiManager.setBreakAfterConfig(true);	             // undocumented function to return if config unsuccessful/skipped
    wifiManager.setSaveCredentialsInEEPROM(true);       // [Local mod] forces credentials to be saved in EEPROM also
                                                        
-   greenLED.setToggleFunction(toggleGreenLED);         // init LED toggle functions for LED blinking
+   greenLED.setToggleFunction(&toggleGreenLED);        // init LED toggle functions for LED blinking
    greenLED.setState(OFF);
-   redLED.setToggleFunction(toggleRedLED);
+   redLED.setToggleFunction(&toggleRedLED);
    redLED.setState(OFF);
 }
 
