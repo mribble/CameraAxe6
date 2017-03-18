@@ -424,10 +424,11 @@ void setup (void) {
    wifiManager.setDebugOutput(false);
 #endif
 
-   wifiManager.setBreakAfterConfig(true);	             // undocumented function to return if config unsuccessful/skipped
-   wifiManager.setSaveCredentialsInEEPROM(true);       // [Local mod] forces credentials to be saved in EEPROM also
+   wifiManager.setBreakAfterConfig(true);	                 // undocumented function to return if config unsuccessful/skipped
+   wifiManager.setSaveCredentialsInEEPROM(true);           // [Local mod] forces credentials to be saved in EEPROM also
+   wifiManager.setExitButtonLabel("Access Point Mode");    // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
                                                        
-   greenLED.setToggleFunction(&toggleGreenLED);        // init LED toggle functions for LED blinking
+   greenLED.setToggleFunction(&toggleGreenLED);            // init LED toggle functions for LED blinking
    greenLED.setState(OFF);
    redLED.setToggleFunction(&toggleRedLED);
    redLED.setState(OFF);
