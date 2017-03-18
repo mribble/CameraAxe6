@@ -430,7 +430,7 @@ void WiFiManager::setBreakAfterConfig(boolean shouldBreak) {
 /** Handle root or redirect to captive portal */
 void WiFiManager::handleRoot() {
   DEBUG_WM(F("Handle root"));
-  if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
+  if (captivePortal()) { // If captive portal redirect instead of displaying the page.
     return;
   }
   
@@ -445,6 +445,8 @@ void WiFiManager::handleRoot() {
   page += "</h1>";
   page += F("<h3>WiFiManager</h3>");
   page += FPSTR(HTTP_PORTAL_OPTIONS);
+  page.replace("{x}", _exitButtonLabel);
+
   page += FPSTR(HTTP_END);
 
   server->send(200, "text/html", page);
@@ -829,6 +831,13 @@ void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
 void  WiFiManager::setSaveCredentialsInEEPROM(const bool saveFlag, const int baseAddress) {
 	_EEPROMCredentials = saveFlag;
 	_baseEEPROMAddress = baseAddress;
+}
+
+/*
+ Set the label to be used on the WiFi portal for the Exit button
+ */
+void WiFiManager::setExitButtonLabel (const char *label) {
+	_exitButtonLabel = String(label);
 }
 
 
