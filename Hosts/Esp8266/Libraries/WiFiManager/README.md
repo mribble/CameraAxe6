@@ -186,6 +186,16 @@ on the main webpage.
 If you're using ```autoConnect``` then it will return ```false```.
 Alternatively, if you are using ```startConfigPortal``` it will return the ```WiFi.status()``` value.
 
+#### Set Exit Button Label
+This function can be used to change the label on the configuration portal "Exit" button to the string of your choice.
+Depending on your application, this may help to clarify the setup process for the end user.
+For example, if your application uses the ESP8266's AP (Access Point) Mode if the ```autoConnect``` function returns false,
+then you can set the Exit button label to
+```cpp
+wifiManager.setExitButtonLabel("Use Access Point Mode");
+```
+which informs the user that AP Mode will be used in place of STA (Station) Mode if they exit from the configuration portal page.
+
 #### Custom Parameters
 You can use WiFiManager to collect more parameters than just SSID and password.
 This could be helpful for configuring stuff like MQTT host and port, [blynk](http://www.blynk.cc) or [emoncms](http://emoncms.org) tokens, just to name a few.
