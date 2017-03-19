@@ -44,6 +44,8 @@ SimpleTimer    timer;                            // used to schedule non-time-cr
 
 // for LED status management
 
+#define LED_STATUS_DELAY      30000              // how long to keep the connection status LED lights illuminated
+
 typedef enum { OFF, ON, BLINK_OFF, BLINK_ON } LedState;
 
 class Led {
@@ -164,6 +166,14 @@ void toggleRedLED (void *pArg) {
 
 void toggleGreenLED (void *pArg) {
    greenLED.toggleState();
+}
+
+/*
+ disable the LED connection status indicators after a delay to save power
+ */
+void LEDTimeout (void) {
+   greenLED.setState(OFF);
+   redLED.setState(OFF);
 }
 
 
@@ -513,6 +523,7 @@ void loop (void) {
          client.state = C_ESTABLISHED;
          greenLED.setState(ON);
          redLED.setState(OFF);
+         timer.setTimeout(LED_STATUS_DELAY, &LEDTimeout);
       } else {
          // don't change state - will keep trying to establish connection
          DEBUG_MSG(1, F("UDP connection"), F("Failed"));
