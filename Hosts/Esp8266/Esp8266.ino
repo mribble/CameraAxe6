@@ -21,11 +21,11 @@ extern "C" {
 
 #ifdef DEBUG
 
-#define SERIAL_DEBUG              // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+#define SERIAL_DEBUG             // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
               
 #ifdef SERIAL_DEBUG
 
-#define SerialIO      Serial1     // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
+#define SerialIO      Serial1    // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
 
 #else // SERIAL_DEBUG
 
@@ -485,8 +485,7 @@ void loop (void) {
          SerialIO.println(F("Auto-discovery FAILED"));
          fatalError = true;
       }
-   }
-   if ( client.state == C_PENDING ) {
+   } else if ( client.state == C_PENDING ) {
       // connected to network but no ACK from client yet
       switch ( client.mode ) {
       case STA_MODE:
@@ -521,17 +520,16 @@ void loop (void) {
          redLED.setState(BLINK_OFF, 125UL);
       }
    } else if ( client.state == C_ESTABLISHED ) {
-      // end-to-end connection in place  Note: no serial I/O except to the SAM3x at this point
-      client.udpSize = client.stream.parsePacket();
-      if ( client.udpSize > 0 ) {
+      // end-to-end connection in place  Note: no Serial I/O except to the SAM3x at this point
+      if ( client.stream.parsePacket() > 0 ) {
          uint8 buf[2048];
-         DEBUG_MSG(2, "UDP packet rcvd", client.udpSize);
 #ifdef SKIP_CLIENT_ACK
          client.address = client.stream.remoteIP();              // force this for testing
 #endif
          // for security, verify that the client that sent the ACK is the same as the one that sent this packet
          if ( client.address == client.stream.remoteIP() ) {
             client.udpSize = client.stream.read(buf, sizeof(buf));
+            DEBUG_MSG(2, F("UDP packet rcvd"), client.udpSize);
             size_t len = Serial.write(buf, client.udpSize);
 #if DEBUG >= 4
             hexDump(buf, client.udpSize);
@@ -556,8 +554,11 @@ void loop (void) {
             client.packetSize = genPacketSize(ibuf[0], ibuf[1]);
             DEBUG_MSG(3, F("packet size"), client.packetSize);
          }
-         // the remaining bytes are the packet contents - copy from serial and send UDP packet
-         if ( client.packetSize != 0 && client.serialSize >= client.packetSize - PACKET_SIZE_SIZE ) {
+         /*
+          the remaining bytes are the packet contents - copy from serial and send UDP packet
+          it make take a couple of interations until all the bytes are available in the stream
+          */
+         if ( client.packetSize != 0 && (client.serialSize >= client.packetSize - PACKET_SIZE_SIZE) ) {
             uint8 buf[2048];
             buf[0] = getPacketSize(client.packetSize, 0);
             buf[1] = getPacketSize(client.packetSize, 1);
@@ -583,7 +584,7 @@ void loop (void) {
       }
    }
 
-   timer.run();
+   timer.run();                            // SimpleTimer
    ArduinoOTA.handle();
    yield();
 }
