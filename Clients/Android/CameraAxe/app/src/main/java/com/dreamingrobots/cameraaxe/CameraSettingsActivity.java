@@ -1,5 +1,9 @@
 package com.dreamingrobots.cameraaxe;
 
+/**
+ * An activity to manage the camera settings.  Each camera/flash port has it's own fragment that this activity
+ * manages
+ */
 
 import android.content.Intent;
 import android.os.Bundle;

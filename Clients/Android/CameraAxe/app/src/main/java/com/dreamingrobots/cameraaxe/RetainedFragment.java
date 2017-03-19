@@ -4,17 +4,12 @@ package com.dreamingrobots.cameraaxe;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static com.dreamingrobots.cameraaxe.MainActivity.mIpPort;
-
+import static com.dreamingrobots.cameraaxe.MainActivity.USE_BLE;
 
 /**
  *  Handle networking in a retained fragment so threads aren't lost on a configuration change
@@ -29,16 +24,17 @@ public class RetainedFragment extends Fragment {
     private DynamicMenuBuilder mDynamicMenuBuilder;
     private String mIpAddress;
     private int mIpPort;
-
-
+    private ConnectionManager mConnectionManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        mConnectionManager = new ConnectionManager((MainActivity)getActivity(), USE_BLE);
     }
 
     public ArrayAdapter getMenuListAdapter() { return mMenuListAdapter; }
+    public ConnectionManager getConnectionManager() { return mConnectionManager;}
 
     public void setDynamicMenuBuilder(LinearLayout parentView) {
         if (mDynamicMenuBuilder == null) {

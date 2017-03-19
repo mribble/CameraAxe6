@@ -11,11 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import static android.R.attr.duration;
-import static android.R.attr.x;
-
 /**
- * Fragments for camera settings
+ * This is a UI fragment for the settings to be used with each camera/flash port
  */
 
 // Instances of this class are fragments representing single camera setting menu

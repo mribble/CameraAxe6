@@ -2,6 +2,7 @@ package com.dreamingrobots.cameraaxe;
 
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,11 +20,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static com.dreamingrobots.cameraaxe.ConnectionManager.REQUEST_BLE_ENABLE;
+import static com.dreamingrobots.cameraaxe.ConnectionManager.REQUEST_BLE_SELECT_DEVICE;
+
 /**
- * The main UI activity for the Android Udp application.
- * The major tasks for this activity are:
- * + Handle UI inputs/outputs
- * + Start threads to handle networking
+ * This is mainly a UI activity that takes information from other classes and displays an interface for that data
  */
 public class MainActivity extends FragmentActivity {
     static final int REQUEST_CAMERA_SETTINGS = 3;
@@ -69,7 +70,14 @@ public class MainActivity extends FragmentActivity {
             mBleConnectButton.setVisibility(View.GONE);
         }
 
-        mConnectionManager = new ConnectionManager(this, USE_BLE, mBleConnectButton);
+        if (USE_BLE) {
+            mBleConnectButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mConnectionManager.toggleConnection();
+                }
+            });
+        }
 
         // When this button is clicked we generate a network packet
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
@@ -133,11 +141,11 @@ public class MainActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case ConnectionManager.REQUEST_BLE_SELECT_DEVICE:
+            case REQUEST_BLE_SELECT_DEVICE:
                 mConnectionManager.requestSelectDevice(resultCode, data);
 
                 break;
-            case ConnectionManager.REQUEST_BLE_ENABLE:
+            case REQUEST_BLE_ENABLE:
                 //  The request to enable Ble returns
                 if (resultCode == Activity.RESULT_OK) {
                     showToastMessage("Bluetooth has turned on ");
@@ -203,6 +211,16 @@ public class MainActivity extends FragmentActivity {
 
         mRetainedFragment.setDynamicMenuBuilder(mDynamicMenuList);
         mSelectMenuSpinner.setAdapter(mRetainedFragment.getMenuListAdapter());
+
+        mConnectionManager = mRetainedFragment.getConnectionManager();
+    }
+
+    public void setConnectionUi(boolean connection) {
+        if (connection) {
+            mBleConnectButton.setText("Disconnect");
+        } else {
+            mBleConnectButton.setText("Connect");
+        }
     }
 
     private void showToastMessage(String msg) {
