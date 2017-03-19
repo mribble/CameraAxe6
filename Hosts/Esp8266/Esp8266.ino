@@ -9,7 +9,7 @@
 #include <SimpleTimer.h>
 #include <EEPROM.h>
 
-// ESP8266 SDK Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
+// ESP8266 SDK      Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
 extern "C" {
 #include "user_interface.h"
 }
@@ -40,7 +40,7 @@ extern "C" {
 #define DEBUG_MSG(...) ;
 #endif // DEBUG
 
-SimpleTimer    timer;
+SimpleTimer    timer;                            // used to schedule non-time-critical events
 
 // for LED status management
 
@@ -58,8 +58,10 @@ public:
    void     toggleState(void);
    /*
     function to be called to change physical pin state
+
     this workaround is necessary since the ESP SDK is in C so we cannot get fancy with "this" etc.
-    (the issue is pointers to member functions are not the same as pointers to functions)
+    (the issue is pointers to member functions are not the same as pointers to functions [C++ naming, "this" is an implicit parameter in C++, etc.]
+
     need a function pointer for each instantiation of the class
     */
    void     setToggleFunction (void (*func)(void *pArg));
@@ -67,10 +69,10 @@ public:
 
 private:
    int        _ledPin;
-   bool       _illuminated = false;                 // for blinking
-   void       (*_toggle)(void *pArg) = nullptr;     // function to change pin value
+   volatile    bool _illuminated = false;           // for blinking
+   void       (*_toggle)(void *pArg) = nullptr;     // pointer to function to change pin value
    bool       _timerArmed = false;                  
-   os_timer_t _timer;                               // ESP OS software timer
+   os_timer_t _timer;                               // ESP OS software timer (ESP8266 SDK)
 };
 
 /*
@@ -83,7 +85,7 @@ Led::Led (const int pin) {
 
 
 /*
- callback function for the os_timer for blinking
+ set the callback function for the os_timer for blinking
  */
 void Led::setToggleFunction (void (*func)(void *pArg)) {
    _toggle = func;
@@ -132,21 +134,17 @@ void Led::setState(const LedState ledState, const uint32 interval) {
       // blink, with initial state ON
       digitalWrite(_ledPin, HIGH);
       _illuminated = true;
-      if ( interval > 5 ) {
-         // min interval - see ESP SDK documentation
-         os_timer_arm(&_timer, interval, true);
-         _timerArmed = true;
-      }
+      // min interval is 5 - see ESP SDK documentation
+      os_timer_arm(&_timer, interval >= 5 ? interval : 5, true);
+      _timerArmed = true;
       break;
 
    case BLINK_OFF:
       // blink, with initial state OFF
       digitalWrite(_ledPin, LOW);
       _illuminated = false;
-      if ( interval > 5 ) {
-         os_timer_arm(&_timer, interval, true);
-         _timerArmed = true;
-      }
+      os_timer_arm(&_timer, interval >= 5 ? interval : 5, true);
+      _timerArmed = true;
       break;
    default:
       break;
@@ -173,7 +171,7 @@ void toggleGreenLED (void *pArg) {
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87
 #define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define AD_ANNOUNCE_DELAY   2000	                         // frequency of autodiscovery announcements
+#define AD_ANNOUNCE_DELAY   2000	                         // frequency of autodiscovery announcements  (msec)
 
 NetDiscovery   discovery;
 IPAddress      mcastIP(MCAST_ADDRESS);
@@ -244,6 +242,7 @@ IPAddress createUniqueIP (void) {
 
  currently tracks only one client device, which may change over time
  the client is always the most recent responder to the announcement
+
  TODO: handle multiple clients (separate UDP ports)
 */
 void autoDiscovery (void) {
@@ -255,6 +254,7 @@ void autoDiscovery (void) {
    if ( discovery.announce(&localPacket) ) {
 #ifndef SKIP_CLIENT_ACK
       if ( (discovery.listen(&remotePacket) == ND_ACK) && (client.state == C_PENDING || client.state == C_WAITING) ) {
+         // it is the responsibility of the client to only send a single ACK
          DEBUG_MSG(1, F("autoDiscovery"), F("ACK"));
          if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
             client.address = remotePacket.addressIP;
@@ -277,7 +277,7 @@ void autoDiscovery (void) {
 
 /*
  Connect to the network or establish a standalone AP network
- connection is fully established once the client sends an ACK via auto discovery
+ connection is fully established once the client sends an ACK via auto-discovery
  returns type of connection being established - STA or AP
  */
 ConnectionMode connectToNetwork (void) {
@@ -324,7 +324,7 @@ ConnectionMode connectToNetwork (void) {
          WiFi.printDiag(SerialIO);
 #endif
 
-#endif
+#endif // AP_WORKAROUND
 
          /*
           OTA setup, which only makes sense when on a local WiFi network
@@ -339,41 +339,41 @@ ConnectionMode connectToNetwork (void) {
          // ArduinoOTA.setPassword((const char *)"123");
 
          ArduinoOTA.onStart([]() {
-            SerialIO.println(F("Start"));
+            SerialIO.println(F("OTA Start"));
          });
          ArduinoOTA.onEnd([]() {
-            SerialIO.println(F("\nEnd. Restarting ..."));
+            SerialIO.println(F("\nOTA End. Restarting ..."));
             delay(5000);
-            //ESP.restart();
+            ESP.restart();                          // the OTA library calls restart, but we never return, so force it.
          });
          ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-            SerialIO.printf("Progress: %u%%\r", (progress / (total / 100)));
+            SerialIO.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
          });
          ArduinoOTA.onError([](ota_error_t error) {
-            SerialIO.printf("Error[%u]: ", error);
+            SerialIO.printf("OTA Error[%u]: ", error);
             switch ( error ) {
             case OTA_AUTH_ERROR:
-               SerialIO.println(F("Auth Failed"));
+               SerialIO.println(F("OTA Auth Failed"));
                break;
 
             case OTA_BEGIN_ERROR:
-               SerialIO.println(F("Begin Failed"));
+               SerialIO.println(F("OTA Begin Failed"));
                break;
 
             case OTA_CONNECT_ERROR:
-               SerialIO.println(F("Connect Failed"));
+               SerialIO.println(F("OTA Connect Failed"));
                break;
 
             case OTA_RECEIVE_ERROR:
-               SerialIO.println(F("Receive Failed"));
+               SerialIO.println(F("OTA Receive Failed"));
                break;
 
             case OTA_END_ERROR:
-               SerialIO.println(F("End Failed"));
+               SerialIO.println(F("OTA End Failed"));
                break;
 
             default:
-               SerialIO.println(F("Unknown error"));
+               SerialIO.println(F("OTA Unknown error"));
                break;
             }
          });
@@ -409,7 +409,6 @@ ConnectionMode connectToNetwork (void) {
    return mode;
 }
 
-bool fatalError = false;                    // true if fatal error occurred 
 
 void setup (void) {
    Serial.begin(74880);                     // SAM3X
@@ -419,7 +418,7 @@ void setup (void) {
    EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
 
 #ifdef DEBUG
-   wifiManager.setDebugOutput(true);
+   wifiManager.setDebugOutput(true);                       // NOTE: wifi manager library debug output goes to Serial, NOT Serial1
 #else
    wifiManager.setDebugOutput(false);
 #endif
@@ -462,6 +461,7 @@ void hexDump (const uint8 *buf, const int len) {
 }
 #endif
 
+bool fatalError = false;                    // true if fatal error occurred 
 
 void loop (void) {
    if ( fatalError ) {
@@ -502,7 +502,7 @@ void loop (void) {
       default:
          break;
       }
-      client.state = C_WAITING;       // just like pending, but leaves LED state as-is
+      client.state = C_WAITING;       // like pending, but leaves LED state as-is
    } else if ( client.state == C_ACKNOWLEDGED ) {
       // ACK received open UDP stream
       if ( client.stream.begin(client.port) ) {
