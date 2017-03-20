@@ -1,7 +1,10 @@
 /*
- Test code for CA6 auto-discovery
- Simply listens for announcement packets and displays the IP and MAC address of the initiator
- This utility will work on either lcoal networks or in AP mode (set network credentials accordingly)
+ Test/demo code for CA6 auto-discovery
+ 
+ This sketch is used to demonstrate the client side of the auto-discovery protocol
+ It can also be used for testing to ACK the announcement from the host in place of an actual client
+ 
+ This sketch will work on either lcoal networks or in AP mode (set network credentials accordingly)
  */
 
 #include <ESP8266WiFi.h>
@@ -21,7 +24,7 @@
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87
 #define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define SSID                "CA6_10.215.126.227"
+#define SSID                "CA6_10.215.126.227"          // change these parameters as needed
 #define PASSWORD            "ca6admin"
 
 NetDiscovery       discovery;

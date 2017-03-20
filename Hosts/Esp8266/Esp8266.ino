@@ -51,11 +51,9 @@ typedef enum { OFF, ON, BLINK_OFF, BLINK_ON } LedState;
 class Led {
 public:
    Led(const int pin);                           // constructor
-
-   LedState state = OFF;                         // TODO: not currently used - needed?
  
    // set the target LED state
-   void     setState (const LedState ledState, uint32 interval = 0);
+   void     setState (const LedState ledState, const uint32 interval = 0);
    // toggle current state - called by function set by setToggleFunction()
    void     toggleState(void);
    /*
@@ -114,8 +112,7 @@ void Led::toggleState (void) {
  set a new target state of the LED
  for blinking, the state indicates the initial condition of the LED - this allows us to have alternating LEDs
  */
-void Led::setState(const LedState ledState, const uint32 interval) {
-   state = ledState;                     
+void Led::setState(const LedState ledState, const uint32 interval) {                    
    if ( _timerArmed ) {
       // reset the timer whenever we change the state
       os_timer_disarm(&_timer);
@@ -148,6 +145,7 @@ void Led::setState(const LedState ledState, const uint32 interval) {
       os_timer_arm(&_timer, interval >= 5 ? interval : 5, true);
       _timerArmed = true;
       break;
+
    default:
       break;
    }
@@ -216,9 +214,9 @@ CA6Client client;
 ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise. IDE issue ... again :-(
 
 /*
- Create and return a (reasonably) unique WiFi SSID using the ESP8266 WiFi MAC address
+ Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
  Form the SSID as an IP address so the user knows what address to connect to when in AP mode just in case
- (Even though the config page comes up automatically without the user having to use a browser)
+ (Even though the config page typically comes up automatically without the user having to enter a URL)
 */
 String createUniqueSSID (void) {
    uint8    mac[WL_MAC_ADDR_LENGTH];
@@ -231,7 +229,7 @@ String createUniqueSSID (void) {
 }
 
 /*
- create a (reasonably) unique class A private IP address using the ESP8266 WiFi MAC address
+ return a unique class A private IP address using the ESP8266 WiFi MAC address
  we use class A private addresses to have a large potential address space to avoid conflicts
 */
 IPAddress createUniqueIP (void) {
@@ -252,6 +250,8 @@ IPAddress createUniqueIP (void) {
 
  currently tracks only one client device, which may change over time
  the client is always the most recent responder to the announcement
+
+ See Extras\ADClientStub\ADClientStub.ino for the client-side logic part of this protocol 
 
  TODO: handle multiple clients (separate UDP ports)
 */
@@ -489,7 +489,7 @@ void loop (void) {
 
       // initialize auto-discovery
       if ( discovery.begin(mcastIP, MCAST_PORT) ) {
-         timer.setInterval(AD_ANNOUNCE_DELAY, autoDiscovery);
+         timer.setInterval(AD_ANNOUNCE_DELAY, &autoDiscovery);
          SerialIO.println(F("Auto-discovery started"));
       } else {
          SerialIO.println(F("Auto-discovery FAILED"));
@@ -513,7 +513,7 @@ void loop (void) {
       }
       client.state = C_WAITING;       // like pending, but leaves LED state as-is
    } else if ( client.state == C_ACKNOWLEDGED ) {
-      // ACK received open UDP stream
+      // ACK received
       if ( client.stream.begin(client.port) ) {
          /*
           Any device could have opened up this port, but we'll consider this OK and validate
@@ -558,7 +558,7 @@ void loop (void) {
          // data avilable from the SAM3X for the client
          DEBUG_MSG(2, F("Client data available"), client.serialSize);
     
-         if ( client.packetSize == 0 && client.serialSize >= PACKET_SIZE_SIZE ) {
+         if ( client.packetSize == 0 && (client.serialSize >= PACKET_SIZE_SIZE) ) {
             // calculate the size of the packet from the first 2 bytes in the stream
             uint8 ibuf[PACKET_SIZE_SIZE];
             Serial.readBytes(ibuf, PACKET_SIZE_SIZE);

@@ -1,5 +1,6 @@
 /* 
  SAM3X side of the serial I/O loopback test
+ Alternate version where the SAM3X is the MASTER
  This verifies correct communiction from the ESPs hw UART to the Serial1 (19,18) ports on the Due
 */
 
