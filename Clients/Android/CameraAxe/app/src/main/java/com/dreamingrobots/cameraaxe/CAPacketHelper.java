@@ -20,7 +20,18 @@ public class CAPacketHelper {
 
     public CAPacket.PacketElement processIncomingPacket(byte[] buf, int bufSize) {
         CAPacket unpacker = new CAPacket(CAPacket.STATE_UNPACKER, buf, bufSize);
-        int packetSize = unpacker.unpackSize();
+
+        if (bufSize < 2) {
+            return null;
+        }
+        int packetSize = unpacker.peekSize();
+
+        if (packetSize != bufSize) {
+            return null;
+        }
+
+        packetSize = unpacker.unpackSize();
+
         short packetType = unpacker.unpackType();
         CAPacket.PacketElement ret;
 

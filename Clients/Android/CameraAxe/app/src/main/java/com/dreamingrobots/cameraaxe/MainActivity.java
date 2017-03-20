@@ -103,7 +103,7 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 if (USE_BLE) {
-                    mConnectionManager.sendData();
+
                 } else {
                     final String ipAddress = mIpAddress.getText().toString();
                     mRetainedFragment.startReceiveThread(ipAddress, mIpPort);
