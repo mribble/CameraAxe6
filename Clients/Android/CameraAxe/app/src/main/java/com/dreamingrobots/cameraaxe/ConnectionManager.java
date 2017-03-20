@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
 import java.io.UnsupportedEncodingException;
 
@@ -27,7 +26,7 @@ import java.io.UnsupportedEncodingException;
  */
 
 public class ConnectionManager {
-    Activity mActivity;
+    MainActivity mActivity;
     boolean mUseBle;
 
     // Ble settings
@@ -36,17 +35,14 @@ public class ConnectionManager {
     private static final int BLE_UART_PROFILE_READY = 10;
     private static final int BLE_UART_PROFILE_CONNECTED = 20;
     private static final int BLE_UART_PROFILE_DISCONNECTED = 21;
-    Button mBleConnectButton;
     private UartService mBleService = null;
     private BluetoothDevice mBleDevice = null;
     private BluetoothAdapter mBleAdapter = null;
     private int mState = BLE_UART_PROFILE_DISCONNECTED;
 
-    ConnectionManager(Activity activity, boolean useBle, Button connectButton) {
+    ConnectionManager(MainActivity activity, boolean useBle) {
         mActivity = activity;
         mUseBle = useBle;
-
-        mBleConnectButton = connectButton;
 
         if (mUseBle) {
             checkRuntimePermissions();
@@ -59,30 +55,28 @@ public class ConnectionManager {
 
             bleServiceInit();
         }
+    }
+
+    public void toggleConnection() {
 
         if (mUseBle) {
-            mBleConnectButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!mBleAdapter.isEnabled()) {
-                        Log.i("CA6", "onClick - BT not enabled yet");
-                        Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        mActivity.startActivityForResult(enableIntent, REQUEST_BLE_ENABLE);
-                    } else {
-                        if (mBleConnectButton.getText().equals("Connect")) {
-                            //Connect button pressed, open DeviceListActivity class with popup windows that scan for devices
-                            Intent newIntent = new Intent(mActivity, DeviceListActivity.class);
-                            mActivity.startActivityForResult(newIntent, REQUEST_BLE_SELECT_DEVICE);
-                        } else {
-                            //Disconnect button pressed
-                            if (mBleDevice != null) {
-                                mBleService.disconnect();
-                            }
-                        }
+            if (!mBleAdapter.isEnabled()) {
+                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                mActivity.startActivityForResult(enableIntent, REQUEST_BLE_ENABLE);
+            } else {
+                if (mState ==BLE_UART_PROFILE_DISCONNECTED) {
+                    //Connect button pressed, open DeviceListActivity class with popup windows that scan for devices
+                    Intent newIntent = new Intent(mActivity, DeviceListActivity.class);
+                    mActivity.startActivityForResult(newIntent, REQUEST_BLE_SELECT_DEVICE);
+                } else {
+                    //Disconnect button pressed
+                    if (mBleDevice != null) {
+                        mBleService.disconnect();
                     }
                 }
-            });
+            }
         }
+
     }
 
     public boolean isConnected() {
@@ -135,14 +129,14 @@ public class ConnectionManager {
             if (action.equals(UartService.ACTION_GATT_CONNECTED)) {
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
-                        mBleConnectButton.setText("Disconnect");
+                        mActivity.setConnectionUi(true);
                         mState = BLE_UART_PROFILE_CONNECTED;
                     }
                 });
             } else if (action.equals(UartService.ACTION_GATT_DISCONNECTED)) {
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
-                        mBleConnectButton.setText("Connect");
+                        mActivity.setConnectionUi(false);
                         mState = BLE_UART_PROFILE_DISCONNECTED;
                         mBleService.close();
                     }
