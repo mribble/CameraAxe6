@@ -53,7 +53,7 @@ public:
    Led(const int pin);                           // constructor
  
    // set the target LED state
-   void     setState (const LedState ledState, const uint32 interval = 0);
+   void     setState (const LedState ledState, const uint32_t interval = 0);
    // toggle current state - called by function set by setToggleFunction()
    void     toggleState(void);
    /*
@@ -112,7 +112,7 @@ void Led::toggleState (void) {
  set a new target state of the LED
  for blinking, the state indicates the initial condition of the LED - this allows us to have alternating LEDs
  */
-void Led::setState(const LedState ledState, const uint32 interval) {                    
+void Led::setState(const LedState ledState, const uint32_t interval) {                    
    if ( _timerArmed ) {
       // reset the timer whenever we change the state
       os_timer_disarm(&_timer);
@@ -199,10 +199,10 @@ typedef enum { NO_MODE, STA_MODE, AP_MODE } ConnectionMode;
 
 // all the state info we need to manage a client connection
 typedef struct {
-   uint16         port = UDP_PORT;                 // UDP port number
-   uint16         udpSize = 0;                     // incoming data (UDP)
-   uint16         serialSize = 0;                  // serial IO input pending
-   uint16         packetSize = 0;                  // outgoing data
+   uint16_t       port = UDP_PORT;                 // UDP port number
+   uint16_t       udpSize = 0;                     // incoming data (UDP)
+   uint16_t       serialSize = 0;                  // serial IO input pending
+   uint16_t       packetSize = 0;                  // outgoing data
    WiFiUDP        stream;
    IPAddress      address;
    ConnectionMode mode = NO_MODE;
@@ -219,7 +219,7 @@ ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes
  (Even though the config page typically comes up automatically without the user having to enter a URL)
 */
 String createUniqueSSID (void) {
-   uint8    mac[WL_MAC_ADDR_LENGTH];
+   uint8_t  mac[WL_MAC_ADDR_LENGTH];
    String   uSSID;
 
    WiFi.softAPmacAddress(mac);
@@ -233,7 +233,7 @@ String createUniqueSSID (void) {
  we use class A private addresses to have a large potential address space to avoid conflicts
 */
 IPAddress createUniqueIP (void) {
-   uint8     mac[WL_MAC_ADDR_LENGTH];
+   uint8_t   mac[WL_MAC_ADDR_LENGTH];
    IPAddress result;
 
    WiFi.softAPmacAddress(mac);
@@ -445,21 +445,21 @@ void setup (void) {
 
 #define PACKET_SIZE_SIZE 2
 
-uint16 genPacketSize(uint8 b0, uint8 b1) {
-  uint16 ret = uint16(b0) + (uint16(b1)<<8);
+uint16_t genPacketSize(uint8_t b0, uint8_t b1) {
+  uint16_t ret = uint16_t(b0) + (uint16_t(b1)<<8);
   return ret;
 }
 
-uint8 getPacketSize(uint16 val, uint8 byteNumber) {
+uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
   if (byteNumber == 0) {
-    return uint8(val & 0xFF);
+    return uint8_t(val & 0xFF);
   } else {
     return val >> 8;
   }
 }
 
 #if DEBUG >= 4
-void hexDump (const uint8 *buf, const int len) {
+void hexDump (const uint8_t *buf, const int len) {
    SerialIO.printf("Dumping %d bytes:", len);
    for ( int i = 0; i < len; i++) {
       if ( i % 4 == 0 ) {
@@ -533,7 +533,7 @@ void loop (void) {
    } else if ( client.state == C_ESTABLISHED ) {
       // end-to-end connection in place  Note: no Serial I/O except to the SAM3x at this point
       if ( client.stream.parsePacket() > 0 ) {
-         uint8 buf[2048];
+         uint8_t buf[2048];
 #ifdef SKIP_CLIENT_ACK
          client.address = client.stream.remoteIP();              // force this for testing
 #endif
@@ -560,7 +560,7 @@ void loop (void) {
     
          if ( client.packetSize == 0 && (client.serialSize >= PACKET_SIZE_SIZE) ) {
             // calculate the size of the packet from the first 2 bytes in the stream
-            uint8 ibuf[PACKET_SIZE_SIZE];
+            uint8_t ibuf[PACKET_SIZE_SIZE];
             Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
             client.packetSize = genPacketSize(ibuf[0], ibuf[1]);
             DEBUG_MSG(3, F("packet size"), client.packetSize);
@@ -570,7 +570,7 @@ void loop (void) {
           it make take a couple of interations until all the bytes are available in the stream
           */
          if ( client.packetSize != 0 && (client.serialSize >= client.packetSize - PACKET_SIZE_SIZE) ) {
-            uint8 buf[2048];
+            uint8_t buf[2048];
             buf[0] = getPacketSize(client.packetSize, 0);
             buf[1] = getPacketSize(client.packetSize, 1);
             Serial.readBytes(buf+PACKET_SIZE_SIZE, client.packetSize-PACKET_SIZE_SIZE);
