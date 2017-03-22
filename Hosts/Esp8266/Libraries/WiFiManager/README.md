@@ -239,11 +239,9 @@ wifiManager.setSTAStaticIPConfig(IPAddress(192,168,0,99), IPAddress(192,168,0,1)
 There are a couple of examples in the examples folder that show you how to set a static IP and even how to configure it through the web configuration portal.
 
 ##### Saved Credentials Workaround
-There is an apparent bug in ESP8266WiFi that cuases the saved credentials to disappear.
-As a result, when WiFi Manager attempts to join a known network, the saved SSID and password are gone,
-resulting in the user having to log in again.
 The function ```setSaveCredentialsInEEPROM``` can be called to separately save the credentials in EEPROM and
 restore them when signing in to a known WiFi network.
+This creates a shadow copy of the credentials in case they are erased or lost.
 The function takes 2 arguments: a Boolean flag (```true``` or ```false```) and the base address in EEPROM to save the credentials
 (optional. If not supplied defaults to ```0```.)
 For example:

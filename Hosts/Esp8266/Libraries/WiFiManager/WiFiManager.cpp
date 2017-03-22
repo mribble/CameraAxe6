@@ -256,15 +256,15 @@ int WiFiManager::connectWifi(String ssid, String pass) {
   if (ssid != "") {
     WiFi.begin(ssid.c_str(), pass.c_str());
 	 if ( _EEPROMCredentials ) {
-		// workaround to save credentials in EEPROM also to avoid an apparent bug in the ESP8266WiFi library
+		// save credentials in EEPROM as well as a "shadow copy" in the event the SDK EEPROM credentials are erased/lost
 		union { 
 			struct  station_config conf;
 			uint8_t data[sizeof(struct station_config)];
 		} credentials;
 	 
 	   /*
-		 WiFi.begin calls wifi_station_set_config to store the parameters, but
-		 they are later blank. If we catch them right away we can save it in EEPROM as a backup
+		 WiFi.begin calls wifi_station_set_config to store the parameters
+		 save it in EEPROM as a backup
 		*/
 		if ( wifi_station_get_config(&credentials.conf) ) {
 			DEBUG_WM(F("Saving credentials in EEPROM"));
