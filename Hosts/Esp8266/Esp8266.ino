@@ -495,7 +495,7 @@ void loop (void) {
       client.state = C_PENDING;
 
       // initialize auto-discovery
-      if ( discovery.begin(mcastIP, MCAST_PORT) ) {
+      if ( discovery.begin(mcastIP, MCAST_PORT, client.mode == AP_MODE ? WiFi.softAPIP() : WiFi.localIP()) ) {
          os_timer_arm(&ADBeacon, AD_ANNOUNCE_DELAY, true);
          SerialIO.println(F("Auto-discovery started"));
       } else {

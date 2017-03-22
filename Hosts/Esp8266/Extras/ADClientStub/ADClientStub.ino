@@ -24,7 +24,7 @@
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87
 #define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define SSID                "CA6_10.215.126.227"          // change these parameters as needed
+#define SSID                "CA6_10.215.126.227"          // *** change this to the IP address of the ESP8266 under test ***
 #define PASSWORD            "ca6admin"
 
 NetDiscovery       discovery;
@@ -41,7 +41,7 @@ void setup(void)
 	Serial.println();
 	DEBUG_MSG(1, F("CLIENT Connected. Local IP"), WiFi.localIP());
 
-	if ( !discovery.begin(mcastIP, MCAST_PORT) ) {       // join mcast group
+	if ( !discovery.begin(mcastIP, MCAST_PORT, WiFi.localIP()) ) {       // join mcast group
 		DEBUG_MSG(1, F("Cannot initialize discovery mcast group"), mcastIP);
 		while ( true ) delay(1000);
 	}
