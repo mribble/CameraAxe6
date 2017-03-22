@@ -84,6 +84,7 @@ void CAPacket::packer(uint32 val, uint8 packBits)
         val = val >> bitsToPack;
         if (mBitsUsed == 8) // When byte is full write it's value
         {
+            //CAU::log("%d, ", mBitsVal);
             mBuf[mBytesUsed++] = mBitsVal;
             mBitsVal = 0;
             mBitsUsed = 0;

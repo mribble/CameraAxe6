@@ -65,6 +65,11 @@ class CAPacket {
 
     int unpackSize() {return (int) unpacker(16);}
 
+    int peekSize() {
+        int val = mBuf[mBytesUsed] + (mBuf[mBytesUsed+1]<<8);
+        return val;
+    }
+
     public short unpackType() {
         short val = (short) unpacker(8);
         if ((val <= PID_START_SENTINEL) || (val >= PID_END_SENTINEL)) {

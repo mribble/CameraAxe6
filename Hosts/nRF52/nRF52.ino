@@ -18,20 +18,13 @@ BLEDescriptor gRxNameDescriptor = BLEDescriptor("2901", "RX - Receive Data (Writ
 BLECharacteristic gTxCharacteristic = BLECharacteristic("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLENotify, BLE_ATTRIBUTE_MAX_VALUE_LENGTH);
 BLEDescriptor gTxNameDescriptor = BLEDescriptor("2901", "TX - Transfer Data (Notify)");
 
-uint8_t gRxBuf[2048];
-uint16_t gRxSize = 0;
-uint8_t gTxBuf[2048];
-
+// Just pass through data from BLE to serial
 void bleReceived(BLECentral& /*central*/, BLECharacteristic& rxCharacteristic) {
   const uint8_t *data = rxCharacteristic.value();
   uint16_t sz = rxCharacteristic.valueLength();
-  for (uint16_t i = 0; i < sz; i++) {
-    gRxBuf[gRxSize++] = data[i];
-  }
 
-  if (gRxSize > 0) {
-    Serial.write(gRxBuf, gRxSize);
-    gRxSize = 0;
+  if (sz > 0) {
+    Serial.write(data, sz);
   }
 }
 
@@ -64,14 +57,42 @@ void bleWrite(uint8_t *data, uint16_t sz) {
   }
 }
 
+#define PACKET_SIZE_SIZE 2
+
+uint16_t genPacketSize(uint8_t b0, uint8_t b1) {
+  uint16_t ret = uint16_t(b0) + (uint16_t(b1)<<8);
+  return ret;
+}
+
+uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
+  if (byteNumber == 0) {
+    return uint8_t(val & 0xFF);
+  } else {
+    return val >> 8;
+  }
+}
+
 void loop() {
   gBLE.poll();
 
+  static uint16_t gPacketSize = 0;
   uint16_t serialSize = Serial.available();
+  uint8_t buf[2048];
 
   if (serialSize > 0) {
-    Serial.readBytes(gTxBuf, serialSize);
-    bleWrite(gTxBuf, serialSize);
+    
+    if (gPacketSize == 0 && serialSize >= PACKET_SIZE_SIZE) {
+      uint8_t ibuf[PACKET_SIZE_SIZE];
+      Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
+      gPacketSize = genPacketSize(ibuf[0], ibuf[1]);
+    }
+    if (gPacketSize != 0 && serialSize >= gPacketSize-PACKET_SIZE_SIZE) {
+      buf[0] = getPacketSize(gPacketSize, 0);
+      buf[1] = getPacketSize(gPacketSize, 1);
+      Serial.readBytes(buf+PACKET_SIZE_SIZE, gPacketSize-PACKET_SIZE_SIZE);
+      bleWrite(buf, gPacketSize);
+      gPacketSize = 0;      
+    }
   }
 }
 

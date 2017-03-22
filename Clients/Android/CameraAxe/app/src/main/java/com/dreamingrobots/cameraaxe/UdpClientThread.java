@@ -10,7 +10,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.List;
 
 import static com.dreamingrobots.cameraaxe.UdpClientThread.UdpClientHandler.UPDATE_MESSAGE;
 import static com.dreamingrobots.cameraaxe.UdpClientThread.UdpClientHandler.UPDATE_PACKET;
@@ -61,7 +60,7 @@ public class UdpClientThread extends Thread {
                 state));
     }
 
-    private void sendPacketMessage(CAPacket.PacketElement packet) {
+    private void PacketMessage(CAPacket.PacketElement packet) {
         mHandler.sendMessage(Message.obtain(mHandler, UPDATE_PACKET,
                 packet));
     }
@@ -93,7 +92,7 @@ public class UdpClientThread extends Thread {
                     mSocket.receive(packet);
                     CAPacket.PacketElement receivedData = mPacketHelper.processIncomingPacket(packet.getData(),
                             packet.getLength());
-                    sendPacketMessage(receivedData);
+                    PacketMessage(receivedData);
                 }
             }
         } catch (SocketException e) {

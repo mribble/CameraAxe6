@@ -9,8 +9,6 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
-import static com.dreamingrobots.cameraaxe.MainActivity.USE_BLE;
-
 /**
  *  Handle networking in a retained fragment so threads aren't lost on a configuration change
  */
@@ -30,7 +28,6 @@ public class RetainedFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mConnectionManager = new ConnectionManager((MainActivity)getActivity(), USE_BLE);
     }
 
     public ArrayAdapter getMenuListAdapter() { return mMenuListAdapter; }
@@ -41,16 +38,21 @@ public class RetainedFragment extends Fragment {
             mDynamicMenuBuilder = new DynamicMenuBuilder(getActivity(), parentView, this);
             mMenuListAdapter = new MenuNameAdapter(getActivity(), R.layout.menu_name_item, new ArrayList<MenuName>());
             mUdpHandler = new UdpClientThread.UdpClientHandler(mDynamicMenuBuilder, mMenuListAdapter);
+            mConnectionManager = new ConnectionManager((MainActivity)getActivity(), MainActivity.USE_BLE, mDynamicMenuBuilder, mMenuListAdapter);
         } else {
             mDynamicMenuBuilder.updateActivity(getActivity(), parentView);
         }
     }
 
     public void startReceiveThread(final String ipAddress, final int ipPort) {
-        if (mUdpReceiveThread == null) {
-            mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE,
-                    ipAddress, ipPort + 1, mUdpHandler);
-            mUdpReceiveThread.start();
+        if (MainActivity.USE_BLE) {
+
+        } else {
+            if (mUdpReceiveThread == null) {
+                mUdpReceiveThread = new UdpClientThread(UdpClientThread.UdpClientState.RECEIVE,
+                        ipAddress, ipPort + 1, mUdpHandler);
+                mUdpReceiveThread.start();
+            }
         }
     }
 
@@ -60,9 +62,13 @@ public class RetainedFragment extends Fragment {
     }
 
     public void sendMessage(CAPacketHelper ph, int packSize) {
-        mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, mIpAddress,
-                mIpPort, mUdpHandler, ph, packSize);
-        mUdpSendThread.start();
+        if (MainActivity.USE_BLE) {
+            mConnectionManager.sendData(ph, packSize);
+        } else {
+            mUdpSendThread = new UdpClientThread(UdpClientThread.UdpClientState.SEND, mIpAddress,
+                    mIpPort, mUdpHandler, ph, packSize);
+            mUdpSendThread.start();
+        }
     }
 
     public void reset() {

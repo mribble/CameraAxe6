@@ -17,9 +17,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 
-import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+
+import static android.R.attr.data;
 
 /**
  * Help manage different types of connections (BLE, wifi)
@@ -28,6 +30,10 @@ import java.io.UnsupportedEncodingException;
 public class ConnectionManager {
     MainActivity mActivity;
     boolean mUseBle;
+    private DynamicMenuBuilder mDynamicMenuBuilder;
+    private CAPacketHelper mPacketHelper;
+    private ByteArrayOutputStream mData;
+    private MenuNameAdapter mMenuListAdapter;
 
     // Ble settings
     public static final int REQUEST_BLE_SELECT_DEVICE = 1;
@@ -40,9 +46,14 @@ public class ConnectionManager {
     private BluetoothAdapter mBleAdapter = null;
     private int mState = BLE_UART_PROFILE_DISCONNECTED;
 
-    ConnectionManager(MainActivity activity, boolean useBle) {
+    ConnectionManager(MainActivity activity, boolean useBle, DynamicMenuBuilder dynamicMenuBuilder, MenuNameAdapter menuListAdapter) {
         mActivity = activity;
         mUseBle = useBle;
+        mDynamicMenuBuilder = dynamicMenuBuilder;
+        mMenuListAdapter = menuListAdapter;
+
+        mPacketHelper = new CAPacketHelper();
+        mData = new ByteArrayOutputStream();
 
         if (mUseBle) {
             checkRuntimePermissions();
@@ -92,15 +103,9 @@ public class ConnectionManager {
 
     }
 
-    public void sendData() {
-        try {
-            //send data to service
-            String blah = "h1\n";
-            byte[] value = blah.getBytes("UTF-8");
-            mBleService.writeRXCharacteristic(value);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    public void sendData(CAPacketHelper ph, int size) {
+        byte[] subset = Arrays.copyOfRange(ph.getData(), 0, size);
+        mBleService.writeRXCharacteristic(subset);
     }
 
     private ServiceConnection mBleServiceConnection = new ServiceConnection() {
@@ -148,8 +153,24 @@ public class ConnectionManager {
                 mActivity.runOnUiThread(new Runnable() {
                     public void run() {
                         try {
-                            String text = new String(txValue, "UTF-8");
-                            Log.i("CA6", text);
+                            mData.write(txValue);
+                            CAPacket.PacketElement packet = mPacketHelper.processIncomingPacket(mData.toByteArray(), mData.size());
+                            if (packet != null) {
+                                if (packet.getPacketType() == CAPacket.PID_MENU_LIST) {
+                                    CAPacket.MenuList p = (CAPacket.MenuList) packet;
+                                    MenuName mn = new MenuName(p.getMenuId(), p.getModuleId0(), p.getModuleMask0(),
+                                            p.getModuleId1(), p.getModuleMask1(),
+                                            p.getModuleId2(), p.getModuleMask2(),
+                                            p.getModuleId3(), p.getModuleMask3(),
+                                            p.getModuleTypeId0(), p.getModuleTypeMask0(),
+                                            p.getModuleTypeId1(), p.getModuleTypeMask1(), p.getMenuName());
+                                    mMenuListAdapter.add(mn);
+                                } else {
+                                    mDynamicMenuBuilder.addPacket(packet);
+                                }
+
+                                mData.reset();
+                            }
                         } catch (Exception e) {
                             Log.e("CA6", e.toString());
                         }
