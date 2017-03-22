@@ -243,8 +243,10 @@ IPAddress createUniqueIP (void) {
 void autoDiscovery (void *pArg) {  //arg not used
    ND_Packet localPacket, remotePacket;
 
-   // client must check this ID string to determine if this is a CA6 discovery packet
+   
    //CA_INFO(F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
+   os_intr_lock();
+   // client must check this ID string to determine if this is a CA6 discovery packet
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( discovery.announce(&localPacket) ) {
 #ifndef SIMULATE_CLIENT_ACK
@@ -267,6 +269,7 @@ void autoDiscovery (void *pArg) {  //arg not used
    } else {
       CA_ERROR(F("autoDiscovery"), F("announce failed"));
    }
+   os_intr_unlock();
 }
 
 
