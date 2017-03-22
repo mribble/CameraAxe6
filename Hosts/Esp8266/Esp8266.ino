@@ -6,7 +6,6 @@
 #include <WiFiManager.h>         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
 #include <NetDiscovery.h>        // https://github.com/Rom3oDelta7/NetDiscovery
 #include <ArduinoOTA.h>	
-#include <SimpleTimer.h>
 #include <EEPROM.h>
 
 // ESP8266 SDK      Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
@@ -15,13 +14,13 @@ extern "C" {
 }
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
-#define SKIP_CLIENT_ACK          // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
+//#define SIMULATE_CLIENT_ACK          // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
 #define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
 
 #ifdef DEBUG
 
-#define SERIAL_DEBUG             // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
+//#define SERIAL_DEBUG             // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
               
 #ifdef SERIAL_DEBUG
 
@@ -40,11 +39,11 @@ extern "C" {
 #define DEBUG_MSG(...) ;
 #endif // DEBUG
 
-SimpleTimer    timer;                            // used to schedule non-time-critical events
-
 // for LED status management
 
-#define LED_STATUS_DELAY      30000              // how long to keep the connection status LED lights illuminated
+#define LED_STATUS_DELAY      30000UL            // how long to keep the connection status LED lights illuminated
+
+os_timer_t  extinguishLED;                       // disable LED after timeout
 
 typedef enum { OFF, ON, BLINK_OFF, BLINK_ON } LedState;
 
@@ -169,25 +168,28 @@ void toggleGreenLED (void *pArg) {
 /*
  disable the LED connection status indicators after a delay to save power
  */
-void LEDTimeout (void) {
+void LEDTimeout (void *pArg ) { // arg not used
    greenLED.setState(OFF);
    redLED.setState(OFF);
 }
+
 
 
 // auto-discovery globals
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87
 #define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define AD_ANNOUNCE_DELAY   2000	                         // frequency of autodiscovery announcements  (msec)
+#define AD_ANNOUNCE_DELAY   2000UL	                         // frequency of autodiscovery announcements  (msec)
 
 NetDiscovery   discovery;
 IPAddress      mcastIP(MCAST_ADDRESS);
+os_timer_t     ADBeacon;
 
+
+// WiFiManager globals
 
 #define AP_PASSWORD         "ca6admin"                    // TODO: determine if this needs to be more secure
 
-// WiFiManager globals
 WiFiManager    wifiManager;
 
 // client globals
@@ -212,6 +214,7 @@ typedef struct {
 CA6Client client;
 
 ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise. IDE issue ... again :-(
+
 
 /*
  Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
@@ -255,14 +258,14 @@ IPAddress createUniqueIP (void) {
 
  TODO: handle multiple clients (separate UDP ports)
 */
-void autoDiscovery (void) {
+void autoDiscovery (void *pArg) {  //arg not used
    ND_Packet localPacket, remotePacket;
 
    // client must check this ID string to determine if this is a CA6 discovery packet
    DEBUG_MSG(4, F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( discovery.announce(&localPacket) ) {
-#ifndef SKIP_CLIENT_ACK
+#ifndef SIMULATE_CLIENT_ACK
       if ( (discovery.listen(&remotePacket) == ND_ACK) && (client.state == C_PENDING || client.state == C_WAITING) ) {
          // it is the responsibility of the client to only send a single ACK
          DEBUG_MSG(1, F("autoDiscovery"), F("ACK"));
@@ -441,6 +444,10 @@ void setup (void) {
    greenLED.setState(OFF);
    redLED.setToggleFunction(&toggleRedLED);
    redLED.setState(OFF);
+
+   // establish timer callout functions - arm timers in loop()
+   os_timer_setfn(&ADBeacon, &autoDiscovery, nullptr);     // auto-discovery announcement beacon
+   os_timer_setfn(&extinguishLED, &LEDTimeout, nullptr);   // turn off LED after setup
 }
 
 #define PACKET_SIZE_SIZE 2
@@ -489,7 +496,7 @@ void loop (void) {
 
       // initialize auto-discovery
       if ( discovery.begin(mcastIP, MCAST_PORT) ) {
-         timer.setInterval(AD_ANNOUNCE_DELAY, &autoDiscovery);
+         os_timer_arm(&ADBeacon, AD_ANNOUNCE_DELAY, true);
          SerialIO.println(F("Auto-discovery started"));
       } else {
          SerialIO.println(F("Auto-discovery FAILED"));
@@ -523,7 +530,7 @@ void loop (void) {
          client.state = C_ESTABLISHED;
          greenLED.setState(ON);
          redLED.setState(OFF);
-         timer.setTimeout(LED_STATUS_DELAY, &LEDTimeout);
+         os_timer_arm(&extinguishLED, LED_STATUS_DELAY, false);        // this is a 1-shot event
       } else {
          // don't change state - will keep trying to establish connection
          DEBUG_MSG(1, F("UDP connection"), F("Failed"));
@@ -534,7 +541,7 @@ void loop (void) {
       // end-to-end connection in place  Note: no Serial I/O except to the SAM3x at this point
       if ( client.stream.parsePacket() > 0 ) {
          uint8_t buf[2048];
-#ifdef SKIP_CLIENT_ACK
+#ifdef SIMULATE_CLIENT_ACK
          client.address = client.stream.remoteIP();              // force this for testing
 #endif
          // for security, verify that the client that sent the ACK is the same as the one that sent this packet
@@ -595,7 +602,6 @@ void loop (void) {
       }
    }
 
-   timer.run();                            // SimpleTimer
    ArduinoOTA.handle();
    yield();
 }
