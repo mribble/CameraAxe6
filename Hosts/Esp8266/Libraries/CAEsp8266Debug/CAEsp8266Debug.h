@@ -1,5 +1,5 @@
-#ifndef __ESPDEBUG_H__
-#define __ESPDEBUG_H__
+#ifndef __CAESP8266DEBUG_H__
+#define __CAESP8266DEBUG_H__
 
 /*
  Common debug macros for ESP8266 code
@@ -57,4 +57,4 @@
 
 #endif // CA_DEBUG
 
-#endif //ESPDEBUG_H
+#endif //CAESP8266DEBUG_H

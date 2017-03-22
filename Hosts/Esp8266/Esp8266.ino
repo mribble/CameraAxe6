@@ -16,7 +16,7 @@ extern "C" {
 
 #define CA_DEBUG                 // comment out to disable debug messages
 
-#include <ESPDebug.h>
+#include <CAEsp8266Debug.h>
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
 #define SIMULATE_CLIENT_ACK      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
