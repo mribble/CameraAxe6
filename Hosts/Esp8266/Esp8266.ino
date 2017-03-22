@@ -13,31 +13,13 @@ extern "C" {
 #include "user_interface.h"
 }
 
+
+#define CA_DEBUG                 // comment out to disable debug messages
+
+#include <ESPDebug.h>
+
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
-//#define SIMULATE_CLIENT_ACK          // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
-
-#define DEBUG 3                  // define as minimum desired debug level, or comment out to disable debug statements
-
-#ifdef DEBUG
-
-//#define SERIAL_DEBUG             // use Serial + separate serial line for debug messages as the hw serial is connected to the SAM3x - comment out for Serial I/O
-              
-#ifdef SERIAL_DEBUG
-
-#define SerialIO      Serial1    // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
-
-#else // SERIAL_DEBUG
-
-#define SerialIO      Serial
-
-#endif // SERIAL_DEBUG
-
-#define DEBUG_MSG(L, H, M)	       if ((L) <= DEBUG) {SerialIO.print("DEBUG> "); SerialIO.print(H); SerialIO.print(": "); SerialIO.println(M);}
-#else // DEBUG
-   
-#define SerialIO      Serial
-#define DEBUG_MSG(...) ;
-#endif // DEBUG
+#define SIMULATE_CLIENT_ACK      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
 // for LED status management
 
@@ -227,7 +209,7 @@ String createUniqueSSID (void) {
 
    WiFi.softAPmacAddress(mac);
    uSSID = String("CA6_") + String ("10.") + String(mac[WL_MAC_ADDR_LENGTH - 3]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 2]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 1]);
-   DEBUG_MSG(2, F("Derived SSID"), uSSID);
+   CA_INFO(F("Derived SSID"), uSSID);
    return uSSID;
 }
 
@@ -244,7 +226,7 @@ IPAddress createUniqueIP (void) {
    result[1] = mac[WL_MAC_ADDR_LENGTH - 3];
    result[2] = mac[WL_MAC_ADDR_LENGTH - 2];
    result[3] = mac[WL_MAC_ADDR_LENGTH - 1];
-   DEBUG_MSG(2, F("Derived IP"), result);
+   CA_INFO(F("Derived IP"), result);
    return result;
 }
 
@@ -262,28 +244,28 @@ void autoDiscovery (void *pArg) {  //arg not used
    ND_Packet localPacket, remotePacket;
 
    // client must check this ID string to determine if this is a CA6 discovery packet
-   DEBUG_MSG(4, F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
+   //CA_INFO(F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
    strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
    if ( discovery.announce(&localPacket) ) {
 #ifndef SIMULATE_CLIENT_ACK
       if ( (discovery.listen(&remotePacket) == ND_ACK) && (client.state == C_PENDING || client.state == C_WAITING) ) {
          // it is the responsibility of the client to only send a single ACK
-         DEBUG_MSG(1, F("autoDiscovery"), F("ACK"));
+         CA_INFO(F("autoDiscovery"), F("ACK"));
          if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
             client.address = remotePacket.addressIP;
             client.state = C_ACKNOWLEDGED;
-            DEBUG_MSG(1, F("Client acknowledged"), (IPAddress)client.address);
+            CA_INFO(F("Client acknowledged"), (IPAddress)client.address);
          }
       }
 #else
       // simulate an ACK if not already set as connected
       if ( client.state == C_PENDING || client.state == C_WAITING ) {
          client.state = C_ACKNOWLEDGED; 
-         DEBUG_MSG(1, F("Simulated client ACK"), "");
+         CA_INFO(F("Simulated client ACK"), "");
       }
 #endif
    } else {
-      DEBUG_MSG(1, F("autoDiscovery"), F("announce failed"));
+      CA_ERROR(F("autoDiscovery"), F("announce failed"));
    }
 }
 
@@ -303,7 +285,7 @@ ConnectionMode connectToNetwork (void) {
    if ( netCount > 0 ) {
       // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
 
-      DEBUG_MSG(3, F("Network scan"), netCount);
+      CA_INFO(F("Network scan"), netCount);
 
       WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));	                   // workaround for callout issue
 
@@ -326,13 +308,13 @@ ConnectionMode connectToNetwork (void) {
          WiFi.mode(WIFI_AP_STA);
          String ssid = String("Host IP: ") + WiFi.localIP().toString();
          WiFi.softAP(ssid.c_str());
-         DEBUG_MSG(2, F("Host IP as SSID"), ssid);
+         CA_INFO(F("Host IP as SSID"), ssid);
          WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
          //WiFi.reconnect();                                        // supposedly required, but does not work if this is called
 
          SerialIO.print(F("AP+STA mode workaround ENABLED. AP address: "));
          SerialIO.println(WiFi.softAPIP().toString());
-#if DEBUG >= 3
+#ifdef CA_DEBUG 
          SerialIO.println(F("Workaround AP diag:"));
          WiFi.printDiag(SerialIO);
 #endif
@@ -398,11 +380,11 @@ ConnectionMode connectToNetwork (void) {
          SerialIO.println(ESP.getChipId(), HEX);
       } else {
          // we get here if the credentials on the setup page are incorrect (or blank - easy way to exit)
-         DEBUG_MSG(3, F("Did not connect to local WiFi"), F("using AP mode"));
+         CA_INFO(F("Did not connect to local WiFi"), F("using AP mode"));
          connectToAP = true;
       }
    } else {
-      DEBUG_MSG(3, F("No local networks"), F("using AP mode"));
+      CA_INFO(F("No local networks"), F("using AP mode"));
       connectToAP = true;
    }
 
@@ -414,7 +396,7 @@ ConnectionMode connectToNetwork (void) {
       WiFi.mode(WIFI_AP);
       WiFi.softAP(createUniqueSSID().c_str(), AP_PASSWORD);
       WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
-#if DEBUG >= 3
+#ifdef CA_DEBUG
       SerialIO.println(F("AP Diag:"));
       WiFi.printDiag(SerialIO);
 #endif
@@ -430,7 +412,7 @@ void setup (void) {
 #endif
    EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
 
-#ifdef DEBUG
+#ifdef CA_DEBUG
    wifiManager.setDebugOutput(true);                       // NOTE: wifi manager library debug output goes to Serial, NOT Serial1
 #else
    wifiManager.setDebugOutput(false);
@@ -465,7 +447,7 @@ uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
   }
 }
 
-#if DEBUG >= 4
+#ifdef CA_DEBUG
 void hexDump (const uint8_t *buf, const int len) {
    SerialIO.printf("Dumping %d bytes:", len);
    for ( int i = 0; i < len; i++) {
@@ -533,7 +515,7 @@ void loop (void) {
          os_timer_arm(&extinguishLED, LED_STATUS_DELAY, false);        // this is a 1-shot event
       } else {
          // don't change state - will keep trying to establish connection
-         DEBUG_MSG(1, F("UDP connection"), F("Failed"));
+         CA_ERROR(F("UDP connection"), F("Failed"));
          greenLED.setState(BLINK_ON, 125UL);
          redLED.setState(BLINK_OFF, 125UL);
       }
@@ -547,30 +529,28 @@ void loop (void) {
          // for security, verify that the client that sent the ACK is the same as the one that sent this packet
          if ( client.address == client.stream.remoteIP() ) {
             client.udpSize = client.stream.read(buf, sizeof(buf));
-            DEBUG_MSG(2, F("UDP packet rcvd"), client.udpSize);
+            CA_INFO(F("UDP packet rcvd"), client.udpSize);
             size_t len = Serial.write(buf, client.udpSize);
-#if DEBUG >= 4
+#ifdef CA_DEBUG 
             hexDump(buf, client.udpSize);
 #endif
-            if ( len != client.udpSize ) {
-               DEBUG_MSG(1, F("Error writing packet to SAM3x"), len);
-            }
-         } else {
-            DEBUG_MSG(1, F("UDP stream IP Address mismatch"), (IPAddress)client.stream.remoteIP());
+            CA_ASSERT(len == client.udpSize, F("failed"));
+         } else {                           
+            CA_ERROR(F("UDP stream IP Address mismatch"), (IPAddress)client.stream.remoteIP());
          }
       }
 
       client.serialSize = Serial.available();
       if ( client.serialSize > 0 ) {
          // data avilable from the SAM3X for the client
-         DEBUG_MSG(2, F("Client data available"), client.serialSize);
+         CA_INFO(F("Client data available"), client.serialSize);
     
          if ( client.packetSize == 0 && (client.serialSize >= PACKET_SIZE_SIZE) ) {
             // calculate the size of the packet from the first 2 bytes in the stream
             uint8_t ibuf[PACKET_SIZE_SIZE];
             Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
             client.packetSize = genPacketSize(ibuf[0], ibuf[1]);
-            DEBUG_MSG(3, F("packet size"), client.packetSize);
+            CA_INFO(F("packet size"), client.packetSize);
          }
          /*
           the remaining bytes are the packet contents - copy from serial and send UDP packet
@@ -589,14 +569,14 @@ void loop (void) {
                size_t length = client.stream.write(buf, client.packetSize);
                if ( length == client.packetSize ) {
                   if ( client.stream.endPacket() == 0 ) {
-                     DEBUG_MSG(1, F("Packet send error"), (IPAddress)client.address);
+                     CA_ERROR(F("Packet send error"), (IPAddress)client.address);
                   }
                } else {
-                  DEBUG_MSG(1, F("Packet write failed"), length);
+                  CA_ERROR(F("Packet write failed"), length);
                }
                client.packetSize = 0;
             } else {
-               DEBUG_MSG(1, F("Cannot create packet"), (IPAddress)client.address);
+               CA_ERROR(F("Cannot create packet"), (IPAddress)client.address);
             }
          }
       }
