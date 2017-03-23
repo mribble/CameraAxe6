@@ -13,11 +13,11 @@ extern "C" {
 #include "user_interface.h"
 }
 
-
+// define these symbols before including the CAStd header file
 #define CA_DEBUG                 // comment out to disable debug messages
-#define SERIAL_DEBUG             // define to enable console output on Serial1 - if not defined, console output will be written to Serial
+#define ESP_ALT_CONSOLE          // define to enable console output on Serial1 - if not defined, console output will be written to Serial
 
-#include <CAEsp8266Debug.h>
+#include <CAStd.h>
 
 #define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
 #define SIMULATE_CLIENT_ACK      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
@@ -411,7 +411,7 @@ ConnectionMode connectToNetwork (void) {
 
 void setup (void) {
    Serial.begin(74880);                     // SAM3X
-#ifdef SERIAL_DEBUG
+#ifdef ESP_ALT_CONSOLE
    SerialIO.begin(74880);                   // console output
 #endif
    EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
