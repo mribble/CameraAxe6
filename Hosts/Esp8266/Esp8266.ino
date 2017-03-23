@@ -15,6 +15,7 @@ extern "C" {
 
 
 #define CA_DEBUG                 // comment out to disable debug messages
+#define SERIAL_DEBUG             // define to enable console output on Serial1 - if not defined, console output will be written to Serial
 
 #include <CAEsp8266Debug.h>
 

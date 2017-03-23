@@ -3,12 +3,10 @@
 
 /*
  Common debug macros for ESP8266 code
- CA_DEBUG symbol is managed externally (before including this header file, of course)
+ CA_DEBUG and SERIAL_DEBUG symbols are managed externally (before including this header file, of course)
  */
 
 #ifdef CA_DEBUG
-
-//#define SERIAL_DEBUG             // enable separate Serial1 console for debug output as the hw serial (UART) is connected to the SAM3x - comment out to use Serial
 
 #ifdef SERIAL_DEBUG
 
