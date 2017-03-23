@@ -21,12 +21,12 @@
 #endif
 
 #define CA_MSG(header, msg, value)     \
-   do {                                \
+   {                                   \
       SerialIO.print(header);          \
       SerialIO.print(msg);             \
       SerialIO.print(F(": "));         \
       SerialIO.println(value);         \
-   } while ( false )
+   } 
 #define CA_INFO(msg, value)        CA_MSG(F("INFO> "), msg, value)
 #define CA_ERROR(msg, value)       CA_MSG(F("ERROR> "), msg, value)
 
