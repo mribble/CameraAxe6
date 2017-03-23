@@ -18,23 +18,18 @@
 #endif // ESP_ALT_CONSOLE
 #elif __SAM3X8E__
 #define SerialIO      SerialUSB      // native USB port
-#elif __RFduino__
-#define SerialIO      Serial
 #endif
 
 #define CA_MSG(header, msg, value)     \
    do {                                \
       SerialIO.print(header);          \
-      SerialIO.print(__FILE__);        \
-      SerialIO.print(F(" line("));     \
-      SerialIO.print(__LINE__);        \
-      SerialIO.print(F(") "));         \
       SerialIO.print(msg);             \
       SerialIO.print(F(": "));         \
       SerialIO.println(value);         \
    } while ( false )
 #define CA_INFO(msg, value)        CA_MSG(F("INFO> "), msg, value)
 #define CA_ERROR(msg, value)       CA_MSG(F("ERROR> "), msg, value)
+
 #define CA_ASSERT(cond, str)               \
    do {                                    \
       if(!(cond)) {                        \
