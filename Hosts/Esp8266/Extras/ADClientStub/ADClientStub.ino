@@ -14,7 +14,7 @@
 
 #define CA_DEBUG
 
-#include <CAEsp8266Debug.h>
+#include <CAStd.h>
 
 #define MCAST_PORT          7247
 #define MCAST_ADDRESS       239, 12, 17, 87

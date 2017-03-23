@@ -14,8 +14,8 @@ extern "C" {
 }
 
 // define these symbols before including the CAStd header file
-#define CA_DEBUG                 // comment out to disable debug messages
-#define ESP_ALT_CONSOLE          // define to enable console output on Serial1 - if not defined, console output will be written to Serial
+//#define CA_DEBUG                 // *** comment out to disable debug messages ***
+//#define ESP_ALT_CONSOLE          // define to enable console output on Serial1 - if not defined, console output will be written to Serial
 
 #include <CAStd.h>
 
@@ -483,9 +483,9 @@ void loop (void) {
       // initialize auto-discovery
       if ( discovery.begin(mcastIP, MCAST_PORT, client.mode == AP_MODE ? WiFi.softAPIP() : WiFi.localIP()) ) {
          os_timer_arm(&ADBeacon, AD_ANNOUNCE_DELAY, true);
-         SerialIO.println(F("Auto-discovery started"));
+         CA_INFO(F("Auto-discovery"), F("Started"));
       } else {
-         SerialIO.println(F("Auto-discovery FAILED"));
+         CA_ERROR(F("Auto-discovery"), F("Failed"));
          fatalError = true;
       }
    } else if ( client.state == C_PENDING ) {
