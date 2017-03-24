@@ -8,14 +8,14 @@
 #include <ArduinoOTA.h>	
 #include <EEPROM.h>
 
-// ESP8266 SDK      Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
+// ESP8266 SDK                                   Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
 extern "C" {
 #include "user_interface.h"
 }
 
 // define these symbols before including the CAStd header file
-#define CA_DEBUG_ERROR                         // *** comment out to disable debug messages ***
-#define CA_DEBUG_INFO                          // *** comment out to disable debug messages ***
+//#define CA_DEBUG_ERROR                         // *** comment out to disable debug messages ***
+//#define CA_DEBUG_INFO                          // *** comment out to disable debug messages ***
 
 #define CA_DEBUG_LOG                             // comment out to avoid status messages while establishing connection
 
