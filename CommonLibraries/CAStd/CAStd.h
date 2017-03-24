@@ -22,7 +22,7 @@
   Requires the format string to use the PSTR() macro
    
   We need this for SAM3X becuase there is no Serial.printf function available
-  While there is a Serial.print available for the ESP8266, it is best to maintain consistency with the use of PSTR()
+  While there is a Serial.printf available for the ESP8266, it is best to maintain consistency with the use of PSTR()
   
   This function should not be called directly - only through the macro below
  */
