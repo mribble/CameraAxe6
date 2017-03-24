@@ -18,6 +18,7 @@ extern "C" {
 //#define CA_DEBUG_INFO                          // *** comment out to disable debug messages ***
 
 #define CA_DEBUG_LOG                             // comment out to avoid status messages while establishing connection
+#define CA_DEBUG_ASSERT                          // comment out to delete assertions (usually enabled)
 
 //#define ESP_ALT_CONSOLE                        // define to enable console output on Serial1 - if not defined, console output will be written to Serial
 
@@ -421,7 +422,7 @@ void setup (void) {
 #endif
    EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
 
-#ifdef CA_DEBUG
+#ifdef CA_DEBUG_INFO
    wifiManager.setDebugOutput(true);                       // NOTE: wifi manager library debug output goes to Serial, NOT Serial1
 #else
    wifiManager.setDebugOutput(false);
@@ -540,7 +541,7 @@ void loop (void) {
             client.udpSize = client.stream.read(buf, sizeof(buf));
             CA_INFO(F("UDP packet rcvd"), client.udpSize);
             size_t len = Serial.write(buf, client.udpSize);
-#ifdef CA_DEBUG 
+#ifdef CA_DEBUG_INFO 
             hexDump(buf, client.udpSize);
 #endif
             CA_ASSERT(len == client.udpSize, F("failed"));
