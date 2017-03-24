@@ -3,8 +3,8 @@
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
-#include <NetDiscovery.h>        // https://github.com/Rom3oDelta7/NetDiscovery
+#include <WiFiManager.h>                         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
+#include <NetDiscovery.h>                        // https://github.com/Rom3oDelta7/NetDiscovery
 #include <ArduinoOTA.h>	
 #include <EEPROM.h>
 
@@ -14,13 +14,23 @@ extern "C" {
 }
 
 // define these symbols before including the CAStd header file
-//#define CA_DEBUG                 // *** comment out to disable debug messages ***
-//#define ESP_ALT_CONSOLE          // define to enable console output on Serial1 - if not defined, console output will be written to Serial
+#define CA_DEBUG_ERROR                         // *** comment out to disable debug messages ***
+#define CA_DEBUG_INFO                          // *** comment out to disable debug messages ***
+
+#define CA_DEBUG_LOG                             // comment out to avoid status messages while establishing connection
+
+//#define ESP_ALT_CONSOLE                        // define to enable console output on Serial1 - if not defined, console output will be written to Serial
+
+#ifdef ESP_ALT_CONSOLE
+   #define SerialIO      Serial1                 // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
+#else
+   #define SerialIO      Serial
+#endif
 
 #include <CAStd.h>
 
-#define AP_WORKAROUND            // disable this define to eliminate the function to display the host IP address as an SSID
-#define SIMULATE_CLIENT_ACK      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
+#define AP_WORKAROUND                            // disable this define to eliminate the function to display the host IP address as an SSID
+#define SIMULATE_CLIENT_ACK                      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
 // for LED status management
 
@@ -293,8 +303,8 @@ ConnectionMode connectToNetwork (void) {
 
       WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));	                   // workaround for callout issue
 
-      if ( wifiManager.autoConnect(createUniqueSSID().c_str(), AP_PASSWORD) ) {	
-         SerialIO.printf("STA mode connection at %s\n", WiFi.localIP().toString().c_str());
+      if ( wifiManager.autoConnect(createUniqueSSID().c_str(), AP_PASSWORD) ) {
+         CA_LOG(PSTR("STA mode connection at %s\n"), WiFi.localIP().toString().c_str());
          mode = STA_MODE;
 
          /*
@@ -316,10 +326,9 @@ ConnectionMode connectToNetwork (void) {
          WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
          //WiFi.reconnect();                                        // supposedly required, but does not work if this is called
 
-         SerialIO.print(F("AP+STA mode workaround ENABLED. AP address: "));
-         SerialIO.println(WiFi.softAPIP().toString());
-#ifdef CA_DEBUG 
-         SerialIO.println(F("Workaround AP diag:"));
+         CA_LOG(PSTR("AP+STA mode workaround ENABLED. AP IP address: %s\n"), WiFi.softAPIP().toString().c_str());
+#ifdef CA_INFO 
+         CA_INFO(F("Workaround AP diag:"), "");
          WiFi.printDiag(SerialIO);
 #endif
 
@@ -338,50 +347,46 @@ ConnectionMode connectToNetwork (void) {
          // ArduinoOTA.setPassword((const char *)"123");
 
          ArduinoOTA.onStart([]() {
-            SerialIO.println(F("OTA Start"));
+            CA_LOG(PSTR("OTA Start\n"));
          });
          ArduinoOTA.onEnd([]() {
-            SerialIO.println(F("\nOTA End. Restarting ..."));
+            CA_LOG(PSTR("\nOTA End. Restarting ...\n"));
             delay(5000);
             ESP.restart();                          // the OTA library calls restart, but we never return, so force it.
          });
          ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-            SerialIO.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
+            CA_LOG(PSTR("OTA Progress: %u%%\r"), (progress / (total / 100)));
          });
          ArduinoOTA.onError([](ota_error_t error) {
-            SerialIO.printf("OTA Error[%u]: ", error);
+            CA_LOG(PSTR("OTA Error[%u]: "), error);
             switch ( error ) {
             case OTA_AUTH_ERROR:
-               SerialIO.println(F("OTA Auth Failed"));
+               CA_LOG(PSTR("OTA Auth Failed\n"));
                break;
 
             case OTA_BEGIN_ERROR:
-               SerialIO.println(F("OTA Begin Failed"));
+               CA_LOG(PSTR("OTA Begin Failed\n"));
                break;
 
             case OTA_CONNECT_ERROR:
-               SerialIO.println(F("OTA Connect Failed"));
+               CA_LOG(PSTR("OTA Connect Failed\n"));
                break;
 
             case OTA_RECEIVE_ERROR:
-               SerialIO.println(F("OTA Receive Failed"));
+               CA_LOG(PSTR("OTA Receive Failed\n"));
                break;
 
             case OTA_END_ERROR:
-               SerialIO.println(F("OTA End Failed"));
+               CA_LOG(PSTR("OTA End Failed\n"));
                break;
 
             default:
-               SerialIO.println(F("OTA Unknown error"));
+               CA_LOG(PSTR("OTA Unknown error\n"));
                break;
             }
          });
          ArduinoOTA.begin();
-         SerialIO.println(F("OTA Ready:"));
-         SerialIO.print(F("\tIP address: "));
-         SerialIO.println(WiFi.localIP());
-         SerialIO.print(F("\tChip ID: "));
-         SerialIO.println(ESP.getChipId(), HEX);
+         CA_LOG(PSTR("OTA Ready. IP Address: %s Chip ID %0X\n"), WiFi.localIP().toString().c_str(), ESP.getChipId());
       } else {
          // we get here if the credentials on the setup page are incorrect (or blank - easy way to exit)
          CA_INFO(F("Did not connect to local WiFi"), F("using AP mode"));
@@ -394,14 +399,14 @@ ConnectionMode connectToNetwork (void) {
 
    if ( connectToAP ) {
       // use AP mode	 - WiFiManager leaves the ESP in AP+STA mode if there was no local connection made 
-      SerialIO.printf("AP mode connection at %s\n", AP_Address.toString().c_str());
+      CA_LOG(PSTR("AP mode connection at %s\n"), AP_Address.toString().c_str());
       mode = AP_MODE;
 
       WiFi.mode(WIFI_AP);
       WiFi.softAP(createUniqueSSID().c_str(), AP_PASSWORD);
       WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
-#ifdef CA_DEBUG
-      SerialIO.println(F("AP Diag:"));
+#ifdef CA_DEBUG_INFO
+      CA_INFO(F("AP Diag:"), "");
       WiFi.printDiag(SerialIO);
 #endif
    }
@@ -451,7 +456,7 @@ uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
   }
 }
 
-#ifdef CA_DEBUG
+#ifdef CA_DEBUG_INFO
 void hexDump (const uint8_t *buf, const int len) {
    SerialIO.printf("Dumping %d bytes:", len);
    for ( int i = 0; i < len; i++) {
@@ -512,7 +517,7 @@ void loop (void) {
           Any device could have opened up this port, but we'll consider this OK and validate
           the addresses once we receive a packet (only time the address is available)
           */
-         SerialIO.printf("Client connected on port %d\n", client.port);
+         CA_LOG(PSTR("Client connected on port %d\n"), client.port);
          client.state = C_ESTABLISHED;
          greenLED.setState(ON);
          redLED.setState(OFF);
