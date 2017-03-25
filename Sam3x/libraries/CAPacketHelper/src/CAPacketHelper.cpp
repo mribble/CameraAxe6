@@ -4,22 +4,99 @@
 #include <CAUtility.h>
 #endif
 
-void CAPacketHelper::init(HardwareSerial *serial) {
+
+//#define USE_FLOW_CONTROL
+#ifdef USE_FLOW_CONTROL
+
+#define RING_BUF_SIZE 4096
+uint8_t gBuf[RING_BUF_SIZE];
+int16_t gHead = 0;
+int16_t gTail = 0;
+
+uint16_t CAPacketHelper::serialFlowControlAvailable() {
+  int16_t available = gTail - gHead;
+  if (available < 0) {
+    available = RING_BUF_SIZE + available;
+  }
+  return available;
+}
+
+void CAPacketHelper::serialFlowControlPoll() {
+  while(mSerial->available()) {
+    gBuf[gTail] = mSerial->read();
+    gTail = (gTail + 1) % RING_BUF_SIZE;
+  }
+
+  if (serialFlowControlAvailable() > RING_BUF_SIZE/2) {
+    CAU::digitalWrite(mRtsPin, LOW);   // Tell master to stop sending more data
+  } else {
+    CAU::digitalWrite(mRtsPin, HIGH);  // Tell master to keep sending more data
+  }
+}
+
+void CAPacketHelper::serialFlowControlRead(uint8_t *buf, uint16_t length) {
+  for(uint16_t i=0; i<length; ++i) {
+    buf[i] = gBuf[gHead];
+    gHead = (gHead + 1) % RING_BUF_SIZE;
+  }
+}
+
+void CAPacketHelper::serialFlowControlWrite(const uint8_t *buf, uint16_t length) {
+  for(uint16_t i=0; i<length; ++i) {
+    while (CAU::digitalRead(mCtsPin) != HIGH) {;} // Wait until RTS is high
+    mSerial->write(buf[i]);
+  }
+}
+#else
+
+uint16_t CAPacketHelper::serialFlowControlAvailable() {
+    return mSerial->available();
+}
+
+void CAPacketHelper::serialFlowControlPoll() {
+    return;
+}
+
+void CAPacketHelper::serialFlowControlRead(uint8_t *buf, uint16_t length) {
+    mSerial->readBytes(buf, length);
+    // Code below prints out values of incoming packets for debug
+    //for(int i = 0; i < length; ++i) {
+    //    CAU::log("%d,",buf[i]);
+    //}
+    //CAU::log("\n");
+}
+
+void CAPacketHelper::serialFlowControlWrite(const uint8_t *buf, uint16_t length) {
+    mSerial->write(buf, length);
+}
+    
+#endif
+
+
+void CAPacketHelper::init(HardwareSerial *serial, hwPortPin rts, hwPortPin cts) {
     mSerial = serial;
-    while (mSerial->read() != -1){}   // flush out all the initialization writes
+    flushGarbagePackets();
+    
+    mRtsPin = rts;
+    mCtsPin = cts;
+    CAU::pinMode(mRtsPin, OUTPUT);
+    CAU::pinMode(mCtsPin, INPUT);
+    CAU::digitalWrite(mRtsPin, HIGH);
 }
 
 boolean CAPacketHelper::readOnePacket(uint8 *data) {
     boolean ret = CA_FALSE;
-    uint8 avaliableBytes = mSerial->available();
+    uint8 avaliableBytes = serialFlowControlAvailable();
     
     // To read one packet you need to know the first two bytes in a packet is the size.  This code assumes that.
     // The third byte is always the packet type, but this code doesn't need to know that.
     
+    serialFlowControlPoll();
+    
     if (avaliableBytes >= 2) {
         if (mSize == 0) {
             uint8 buf[2];
-            mSerial->readBytes((char*)buf, 2);
+            serialFlowControlRead(buf, 2);
             avaliableBytes -= 2;
             mSize = genPacketSize(buf[0], buf[1]);
             CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
@@ -28,7 +105,7 @@ boolean CAPacketHelper::readOnePacket(uint8 *data) {
         if (avaliableBytes >= mSize-2) {
             data[0] = getPacketSize(mSize, 0);
             data[1] = getPacketSize(mSize, 1);
-            mSerial->readBytes(data+2, mSize-2);
+            serialFlowControlRead(data+2, mSize-2);
             mSize = 0;
             ret = CA_TRUE;
         }
@@ -37,16 +114,16 @@ boolean CAPacketHelper::readOnePacket(uint8 *data) {
 }
 
 void CAPacketHelper::writeOnePacket(uint8 *data) {
-    uint8 val;
     uint16 bufSize = genPacketSize(data[0], data[1]);
-    
+
+    serialFlowControlPoll();
+
     if (bufSize >= MAX_PACKET_SIZE) {
         CA_ASSERT(0, "Exceeded Max packet size");
         return;
     }
 
-    val = mSerial->write(data, bufSize);
-    CA_ASSERT(val==bufSize, "Failed CAPacketHelper::writePacket");
+    serialFlowControlWrite(data, bufSize);
 }
 
 void CAPacketHelper::writeMenu(const uint8 *sData, uint16 sz) {
