@@ -416,7 +416,7 @@ ConnectionMode connectToNetwork (void) {
 
 
 void setup (void) {
-   Serial.begin(74880);                     // SAM3X
+   Serial.begin(4800);                      // SAM3X
 #ifdef ESP_ALT_CONSOLE
    SerialIO.begin(74880);                   // console output
 #endif
