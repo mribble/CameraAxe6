@@ -46,6 +46,8 @@ void MenuTest_MenuRun() {
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
+  uint32 val;
+  packet = incomingPacketCheckEditNumber(packet, 4, val);
   incomingPacketFinish(packet);
 
   // Handle outgoing packets
