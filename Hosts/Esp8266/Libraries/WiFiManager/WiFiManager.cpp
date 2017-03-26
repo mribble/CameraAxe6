@@ -11,6 +11,7 @@
  **************************************************************/
 
 #include "WiFiManager.h"
+#include "EEPROM.h"
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -64,6 +65,14 @@ WiFiManager::WiFiManager() {
 }
 
 void WiFiManager::addParameter(WiFiManagerParameter *p) {
+  if(_paramsCount + 1 > WIFI_MANAGER_MAX_PARAMS)
+  {
+    //Max parameters exceeded!
+	DEBUG_WM("WIFI_MANAGER_MAX_PARAMS exceeded, increase number (in WiFiManager.h) before adding more parameters!");
+	DEBUG_WM("Skipping parameter with ID:");
+	DEBUG_WM(p->getID());
+	return;
+  }
   _params[_paramsCount] = p;
   _paramsCount++;
   DEBUG_WM("Adding parameter");
@@ -114,6 +123,7 @@ void WiFiManager::setupConfigPortal() {
   server->on("/0wifi", std::bind(&WiFiManager::handleWifi, this, false));
   server->on("/wifisave", std::bind(&WiFiManager::handleWifiSave, this));
   server->on("/i", std::bind(&WiFiManager::handleInfo, this));
+  server->on("/exit", std::bind(&WiFiManager::handleExit, this));
   server->on("/r", std::bind(&WiFiManager::handleReset, this));
   //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check.
   server->on("/fwlink", std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
@@ -149,6 +159,14 @@ boolean WiFiManager::autoConnect(char const *apName, char const *apPassword) {
   return startConfigPortal(apName, apPassword);
 }
 
+boolean WiFiManager::configPortalHasTimeout(){
+    if(_configPortalTimeout == 0 || wifi_softap_get_station_num() > 0){
+      _configPortalStart = millis(); // kludge, bump configportal start time to skew timeouts
+      return false;
+    }
+    return (millis() > _configPortalStart + _configPortalTimeout);
+}
+
 boolean WiFiManager::startConfigPortal() {
   String ssid = "ESP" + String(ESP.getChipId());
   return startConfigPortal(ssid.c_str(), NULL);
@@ -170,7 +188,11 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
   connect = false;
   setupConfigPortal();
 
-  while (_configPortalTimeout == 0 || millis() < _configPortalStart + _configPortalTimeout) {
+  while(1){
+
+    // check if timeout
+    if(configPortalHasTimeout()) break;
+
     //DNS
     dnsServer->processNextRequest();
     //HTTP
@@ -233,21 +255,72 @@ int WiFiManager::connectWifi(String ssid, String pass) {
   //check if we have ssid and pass and force those, if not, try with last saved values
   if (ssid != "") {
     WiFi.begin(ssid.c_str(), pass.c_str());
+	 if ( _EEPROMCredentials ) {
+		// save credentials in EEPROM as well as a "shadow copy" in the event the SDK EEPROM credentials are erased/lost
+		union { 
+			struct  station_config conf;
+			uint8_t data[sizeof(struct station_config)];
+		} credentials;
+	 
+	   /*
+		 WiFi.begin calls wifi_station_set_config to store the parameters
+		 save it in EEPROM as a backup
+		*/
+		if ( wifi_station_get_config(&credentials.conf) ) {
+			DEBUG_WM(F("Saving credentials in EEPROM"));
+			uint8_t *p = &credentials.data[0];
+			EEPROM.write(_baseEEPROMAddress, EEPROM_KEY);
+			for ( int i=0, base=_baseEEPROMAddress+1; i < sizeof(credentials); i++ ) {
+				EEPROM.write(base++, (byte)*p++);
+			}
+			EEPROM.commit();
+			if ( EEPROM.read(_baseEEPROMAddress) != EEPROM_KEY ) {
+				DEBUG_WM(F("EEPROM key not saved!"));
+			}
+		} else {
+			 DEBUG_WM(F("Failed to retrieve credentials"));
+		}
+	 } 
   } else {
     if (WiFi.SSID()) {
       DEBUG_WM("Using last saved values, should be faster");
-      //trying to fix connection in progress hanging
+		DEBUG_WM(WiFi.SSID());
+		
+		//trying to fix connection in progress hanging
       ETS_UART_INTR_DISABLE();
       wifi_station_disconnect();
       ETS_UART_INTR_ENABLE();
 
-      WiFi.begin();
+		if ( _EEPROMCredentials ) {
+			union { 
+				struct  station_config conf;
+				uint8_t data[sizeof(struct station_config)];
+			} credentials;
+				 
+			if ( EEPROM.read(_baseEEPROMAddress) == EEPROM_KEY ) {
+				DEBUG_WM(F("restoring credentials from EEPROM"));
+				uint8_t *p = &credentials.data[0];
+				for ( int i=0, base=_baseEEPROMAddress+1; i < sizeof(credentials); i++ ) {
+					*p++ = EEPROM.read(base++);
+				}
+				DEBUG_WM((char *)credentials.conf.ssid);
+				DEBUG_WM((char *)credentials.conf.password);
+				WiFi.begin(reinterpret_cast<char *>(credentials.conf.ssid), reinterpret_cast<char *>(credentials.conf.password));
+			} else {
+				// this will happen if the credentials have not been saved yet, so not necessarily an error
+				DEBUG_WM(F("invalid EEPROM key"));
+				WiFi.begin();
+			}
+	   } else {
+		  WiFi.begin();
+	   }
     } else {
       DEBUG_WM("No saved credentials");
     }
   }
-
+  
   int connRes = waitForConnectResult();
+
   DEBUG_WM ("Connection result: ");
   DEBUG_WM ( connRes );
   //not connected, WPS enabled, no pass - first attempt
@@ -357,10 +430,10 @@ void WiFiManager::setBreakAfterConfig(boolean shouldBreak) {
 /** Handle root or redirect to captive portal */
 void WiFiManager::handleRoot() {
   DEBUG_WM(F("Handle root"));
-  if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
+  if (captivePortal()) { // If captive portal redirect instead of displaying the page.
     return;
   }
-
+  
   String page = FPSTR(HTTP_HEAD);
   page.replace("{v}", "Options");
   page += FPSTR(HTTP_SCRIPT);
@@ -372,6 +445,8 @@ void WiFiManager::handleRoot() {
   page += "</h1>";
   page += F("<h3>WiFiManager</h3>");
   page += FPSTR(HTTP_PORTAL_OPTIONS);
+  page.replace("{x}", _exitButtonLabel);
+
   page += FPSTR(HTTP_END);
 
   server->send(200, "text/html", page);
@@ -540,6 +615,10 @@ void WiFiManager::handleWifiSave() {
   //SAVE/connect here
   _ssid = server->arg("s").c_str();
   _pass = server->arg("p").c_str();
+  DEBUG_WM(F("SSID:"));
+  DEBUG_WM(_ssid);
+  DEBUG_WM(F("Password:"));
+  DEBUG_WM(_pass);
 
   //parameters
   for (int i = 0; i < _paramsCount; i++) {
@@ -631,6 +710,26 @@ void WiFiManager::handleInfo() {
   DEBUG_WM(F("Sent info page"));
 }
 
+/** Handle the exit page */
+void WiFiManager::handleExit() {
+  DEBUG_WM(F("Exit"));
+
+  String page = FPSTR(HTTP_HEAD);
+  page.replace("{v}", "Info");
+  page += FPSTR(HTTP_SCRIPT);
+  page += FPSTR(HTTP_STYLE);
+  page += _customHeadElement;
+  page += FPSTR(HTTP_HEAD_END);
+  page += F("Exiting configuration setup");
+  page += FPSTR(HTTP_END);
+  server->send(200, "text/html", page);
+
+  DEBUG_WM(F("Sent exit page"));
+  connect = true;
+  setBreakAfterConfig(true);
+  delay(5000);
+}
+
 /** Handle the reset page */
 void WiFiManager::handleReset() {
   DEBUG_WM(F("Reset"));
@@ -715,6 +814,30 @@ void WiFiManager::setCustomHeadElement(const char* element) {
 //if this is true, remove duplicated Access Points - defaut true
 void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
   _removeDuplicateAPs = removeDuplicates;
+}
+
+/*
+ This workaround is for a problem noted on some ESP-12F modules (others?) where the ESP SDK function wifi_station_set_config(),
+ which is called by WiFi.begin(), does not save the credentials properly. Thus, when we go to connect using the saved credentials,
+ after power cycling, they are blank. This kludgy workaround explicitly saves the credentials elsewhere in EEPROM.
+ For this to work, the following criteria must be met:
+ 
+ - EEPROM.begin() must have already been called
+ - the EEPROM size must be at least 128
+ - the EEPROM range of baseAddress:baseAddress+127 must be otherwise unused
+ 
+ Reconfigure the EEPROM defines if necessary.
+*/
+void  WiFiManager::setSaveCredentialsInEEPROM(const bool saveFlag, const int baseAddress) {
+	_EEPROMCredentials = saveFlag;
+	_baseEEPROMAddress = baseAddress;
+}
+
+/*
+ Set the label to be used on the WiFi portal for the Exit button
+ */
+void WiFiManager::setExitButtonLabel (const char *label) {
+	_exitButtonLabel = String(label);
 }
 
 
