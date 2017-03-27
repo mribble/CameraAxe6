@@ -1,0 +1,168 @@
+
+(rules PCB CA6
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout off)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 50)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 16781)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.6)
+    )
+    (layer_rule B.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.6)
+    )
+  )
+  (rule
+    (width 152.4)
+    (clear 152.6)
+    (clear 76.2 (type smd_to_turn_gap))
+    (clear 38.2 (type smd_smd))
+  )
+  (padstack "Via[0-1]_609.6:355.6_um"
+    (shape
+      (circle F.Cu 609.6 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 609.6 0.0 0.0)
+    )
+    (attach off)
+  )
+  (padstack "Via[0-1]_812.8:457.2_um"
+    (shape
+      (circle F.Cu 812.8 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 812.8 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um" "Via[0-1]_609.6:355.6_um" default
+  )
+  (via 
+    "Via[0-1]_812.8:457.2_um" "Via[0-1]_812.8:457.2_um" default
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-kicad_default" "Via[0-1]_609.6:355.6_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_812.8:457.2_um-kicad_default" "Via[0-1]_812.8:457.2_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-Gnd" "Via[0-1]_609.6:355.6_um" Gnd
+  )
+  (via 
+    "Via[0-1]_812.8:457.2_um-Gnd" "Via[0-1]_812.8:457.2_um" Gnd
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-Power" "Via[0-1]_609.6:355.6_um" Power
+  )
+  (via 
+    "Via[0-1]_812.8:457.2_um-Power" "Via[0-1]_812.8:457.2_um" Power
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-usb_d" "Via[0-1]_609.6:355.6_um" "usb_d"
+  )
+  (via 
+    "Via[0-1]_812.8:457.2_um-usb_d" "Via[0-1]_812.8:457.2_um" "usb_d"
+  )
+  (via_rule
+    default "Via[0-1]_609.6:355.6_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_609.6:355.6_um-kicad_default"
+  )
+  (via_rule
+    Gnd "Via[0-1]_609.6:355.6_um-Gnd"
+  )
+  (via_rule
+    Power "Via[0-1]_812.8:457.2_um-Power"
+  )
+  (via_rule
+    "usb_d" "Via[0-1]_609.6:355.6_um-usb_d"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    /AUX02 /AUX03 /AUX04 /AUX05 /AUX06 /AUX07 /AUX08 /AUX09
+    /AUX10 /AUX11 /AUX12 /AUX13 /AUX14 /AUX15 /AUX16 /AUX17
+    /AUX18 /AUX19 /AUX20 /AUX21 /AUX22 /AUX23 /AUX24 /AUX25
+    /AUX26 /AUX27 /AUX28 /AUX29 /AUX30 /AUX31 /AUX32 /AUX33
+    /AUX34 /AUX35 /AUX36 /AUX37 /AUX38 /AUX39 /AUX40 /AUX41
+    /AUX42 /AUX43 "/AUX_RX" "/AUX_TX" /CAM0F /CAM0S /CAM1F /CAM1S
+    /CAM2F /CAM2S /CAM3F /CAM3S /CAM4F /CAM4S /CAM5F /CAM5S
+    /CAM6F /CAM6S /CAM7F /CAM7S "/EEPROM_ID" "/JTAG_TCK" "/JTAG_TDI" "/JTAG_TDO"
+    "/JTAG_TMS" "/LV_DETECT" "/MOD0_AN1" "/MOD0_ID" "/MOD0_RX" "/MOD0_SCL" "/MOD0_SDA" "/MOD0_TX"
+    "/MOD1_AN1" "/MOD1_ID" "/MOD1_RX" "/MOD1_SCL" "/MOD1_SDA" "/MOD1_TX" "/MOD2_AN1" "/MOD2_AN2"
+    "/MOD2_AN3" "/MOD2_AN4" "/MOD2_AN5" "/MOD2_ID" "/MOD3_AN1" "/MOD3_CS" "/MOD3_ID" "/MOD3_MISO"
+    "/MOD3_MOSI" "/MOD3_SCLK" "/M_RESET" /UOTGID /VBUS /VDDOUT /VDDPLL 3V3
+    5V "Net-(C14-Pad1)" "Net-(C15-Pad1)" "Net-(C17-Pad1)" "Net-(C20-Pad1)" "Net-(C24-Pad2)" "Net-(C25-Pad2)" "Net-(C42-Pad1)"
+    "Net-(CAM0-Pad1)" "Net-(CAM0-Pad2)" "Net-(CAM1-Pad1)" "Net-(CAM1-Pad2)" "Net-(CAM2-Pad1)" "Net-(CAM2-Pad2)" "Net-(CAM3-Pad1)" "Net-(CAM3-Pad2)"
+    "Net-(CAM4-Pad1)" "Net-(CAM4-Pad2)" "Net-(CAM5-Pad1)" "Net-(CAM5-Pad2)" "Net-(CAM6-Pad1)" "Net-(CAM6-Pad2)" "Net-(CAM7-Pad1)" "Net-(CAM7-Pad2)"
+    "Net-(D1-Pad1)" "Net-(D1-Pad2)" "Net-(F1-Pad2)" "Net-(J2-Pad2)" "Net-(R25-Pad2)" "Net-(R26-Pad2)" "Net-(R27-Pad2)" "Net-(SW1-Pad3)"
+    "Net-(D2-Pad2)" "Net-(D4-Pad2)" "Net-(D5-Pad2)" "Net-(D6-Pad2)" "Net-(D7-Pad2)" "Net-(D8-Pad2)" "Net-(D9-Pad2)" "Net-(D10-Pad2)"
+    "/CC_RX" "/CC_TX" "/CC_RTS" "/CC_CTS" /AUX44 /AUX45 /AUX46 /AUX47
+    "/CC_RESET" "/CC_PROG" "/CC_R_LED" "/CC_G_LED" "/CC_EXT0" "/CC_EXT1"
+    (clearance_class "kicad_default")
+    (via_rule kicad_default)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class Gnd
+    GND
+    (clearance_class Gnd)
+    (via_rule Gnd)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class Power
+    (clearance_class Power)
+    (via_rule Power)
+    (rule
+      (width 254.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "usb_d"
+    /D+ "/D-"
+    (clearance_class "usb_d")
+    (via_rule usb_d)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+)
