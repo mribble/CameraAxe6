@@ -1,4 +1,4 @@
-update=3/17/2017 8:25:21 AM
+update=3/26/2017 9:10:39 PM
 version=1
 last_client=kicad
 [cvpcb]
@@ -74,3 +74,4 @@ LibName28=opto
 LibName29=atmel
 LibName30=contrib
 LibName31=valves
+LibName32=tempCA6

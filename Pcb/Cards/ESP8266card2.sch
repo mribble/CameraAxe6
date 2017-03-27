@@ -30,6 +30,7 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
+LIBS:ESP8266card2-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -102,7 +103,9 @@ $EndComp
 Wire Wire Line
 	7300 2900 7650 2900
 Wire Wire Line
-	3550 3550 3550 3850
+	3550 3550 3550 3650
+Wire Wire Line
+	3550 3650 3550 3850
 Connection ~ 3550 3650
 $Comp
 L R R7
@@ -164,7 +167,9 @@ F 3 "" H 7500 4250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	7750 4250 7750 4550
+	7750 4250 7750 4400
+Wire Wire Line
+	7750 4400 7750 4550
 $Comp
 L R R8
 U 1 1 58C14421
@@ -177,7 +182,9 @@ F 3 "" H 7800 4150 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	8100 3950 8100 4150
+	8100 3950 8100 4050
+Wire Wire Line
+	8100 4050 8100 4150
 Connection ~ 8100 4050
 $Comp
 L C C2
@@ -202,10 +209,16 @@ F 3 "" H 4100 4550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3850 4350 4550 4350
+	3850 4350 4100 4350
+Wire Wire Line
+	4100 4350 4400 4350
+Wire Wire Line
+	4400 4350 4550 4350
 Connection ~ 4400 4350
 Wire Wire Line
-	4100 4750 4400 4750
+	4100 4750 4250 4750
+Wire Wire Line
+	4250 4750 4400 4750
 $Comp
 L GND #PWR4
 U 1 1 58C14A9E
@@ -285,28 +298,17 @@ Wire Wire Line
 	7350 4400 7750 4400
 Connection ~ 7750 4400
 $Comp
-L FTDI P1
-U 1 1 58BF42D5
-P 1950 4200
-F 0 "P1" H 1950 3800 50  0000 C CNN
-F 1 "Debug-SoftSerial-FTDI" H 1950 4600 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x06_Pitch2.54mm" H 1950 4200 50  0001 C CNN
-F 3 "DOCUMENTATION" H 1950 4200 50  0001 C CNN
-	1    1950 4200
-	-1   0    0    1   
-$EndComp
-$Comp
 L GND #PWR1
 U 1 1 58BF45F7
-P 2750 4450
-F 0 "#PWR1" H 2750 4200 50  0001 C CNN
-F 1 "GND" H 2750 4300 50  0000 C CNN
-F 2 "" H 2750 4450 50  0000 C CNN
-F 3 "" H 2750 4450 50  0000 C CNN
-	1    2750 4450
+P 7050 5100
+F 0 "#PWR1" H 7050 4850 50  0001 C CNN
+F 1 "GND" H 7050 4950 50  0000 C CNN
+F 2 "" H 7050 5100 50  0000 C CNN
+F 3 "" H 7050 5100 50  0000 C CNN
+	1    7050 5100
 	1    0    0    -1  
 $EndComp
-Text Label 6800 4950 1    60   ~ 0
+Text Label 6800 4850 1    60   ~ 0
 Debug-TX
 Text Label 4100 4250 0    60   ~ 0
 ESP_CTS
@@ -314,12 +316,11 @@ Connection ~ 6350 3150
 Wire Wire Line
 	5200 1700 5200 3200
 Wire Wire Line
-	6350 2800 6350 3650
+	6350 2800 6350 3150
+Wire Wire Line
+	6350 3150 6350 3650
 Text Label 6350 3550 1    60   ~ 0
 ESP_TX
-NoConn ~ 2600 3950
-NoConn ~ 2600 4250
-NoConn ~ 2600 4350
 Wire Wire Line
 	5000 1700 4950 1700
 Wire Wire Line
@@ -375,7 +376,9 @@ F 3 "" H 5450 3950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6350 4150 7550 4150
+	6350 4150 6800 4150
+Wire Wire Line
+	6800 4150 7550 4150
 Wire Wire Line
 	7000 3150 6350 3150
 Wire Wire Line
@@ -383,7 +386,9 @@ Wire Wire Line
 Wire Wire Line
 	6050 2150 6050 2300
 Wire Wire Line
-	6350 4250 7250 4250
+	6350 4250 6900 4250
+Wire Wire Line
+	6900 4250 7250 4250
 Wire Wire Line
 	3650 3650 3550 3650
 Wire Wire Line
@@ -391,13 +396,17 @@ Wire Wire Line
 Wire Wire Line
 	4550 3850 4150 3850
 Wire Wire Line
-	4150 3650 4550 3650
+	4150 3650 4500 3650
 Wire Wire Line
-	6350 3750 7050 3750
+	4500 3650 4550 3650
+Wire Wire Line
+	6350 3750 8250 3750
 Wire Wire Line
 	7500 4050 8100 4050
 Wire Wire Line
-	6350 4050 7000 4050
+	6350 4050 6800 4050
+Wire Wire Line
+	6800 4050 7000 4050
 Wire Wire Line
 	5900 1700 5900 2150
 Wire Wire Line
@@ -446,47 +455,13 @@ F 3 "" H 8100 3950 60  0000 C CNN
 	1    8100 3950
 	1    0    0    -1  
 $EndComp
-$Comp
-L R R9
-U 1 1 58C41CF1
-P 7300 3750
-F 0 "R9" V 7380 3750 50  0000 C CNN
-F 1 "1K" V 7300 3750 50  0000 C CNN
-F 2 "CA6:SM0603_Resistor" V 7230 3750 50  0001 C CNN
-F 3 "" H 7300 3750 50  0000 C CNN
-	1    7300 3750
-	0    -1   -1   0   
-$EndComp
 Text Label 6400 3750 0    60   ~ 0
 ESP_RX
 Text Label 4100 3650 0    60   ~ 0
 ESP_RESET
 Wire Wire Line
-	2750 4450 2600 4450
-Wire Wire Line
-	6800 4150 6800 5200
-Wire Wire Line
-	6800 5200 2900 5200
-Wire Wire Line
-	2900 5200 2900 4050
-Wire Wire Line
-	2900 4050 2600 4050
+	6800 4150 6800 4900
 Connection ~ 6800 4150
-$Comp
-L 74LS08 U2
-U 1 1 58CC0DC9
-P 8850 3750
-F 0 "U2" H 8850 3800 50  0000 C CNN
-F 1 "74??08tbd" H 8850 3700 50  0000 C CNN
-F 2 "" H 8850 3750 50  0001 C CNN
-F 3 "" H 8850 3750 50  0001 C CNN
-	1    8850 3750
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	8250 3750 7550 3750
-Text Notes 7350 3700 0    60   ~ 0
-Elim. if low AND current??
 Text Notes 6100 2550 0    60   ~ 0
 Elim or lower??
 Text Notes 7100 3350 0    60   ~ 0
@@ -507,4 +482,30 @@ Wire Wire Line
 	9600 3850 9450 3850
 Text Notes 1700 2250 0    60   ~ 0
 Consider lowering all 10k Pull-ups to 4.7k or ???
+$Comp
+L SN74AHC1G08 U?
+U 1 1 58D899B8
+P 8850 3750
+F 0 "U?" H 8850 3800 50  0000 C CNN
+F 1 "SN74AHC1G08" H 8850 3700 50  0000 C CNN
+F 2 "SOT-23-5" H 8800 3500 50  0001 C CNN
+F 3 "http://www.ti.com/lit/gpn/sn74ahc1g08" H 8850 4150 50  0001 C CNN
+	1    8850 3750
+	-1   0    0    1   
+$EndComp
+$Comp
+L CONN_01X02 J?
+U 1 1 58D8ABB0
+P 7250 4950
+F 0 "J?" H 7250 5100 50  0000 C CNN
+F 1 "CONN_01X02" V 7350 4950 50  0000 C CNN
+F 2 "" H 7250 4950 50  0001 C CNN
+F 3 "" H 7250 4950 50  0001 C CNN
+	1    7250 4950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6800 4900 7050 4900
+Wire Wire Line
+	7050 5100 7050 5000
 $EndSCHEMATC
