@@ -15,7 +15,7 @@ NetDiscovery discovery;
 ```
 ## Functions
 ```C++
-bool NetDiscovery::begin (const IPAddress multicastIP, const int mcastPort);
+bool NetDiscovery::begin (const IPAddress multicastIP, const int mcastPort, const IPAddress localIP);
 ```
 Initialize the multicast group.
 Parameters are as follows:
@@ -23,7 +23,8 @@ Parameters are as follows:
 |Parameter|Purpose|
 |---|---|
 |_multicastIP_|the UDP multicast group address. This must be of the form 239.X.Y.Z where X, Y, and Z are within the range 1:255.|
-|_mcastPort_|the UDP multicast port number. This must be a number within the range ND_MCAST_PORT_LOW:ND_MCAST_PORT_HIGH.| 
+|_mcastPort_|the UDP multicast port number. This must be a number within the range ND_MCAST_PORT_LOW:ND_MCAST_PORT_HIGH.|
+|_localIP_|the IP address of the current device.|
 
 Returns __true__ if the multicast group was successfully established, else __false__.
 
@@ -87,7 +88,7 @@ the packet pointer supplied is only for the purposes of copying the user payload
 Returns __true__ if the packet was sent, else __false__.
 
 ```C++
-void NetDiscovery::send (void);
+void NetDiscovery::stop (void);
 ```
 
 Terminates the UDP multicast stream and releases the corresponding resources.
@@ -111,6 +112,6 @@ Of course, you may also clone this repository and manually install the files if 
 # Copyright Notice
 
 Copyright 2017 Rob Redford
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-To view a copy of this license, visit [BY-NC-SA].
-[BY-NC-SA]: http://creativecommons.org/licenses/by-nc-sa/4.0
+This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License.
+To view a copy of this license, visit [BY-SA].
+[BY-SA]: https://creativecommons.org/licenses/by-sa/4.0/

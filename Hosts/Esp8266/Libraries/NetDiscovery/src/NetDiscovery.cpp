@@ -8,9 +8,9 @@ initially know the IP addresses of the other devices.
 Eight bytes of application-specific information may be added to the packet payload field for exchange amongst the devices.
 This library can be used to implement a master/slave or peer-to-peer topology for discovery.
 
-Copyright 2017 Rob Redford
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
+ Copyright 2017 Rob Redford
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) International License.
+ To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0
 
 Multicast intro: https://community.particle.io/t/multicast-udp-tutorial/19900
 Reference: https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WiFi/src
@@ -26,13 +26,16 @@ inline bool NetDiscovery::_inRange (const int octet) {
 	return (octet >= 1) && (octet <= 255);
 }
 
-bool NetDiscovery::begin (const IPAddress multicastIP, const int mcastPort) {
+/*
+ set up multicast group
+ */
+bool NetDiscovery::begin (const IPAddress multicastIP, const int mcastPort, const IPAddress localIP) {
 	if ( (multicastIP[0] == 239) && _inRange(multicastIP[1]) && _inRange(multicastIP[2]) && _inRange(multicastIP[3]) ) {
 		if ( (mcastPort >= ND_MCAST_PORT_LOW) && (mcastPort <= ND_MCAST_PORT_HIGH) ) {
 			// init the class
 			_mcastIP = multicastIP;
 			_mcastPort = mcastPort;
-			_localIP = WiFi.localIP();
+			_localIP = localIP;                     // pass as an argument so user can be in STA or AP mode
 			WiFi.macAddress(&_localMAC[0]);
 			// join mcast group
 			if (!_mcast.beginMulticast(_localIP, _mcastIP, _mcastPort)) {

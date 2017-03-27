@@ -1,26 +1,15 @@
 package com.dreamingrobots.cameraaxe;
 
-import android.Manifest;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,19 +20,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.util.Date;
+import static com.dreamingrobots.cameraaxe.ConnectionManager.REQUEST_BLE_ENABLE;
+import static com.dreamingrobots.cameraaxe.ConnectionManager.REQUEST_BLE_SELECT_DEVICE;
 
 /**
- * The main UI activity for the Android Udp application.
- * The major tasks for this activity are:
- * + Handle UI inputs/outputs
- * + Start threads to handle networking
+ * This is mainly a UI activity that takes information from other classes and displays an interface for that data
  */
 public class MainActivity extends FragmentActivity {
     static final int REQUEST_CAMERA_SETTINGS = 3;
-    static final boolean USE_BLE = false;
+    static final boolean USE_BLE = true;
     static final int MAX_CAMERAS = 8;
     private static final String TAG_RETAINED_FRAGMENT = "RetainedFragment";
     Button mSendMessageButton;
@@ -52,50 +37,19 @@ public class MainActivity extends FragmentActivity {
     CheckBox mCheckboxPhotoMode;
     Button mCameraSettingsButton;
     private RetainedFragment mRetainedFragment;
+    private ConnectionManager mConnectionManager;
+
+    Button mBleConnectButton;
 
     // Wifi settings
     static final String CAMERA_SETTING_HANDLE = "CAM_SET_HANDLE";
     static final int mIpPort = 4045;
     EditText mIpAddress;
 
-    // Ble settings
-    private static final int REQUEST_BLE_SELECT_DEVICE = 1;
-    private static final int REQUEST_BLE_ENABLE = 2;
-    private static final int BLE_UART_PROFILE_READY = 10;
-    private static final int BLE_UART_PROFILE_CONNECTED = 20;
-    private static final int BLE_UART_PROFILE_DISCONNECTED = 21;
-    Button mBleConnectButton;
-    private UartService mBleService = null;
-    private BluetoothDevice mBleDevice = null;
-    private BluetoothAdapter mBleAdapter = null;
-    private int mState = BLE_UART_PROFILE_DISCONNECTED;
-
-    // Coarse position is needed to scan BLE connections
-    private void checkCoarsePositionPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 3);
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (USE_BLE) {
-            checkCoarsePositionPermission();
-            mBleAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (mBleAdapter == null) {
-                showToastMessage("Bluetooth is not available");
-                finish();
-                return;
-            }
-
-            bleServiceInit();
-        }
-
 
         // Setup all hooks back to the UI elements for easy access later
         mBleConnectButton = (Button) findViewById(R.id.ble_connect_button);
@@ -105,7 +59,6 @@ public class MainActivity extends FragmentActivity {
         mDynamicMenuList = (LinearLayout) findViewById(R.id.dynamic_menu_list);
         mCheckboxPhotoMode = (CheckBox) findViewById(R.id.checkbox_photo_mode);
         mCameraSettingsButton = (Button) findViewById(R.id.camera_settings_button);
-
         // Hide the UI elements not needed for the current connection mode
         if (USE_BLE) {
             TextView textView = (TextView) findViewById(R.id.ip_address_text);
@@ -121,22 +74,7 @@ public class MainActivity extends FragmentActivity {
             mBleConnectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!mBleAdapter.isEnabled()) {
-                        Log.i("CA6", "onClick - BT not enabled yet");
-                        Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        startActivityForResult(enableIntent, REQUEST_BLE_ENABLE);
-                    } else {
-                        if (mBleConnectButton.getText().equals("Connect")) {
-                            //Connect button pressed, open DeviceListActivity class with popup windows that scan for devices
-                            Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class);
-                            startActivityForResult(newIntent, REQUEST_BLE_SELECT_DEVICE);
-                        } else {
-                            //Disconnect button pressed
-                            if (mBleDevice != null) {
-                                mBleService.disconnect();
-                            }
-                        }
-                    }
+                    mConnectionManager.toggleConnection();
                 }
             });
         }
@@ -165,15 +103,7 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 if (USE_BLE) {
-                    // Todo this needs to be made more like the wifi path
-                    try {
-                        //send data to service
-                        String blah = "hello world";
-                        byte[] value = blah.getBytes("UTF-8");
-                        mBleService.writeRXCharacteristic(value);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+
                 } else {
                     final String ipAddress = mIpAddress.getText().toString();
                     mRetainedFragment.startReceiveThread(ipAddress, mIpPort);
@@ -212,12 +142,8 @@ public class MainActivity extends FragmentActivity {
 
         switch (requestCode) {
             case REQUEST_BLE_SELECT_DEVICE:
-                // The DeviceListActivity returns with the selected device address
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
-                    mBleDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
-                    mBleService.connect(deviceAddress);
-                }
+                mConnectionManager.requestSelectDevice(resultCode, data);
+
                 break;
             case REQUEST_BLE_ENABLE:
                 //  The request to enable Ble returns
@@ -252,7 +178,7 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        if (mState == BLE_UART_PROFILE_CONNECTED) {
+        if (mConnectionManager.isConnected()) {
             Intent startMain = new Intent(Intent.ACTION_MAIN);
             startMain.addCategory(Intent.CATEGORY_HOME);
             startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -285,97 +211,16 @@ public class MainActivity extends FragmentActivity {
 
         mRetainedFragment.setDynamicMenuBuilder(mDynamicMenuList);
         mSelectMenuSpinner.setAdapter(mRetainedFragment.getMenuListAdapter());
+
+        mConnectionManager = mRetainedFragment.getConnectionManager();
     }
 
-
-
-
-
-
-    private ServiceConnection mBleServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder rawBinder) {
-            mBleService = ((UartService.LocalBinder) rawBinder).getService();
-            Log.i("CA6", "onServiceConnected mService= " + mBleService);
-            if (!mBleService.initialize()) {
-                Log.e("CA6", "Unable to initialize Ble");
-                finish();
-            }
+    public void setConnectionUi(boolean connection) {
+        if (connection) {
+            mBleConnectButton.setText("Disconnect");
+        } else {
+            mBleConnectButton.setText("Connect");
         }
-
-        public void onServiceDisconnected(ComponentName classname) {
-            mBleService.disconnect();
-            mBleService = null;
-        }
-    };
-
-    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            final Intent mIntent = intent;
-
-            if(action.equals(UartService.ACTION_GATT_CONNECTED)) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
-                        mBleConnectButton.setText("Disconnect");
-                        mState = BLE_UART_PROFILE_CONNECTED;
-                    }
-                });
-            }
-            else if(action.equals(UartService.ACTION_GATT_DISCONNECTED)) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
-                        mBleConnectButton.setText("Connect");
-                        mState = BLE_UART_PROFILE_DISCONNECTED;
-                        mBleService.close();
-                    }
-                });
-            }
-            else if(action.equals(UartService.ACTION_GATT_SERVICES_DISCOVERED)) {
-                mBleService.enableTXNotification();
-            }
-            else if(action.equals(UartService.ACTION_DATA_AVAILABLE)) {
-                final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        try {
-                            String text = new String(txValue, "UTF-8");
-                            Log.i("CA6", text);
-                        } catch (Exception e) {
-                            Log.e("CA6", e.toString());
-                        }
-                    }
-                });
-            }
-            else if(action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)) {
-                    showToastMessage("Device doesn't support UART. Disconnecting");
-                    mBleService.disconnect();
-            }
-            else {
-                Log.e("CA6", "Invalid statement");
-            }
-        }
-    };
-
-    private void bleServiceInit() {
-        Intent bindIntent = new Intent(this, UartService.class);
-        bindService(bindIntent, mBleServiceConnection, Context.BIND_AUTO_CREATE);
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver,
-                makeGattUpdateIntentFilter());
-    }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(UartService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(UartService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(UartService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(UartService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(UartService.DEVICE_DOES_NOT_SUPPORT_UART);
-        return intentFilter;
     }
 
     private void showToastMessage(String msg) {
