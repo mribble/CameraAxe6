@@ -1,4 +1,4 @@
-update=3/26/2017 9:10:39 PM
+update=3/27/2017 11:12:20 PM
 version=1
 last_client=kicad
 [cvpcb]
@@ -19,26 +19,6 @@ RptLab=1
 LabSize=60
 [general]
 version=1
-[pcbnew]
-version=1
-PageLayoutDescrFile=
-LastNetListRead=
-UseCmpFile=1
-PadDrill=0
-PadDrillOvalY=0
-PadSizeH=2.5
-PadSizeV=1.1
-PcbTextSizeV=1.5
-PcbTextSizeH=1.5
-PcbTextThickness=0.3
-ModuleTextSizeV=1
-ModuleTextSizeH=1
-ModuleTextSizeThickness=0.15
-SolderMaskClearance=0
-SolderMaskMinWidth=0
-DrawSegmentWidth=0.2
-BoardOutlineThickness=0.09999999999999999
-ModuleOutlineThickness=0.15
 [eeschema]
 version=1
 LibDir=../../Pcb
@@ -74,4 +54,23 @@ LibName28=opto
 LibName29=atmel
 LibName30=contrib
 LibName31=valves
-LibName32=tempCA6
+[pcbnew]
+version=1
+PageLayoutDescrFile=
+LastNetListRead=
+UseCmpFile=1
+PadDrill=0
+PadDrillOvalY=0
+PadSizeH=2.5
+PadSizeV=1.1
+PcbTextSizeV=1.5
+PcbTextSizeH=1.5
+PcbTextThickness=0.3
+ModuleTextSizeV=1
+ModuleTextSizeH=1
+ModuleTextSizeThickness=0.15
+SolderMaskClearance=0
+SolderMaskMinWidth=0
+DrawSegmentWidth=0.2
+BoardOutlineThickness=0.09999999999999999
+ModuleOutlineThickness=0.15
