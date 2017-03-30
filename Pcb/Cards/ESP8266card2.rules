@@ -1,0 +1,117 @@
+
+(rules PCB ESP8266card2
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout off)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 50)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 267)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.2)
+    )
+    (layer_rule In1.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.8)
+    )
+  )
+  (rule
+    (width 152.4)
+    (clear 152.6)
+    (clear 76.2 (type smd_to_turn_gap))
+    (clear 254.2 (type default_Thicker))
+    (clear 38.2 (type smd_smd))
+    (clear 254.2 (type smd_Thicker))
+    (clear 254.2 (type "kicad_default"_Thicker))
+    (clear 254.2 (type Thicker_Thicker))
+  )
+  (padstack "Via[0-1]_609.6:355.6_um"
+    (shape
+      (circle F.Cu 609.6 0.0 0.0)
+    )
+    (shape
+      (circle In1.Cu 609.6 0.0 0.0)
+    )
+    (attach off)
+  )
+  (padstack "Via[0-1]_762:406.4_um"
+    (shape
+      (circle F.Cu 762.0 0.0 0.0)
+    )
+    (shape
+      (circle In1.Cu 762.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um" "Via[0-1]_609.6:355.6_um" default
+  )
+  (via 
+    "Via[0-1]_762:406.4_um" "Via[0-1]_762:406.4_um" default
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-kicad_default" "Via[0-1]_609.6:355.6_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_762:406.4_um-kicad_default" "Via[0-1]_762:406.4_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_609.6:355.6_um-Thicker" "Via[0-1]_609.6:355.6_um" Thicker
+  )
+  (via 
+    "Via[0-1]_762:406.4_um-Thicker" "Via[0-1]_762:406.4_um" Thicker
+  )
+  (via_rule
+    default "Via[0-1]_609.6:355.6_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_609.6:355.6_um-kicad_default"
+  )
+  (via_rule
+    Thicker "Via[0-1]_762:406.4_um-Thicker"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu In1.Cu)
+    )
+  )
+  (class "kicad_default"
+    "/CC_TX" "/ESP_RX" "Net-(P1-Pad2)" "Net-(P1-Pad3)" "/Debug-TX" "Net-(P1-Pad6)" "/CC_PROG" "/CC_RESET"
+    "/CC_CTS" "/CC_RTS" "/CC_RX" "/CC_G_LED" "/CC_EXT1" "/CC_EXT0" "Net-(P1-Pad4)" "Net-(U2-Pad2)"
+    "Net-(U2-Pad4)" "/CC_R_LED" "Net-(R4-Pad1)"
+    (clearance_class "kicad_default")
+    (via_rule kicad_default)
+    (rule
+      (width 152.4)
+    )
+    (circuit 
+      (use_layer F.Cu In1.Cu)
+    )
+  )
+  (class Thicker
+    GND 3V3
+    (clearance_class Thicker)
+    (via_rule Thicker)
+    (rule
+      (width 304.8)
+    )
+    (circuit 
+      (use_layer F.Cu In1.Cu)
+    )
+  )
+)
