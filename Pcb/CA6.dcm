@@ -1,9 +1,29 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP CONN_01X02
+D Connector, single row, 01x02, pin header
+K connector
+$ENDCMP
+#
+$CMP CONN_01X06
+D Connector, single row, 01x06, pin header
+K connector
+$ENDCMP
+#
+$CMP CONN_02X06
+D Connector, double row, 02x06, pin header
+K connector
+$ENDCMP
+#
 $CMP ESP-12E/F
 D ESP8266 ESP-12E module, 22 pins, 2mm, PCB antenna
 K MODULE ESP8266 ESP-8266
 F http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/
+$ENDCMP
+#
+$CMP TEST_2P
+D point
+K point tp
 $ENDCMP
 #
 #End Doc Library

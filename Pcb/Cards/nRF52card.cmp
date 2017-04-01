@@ -1,0 +1,52 @@
+Cmp-Mod V01 Created by Cvpcb (2015-01-16 BZR 5376)-product   date = 3/30/2017 11:51:25 PM
+
+BeginCmp
+TimeStamp = /58C146DF;
+Reference = C1;
+ValeurCmp = .1uF;
+IdModule  = CA6:c_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /58C1477A;
+Reference = C2;
+ValeurCmp = 10uF;
+IdModule  = CA6:c_1206;
+EndCmp
+
+BeginCmp
+TimeStamp = /58D9E2DD;
+Reference = J2;
+ValeurCmp = CONN_02X06;
+IdModule  = Pin_Headers:Pin_Header_Straight_2x06_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /58DDFA63;
+Reference = P1;
+ValeurCmp = JTAG_20021121-00010C4LF;
+IdModule  = CA6:JTAG_20021121-00010C4LF;
+EndCmp
+
+BeginCmp
+TimeStamp = /58DE019F;
+Reference = U1;
+ValeurCmp = SN74AHC1G08;
+IdModule  = TO_SOT_Packages_SMD:SOT-23-5;
+EndCmp
+
+BeginCmp
+TimeStamp = /58DDE273;
+Reference = U2;
+ValeurCmp = BL652-SA-01;
+IdModule  = XCVR_BL652-SA-01;
+EndCmp
+
+BeginCmp
+TimeStamp = /58DA497E;
+Reference = X1;
+ValeurCmp = HOLE;
+IdModule  = CA6:HOLE_3.0mm;
+EndCmp
+
+EndListe
