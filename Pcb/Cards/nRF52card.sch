@@ -318,8 +318,6 @@ Wire Wire Line
 	1300 4400 2050 4400
 Text Label 1600 4400 0    60   ~ 0
 CC_PROG
-Text Label 1600 5150 0    60   ~ 0
-nAUTORUN-not_sure-needed
 Wire Wire Line
 	8250 3500 8250 5100
 Wire Wire Line
