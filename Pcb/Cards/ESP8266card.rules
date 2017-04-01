@@ -1,5 +1,5 @@
 
-(rules PCB ESP8266card
+(rules PCB ESP8266card2
   (snap_angle 
     fortyfive_degree
   )
@@ -11,18 +11,18 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 741)
+    (start_pass_no 753)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 2.1)
+      (against_preferred_direction_trace_costs 2.2)
     )
     (layer_rule B.Cu
       (active on)
       (preferred_direction vertical)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 1.9)
+      (against_preferred_direction_trace_costs 1.8)
     )
   )
   (rule
@@ -91,10 +91,9 @@
     )
   )
   (class "kicad_default"
-    GND "/CC_TX" "/ESP_RX" "Net-(D2-Pad1)" "Net-(P1-Pad2)" "Net-(P1-Pad3)" "/Debug-RX" "/Debug-TX"
-    "Net-(P1-Pad6)" "Net-(P2-Pad2)" "Net-(P2-Pad3)" "Net-(P2-Pad5)" "Net-(P2-Pad6)" "/R-LED" "/G-LED" "/CC_PROG"
-    "/CC_RESET" "/CC_CTS" "/CC_RTS" "/CC_RX" "Net-(R2-Pad1)" "/ESP_TX" "Net-(R8-Pad2)" "Net-(U1-Pad2)"
-    "Net-(U1-Pad4)" 3V3 "Net-(D1-Pad2)"
+    "/CC_TX" "/ESP_RX" "Net-(P1-Pad2)" "Net-(P1-Pad3)" "/Debug-TX" "Net-(P1-Pad6)" "/CC_PROG" "/CC_RESET"
+    "/CC_CTS" "/CC_RTS" "/CC_RX" "/CC_G_LED" "/CC_EXT1" "/CC_EXT0" "Net-(U2-Pad2)" "Net-(U2-Pad4)"
+    "/CC_R_LED" "Net-(R4-Pad1)" "/FTDI_TX"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
@@ -105,6 +104,7 @@
     )
   )
   (class Thicker
+    GND 3V3
     (clearance_class Thicker)
     (via_rule Thicker)
     (rule
