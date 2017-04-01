@@ -1,0 +1,488 @@
+EESchema Schematic File Version 2
+LIBS:CA6
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:nRF52card-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "nRF52 Connection Card for CA6"
+Date ""
+Rev ""
+Comp "Dreaming Robots"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L GND #PWR01
+U 1 1 58C14094
+P 1950 4000
+F 0 "#PWR01" H 1950 3750 50  0001 C CNN
+F 1 "GND" H 1950 3850 50  0000 C CNN
+F 2 "" H 1950 4000 50  0000 C CNN
+F 3 "" H 1950 4000 50  0000 C CNN
+	1    1950 4000
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 58C14194
+P 4600 1750
+F 0 "#PWR02" H 4600 1500 50  0001 C CNN
+F 1 "GND" H 4600 1600 50  0000 C CNN
+F 2 "" H 4600 1750 50  0000 C CNN
+F 3 "" H 4600 1750 50  0000 C CNN
+	1    4600 1750
+	0    1    1    0   
+$EndComp
+$Comp
+L C C1
+U 1 1 58C146DF
+P 6550 3150
+F 0 "C1" H 6575 3250 50  0000 L CNN
+F 1 ".1uF" H 6575 3050 50  0000 L CNN
+F 2 "CA6:c_0603" H 6588 3000 50  0001 C CNN
+F 3 "" H 6550 3150 50  0000 C CNN
+	1    6550 3150
+	-1   0    0    1   
+$EndComp
+$Comp
+L CAP_ELEC C2
+U 1 1 58C1477A
+P 6850 3150
+F 0 "C2" H 6900 3250 50  0000 L CNN
+F 1 "10uF" H 6900 3050 50  0000 L CNN
+F 2 "CA6:c_1206" H 6850 3150 60  0001 C CNN
+F 3 "" H 6850 3150 60  0000 C CNN
+	1    6850 3150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6400 3350 7400 3350
+Connection ~ 6550 3350
+$Comp
+L GND #PWR03
+U 1 1 58C14A9E
+P 7100 2950
+F 0 "#PWR03" H 7100 2700 50  0001 C CNN
+F 1 "GND" H 7100 2800 50  0000 C CNN
+F 2 "" H 7100 2950 50  0000 C CNN
+F 3 "" H 7100 2950 50  0000 C CNN
+	1    7100 2950
+	1    0    0    -1  
+$EndComp
+Connection ~ 6850 3350
+Text Label 2650 4600 0    60   ~ 0
+CC_RX
+Text Label 1750 4600 0    60   ~ 0
+CC_TX
+Text Label 2600 4300 0    60   ~ 0
+CC_G_LED
+Text Label 2650 4500 0    60   ~ 0
+CC_RTS
+Text Label 2600 4400 0    60   ~ 0
+CC_RESET
+Text Label 1700 4500 0    60   ~ 0
+CC_CTS
+$Comp
+L GND #PWR04
+U 1 1 58BF45F7
+P 9050 4200
+F 0 "#PWR04" H 9050 3950 50  0001 C CNN
+F 1 "GND" H 9050 4050 50  0000 C CNN
+F 2 "" H 9050 4200 50  0000 C CNN
+F 3 "" H 9050 4200 50  0000 C CNN
+	1    9050 4200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR05
+U 1 1 58C32ED5
+P 3050 4200
+F 0 "#PWR05" H 3050 4300 40  0001 C CNN
+F 1 "3V3" H 3050 4325 40  0000 C CNN
+F 2 "" H 3050 4200 60  0000 C CNN
+F 3 "" H 3050 4200 60  0000 C CNN
+	1    3050 4200
+	0    1    1    0   
+$EndComp
+$Comp
+L 3V3 #PWR06
+U 1 1 58C34BCB
+P 7400 3350
+F 0 "#PWR06" H 7400 3450 40  0001 C CNN
+F 1 "3V3" H 7400 3475 40  0000 C CNN
+F 2 "" H 7400 3350 60  0000 C CNN
+F 3 "" H 7400 3350 60  0000 C CNN
+	1    7400 3350
+	0    1    1    0   
+$EndComp
+$Comp
+L 3V3 #PWR07
+U 1 1 58C34C97
+P 4150 2350
+F 0 "#PWR07" H 4150 2450 40  0001 C CNN
+F 1 "3V3" H 4150 2450 40  0000 C CNN
+F 2 "" H 4150 2350 60  0000 C CNN
+F 3 "" H 4150 2350 60  0000 C CNN
+	1    4150 2350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_02X06 J1
+U 1 1 58D9E2DD
+P 2300 4450
+F 0 "J1" H 2300 4800 50  0000 C CNN
+F 1 "CA6_02X06" H 2300 4100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_2x06_Pitch2.54mm" H 2300 3250 50  0001 C CNN
+F 3 "" H 2300 3250 50  0001 C CNN
+	1    2300 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2550 4200 3050 4200
+Text Label 2600 4200 0    60   ~ 0
+3V3
+Wire Wire Line
+	2050 4200 2050 4000
+Wire Wire Line
+	2050 4000 1950 4000
+Wire Wire Line
+	6550 2950 7100 2950
+Connection ~ 6850 2950
+Wire Wire Line
+	3300 4400 2550 4400
+Wire Wire Line
+	2550 4600 3500 4600
+Wire Wire Line
+	2550 4700 3700 4700
+Wire Wire Line
+	1700 4700 2050 4700
+Text Label 1750 4700 0    60   ~ 0
+CC_EXT1
+Text Label 2550 4700 0    60   ~ 0
+CC_EXT0
+$Comp
+L PWR_FLAG #FLG08
+U 1 1 58DA2C43
+P 7050 2950
+F 0 "#FLG08" H 7050 3025 50  0001 C CNN
+F 1 "PWR_FLAG" H 7050 3100 50  0000 C CNN
+F 2 "" H 7050 2950 50  0001 C CNN
+F 3 "" H 7050 2950 50  0001 C CNN
+	1    7050 2950
+	1    0    0    -1  
+$EndComp
+Connection ~ 7050 2950
+$Comp
+L GND #PWR09
+U 1 1 58DA2DB1
+P 6650 5600
+F 0 "#PWR09" H 6650 5350 50  0001 C CNN
+F 1 "GND" H 6650 5450 50  0000 C CNN
+F 2 "" H 6650 5600 50  0000 C CNN
+F 3 "" H 6650 5600 50  0000 C CNN
+	1    6650 5600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L HOLE X1
+U 1 1 58DA497E
+P 7450 1750
+F 0 "X1" H 7450 1650 60  0000 C CNN
+F 1 "HOLE" H 7450 1850 60  0000 C CNN
+F 2 "CA6:HOLE_3.0mm" H 7450 1750 60  0000 C CNN
+F 3 "" H 7450 1750 60  0000 C CNN
+	1    7450 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L BL652-SA-01 U2
+U 1 1 58DDE273
+P 5200 4650
+F 0 "U2" H 4100 6050 50  0000 L CNN
+F 1 "BL652-SA-01" H 4100 3350 50  0000 L CNN
+F 2 "CA6:XCVR_BL652-SA-01" H 5200 4650 50  0001 L CNN
+F 3 "SMD-39 Laird" H 5200 4650 50  0001 L CNN
+F 4 "BL652-SA-01" H 5200 4650 50  0001 L CNN "MP"
+F 5 "9.07 USD" H 5200 4650 50  0001 L CNN "Price"
+F 6 "Laird" H 5200 4650 50  0001 L CNN "MF"
+F 7 "Bluetooth v4.2 Module with NFC (Integrated Antenna)" H 5200 4650 50  0001 L CNN "Description"
+F 8 "Bad" H 5200 4650 50  0001 L CNN "Availability"
+	1    5200 4650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3600 4500 2550 4500
+Wire Wire Line
+	4000 4550 3600 4550
+Wire Wire Line
+	3600 4550 3600 4500
+Wire Wire Line
+	4000 4450 3500 4450
+Wire Wire Line
+	3500 4450 3500 4600
+Wire Wire Line
+	4000 4650 3500 4650
+Wire Wire Line
+	3500 4650 3500 4900
+Wire Wire Line
+	3500 4900 1450 4900
+Wire Wire Line
+	1450 4900 1450 4600
+Wire Wire Line
+	1450 4600 2050 4600
+Wire Wire Line
+	4000 4350 3500 4350
+Wire Wire Line
+	3500 4350 3500 3800
+Wire Wire Line
+	3500 3800 1500 3800
+Wire Wire Line
+	1500 3800 1500 4500
+Wire Wire Line
+	1500 4500 2050 4500
+Wire Wire Line
+	3300 1600 3300 4400
+Wire Wire Line
+	6400 3950 7750 3950
+Wire Wire Line
+	7750 3950 7750 2700
+Wire Wire Line
+	7750 2700 3400 2700
+Wire Wire Line
+	3400 2700 3400 4300
+Wire Wire Line
+	3400 4300 2550 4300
+Wire Wire Line
+	7850 2600 7850 4150
+Wire Wire Line
+	7850 2600 1400 2600
+Wire Wire Line
+	1400 2600 1400 4300
+Wire Wire Line
+	1400 4300 2050 4300
+Wire Wire Line
+	7850 4150 6400 4150
+Wire Wire Line
+	6550 5750 6400 5750
+Wire Wire Line
+	6550 5450 6550 5750
+Wire Wire Line
+	6550 5450 6400 5450
+Wire Wire Line
+	6650 5600 6550 5600
+Connection ~ 6550 5600
+Wire Wire Line
+	6400 5650 6550 5650
+Connection ~ 6550 5650
+Wire Wire Line
+	6400 5550 6550 5550
+Connection ~ 6550 5550
+Wire Wire Line
+	4000 5150 1300 5150
+Wire Wire Line
+	1300 5150 1300 4400
+Wire Wire Line
+	1300 4400 2050 4400
+Text Label 1600 4400 0    60   ~ 0
+CC_PROG
+Text Label 1600 5150 0    60   ~ 0
+nAUTORUN-not_sure-needed
+Wire Wire Line
+	8250 3500 8250 5100
+Wire Wire Line
+	7000 3500 8250 3500
+Wire Wire Line
+	7000 3500 7000 3350
+Connection ~ 7000 3350
+Wire Wire Line
+	4000 3450 3900 3450
+Wire Wire Line
+	3900 3450 3900 2500
+Wire Wire Line
+	3900 2500 8650 2500
+Wire Wire Line
+	8650 2500 8650 4800
+Wire Wire Line
+	7000 4050 7000 4900
+Wire Wire Line
+	7000 4050 6400 4050
+Wire Wire Line
+	7000 4900 8850 4900
+$Comp
+L SN74AHC1G08 U1
+U 1 1 58DE019F
+P 4400 2100
+F 0 "U1" H 4400 2150 50  0000 C CNN
+F 1 "SN74AHC1G08" H 4400 2050 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23-5" H 4350 1850 50  0001 C CNN
+F 3 "http://www.ti.com/lit/gpn/sn74ahc1g08" H 4400 2500 50  0001 C CNN
+	1    4400 2100
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3800 2100 3800 3350
+Wire Wire Line
+	3800 3350 4000 3350
+Wire Wire Line
+	3300 1600 5000 1600
+Wire Wire Line
+	5000 1600 5000 2000
+Wire Wire Line
+	8450 2200 8450 5000
+Wire Wire Line
+	8450 2200 5000 2200
+Wire Wire Line
+	8750 2450 8750 4700
+Wire Wire Line
+	8750 2450 3700 2450
+Wire Wire Line
+	3700 2450 3700 3650
+Wire Wire Line
+	3700 3650 4000 3650
+Text Label 8450 4700 1    60   ~ 0
+JTAG_RESET
+Text Label 1550 4300 0    60   ~ 0
+CC_R_LED
+Text Label 6500 3950 0    60   ~ 0
+CC_G_LED
+Text Label 6500 4050 0    60   ~ 0
+SWO/TDO
+Text Label 6450 4150 0    60   ~ 0
+CC_R_LED
+Wire Wire Line
+	4000 4050 3700 4050
+Wire Wire Line
+	3700 4050 3700 4700
+Wire Wire Line
+	4000 4950 1700 4950
+Wire Wire Line
+	1700 4950 1700 4700
+$Comp
+L CONN_01X06 J3
+U 1 1 58DE9D13
+P 9050 4850
+F 0 "J3" H 9050 5200 50  0000 C CNN
+F 1 "PROG_01X06" V 9150 4850 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_1x06_Pitch2.54mm" H 9050 4850 50  0001 C CNN
+F 3 "" H 9050 4850 50  0001 C CNN
+	1    9050 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8850 4600 8850 4100
+Wire Wire Line
+	8850 4100 9050 4100
+Wire Wire Line
+	9050 4100 9050 4200
+Wire Wire Line
+	8750 4700 8850 4700
+Text Label 8750 4300 1    60   ~ 0
+SWDIO
+Wire Wire Line
+	8650 4800 8850 4800
+Text Label 8650 4650 1    60   ~ 0
+SWCLK
+Wire Wire Line
+	8450 5000 8850 5000
+Wire Wire Line
+	8250 5100 8850 5100
+Text Label 8500 4900 0    60   ~ 0
+SWO/TDO
+Text Label 8400 5100 0    60   ~ 0
+VCC
+Wire Wire Line
+	4000 4850 3800 4850
+Wire Wire Line
+	3800 4850 3800 5750
+Wire Wire Line
+	3800 5750 2500 5750
+Wire Wire Line
+	4000 4750 3700 4750
+Wire Wire Line
+	3700 4750 3700 5350
+Wire Wire Line
+	3700 5350 2500 5350
+Text Notes 1950 5950 0    60   ~ 0
+If NFC is used, change connector\nto Molex 51281-0594
+NoConn ~ 4000 3850
+NoConn ~ 4000 3950
+NoConn ~ 4000 4150
+NoConn ~ 4000 4250
+NoConn ~ 4000 5050
+NoConn ~ 4000 5250
+NoConn ~ 4000 5350
+NoConn ~ 6400 5250
+NoConn ~ 6400 5150
+NoConn ~ 6400 5050
+NoConn ~ 6400 4950
+NoConn ~ 6400 4850
+NoConn ~ 6400 4750
+NoConn ~ 6400 4650
+NoConn ~ 6400 4550
+NoConn ~ 6400 4450
+NoConn ~ 6400 4350
+NoConn ~ 6400 4250
+NoConn ~ 6400 3850
+Wire Wire Line
+	4600 1850 4600 1750
+Wire Wire Line
+	4600 2350 4150 2350
+$Comp
+L PWR_FLAG #FLG010
+U 1 1 58DEAD7E
+P 7350 3300
+F 0 "#FLG010" H 7350 3375 50  0001 C CNN
+F 1 "PWR_FLAG" H 7350 3450 50  0000 C CNN
+F 2 "" H 7350 3300 50  0001 C CNN
+F 3 "" H 7350 3300 50  0001 C CNN
+	1    7350 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 3300 7350 3350
+Connection ~ 7350 3350
+$Comp
+L TEST_2P J2
+U 1 1 58DEC0DA
+P 2500 5550
+F 0 "J2" H 2500 5610 50  0000 C CNN
+F 1 "NFC_ANT" H 2500 5480 50  0000 C CNN
+F 2 "CA6:Test_Point_2Pads" H 2500 5550 50  0001 C CNN
+F 3 "" H 2500 5550 50  0001 C CNN
+	1    2500 5550
+	0    1    1    0   
+$EndComp
+$EndSCHEMATC
