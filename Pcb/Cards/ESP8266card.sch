@@ -1,5 +1,4 @@
 EESchema Schematic File Version 2
-LIBS:ESP8266card-rescue
 LIBS:CA6
 LIBS:power
 LIBS:device
@@ -30,7 +29,7 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
-LIBS:ESP8266card2-cache
+LIBS:ESP8266card-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -95,7 +94,7 @@ U 1 1 58C10A25
 P 5700 1700
 F 0 "P1" H 5700 1300 50  0000 C CNN
 F 1 "ESP-Programming-FTDI" V 6100 1700 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x06_Pitch2.54mm" H 5700 1700 50  0001 C CNN
+F 2 "CA6:Pin_Header_Angled_1x06_Pitch2.54mm" H 5700 1700 50  0001 C CNN
 F 3 "DOCUMENTATION" H 5700 1700 50  0001 C CNN
 	1    5700 1700
 	0    -1   -1   0   
@@ -423,9 +422,7 @@ Wire Wire Line
 Wire Wire Line
 	5750 2750 5250 2750
 Wire Wire Line
-	4850 4850 4850 5200
-Wire Wire Line
-	4850 5200 9450 5200
+	4700 5200 9450 5200
 Wire Wire Line
 	9450 5200 9450 4550
 Wire Wire Line
@@ -485,10 +482,10 @@ Wire Wire Line
 	8150 4600 8150 4650
 Wire Wire Line
 	8150 4650 8500 4650
-Text Label 8200 4650 0    60   ~ 0
-CC_EXT1
-Text Label 9000 4650 0    60   ~ 0
+Text Label 8150 4650 0    60   ~ 0
 CC_EXT0
+Text Label 9000 4650 0    60   ~ 0
+CC_EXT1
 Wire Wire Line
 	5850 2450 5850 2350
 Wire Wire Line
@@ -558,4 +555,7 @@ Text Label 5400 2950 0    60   ~ 0
 CC_TX
 Text Label 3700 2850 0    60   ~ 0
 ESP_RX
+Wire Wire Line
+	4700 5200 4700 4850
+Connection ~ 4700 4850
 $EndSCHEMATC

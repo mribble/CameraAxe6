@@ -1,4 +1,4 @@
-update=4/1/2017 9:41:53 AM
+update=4/2/2017 1:49:45 PM
 version=1
 last_client=kicad
 [cvpcb]
@@ -19,26 +19,6 @@ RptLab=1
 LabSize=60
 [general]
 version=1
-[pcbnew]
-version=1
-PageLayoutDescrFile=
-LastNetListRead=
-UseCmpFile=1
-PadDrill=0
-PadDrillOvalY=0
-PadSizeH=2.5
-PadSizeV=1.1
-PcbTextSizeV=1.5
-PcbTextSizeH=1.5
-PcbTextThickness=0.3
-ModuleTextSizeV=1
-ModuleTextSizeH=1
-ModuleTextSizeThickness=0.15
-SolderMaskClearance=0
-SolderMaskMinWidth=0
-DrawSegmentWidth=0.2
-BoardOutlineThickness=0.09999999999999999
-ModuleOutlineThickness=0.15
 [eeschema]
 version=1
 LibDir=../../Pcb
@@ -73,3 +53,23 @@ LibName27=opto
 LibName28=atmel
 LibName29=contrib
 LibName30=valves
+[pcbnew]
+version=1
+PageLayoutDescrFile=
+LastNetListRead=ESP8266card.net
+UseCmpFile=0
+PadDrill=0
+PadDrillOvalY=0
+PadSizeH=2.5
+PadSizeV=1.1
+PcbTextSizeV=0.635
+PcbTextSizeH=0.635
+PcbTextThickness=0.1524
+ModuleTextSizeV=0.5
+ModuleTextSizeH=0.5
+ModuleTextSizeThickness=0.09999999999999999
+SolderMaskClearance=0
+SolderMaskMinWidth=0
+DrawSegmentWidth=0.2
+BoardOutlineThickness=0.2
+ModuleOutlineThickness=0.15
