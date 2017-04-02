@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source F:/Users/dlenardon/Documents/electronics/CameraAxe6/Pcb/Cards/ESP8266card.sch)
-    (date "4/2/2017 1:47:45 PM")
+    (date "4/2/2017 4:43:34 PM")
     (tool "Eeschema (2015-01-16 BZR 5376)-product"))
   (components
     (comp (ref R5)
@@ -85,18 +85,6 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 58DA497E)))
   (libparts
-    (libpart (lib CA6) (part CONN_01X02)
-      (footprints
-        (fp Pin_Header_Straight_1X*)
-        (fp Pin_Header_Angled_1X*)
-        (fp Socket_Strip_Straight_1X*)
-        (fp Socket_Strip_Angled_1X*))
-      (fields
-        (field (name Reference) J)
-        (field (name Value) CONN_01X02))
-      (pins
-        (pin (num 1) (name P1) (type passive))
-        (pin (num 2) (name P2) (type passive))))
     (libpart (lib CA6) (part C)
       (footprints
         (fp c_0603)
@@ -116,6 +104,18 @@
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
+    (libpart (lib CA6) (part CONN_01X02)
+      (footprints
+        (fp Pin_Header_Straight_1X*)
+        (fp Pin_Header_Angled_1X*)
+        (fp Socket_Strip_Straight_1X*)
+        (fp Socket_Strip_Angled_1X*))
+      (fields
+        (field (name Reference) J)
+        (field (name Value) CONN_01X02))
+      (pins
+        (pin (num 1) (name P1) (type passive))
+        (pin (num 2) (name P2) (type passive))))
     (libpart (lib CA6) (part CONN_02X06)
       (footprints
         (fp Pin_Header_Straight_2X*)
@@ -139,6 +139,15 @@
         (pin (num 10) (name P10) (type passive))
         (pin (num 11) (name P11) (type passive))
         (pin (num 12) (name P12) (type passive))))
+    (libpart (lib CA6) (part HOLE)
+      (footprints
+        (fp HOLE_2.5mm)
+        (fp HOLE_3.0mm)
+        (fp HOLE_4.0mm)
+        (fp HOLE_5.0mm))
+      (fields
+        (field (name Reference) X)
+        (field (name Value) HOLE)))
     (libpart (lib CA6) (part ESP-12E/F)
       (description "ESP8266 ESP-12E module, 22 pins, 2mm, PCB antenna")
       (docs http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/)
@@ -170,24 +179,6 @@
         (pin (num 20) (name GPIO10) (type BiDi))
         (pin (num 21) (name MOSI) (type BiDi))
         (pin (num 22) (name SCLK) (type BiDi))))
-    (libpart (lib CA6) (part HOLE)
-      (footprints
-        (fp HOLE_2.5mm)
-        (fp HOLE_3.0mm)
-        (fp HOLE_4.0mm)
-        (fp HOLE_5.0mm))
-      (fields
-        (field (name Reference) X)
-        (field (name Value) HOLE)))
-    (libpart (lib CA6) (part R)
-      (footprints
-        (fp SM0603_resistor))
-      (fields
-        (field (name Reference) R)
-        (field (name Value) R))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
     (libpart (lib CA6) (part SN74AHC1G08)
       (footprints
         (fp SOT-23-5))
@@ -216,7 +207,16 @@
         (pin (num 3) (name POWER) (type power_in))
         (pin (num 4) (name TXO) (type BiDi))
         (pin (num 5) (name RXI) (type BiDi))
-        (pin (num 6) (name DTR) (type BiDi)))))
+        (pin (num 6) (name DTR) (type BiDi))))
+    (libpart (lib CA6) (part R)
+      (footprints
+        (fp SM0603_resistor))
+      (fields
+        (field (name Reference) R)
+        (field (name Value) R))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive)))))
   (libraries
     (library (logical CA6)
       (uri F:\Users\dlenardon\Documents\electronics\CameraAxe6\Pcb\CA6.lib)))
