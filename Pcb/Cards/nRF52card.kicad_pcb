@@ -1,4 +1,4 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.6)
+(kicad_pcb (version 4) (host pcbnew 4.0.5)
 
   (general
     (links 30)
@@ -180,7 +180,7 @@
   )
 
   (net_class Thicker ""
-    (clearance 0.254)
+    (clearance 0.2286)
     (trace_width 0.3048)
     (via_dia 0.762)
     (via_drill 0.4064)
