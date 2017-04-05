@@ -79,9 +79,11 @@ void CAPacketHelper::init(HardwareSerial *serial, hwPortPin rts, hwPortPin cts) 
     
     mRtsPin = rts;
     mCtsPin = cts;
+#ifdef USE_FLOW_CONTROL
     CAU::pinMode(mRtsPin, OUTPUT);
     CAU::pinMode(mCtsPin, INPUT);
     CAU::digitalWrite(mRtsPin, HIGH);
+#endif
 }
 
 boolean CAPacketHelper::readOnePacket(uint8 *data) {
