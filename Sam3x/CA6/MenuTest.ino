@@ -1,6 +1,6 @@
 typedef struct {
-  uint32 nextSendUpdate;
-  uint32 count;
+  uint32_t nextSendUpdate;
+  uint32_t count;
 } MenuTestData;
 
 MenuTestData gMenuTestData;
@@ -10,7 +10,7 @@ void MenuTest_Info() {
 }
 
 void MenuTest_MenuInit() {
-  const uint8 sDataMenu[] PROGMEM = {
+  const uint8_t sDataMenu[] PROGMEM = {
   19,0,PID_MENU_HEADER,0,0,1,0,'M','e','n','u',' ','T','e','s','t','e','r',0,  // MENU_HEADER 0 1 "Menu Tester"
   15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   22,0,PID_TEXT_DYNAMIC,0,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,'1','2','3',0,  // TEXT_DYNAMIC 0 "Dynamic Text" "123"  **gClientHostId_0**
@@ -29,7 +29,7 @@ void MenuTest_MenuInit() {
 }
 
 void MenuTest_PhotoInit() {
-  const uint8 sDataActive[] PROGMEM = {
+  const uint8_t sDataActive[] PROGMEM = {
   26,0,PID_MENU_HEADER,1,0,2,0,'M','e','n','u',' ','T','e','s','t','e','r',' ','A','c','t','i','v','e',0,  // MENU_HEADER 1 2 "Menu Tester Active"
   23,0,PID_TEXT_STATIC,'N','o','t','h','i','n','g',' ','t','o',' ','s','e','e',' ','h','e','r','e',0,  // TEXT_STATIC "Nothing to see here"
   3,0,PID_SCRIPT_END,  // SCRIPT_END
@@ -40,13 +40,13 @@ void MenuTest_PhotoInit() {
 }
 
 void MenuTest_MenuRun() {
-  uint32 updateFrequency = 1000;  // 1000 ms
-  uint32 curTime = millis();
-  uint32 nextUpdate = gMenuTestData.nextSendUpdate;
+  uint32_t updateFrequency = 1000;  // 1000 ms
+  uint32_t curTime = millis();
+  uint32_t nextUpdate = gMenuTestData.nextSendUpdate;
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
-  uint32 val;
+  uint32_t val;
   packet = incomingPacketCheckEditNumber(packet, 4, val);
   incomingPacketFinish(packet);
 

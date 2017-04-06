@@ -1,5 +1,4 @@
 #include <CAPacket.h>
-#include <CAUtility.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // CamSettings Packet Class
@@ -26,12 +25,12 @@ CAPacketCamSettingsBase::CAPacketCamSettingsBase() {
     mMirrorLockupMilliseconds = 0;
 }
 
-void CAPacketCamSettingsBase::set(uint8 camPortNumber, uint8 mode, uint16 delayHours, uint8 delayMinutes,
-                uint8 delaySeconds, uint16 delayMilliseconds, uint16 delayMicroseconds,
-                uint16 durationHours, uint8 durationMinutes, uint8 durationSeconds, 
-                uint16 durationMilliseconds, uint16 durationMicroseconds, uint8 sequencer,
-                uint8 applyIntervalometer, uint8 smartPreview, uint8 mirrorLockupEnable, 
-                uint8 mirrorLockupMinutes, uint8 mirrorLockupSeconds, uint16 mirrorLockupMilliseconds) {
+void CAPacketCamSettingsBase::set(uint8_t camPortNumber, uint8_t mode, uint16_t delayHours, uint8_t delayMinutes,
+                uint8_t delaySeconds, uint16_t delayMilliseconds, uint16_t delayMicroseconds,
+                uint16_t durationHours, uint8_t durationMinutes, uint8_t durationSeconds, 
+                uint16_t durationMilliseconds, uint16_t durationMicroseconds, uint8_t sequencer,
+                uint8_t applyIntervalometer, uint8_t smartPreview, uint8_t mirrorLockupEnable, 
+                uint8_t mirrorLockupMinutes, uint8_t mirrorLockupSeconds, uint16_t mirrorLockupMilliseconds) {
     mCamPortNumber = camPortNumber;
     mMode = mode;
     mDelayHours = delayHours;

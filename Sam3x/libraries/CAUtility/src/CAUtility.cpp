@@ -2,35 +2,6 @@
 
 namespace CAU
 {
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// logInit - Sets the log baud rate
-//   baud  - Baud rate
-// returns - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void logInit(uint32 baud)
-{
-#if defined(CA_DEBUG) || defined(CA_LOGGING)
-    SerialUSB.begin(baud);
-#endif
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caLog - Works like printf
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void log(char *fmt, ...)
-{
-#ifdef CA_LOGGING
-    const uint8 maxSize = 128;  // Max resulting string size
-    char buf[maxSize];  
-    va_list args;
-    va_start (args, fmt);
-    vsnprintf(buf, maxSize, fmt, args);
-    va_end(args);
-    SerialUSB.print(buf);
-#endif
-}
-
 // Register
 //  volatile WoReg *regsPIO_IDR[4]  = {&REG_PIOA_IDR,  &REG_PIOB_IDR,  &REG_PIOC_IDR,  &REG_PIOD_IDR};  // IDR  = Interrupt disable register
 //  volatile WoReg *regsPIO_MDDR[4] = {&REG_PIOA_MDDR, &REG_PIOB_MDDR, &REG_PIOC_MDDR, &REG_PIOD_MDDR}; // MDDR = Multi-driver disable register
@@ -50,7 +21,7 @@ void log(char *fmt, ...)
 //   mode  - The new mode (INPUT, OUTPUT, INPUT_PULLUP, ANALOG_INPUT)
 // returns - NA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void pinMode(hwPortPin pp, uint8 mode)
+void pinMode(hwPortPin pp, uint8_t mode)
 {
     volatile WoReg *regsPIO_IDR[4]  = {&REG_PIOA_IDR,  &REG_PIOB_IDR,  &REG_PIOC_IDR,  &REG_PIOD_IDR};  // IDR  = Interrupt disable register
     volatile WoReg *regsPIO_OER[4]  = {&REG_PIOA_OER,  &REG_PIOB_OER,  &REG_PIOC_OER,  &REG_PIOD_OER};  // OER  = Output Enable Register
@@ -59,8 +30,8 @@ void pinMode(hwPortPin pp, uint8 mode)
     volatile WoReg *regsPIO_PDR[4]  = {&REG_PIOA_PDR,  &REG_PIOB_PDR,  &REG_PIOC_PDR,  &REG_PIOD_PDR};  // PDR  = PIO Disable Register
     volatile WoReg *regsPIO_PUDR[4] = {&REG_PIOA_PUDR, &REG_PIOB_PUDR, &REG_PIOC_PUDR, &REG_PIOD_PUDR}; // PUDR = Pullup disable register
     volatile WoReg *regsPIO_PUER[4] = {&REG_PIOA_PUER, &REG_PIOB_PUER, &REG_PIOC_PUER, &REG_PIOD_PUER}; // PUER = Pullup enable register
-    uint8 portPerID[4] = {11, 12, 13, 14}; // The peripheral identifiers for Port A,B,C,D
-    uint32 mask = 1 << pp.pin;
+    uint8_t portPerID[4] = {11, 12, 13, 14}; // The peripheral identifiers for Port A,B,C,D
+    uint32_t mask = 1 << pp.pin;
   
     CA_ASSERT(pp.port <= 3, "Error: Bad port size");
     CA_ASSERT(pp.pin <= 31, "Error: Bad pin size");
@@ -126,10 +97,10 @@ void pinMode(hwPortPin pp, uint8 mode)
 //   val   - The value being written (LOW or HIGH)
 // returns - NA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void digitalWrite(hwPortPin pp, uint8 val)
+void digitalWrite(hwPortPin pp, uint8_t val)
 {
     // ODSR = Output data status register
-    static uint32 ports[4] = {0,0,0,0};
+    static uint32_t ports[4] = {0,0,0,0};
     volatile RwReg *regsODSR[4] = {&REG_PIOA_ODSR, &REG_PIOB_ODSR, &REG_PIOC_ODSR, &REG_PIOD_ODSR};
 
     CA_ASSERT(pp.port <= 3, "Error: Bad port size");
@@ -182,12 +153,12 @@ void initializeAnalog()
 //   pin    - The digital pin on the module
 // returns  - Hw port and pin number along with a ptr for digital reads and analog channel if available
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-hwPortPin getModulePin(uint8 module, uint8 pin)
+hwPortPin getModulePin(uint8_t module, uint8_t pin)
 {
     hwPortPin ret;
     CA_ASSERT( module <= 3, "Error: Invalid module value");
     CA_ASSERT(pin <= 5, "Error: Invalid module pin value");
-    uint8 index = module*6 + pin;
+    uint8_t index = module*6 + pin;
 
     switch(index)
     {
@@ -231,12 +202,12 @@ hwPortPin getModulePin(uint8 module, uint8 pin)
 //   type - Choose either the shutter or focus pin
 // returns  - Hw port and pin number
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-hwPortPin getCameraPin(uint8 cam, camPinType type)
+hwPortPin getCameraPin(uint8_t cam, camPinType type)
 {
     hwPortPin ret;
     CA_ASSERT( cam <= 7, "Error: Invalid camera value");
     CA_ASSERT((type == FOCUS) || (type == SHUTTER), "Error: Invalid camera pin type");
-    uint8 index = cam*2 + (uint8)type;
+    uint8_t index = cam*2 + (uint8_t)type;
 
     switch(index)
     {
@@ -294,7 +265,7 @@ hwPortPin getLinkPin(camPinType type)
 //   pin    - The digital pin on the aux port
 // returns  - Hw port and pin number
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-hwPortPin getAuxPin(uint8 pin)
+hwPortPin getAuxPin(uint8_t pin)
 {
     hwPortPin ret;
     CA_ASSERT(pin <= 46, "Error: Invalid aux pin value");

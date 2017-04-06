@@ -7,55 +7,55 @@
  CAPacketElement* processIncomingPacket() {
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
-  uint8 *mData = ph.getData();
+  uint8_t *mData = ph.getData();
 
   if (ph.readOnePacket(mData)) {
-    uint8 packetSize = mUnpacker.unpackSize();
-    uint8 packetType = mUnpacker.unpackType();
+    uint8_t packetSize = mUnpacker.unpackSize();
+    uint8_t packetType = mUnpacker.unpackType();
     CAPacketElement *ret = NULL;
 
     switch (packetType) {
       case PID_MENU_HEADER: {
         CAPacketMenuHeader unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_MENU_HEADER - %d %d %s\n", packetSize, unpack.getMajorVersion(), unpack.getMinorVersion(), unpack.getMenuName());
-        CAU::log("Should never be called.\n");
+        CA_LOG("%d PID_MENU_HEADER - %d %d %s\n", packetSize, unpack.getMajorVersion(), unpack.getMinorVersion(), unpack.getMenuName());
+        CA_ERROR("Should never be called.\n", 0);
         break;
       }
       case PID_TEXT_STATIC: {
         CAPacketTextStatic unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TEXT_STATIC - %s\n", packetSize, unpack.getText0());
+        CA_LOG("%d PID_TEXT_STATIC - %s\n", packetSize, unpack.getText0());
         break;
       }
       case PID_TEXT_DYNAMIC: {
         CAPacketTextDynamic unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TEXT_DYNAMIC - %d %d %s %d\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0(), unpack.getText1());
+        CA_LOG("%d PID_TEXT_DYNAMIC - %d %d %s %d\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_BUTTON: {
         CAPacketButton unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_Button - %d %d %d %d %s %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getType(), unpack.getValue(), unpack.getText0(), unpack.getText1());
+        CA_LOG("%d PID_Button - %d %d %d %d %s %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getType(), unpack.getValue(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_CHECK_BOX: {
         CAPacketCheckBox unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_CHECK_BOX - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0());
+        CA_LOG("%d PID_CHECK_BOX - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0());
         break;
       }
       case PID_DROP_SELECT: {
         CAPacketDropSelect unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_DROP_SELECT - %d %d %d %s %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0(), unpack.getText1());
+        CA_LOG("%d PID_DROP_SELECT - %d %d %d %s %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0(), unpack.getText1());
         break;
       }
       case PID_EDIT_NUMBER: {
         CAPacketEditNumber *unpack = new CAPacketEditNumber(mUnpacker);
         unpack->unpack();
-        CAU::log("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack->getClientHostId(), unpack->getModAttribute(), unpack->getDigitsBeforeDecimal(),
+        CA_LOG("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack->getClientHostId(), unpack->getModAttribute(), unpack->getDigitsBeforeDecimal(),
                   unpack->getDigitsAfterDecimal(), unpack->getMinValue(), unpack->getMaxValue(), unpack->getValue(), unpack->getText0());
         ret = unpack;
         break;
@@ -63,7 +63,7 @@
       case PID_TIME_BOX: {
         CAPacketTimeBox unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getEnableMask(),
+        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getEnableMask(),
                   unpack.getHours(), unpack.getMinutes(), unpack.getSeconds(), unpack.getMilliseconds(), unpack.getMicroseconds(),
                   unpack.getNanoseconds(), unpack.getText0());
         break;
@@ -71,14 +71,14 @@
       case PID_SCRIPT_END: {
         CAPacketScriptEnd unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_SCRIPT_END\n", packetSize);
-        CAU::log("Should never be called.\n");
+        CA_LOG("%d PID_SCRIPT_END\n", packetSize);
+        CA_ERROR("Should never be called.", 0);
         break;
       }
       case PID_MENU_SELECT: {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
+        CA_LOG("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
         g_ctx.menuId = unpack.getMenuNumber();
         g_ctx.state = CA_STATE_LOADING_MENU;
         if (unpack.getMode() == 0) {
@@ -93,7 +93,7 @@
       case PID_MENU_LIST: {
         CAPacketMenuList unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_MENU_LIST - %d %d %x %d %x %d %x %d %x %d %x %d %x %s\n", packetSize, unpack.getMenuId(), unpack.getModuleId0(), unpack.getModuleMask0(),
+        CA_LOG("%d PID_MENU_LIST - %d %d %x %d %x %d %x %d %x %d %x %d %x %s\n", packetSize, unpack.getMenuId(), unpack.getModuleId0(), unpack.getModuleMask0(),
                   unpack.getModuleId1(), unpack.getModuleMask1(), unpack.getModuleId2(), unpack.getModuleMask2(), unpack.getModuleId3(), unpack.getModuleMask3(),
                   unpack.getModuleTypeId0(), unpack.getModuleTypeMask0(), unpack.getModuleTypeId1(), unpack.getModuleTypeMask1(), unpack.getMenuName());
         for(int i=1; i<NUM_MENUS; ++i) {
@@ -104,25 +104,25 @@
       case PID_MODULE_LIST: {
         CAPacketModuleList unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_MODULE_LIST - %d %d %s\n", packetSize, unpack.getModuleId(), unpack.getModuleTypeId(), unpack.getModuleName());
+        CA_LOG("%d PID_MODULE_LIST - %d %d %s\n", packetSize, unpack.getModuleId(), unpack.getModuleTypeId(), unpack.getModuleName());
         break;
       }
       case PID_LOGGER: {
         CAPacketLogger unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_LOGGER - %s\n", packetSize, unpack.getLog());
+        CA_LOG("%d PID_LOGGER - %s\n", packetSize, unpack.getLog());
         break;
       }
       case PID_CAM_STATE: {
         CAPacketCamState unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_CAM_STATE - %d %d %d\n", packetSize, unpack.getMultiplier(), unpack.getFocus(), unpack.getShutter());
+        CA_LOG("%d PID_CAM_STATE - %d %d %d\n", packetSize, unpack.getMultiplier(), unpack.getFocus(), unpack.getShutter());
         break;
       }
       case PID_CAM_SETTINGS: {
         CAPacketCamSettings unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_CAM_SETTINGS - %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getCamPortNumber(),
+        CA_LOG("%d PID_CAM_SETTINGS - %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getCamPortNumber(),
                   unpack.getMode(), unpack.getDelayHours(), unpack.getDelayMinutes(), unpack.getDelaySeconds(),
                   unpack.getDelayMilliseconds(), unpack.getDelayMicroseconds(), unpack.getDurationHours(), unpack.getDurationMinutes(),
                   unpack.getDurationSeconds(), unpack.getDurationMilliseconds(), unpack.getDurationMicroseconds(), unpack.getSequencer(),
@@ -133,7 +133,7 @@
       case PID_INTERVALOMETER: {
         CAPacketIntervalometer unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_INTERVALOMETER - %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getStartHours(), unpack.getStartMinutes(),
+        CA_LOG("%d PID_INTERVALOMETER - %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getStartHours(), unpack.getStartMinutes(),
         unpack.getStartSeconds(), unpack.getStartMilliseconds(), unpack.getStartMicroseconds(), unpack.getIntervalHours(),
         unpack.getIntervalMinutes(), unpack.getIntervalSeconds(), unpack.getIntervalMilliseconds(), unpack.getIntervalMicroseconds(),
         unpack.getRepeats());
@@ -142,7 +142,7 @@
       case PID_CONTROL_FLAGS: {
         CAPacketControlFlags unpack(mUnpacker);
         unpack.unpack();
-        CAU::log("%d PID_CONTROL_FLAGS - %d %d\n", packetSize, unpack.getSlaveModeEnable(), unpack.getExtraMessagesEnable());
+        CA_LOG("%d PID_CONTROL_FLAGS - %d %d\n", packetSize, unpack.getSlaveModeEnable(), unpack.getExtraMessagesEnable());
         break;
       }
       case PID_ECHO: {
@@ -153,11 +153,11 @@
         } else {
           g_ctx.echoReceived = 1;
         }
-        CAU::log("%d PID_ECHO - %d %s\n", packetSize, unpack.getMode(), unpack.getString());
+        CA_LOG("%d PID_ECHO - %d %s\n", packetSize, unpack.getMode(), unpack.getString());
         break;
       }
       default: {
-        CAU::log("Unknown packet\n");
+        CA_ERROR("Unknown packet", 0);
         break;
       }
     }
@@ -166,7 +166,7 @@
   }
 }
 
-CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8 clientHostId, uint32 &val) {
+CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8_t clientHostId, uint32_t &val) {
   if (p != NULL) {
     if (p->getPacketType() == PID_EDIT_NUMBER) {
       if (p->getClientHostId() == clientHostId) {
@@ -183,7 +183,7 @@ CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8 clientH
 void incomingPacketFinish(CAPacketElement* p) {
   if (p != NULL) {
     delete p;
-    CAU::log("Invalid packet found during incomingPacketCheckFinish()\n");
+    CA_ERROR("Invalid packet found during incomingPacketCheckFinish()", 0);
   }
 }
 

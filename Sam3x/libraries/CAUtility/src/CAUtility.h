@@ -1,7 +1,7 @@
 #ifndef __CAUTILITY_H__
 #define __CAUTILITY_H__
 
-#include "CATypes.h"
+#include <CAStd_sam3x.h>
 
 enum hwPorts {PORT_A=0, PORT_B=1, PORT_C=2, PORT_D=3};
 enum camPinType {FOCUS=0, SHUTTER=1};
@@ -15,24 +15,22 @@ enum hwDevice {EEPROM_PIN=0, BLE_TX_PIN=1, BLE_RX_PIN=2, BLE_RTS_PIN=3, BLE_CTS_
 struct hwPortPin
 {
   hwPorts port;
-  uint8   pin;
-  volatile RwReg *digitalReadReg;     // Cached register location for super fast digital reads
-  volatile int8 analogInputChannel;   // Analog channel number 0-15 or -1 if not an analog port/pin
+  uint8_t pin;
+  volatile RwReg *digitalReadReg;       // Cached register location for super fast digital reads
+  volatile int8_t analogInputChannel;   // Analog channel number 0-15 or -1 if not an analog port/pin
 };
 
 namespace CAU
 {
-    void logInit(uint32 baud);
-    void log(char *fmt, ... );
-    void pinMode(hwPortPin pp, uint8 mode);
-    inline uint8 digitalRead(hwPortPin pp);
-    void digitalWrite(hwPortPin pp, uint8 val);
+    void pinMode(hwPortPin pp, uint8_t mode);
+    inline uint8_t digitalRead(hwPortPin pp);
+    void digitalWrite(hwPortPin pp, uint8_t val);
     void initializeAnalog();
-    inline uint16 analogRead(hwPortPin pp);
-    hwPortPin getModulePin(uint8 module, uint8 pin);
-    hwPortPin getCameraPin(uint8 cam, camPinType type);
+    inline uint16_t analogRead(hwPortPin pp);
+    hwPortPin getModulePin(uint8_t module, uint8_t pin);
+    hwPortPin getCameraPin(uint8_t cam, camPinType type);
     hwPortPin getLinkPin(camPinType type);
-    hwPortPin getAuxPin(uint8 pin);
+    hwPortPin getAuxPin(uint8_t pin);
     hwPortPin getOnboardDevicePin(hwDevice device);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,12 +39,12 @@ namespace CAU
 //   inBit - The port's bit (0-31)
 // returns - 0 or 1 depending of if the bit was set or not
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-inline uint8 digitalRead(hwPortPin pp)
+inline uint8_t digitalRead(hwPortPin pp)
 {
     // PDSR = Pin data status register
     //volatile RoReg *regsPDSR[4] = {&REG_PIOA_PDSR, &REG_PIOB_PDSR, &REG_PIOC_PDSR, &REG_PIOD_PDSR};   // Slow option1
     //uint32 val = *(regsPDSR[pp.port]);                                                                // Slow option1
-    uint32 val = *(pp.digitalReadReg);                                                                   // Fast option2
+    uint32_t val = *(pp.digitalReadReg);                                                                   // Fast option2
 
     CA_ASSERT((pp.digitalReadReg == &REG_PIOA_PDSR) || (pp.digitalReadReg == &REG_PIOB_PDSR) ||
               (pp.digitalReadReg == &REG_PIOC_PDSR) || (pp.digitalReadReg == &REG_PIOD_PDSR), "Error: Bad digitalReadReg");
@@ -61,9 +59,9 @@ inline uint8 digitalRead(hwPortPin pp)
 //   hwPortPin -- analogInputChannel channel number is a member of this structure
 // returns - the 12-bit analog value
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-inline uint16 analogRead(hwPortPin pp)
+inline uint16_t analogRead(hwPortPin pp)
 {
-  uint32 mask = (1<<pp.analogInputChannel);   // setup mask for the End of Conversion bit (0-15) for this channel
+  uint32_t mask = (1<<pp.analogInputChannel);   // setup mask for the End of Conversion bit (0-15) for this channel
 
   CA_ASSERT((pp.analogInputChannel >= 0) && (pp.analogInputChannel <= 14), "Error: Bad analog channel number");
   CA_ASSERT(pp.port <= 3, "Error: Bad port size");

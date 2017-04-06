@@ -9,7 +9,7 @@
 
 struct CtxModules
 {
-  uint8 modId = 0;
+  uint8_t modId = 0;
 };
 
 struct CtxProcTable
@@ -32,7 +32,7 @@ struct Context {
   Context(){}
 
   CAState state = CA_STATE_LOADING_MENU;
-  uint8 menuId = 0;
+  uint8_t menuId = 0;
   CAPacketCamSettingsBase camSettings[NUM_CAMERAS];
 
   CtxModules modules[NUM_MODULES];
@@ -40,7 +40,7 @@ struct Context {
   CtxProcTable procTable;
 
   CAEsp8266 esp8266;
-  uint8 echoReceived = 0;
+  uint8_t echoReceived = 0;
 };
 
 #endif // CONTEXT_H

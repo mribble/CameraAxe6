@@ -1,43 +1,39 @@
 #ifndef __CASTD_H__
 #define __CASTD_H__
 
-/*
- Common macros for SAM3x and ESP8266 code
- 
- The symbols: CA_DEBUG_ERROR, CA_DEBUG_INFO, CA_DEBUG_LOG, CA_DEBUG_ASSERT 
- must be defined (enable output) or not defined (no output)
- before including this header file
- 
- Likewise, for the ESP8266, SerialIO must also be defined first (Serial or Serial1)
- */
 
-#if defined(__SAM3X8E__) && not defined(SerialIO)
-#define SerialIO  SerialUSB
-#endif
+// Common macros for embedded microcontrollers
+// Each of the following must be defined or or there is no
+// output for their respective macro.
+//   CA_DEBUG_ERROR, CA_DEBUG_INFO, CA_DEBUG_LOG, CA_DEBUG_ASSERT 
 
+// SerialIO must be defined to be a hw serial device
+
+// CA_LOG(fmt, ....)            -- Output important info (such as a test passed or failed)
+// CA_ASSERT(cond, str)         -- Assert on errors
+// CA_DEBUG_INFO(str, value)    -- Log developer debug messages
+// CA_ERROR(str, value)         -- Log error messages
 
 #ifdef CA_DEBUG_LOG
-/* 
-  Base function to print debug messages
-  Requires the format string to use the PSTR() macro
-   
-  We need this for SAM3X becuase there is no Serial.printf function available
-  While there is a Serial.printf available for the ESP8266, it is best to maintain consistency with the use of PSTR()
-  
-  This function should not be called directly - only through the macro below
- */
+
+// Base function to print debug messages
+// Requires the format string to use the PSTR() macro
+// We need this for SAM3X because there is no Serial.printf function available
+//  While there is a Serial.printf available for the ESP8266, it is best to maintain consistency with the use of PSTR()
+
+// This should not be called directly (only call through macros below)
 void CALog(PGM_P fmt, ...) __attribute__((format(printf, 1, 2)));
 
-void CALog(PGM_P fmt, ...) {
-   const uint8_t maxSize = 128;                        // Max resulting string size
-   char          buf[maxSize]; 
+inline void CALog(PGM_P fmt, ...) {
+   const uint8_t maxSize = 128;
+   char          buf[maxSize];
    va_list       args;
-	 
-	va_start (args, fmt);
+
+   va_start (args, fmt);
 #ifdef __SAM3X8E__
-	char format[maxSize];                               // SAM3X has no vsnprintf_P so copy into a char array first
-	strncpy_P(format, fmt, maxSize);
-   vsnprintf(buf, maxSize, format, args);
+   char fmt2[maxSize];                  // SAM3X has no vsnprintf_P so copy into a char array first
+   strncpy_P(fmt2, fmt, maxSize);
+   vsnprintf(buf, maxSize, fmt2, args);
 #elif ESP8266
    vsnprintf_P(buf, maxSize, fmt, args);
 #endif
@@ -45,12 +41,11 @@ void CALog(PGM_P fmt, ...) {
    SerialIO.print(buf);
 }
 
-// for the CA_LOG function, you *must* use the PSTR() macro for the format string
+// For the CA_LOG function, you *must* use the PSTR() macro for the format string
 #define CA_LOG(fmt, ...)           CALog(fmt, ##__VA_ARGS__)
-
 #else 
-	#define CA_LOG(...)
-#endif // LOG
+   #define CA_LOG(...)
+#endif // CA_DEBUG_LOG
 
 #ifdef CA_DEBUG_ASSERT
    #define CA_ASSERT(cond, str)            \
@@ -66,9 +61,11 @@ void CALog(PGM_P fmt, ...) {
       }                                    \
    }
 #else
-	#define CA_ASSERT(...)
+   #define CA_ASSERT(...)
 #endif
-	
+
+#if defined(CA_DEBUG_INFO) || defined(CA_DEBUG_ERROR)
+// This should not be called directly (only call through macros below)
 #define _CA_MSG(header, msg, value)    \
    {                                   \
       SerialIO.print(header);          \
@@ -76,20 +73,19 @@ void CALog(PGM_P fmt, ...) {
       SerialIO.print(F(": "));         \
       SerialIO.println(value);         \
    } 
-	
-// functions for simple messages using Serial.print. Use the F() macro for strings
+#endif
+   
+// Functions for simple messages using Serial.print. Use the F() macro for strings
 #ifdef CA_DEBUG_INFO
    #define CA_INFO(msg, value)        _CA_MSG(F("INFO> "), msg, value)
 #else
-	#define CA_INFO(...)
+   #define CA_INFO(...)
 #endif
 
 #ifdef CA_DEBUG_ERROR
    #define CA_ERROR(msg, value)       _CA_MSG(F("ERROR> "), msg, value)
 #else
-	#define CA_ERROR(...)
+   #define CA_ERROR(...)
 #endif
-
-
 
 #endif 

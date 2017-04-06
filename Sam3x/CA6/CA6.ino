@@ -1,4 +1,3 @@
-#include <CATypes.h>
 #include <CAUtility.h>
 #include <CAEeprom.h>
 #include <CAPacket.h>
@@ -12,7 +11,7 @@
 Context g_ctx;
 
 void setup() {
-  CAU::logInit(9600);
+  SerialIO.begin(9600);
   CAU::initializeAnalog();
 
   hwPortPin rts = CAU::getModulePin(0,0);
@@ -42,14 +41,14 @@ void loop() {
 }
 
 void checkModulePorts() {
-  for(uint8 i=0; i<NUM_MODULES; ++i) {
-    uint8 val = 0;
+  for(uint8_t i=0; i<NUM_MODULES; ++i) {
+    uint8_t val = 0;
     CAEeprom moduleEeprom(unioDevice(CA_MODULE0+i));
     if (moduleEeprom.readModuleId(&val)) {
       if (g_ctx.modules[i].modId != val) {
         g_ctx.modules[i].modId = val;
         // todo send update to host about changing modules
-        CAU::log("Module detected - %d\n",val);
+        CA_INFO("Module detected", val);
       }
     }
     else {
@@ -57,7 +56,6 @@ void checkModulePorts() {
         // Module has been unplugged
         g_ctx.modules[i].modId = 0;
         // todo send update to host about changing modules
-        CAU::log("Module unplugged\n");
       }
     }
   }
@@ -65,7 +63,7 @@ void checkModulePorts() {
 
 void triggerCameras() {
   hwPortPin ppFocus, ppShutter;
-  uint8 i;
+  uint8_t i;
 
   // todo -- For now just trigger all the cameras for 1 second
 

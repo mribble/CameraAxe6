@@ -1,7 +1,6 @@
 #ifndef __CAPACKET_HELPER_H__
 #define __CAPACKET_HELPER_H__
 
-#include "CATypes.h"
 #include "CAPacket.h"
 #include "CAUtility.h"
 
@@ -17,22 +16,22 @@ public:
     {};
     
     CAPacket& getUnpacker() {return mUnpacker;};
-    uint8* getData() {return mData;};
+    uint8_t* getData() {return mData;};
     
     void init(HardwareSerial *serial, hwPortPin rts, hwPortPin cts);
-    boolean readOnePacket(uint8 *data);
-    void writeOnePacket(uint8 *data);
-    void writeMenu(const uint8 *sData, uint16 sz);
+    boolean readOnePacket(uint8_t *data);
+    void writeOnePacket(uint8_t *data);
+    void writeMenu(const uint8_t *sData, uint16_t sz);
     void flushGarbagePackets();
     
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
-    void writePacketTextDynamic(uint8 clientHostId, uint8 modAttribute, const char* text1);
-    void writePacketMenuList(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1, uint8 moduleMask1,
-                uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
-                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+    void writePacketTextDynamic(uint8_t clientHostId, uint8_t modAttribute, const char* text1);
+    void writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
+                uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
+                uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
                 String menuName);
-    void writePacketEcho(uint8 mode, const char* str);
+    void writePacketEcho(uint8_t mode, const char* str);
 
 private:
     uint16_t serialFlowControlAvailable();
@@ -43,17 +42,17 @@ private:
     HardwareSerial *mSerial;
     hwPortPin mRtsPin;
     hwPortPin mCtsPin;
-    uint16 mSize;
+    uint16_t mSize;
     CAPacket mPacker;
     CAPacket mUnpacker;
-    uint8 mData[MAX_PACKET_SIZE];
+    uint8_t mData[MAX_PACKET_SIZE];
     
-    uint16 genPacketSize(uint8 b0, uint8 b1) {
-        uint16 ret = uint16(b0) + (uint16(b1)<<8);
+    uint16_t genPacketSize(uint8_t b0, uint8_t b1) {
+        uint16_t ret = uint16_t(b0) + (uint16_t(b1)<<8);
         return ret;
     }
 
-    uint8 getPacketSize(uint16 val, uint8 byteNumber) {
+    uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
         if (byteNumber == 0) {
             return val && 0xFF;
         } else {

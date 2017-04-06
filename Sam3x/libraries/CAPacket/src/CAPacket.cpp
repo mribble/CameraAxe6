@@ -1,7 +1,7 @@
 #include <CAPacket.h>
 #include <CAUtility.h>
 
-CAPacket::CAPacket(uint8 state, uint8 *buf, uint16 bufSize) {
+CAPacket::CAPacket(uint8_t state, uint8_t *buf, uint16_t bufSize) {
     mBitsUsed = 0;
     mBitsVal = 0;
     mBytesUsed = 0;
@@ -18,36 +18,36 @@ void CAPacket::resetBuffer() {
     mBytesUsed = 0;
 }
 
-uint16 CAPacket::unpackSize() {
-    return (uint16)unpacker(16);
+uint16_t CAPacket::unpackSize() {
+    return (uint16_t)unpacker(16);
 }
 
-uint8 CAPacket::unpackType() {
-    uint8 val = (uint8)unpacker(8);
+uint8_t CAPacket::unpackType() {
+    uint8_t val = (uint8_t)unpacker(8);
     CA_ASSERT( val > PID_START_SENTINEL  &&
                val < PID_END_SENTINEL,   "Invalid packet type");
     return val;
 }
     
-uint32 CAPacket::unpacker(uint8 unpackBits)
+uint32_t CAPacket::unpacker(uint8_t unpackBits)
 {
     CA_ASSERT(mState == STATE_UNPACKER, "Error in unpacker");
-    uint8 unpackBitsLeft = unpackBits;
-    uint32 ret = 0;
-    uint8 valShift = 0;
+    uint8_t unpackBitsLeft = unpackBits;
+    uint32_t ret = 0;
+    uint8_t valShift = 0;
 
     // This loop shifts through the number of bytes you want to unpack in the src buffer
     // and puts them into an uint32
     do
     {
-        uint8 bitsInCurSrcByte = 8 - mBitsUsed;
-        uint8 bitsToUnpack = min(unpackBitsLeft, bitsInCurSrcByte);
-        uint8 unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ? 
+        uint8_t bitsInCurSrcByte = 8 - mBitsUsed;
+        uint8_t bitsToUnpack = min(unpackBitsLeft, bitsInCurSrcByte);
+        uint8_t unusedLeftBits = (unpackBitsLeft >= bitsInCurSrcByte) ? 
                                 0 : (bitsInCurSrcByte - unpackBitsLeft);
-        uint8 rightShift = mBitsUsed + unusedLeftBits;
-        uint8 val = mBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
+        uint8_t rightShift = mBitsUsed + unusedLeftBits;
+        uint8_t val = mBuf[mBytesUsed] << unusedLeftBits;  // Zero out left bits
         val = val >> rightShift;      // Shift bits to right most position for this byte
-        ret |= (uint32(val) << valShift);
+        ret |= (uint32_t(val) << valShift);
         valShift += bitsToUnpack;
         if (mBitsUsed + bitsToUnpack == 8)
         {
@@ -65,20 +65,20 @@ uint32 CAPacket::unpacker(uint8 unpackBits)
 
 void CAPacket::unpackerString(String& str) {
     CA_ASSERT(mState == STATE_UNPACKER, "Error in unpackerString");
-    uint16 len = strlen((char*)&mBuf[mBytesUsed]);
+    uint16_t len = strlen((char*)&mBuf[mBytesUsed]);
     str = (char*)(&mBuf[mBytesUsed]);
     mBytesUsed += len+1;  // +1 for the null terminator
 }
 
-void CAPacket::packer(uint32 val, uint8 packBits)
+void CAPacket::packer(uint32_t val, uint8_t packBits)
 {
     CA_ASSERT(mState == STATE_PACKER, "Error in packer");
-    uint8 packBitsLeft = packBits;
+    uint8_t packBitsLeft = packBits;
 
     do
     {
-        uint8 bitsInCurDstByte = 8 - mBitsUsed;
-        uint8 bitsToPack = min(bitsInCurDstByte, packBitsLeft);
+        uint8_t bitsInCurDstByte = 8 - mBitsUsed;
+        uint8_t bitsToPack = min(bitsInCurDstByte, packBitsLeft);
         mBitsVal |= (val << mBitsUsed);
         mBitsUsed += bitsToPack;
         val = val >> bitsToPack;
@@ -95,7 +95,7 @@ void CAPacket::packer(uint32 val, uint8 packBits)
 
 void CAPacket::packerString(const char* src){
     CA_ASSERT(mState == STATE_PACKER, "Error in packerString");
-    for(uint8 val=0; val<strlen(src); val++) {
+    for(uint8_t val=0; val<strlen(src); val++) {
         (mBuf[mBytesUsed++]) = src[val];
     }
     mBuf[mBytesUsed++] = 0; // Add null terminator
@@ -113,7 +113,7 @@ CAPacketMenuHeader::CAPacketMenuHeader(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketMenuHeader::set(uint16 majorVersion, uint16 minorVersion, String menuName) {
+void CAPacketMenuHeader::set(uint16_t majorVersion, uint16_t minorVersion, String menuName) {
     mMajorVersion = majorVersion;
     mMinorVersion = minorVersion;
     mMenuName = menuName;
@@ -126,9 +126,9 @@ void CAPacketMenuHeader::unpack() {
     mCAP->flushPacket();
 }
 
-uint16 CAPacketMenuHeader::pack() {
-    uint16 len = mMenuName.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 4 + len;
+uint16_t CAPacketMenuHeader::pack() {
+    uint16_t len = mMenuName.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 4 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_HEADER, 8);
     mCAP->packer(mMajorVersion, 16);
@@ -154,9 +154,9 @@ void CAPacketTextStatic::unpack() {
     mCAP->flushPacket();
 }
 
-uint16 CAPacketTextStatic::pack() {
-    uint16 len = mText0.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + len;
+uint16_t CAPacketTextStatic::pack() {
+    uint16_t len = mText0.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TEXT_STATIC, 8);
     mCAP->packerString(mText0.c_str());
@@ -173,7 +173,7 @@ CAPacketTextDynamic::CAPacketTextDynamic(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketTextDynamic::set(uint8 clientHostId, uint8 modAttribute, String text0, String text1) {
+void CAPacketTextDynamic::set(uint8_t clientHostId, uint8_t modAttribute, String text0, String text1) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
     mText0 = text0;
@@ -192,9 +192,9 @@ void CAPacketTextDynamic::unpack() {
         "Error in CAPacketTextDynamic::unpack()");
 }
 
-uint16 CAPacketTextDynamic::pack() {
-    uint16 len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 2 + len;
+uint16_t CAPacketTextDynamic::pack() {
+    uint16_t len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 2 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TEXT_DYNAMIC, 8);
     mCAP->packer(mClientHostId, 8);
@@ -216,7 +216,7 @@ CAPacketButton::CAPacketButton(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketButton::set(uint8 clientHostId, uint8 modAttribute, uint8 type, uint8 value, String text0, String text1) {
+void CAPacketButton::set(uint8_t clientHostId, uint8_t modAttribute, uint8_t type, uint8_t value, String text0, String text1) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
     mType = type;
@@ -239,9 +239,9 @@ void CAPacketButton::unpack() {
                 "Error in CAPacketButton::unpack()");
 }
 
-uint16 CAPacketButton::pack() {
-    uint16 len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 3 + len;
+uint16_t CAPacketButton::pack() {
+    uint16_t len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 3 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_BUTTON, 8);
     mCAP->packer(mClientHostId, 8);
@@ -264,7 +264,7 @@ CAPacketCheckBox::CAPacketCheckBox(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketCheckBox::set(uint8 clientHostId, uint8 modAttribute, uint8 value, String text0) {
+void CAPacketCheckBox::set(uint8_t clientHostId, uint8_t modAttribute, uint8_t value, String text0) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
     mValue = value;
@@ -281,9 +281,9 @@ void CAPacketCheckBox::unpack() {
     CA_ASSERT((mValue <= 1) && (mModAttribute <= 2), "Error in CAPacketCheckBox::unpack()");
 }
 
-uint16 CAPacketCheckBox::pack() {
-    uint16 len = mText0.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 3 + len;
+uint16_t CAPacketCheckBox::pack() {
+    uint16_t len = mText0.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 3 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CHECK_BOX, 8);
     mCAP->packer(mClientHostId, 8);
@@ -304,7 +304,7 @@ CAPacketDropSelect::CAPacketDropSelect(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketDropSelect::set(uint8 clientHostId, uint8 modAttribute, uint8 value, String text0, String text1) {
+void CAPacketDropSelect::set(uint8_t clientHostId, uint8_t modAttribute, uint8_t value, String text0, String text1) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
     mValue = value;
@@ -325,9 +325,9 @@ void CAPacketDropSelect::unpack() {
         "Error in CAPacketDropSelect::unpack()");
 }
 
-uint16 CAPacketDropSelect::pack() {
-    uint16 len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 3 + len;
+uint16_t CAPacketDropSelect::pack() {
+    uint16_t len = mText0.length()+1+mText1.length()+1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 3 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_DROP_SELECT, 8);
     mCAP->packer(mClientHostId, 8);
@@ -353,8 +353,8 @@ CAPacketEditNumber::CAPacketEditNumber(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketEditNumber::set(uint8 clientHostId, uint8 modAttribute, uint8 digitsBeforeDecimal, 
-                                uint8 digitsAfterDecimal, uint32 minValue, uint32 maxValue, uint32 value,
+void CAPacketEditNumber::set(uint8_t clientHostId, uint8_t modAttribute, uint8_t digitsBeforeDecimal, 
+                                uint8_t digitsAfterDecimal, uint32_t minValue, uint32_t maxValue, uint32_t value,
                                 String text0 ) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
@@ -386,9 +386,9 @@ void CAPacketEditNumber::unpack() {
                 "Error in CAPacketEditNumber::unpack()");
 }
 
-uint16 CAPacketEditNumber::pack() {
-    uint16 len = mText0.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 15 + len;
+uint16_t CAPacketEditNumber::pack() {
+    uint16_t len = mText0.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 15 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_EDIT_NUMBER, 8);
     mCAP->packer(mClientHostId, 8);
@@ -419,8 +419,8 @@ CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketTimeBox::set(uint8 clientHostId, uint8 modAttribute, uint8 enableMask, uint16 hours, uint8 minutes,
-                            uint8 seconds, uint16 milliseconds, uint16 microseconds, uint16 nanoseconds,
+void CAPacketTimeBox::set(uint8_t clientHostId, uint8_t modAttribute, uint8_t enableMask, uint16_t hours, uint8_t minutes,
+                            uint8_t seconds, uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds,
                             String text0 ) {
     mClientHostId = clientHostId;
     mModAttribute = modAttribute;
@@ -455,10 +455,10 @@ void CAPacketTimeBox::unpack() {
                 "Error in CAPacketTimeBox::set()");
 }
 
-uint16 CAPacketTimeBox::pack() {
-    uint8 unused;
-    uint16 len = mText0.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 10 + len;
+uint16_t CAPacketTimeBox::pack() {
+    uint8_t unused;
+    uint16_t len = mText0.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 10 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
     mCAP->packer(mClientHostId, 8);
@@ -491,8 +491,8 @@ void CAPacketScriptEnd::unpack() {
     CA_ASSERT(0, "ScriptEnd::unpack never needs to be called");
 }
 
-uint16 CAPacketScriptEnd::pack() {
-    uint16 packetSize = 3;
+uint16_t CAPacketScriptEnd::pack() {
+    uint16_t packetSize = 3;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_SCRIPT_END, 8);
     mCAP->flushPacket();
@@ -508,7 +508,7 @@ CAPacketMenuSelect::CAPacketMenuSelect(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketMenuSelect::set(uint8 mode, uint8 menuNumber) {
+void CAPacketMenuSelect::set(uint8_t mode, uint8_t menuNumber) {
     mMode = mode;
     mMenuNumber = menuNumber;
     CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::set()");
@@ -521,8 +521,8 @@ void CAPacketMenuSelect::unpack() {
     CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::unpack()");
 }
 
-uint16 CAPacketMenuSelect::pack() {
-    uint16 packetSize = 3 + 2;
+uint16_t CAPacketMenuSelect::pack() {
+    uint16_t packetSize = 3 + 2;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_SELECT, 8);
     mCAP->packer(mMode, 8);
@@ -551,9 +551,9 @@ CAPacketMenuList::CAPacketMenuList(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketMenuList::set(uint8 menuId, uint8 moduleId0, uint8 moduleMask0,  uint8 moduleId1,
-                uint8 moduleMask1, uint8 moduleId2, uint8 moduleMask2, uint8 moduleId3, uint8 moduleMask3,
-                uint8 moduleTypeId0, uint8 moduleTypeMask0, uint8 moduleTypeId1, uint8 moduleTypeMask1,
+void CAPacketMenuList::set(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1,
+                uint8_t moduleMask1, uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
+                uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
                 String menuName) {
     mMenuId = menuId;
     mModuleId0 = moduleId0;
@@ -595,9 +595,9 @@ void CAPacketMenuList::unpack() {
             mModuleTypeMask0 <= 0xf && mModuleTypeMask1 <= 0xf , "Error in MenuList::unpack()");
 }
 
-uint16 CAPacketMenuList::pack() {
-    uint16 len = mMenuName.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 10 + len;
+uint16_t CAPacketMenuList::pack() {
+    uint16_t len = mMenuName.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 10 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_LIST, 8);
     mCAP->packer(mMenuId, 8);
@@ -627,7 +627,7 @@ CAPacketModuleList::CAPacketModuleList(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketModuleList::set(uint8 moduleId, uint8 moduleTypeId, String moduleName) {
+void CAPacketModuleList::set(uint8_t moduleId, uint8_t moduleTypeId, String moduleName) {
     mModuleId = moduleId;
     mModuleTypeId = moduleTypeId;
     mModuleName = moduleName;
@@ -640,9 +640,9 @@ void CAPacketModuleList::unpack() {
     mCAP->flushPacket();
 }
 
-uint16 CAPacketModuleList::pack() {
-    uint16 len = mModuleName.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 2 + len;
+uint16_t CAPacketModuleList::pack() {
+    uint16_t len = mModuleName.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 2 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MODULE_LIST, 8);
     mCAP->packer(mModuleId, 8);
@@ -668,9 +668,9 @@ void CAPacketLogger::unpack() {
     mCAP->flushPacket();
 }
 
-uint16 CAPacketLogger::pack() {
-    uint16 len = mLog.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + len;
+uint16_t CAPacketLogger::pack() {
+    uint16_t len = mLog.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_LOGGER, 8);
     mCAP->packerString(mLog.c_str());
@@ -688,7 +688,7 @@ CAPacketCamState::CAPacketCamState(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketCamState::set(uint8 multiplier, uint8 focus, uint8 shutter) {
+void CAPacketCamState::set(uint8_t multiplier, uint8_t focus, uint8_t shutter) {
     mMultiplier = multiplier;
     mFocus = focus;
     mShutter = shutter;
@@ -701,8 +701,8 @@ void CAPacketCamState::unpack() {
     mCAP->flushPacket();
 }
 
-uint16 CAPacketCamState::pack() {
-    uint16 packetSize = 3 + 3;
+uint16_t CAPacketCamState::pack() {
+    uint16_t packetSize = 3 + 3;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_STATE, 8);
     mCAP->packer(mMultiplier, 8);
@@ -769,9 +769,9 @@ void CAPacketCamSettings::unpack() {
                 "Error in CAPacketCamSettings::unpack()");
 }
 
-uint16 CAPacketCamSettings::pack() {
-    uint8 unused;
-    uint16 packetSize = 3 + 17;
+uint16_t CAPacketCamSettings::pack() {
+    uint8_t unused;
+    uint16_t packetSize = 3 + 17;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_SETTINGS, 8);
     mCAP->packer(mCamPortNumber, 8);
@@ -816,10 +816,10 @@ CAPacketIntervalometer::CAPacketIntervalometer(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketIntervalometer::set(uint16 startHours, uint8 startMinutes, uint8 startSeconds, uint16 startMilliseconds,
-                uint16 startMicroseconds, uint16 intervalHours, uint8 intervalMinutes,
-                uint8 intervalSeconds, uint16 intervalMilliseconds, uint16 intervalMicroseconds,
-                uint16 repeats) {
+void CAPacketIntervalometer::set(uint16_t startHours, uint8_t startMinutes, uint8_t startSeconds, uint16_t startMilliseconds,
+                uint16_t startMicroseconds, uint16_t intervalHours, uint8_t intervalMinutes,
+                uint8_t intervalSeconds, uint16_t intervalMilliseconds, uint16_t intervalMicroseconds,
+                uint16_t repeats) {
     mStartHours = startHours;
     mStartMinutes = startMinutes;
     mStartSeconds = startSeconds;
@@ -857,9 +857,9 @@ void CAPacketIntervalometer::unpack() {
                 (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::unpack()");
 }
 
-uint16 CAPacketIntervalometer::pack() {
-    uint8 unused;
-    uint16 packetSize = 3 + 13;
+uint16_t CAPacketIntervalometer::pack() {
+    uint8_t unused;
+    uint16_t packetSize = 3 + 13;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_INTERVALOMETER, 8);
     mCAP->packer(mStartHours, 10);
@@ -887,7 +887,7 @@ CAPacketControlFlags::CAPacketControlFlags(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketControlFlags::set(uint8 slaveModeEnable, uint8 extraMessagesEnable) {
+void CAPacketControlFlags::set(uint8_t slaveModeEnable, uint8_t extraMessagesEnable) {
     mSlaveModeEnable = slaveModeEnable;
     mExtraMessagesEnable = extraMessagesEnable;
     CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1), 
@@ -904,9 +904,9 @@ void CAPacketControlFlags::unpack() {
 
 }
 
-uint16 CAPacketControlFlags::pack() {
-    uint8 unused = 0;
-    uint16 packetSize = 3 + 1;
+uint16_t CAPacketControlFlags::pack() {
+    uint8_t unused = 0;
+    uint16_t packetSize = 3 + 1;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CONTROL_FLAGS, 8);
     mCAP->packer(mSlaveModeEnable, 1);
@@ -923,7 +923,7 @@ CAPacketEcho::CAPacketEcho(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketEcho::set(uint8 mode, String str) {
+void CAPacketEcho::set(uint8_t mode, String str) {
     mMode = mode;
     mString = str;
     CA_ASSERT((mMode <= 1), "Error in CAPacketEcho::set()");
@@ -937,9 +937,9 @@ void CAPacketEcho::unpack() {
 
 }
 
-uint16 CAPacketEcho::pack() {
-    uint16 len = mString.length() + 1;  // 1 for the null terminator
-    uint16 packetSize = 3 + 1 + len;
+uint16_t CAPacketEcho::pack() {
+    uint16_t len = mString.length() + 1;  // 1 for the null terminator
+    uint16_t packetSize = 3 + 1 + len;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_ECHO, 8);
     mCAP->packer(mMode, 8);

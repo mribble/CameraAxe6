@@ -1,6 +1,6 @@
 void processTerminalCmds() {
   if (SerialUSB.available()) {
-    uint8 command = SerialUSB.read();
+    uint8_t command = SerialUSB.read();
     switch (command) {
     case 'p': // Program the ESP8266
       g_ctx.esp8266.reprogramESP();
@@ -13,8 +13,8 @@ void processTerminalCmds() {
     case 't': // Program a test module in module port 3
     {
       CAEeprom eeprom(CA_MODULE3);
-      const uint8 testModuleId = 2;
-      uint8 val = 0;
+      const uint8_t testModuleId = 2;
+      uint8_t val = 0;
 
       if (eeprom.writeModuleId(testModuleId)) {
         SerialUSB.print("Success - Writing test module\n");

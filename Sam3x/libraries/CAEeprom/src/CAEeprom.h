@@ -46,34 +46,34 @@ enum unioWriteStatus { EEPROM_WRITE_PROTECTED_NONE    = 0x00, // None write prot
                      };
 
 #define EEPROM_ADDR 0
-#define EEPROM_MAGIC_VAL ((uint32)0xdeadc0de)
+#define EEPROM_MAGIC_VAL ((uint32_t)0xdeadc0de)
                      
 class CAEeprom
 {
 public:
     CAEeprom(unioDevice device);
-    boolean read(uint8 *buf, uint16 addr, uint16 len);
-    boolean write(const uint8 *buf, uint16 addr, uint16 len);
+    boolean read(uint8_t *buf, uint16_t addr, uint16_t len);
+    boolean write(const uint8_t *buf, uint16_t addr, uint16_t len);
     boolean statusRead(unioReadStatus *status);
     boolean statusWrite(unioWriteStatus status);
-    boolean readModuleId(uint8 *val);
-    boolean writeModuleId(uint8 val);
+    boolean readModuleId(uint8_t *val);
+    boolean writeModuleId(uint8_t val);
 
 private:
     void    standbyPulse();
     boolean readWriteBit(boolean bit);
     boolean readBit();
-    boolean sendByte(uint8 b, boolean mak);
-    boolean readByte(uint8 *b, boolean mak);
-    boolean sendRawBytes(const uint8 *buf, uint16 len, boolean end);
-    boolean readRawBytes(uint8 *buf, uint16 len);
+    boolean sendByte(uint8_t b, boolean mak);
+    boolean readByte(uint8_t *b, boolean mak);
+    boolean sendRawBytes(const uint8_t *buf, uint16_t len, boolean end);
+    boolean readRawBytes(uint8_t *buf, uint16_t len);
     void    startHeader();
     boolean writeEnable();
     boolean writeDisable();
-    boolean writeStart(const uint8 *buf, uint16 addr, uint16 len);
+    boolean writeStart(const uint8_t *buf, uint16_t addr, uint16_t len);
     boolean writeWaitComplete();
     
-    uint8       m_deviceAddr;
+    uint8_t       m_deviceAddr;
     hwPortPin   m_hwPortPin;
 };
 

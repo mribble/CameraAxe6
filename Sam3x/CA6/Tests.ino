@@ -14,16 +14,16 @@ void caRunTests()
 }
 
 void caTestSerialWritePerf() {
-  const uint32 bufSize = 20;
-  uint32 startTime = 0;
-  uint32 endTime = 0;
-  uint8 writeChars[bufSize];
+  const uint32_t bufSize = 20;
+  uint32_t startTime = 0;
+  uint32_t endTime = 0;
+  uint8_t writeChars[bufSize];
 
   Serial1.end();
   Serial1.begin(9600);
 
   // fill the write buffer
-  for (uint8 i = 0; i < bufSize; i++) {
+  for (uint8_t i = 0; i < bufSize; i++) {
     writeChars[i] = char((i % 10) + '0');
   }
 
@@ -32,7 +32,7 @@ void caTestSerialWritePerf() {
   endTime = micros();
   delay(500); // Wait for values to finish being written
 
-  CAU::log("Serial Write perf (%d bytes): %d us\n", bufSize, endTime-startTime);
+  CA_LOG("Serial Write perf (%d bytes): %d us\n", bufSize, endTime-startTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,10 +44,10 @@ void caTestNetworkEcho() {
 
   g_ctx.echoReceived = 0;
 
-  uint32 endTime;
-  uint32 startTime = millis();
+  uint32_t endTime;
+  uint32_t startTime = millis();
   g_ctx.packetHelper.writePacketEcho(0, "01234");  // 0 means back to sam3x
-  for(uint16 i=0; i<5000; ++i) {
+  for(uint16_t i=0; i<5000; ++i) {
     processIncomingPacket();
     if (g_ctx.echoReceived) {
       endTime = millis();
@@ -58,9 +58,9 @@ void caTestNetworkEcho() {
   }
 
   if (done) {
-    CAU::log("Time in milliseconds: %d\n", endTime-startTime);
+    CA_LOG("Time in milliseconds: %d\n", endTime-startTime);
   } else {
-    CAU::log("ERROR - Packet was never returned.\n");
+    CA_LOG("ERROR - Packet was never returned.\n");
   }
 }
 
@@ -71,16 +71,16 @@ void caTestNetworkEcho() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestTickTimer()
 {
-  uint64 ticks;
+  uint64_t ticks;
   CATickTimer bob(0);
   ticks = bob.convertTimeToTicks(0,0,0,100,0,0);
-  bob.start(toggleLed, ticks, CA_TRUE);
+  bob.start(toggleLed, ticks, true);
   delay(5000);
   bob.stop();
 }
 void toggleLed()
 {
-  static uint8 toggle = 1;
+  static uint8_t toggle = 1;
 
   hwPortPin led = CAU::getOnboardDevicePin(LED_GREEN_PIN);
   CAU::pinMode(led, OUTPUT);
@@ -104,7 +104,7 @@ void toggleLed()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPackets()
 {
-  const uint8 sDataMenu[] PROGMEM = {
+  const uint8_t sDataMenu[] PROGMEM = {
   20,0,PID_MENU_HEADER,1,0,2,0,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
   15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
   22,0,PID_TEXT_DYNAMIC,0,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,'1','2','3',0,  // TEXT_DYNAMIC 0 "Dynamic Text" "123"  **gClientHostId_0**
@@ -116,19 +116,19 @@ void caTestPackets()
   3,0,PID_SCRIPT_END,  // SCRIPT_END
   };  // Total Bytes = 224
   
-  const uint8 BUF_SIZE = 224;
-  uint8 data[BUF_SIZE];
-  const uint8 *dataPtr = data;
-  uint8 totalUnpackSize=0;
+  const uint8_t BUF_SIZE = 224;
+  uint8_t data[BUF_SIZE];
+  const uint8_t *dataPtr = data;
+  uint8_t totalUnpackSize=0;
   // Move progmem data to a buffer for this test
-  for(uint16 i=0; i<BUF_SIZE; ++i)
+  for(uint16_t i=0; i<BUF_SIZE; ++i)
   {
    data[i] = pgm_read_byte_near(sDataMenu+i);
   }
 
-  uint8 dataA[512];
-  uint8 packType;
-  uint16 packSize, unpackSize;
+  uint8_t dataA[512];
+  uint8_t packType;
+  uint16_t packSize, unpackSize;
   memset(dataA, 0, 512);
   CAPacket unpack0(STATE_UNPACKER, data, BUF_SIZE);
   CAPacket pack0(STATE_PACKER, dataA, 512);
@@ -149,7 +149,7 @@ void caTestPackets()
         unpack1.getMajorVersion() != 1 ||
         unpack1.getMinorVersion() != 2 ||
         strcmp(unpack1.getMenuName(), "UI Test Menu") != 0) {
-      CAU::log("ERROR - MENU_HEADER test failed\n");
+      CA_LOG("ERROR - MENU_HEADER test failed\n");
     }
   }
 
@@ -167,7 +167,7 @@ void caTestPackets()
         packSize != unpackSize ||
         packType != PID_TEXT_STATIC ||            // Update per type
         strcmp(unpack1.getText0(), "Static Text") != 0) {
-      CAU::log("ERROR - TEXT_STATIC test failed\n");
+      CA_LOG("ERROR - TEXT_STATIC test failed\n");
     }
   }
 
@@ -188,7 +188,7 @@ void caTestPackets()
         unpack1.getModAttribute() != 0 ||
         strcmp(unpack1.getText0(), "Dynamic Text") != 0 ||
         strcmp(unpack1.getText1(), "123") != 0) {
-      CAU::log("ERROR - TEXT_DYNAMIC test failed\n");
+      CA_LOG("ERROR - TEXT_DYNAMIC test failed\n");
     }
   }
 
@@ -211,7 +211,7 @@ void caTestPackets()
         unpack1.getValue() != 1 ||
         strcmp(unpack1.getText0(), "This is a button") != 0 ||
         strcmp(unpack1.getText1(), "Button") != 0) {
-      CAU::log("ERROR - BUTTON test failed\n");
+      CA_LOG("ERROR - BUTTON test failed\n");
     }
   }
 
@@ -232,7 +232,7 @@ void caTestPackets()
         unpack1.getModAttribute() != 1 ||
         unpack1.getValue() != 0 ||
         strcmp(unpack1.getText0(), "This is a check box") != 0) {
-      CAU::log("ERROR - CHECK_BOX test failed\n");
+      CA_LOG("ERROR - CHECK_BOX test failed\n");
     }
   }
 
@@ -254,7 +254,7 @@ void caTestPackets()
         unpack1.getValue() != 1 ||
         strcmp(unpack1.getText0(), "This is a drop select") != 0 ||
         strcmp(unpack1.getText1(), "no|yes") != 0) {
-      CAU::log("ERROR - DROP_SELECT test failed\n");
+      CA_LOG("ERROR - DROP_SELECT test failed\n");
     }
   }
 
@@ -279,7 +279,7 @@ void caTestPackets()
         unpack1.getMaxValue() != 99999 ||
         unpack1.getValue() != 50000 ||
         strcmp(unpack1.getText0(), "This is an edit number") != 0) {
-      CAU::log("ERROR - EDIT_NUMBER test failed\n");
+      CA_LOG("ERROR - EDIT_NUMBER test failed\n");
     }
   }
 
@@ -306,7 +306,7 @@ void caTestPackets()
         unpack1.getMicroseconds() != 500 ||
         unpack1.getNanoseconds() != 400 ||
         strcmp(unpack1.getText0(), "This is a time box") != 0) {
-      CAU::log("ERROR - TIME_BOX test failed\n");
+      CA_LOG("ERROR - TIME_BOX test failed\n");
     }
   }
 
@@ -323,7 +323,7 @@ void caTestPackets()
     if (memcmp(data, dataA, totalUnpackSize) != 0 ||
         packSize != unpackSize ||
         packType != PID_SCRIPT_END) {             // Update per type
-      CAU::log("ERROR - SCRIPT_END test failed\n");
+      CA_LOG("ERROR - SCRIPT_END test failed\n");
     }
   }
 
@@ -337,15 +337,15 @@ void caTestPackets()
     CAPacketMenuSelect pack11(pack10);            // Update per type
     
     pack11.set(1, 23);                            // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_MENU_SELECT ||          // Update per type
           unpack11.getMode() != 1 ||
           unpack11.getMenuNumber() != 23) {
-      CAU::log("ERROR - MENU_SELECT test failed\n");
+      CA_LOG("ERROR - MENU_SELECT test failed\n");
     } 
   }
 
@@ -354,9 +354,9 @@ void caTestPackets()
     CAPacketMenuList pack11(pack10);              // Update per type
     
     pack11.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_MENU_LIST ||            // Update per type
@@ -374,7 +374,7 @@ void caTestPackets()
           unpack11.getModuleTypeId1() != 12 ||
           unpack11.getModuleTypeMask1() != 13 ||
           strcmp(unpack11.getMenuName(), "menuList") != 0) {
-      CAU::log("ERROR - MENU_LIST test failed\n");
+      CA_LOG("ERROR - MENU_LIST test failed\n");
     } 
   }
 
@@ -383,16 +383,16 @@ void caTestPackets()
     CAPacketModuleList pack11(pack10);            // Update per type
     
     pack11.set(33, 44, "moduleList");             // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_MODULE_LIST ||          // Update per type
           unpack11.getModuleId() != 33 ||
           unpack11.getModuleTypeId() != 44 ||
           strcmp(unpack11.getModuleName(), "moduleList") != 0) {
-      CAU::log("ERROR - MODULE_LIST test failed\n");
+      CA_LOG("ERROR - MODULE_LIST test failed\n");
     } 
   }
   
@@ -401,14 +401,14 @@ void caTestPackets()
     CAPacketLogger pack11(pack10);                // Update per type
     
     pack11.set("This is a log");                  // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_LOGGER ||               // Update per type
           strcmp(unpack11.getLog(), "This is a log") != 0) {
-      CAU::log("ERROR - LOG test failed\n");
+      CA_LOG("ERROR - LOG test failed\n");
     } 
   }
 
@@ -417,16 +417,16 @@ void caTestPackets()
     CAPacketCamState pack11(pack10);              // Update per type
     
     pack11.set(2, 0xc1, 0xf0);                    // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_CAM_STATE ||            // Update per type
           unpack11.getMultiplier() != 2 ||
           unpack11.getFocus() != 0xc1 ||
           unpack11.getShutter() != 0xf0) {
-      CAU::log("ERROR - CAM_STATE test failed\n");
+      CA_LOG("ERROR - CAM_STATE test failed\n");
     } 
   }
 
@@ -435,9 +435,9 @@ void caTestPackets()
     CAPacketCamSettings pack11(pack10);           // Update per type
     
     pack11.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_CAM_SETTINGS ||       // Update per type
@@ -460,7 +460,7 @@ void caTestPackets()
           unpack11.getMirrorLockupMinutes() != 40 ||
           unpack11.getMirrorLockupSeconds() != 41 ||
           unpack11.getMirrorLockupMilliseconds() != 900 ) {
-      CAU::log("ERROR - CAM_SETTINGS test failed\n");
+      CA_LOG("ERROR - CAM_SETTINGS test failed\n");
     } 
   }
 
@@ -469,9 +469,9 @@ void caTestPackets()
     CAPacketIntervalometer pack11(pack10);        // Update per type
     
     pack11.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_INTERVALOMETER ||            // Update per type
@@ -486,7 +486,7 @@ void caTestPackets()
           unpack11.getIntervalMilliseconds() != 904 ||
           unpack11.getIntervalMicroseconds() != 905 ||
           unpack11.getRepeats() != 9999 ) {
-      CAU::log("ERROR - INTERVALOMETER test failed\n");
+      CA_LOG("ERROR - INTERVALOMETER test failed\n");
     } 
   }
 
@@ -495,15 +495,15 @@ void caTestPackets()
     CAPacketControlFlags pack11(pack10);          // Update per type
     
     pack11.set(1, 1);                             // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_CONTROL_FLAGS ||        // Update per type
           unpack11.getSlaveModeEnable() != 1 ||
           unpack11.getExtraMessagesEnable() != 1 ) {
-      CAU::log("ERROR - CONTROL_FLAGS test failed\n");
+      CA_LOG("ERROR - CONTROL_FLAGS test failed\n");
     } 
   }
 
@@ -512,19 +512,19 @@ void caTestPackets()
     CAPacketEcho pack11(pack10);                  // Update per type
     
     pack11.set(1, "Echo Packet");                 // Update per type
-    uint8 packSize = pack11.pack();
-    uint8 unpackSize = unpack10.unpackSize();
-    uint8 packType = unpack10.unpackType();
+    uint8_t packSize = pack11.pack();
+    uint8_t unpackSize = unpack10.unpackSize();
+    uint8_t packType = unpack10.unpackType();
     unpack11.unpack();
     if (packSize != unpackSize ||
           packType != PID_ECHO ||                 // Update per type
           unpack11.getMode() != 1 ||
           strcmp(unpack11.getString(), "Echo Packet") != 0) {
-      CAU::log("ERROR - ECHO test failed\n");
+      CA_LOG("ERROR - ECHO test failed\n");
     } 
   }
 
-  CAU::log("Done - testPackets\n");
+  CA_LOG("Done - testPackets\n");
   delay(2000);
 }
 
@@ -555,10 +555,10 @@ void caTestBlinkLed()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPerf()
 {
-  uint16 count = 0;
-  uint8 val8=0;
-  uint16 val16=0;
-  uint32 startTime, endTime;
+  uint16_t count = 0;
+  uint8_t val8=0;
+  uint16_t val16=0;
+  uint32_t startTime, endTime;
   hwPortPin pp0 = CAU::getModulePin(0, 2); // actually Mod0_SDA
   
   startTime = micros();
@@ -567,7 +567,7 @@ void caTestPerf()
     val8 = CAU::digitalRead(pp0);
   }
   endTime = micros();
-  CAU::log("  10,000 digitalRead() = %dus\n", endTime-startTime);
+  CA_LOG("  10,000 digitalRead() = %dus\n", endTime-startTime);
 
   startTime = micros();
   for(count=0; count<10000; ++count)
@@ -575,7 +575,7 @@ void caTestPerf()
     CAU::digitalWrite(pp0, LOW);
   }
   endTime = micros();
-  CAU::log("  10,000 digitalWrite() = %dus\n", endTime-startTime);
+  CA_LOG("  10,000 digitalWrite() = %dus\n", endTime-startTime);
 
   pp0 = CAU::getOnboardDevicePin(LV_DETECT_PIN);
   CAU::initializeAnalog();
@@ -586,7 +586,7 @@ void caTestPerf()
     val16 = CAU::analogRead(pp0);
   }
   endTime = micros();
-  CAU::log("  10,000 analogRead() = %dus\n", endTime-startTime);
+  CA_LOG("  10,000 analogRead() = %dus\n", endTime-startTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -595,8 +595,8 @@ void caTestPerf()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestModulePorts()
 {
-  uint8 module;
-  uint8 pin;
+  uint8_t module;
+  uint8_t pin;
 
   for(module=0; module<4; ++module)
   {
@@ -607,16 +607,16 @@ void caTestModulePorts()
       pp1 = CAU::getModulePin(module, pin+1);
       if (!caTestTwoPins(pp0, pp1))
       {
-        CAU::log("  Module Port %d:%d failed\n", module, pin);
+        CA_LOG("  Module Port %d:%d failed\n", module, pin);
       }
       
       if (!caTestTwoPins(pp1, pp0))
       {
-        CAU::log("  Module Port %d:%d failed\n", module, pin+1);
+        CA_LOG("  Module Port %d:%d failed\n", module, pin+1);
       }
     }
   }
-  CAU::log("Done - module ports\n");
+  CA_LOG("Done - module ports\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,10 +626,10 @@ void caTestModulePorts()
 void caTestLinkAndCamPorts()
 {
   hwPortPin ppFocus, ppShutter;
-  uint8 cam, i;
+  uint8_t cam, i;
   hwPortPin linkFocus   = CAU::getLinkPin(FOCUS);
   hwPortPin linkShutter = CAU::getLinkPin(SHUTTER);
-  uint8 val0, val1, val2, val3, val4, val5;
+  uint8_t val0, val1, val2, val3, val4, val5;
   
   for(cam=0; cam<8; ++cam)
   {
@@ -657,11 +657,11 @@ void caTestLinkAndCamPorts()
         (val2 != LOW)  || (val3 != HIGH) ||
         (val4 != HIGH) || (val5 != LOW))
     {
-      CAU::log("  Camera/Link Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
+      CA_LOG("  Camera/Link Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
     }
   }
   
-  CAU::log("Done - camera/linkports\n");
+  CA_LOG("Done - camera/linkports\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -670,7 +670,7 @@ void caTestLinkAndCamPorts()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestAuxPort()
 {
-  uint8 pin;
+  uint8_t pin;
   hwPortPin pp0, pp1;
 
   for(pin=0; pin<46; pin+=2)
@@ -679,15 +679,15 @@ void caTestAuxPort()
     pp1 = CAU::getAuxPin(pin+1);
     if (!caTestTwoPins(pp0, pp1))
     {
-      CAU::log("  Aux Port %d failed\n", pin);
+      CA_LOG("  Aux Port %d failed\n", pin);
     }
     if (!caTestTwoPins(pp1, pp0))
     {
-      CAU::log("  Aux Port %d failed\n", pin+1);
+      CA_LOG("  Aux Port %d failed\n", pin+1);
     }
   }
   
-  CAU::log("Done - aux port\n");
+  CA_LOG("Done - aux port\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -696,47 +696,47 @@ void caTestAuxPort()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestEeprom()
 {
-  char *str0 = "This is just a test string1.";
-  char *str1 = "Blah blah blah blah 2.";
-  uint8 buf[128];
+  const char *str0 = "This is just a test string1.";
+  const char *str1 = "Blah blah blah blah 2.";
+  uint8_t buf[128];
   unioReadStatus statusReg;
 
   CAEeprom eeprom(CA_INTERNAL);
   
   if (!eeprom.statusWrite(EEPROM_WRITE_PROTECTED_ALL))
   {
-    CAU::log("  Writing status register FAILED\n");
+    CA_LOG("  Writing status register FAILED\n");
   }
   if(!eeprom.statusRead(&statusReg))
   {
-    CAU::log("  Reading status register FAILED\n");
+    CA_LOG("  Reading status register FAILED\n");
   }
   if (!eeprom.statusWrite(EEPROM_WRITE_PROTECTED_NONE))
   {
-    CAU::log("  Writing status register 2 FAILED\n");
+    CA_LOG("  Writing status register 2 FAILED\n");
   }
 
-  if (!eeprom.write((uint8*)str0, 0x20, strlen(str0)+1))
+  if (!eeprom.write((uint8_t*)str0, 0x20, strlen(str0)+1))
   {
-    CAU::log("  Write1 FAILED\n");
+    CA_LOG("  Write1 FAILED\n");
   }
   memset(buf, 0, 128);
   if (!eeprom.read(buf, 0x20, strlen(str0)+1))
   {
-    CAU::log("  Read1 FAILED\n");
+    CA_LOG("  Read1 FAILED\n");
   }
-  if (!eeprom.write((uint8*)str1, 0x20, strlen(str1)+1))
+  if (!eeprom.write((uint8_t*)str1, 0x20, strlen(str1)+1))
   {
-    CAU::log("  Write2 FAILED\n");
+    CA_LOG("  Write2 FAILED\n");
   }
   memset(buf, 0, 128);
 
   if (!eeprom.read(buf, 0x20, strlen(str1)+1))
   {
-    CAU::log("  Read2 FAILED\n");
+    CA_LOG("  Read2 FAILED\n");
   }
 
-  CAU::log("Done - eeprom\n");
+  CA_LOG("Done - eeprom\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -745,7 +745,7 @@ void caTestEeprom()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestAnalog()
 {
-  uint16 val;
+  uint16_t val;
   hwPortPin ppAn;   // Analog Port
   hwPortPin ppDig;  // Port used to change analog's voltage level
 
@@ -799,10 +799,10 @@ void caTestAnalog()
   val = CAU::analogRead(ppAn); // expected value is 5V/4 = 1.25V -- 1.25*4095/3.3 =1551
   if ((val < 1350) || (val > 1650))
   {
-    CAU::log("  Failed Analog Test -- LV_DETECT_PIN %d\n", val);
+    CA_LOG("  Failed Analog Test -- LV_DETECT_PIN %d\n", val);
   }
   
-  CAU::log("Done - analog\n");
+  CA_LOG("Done - analog\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -810,7 +810,7 @@ void caTestAnalog()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
 {
-  uint valLow, valHigh;
+  uint16_t valLow, valHigh;
 
   caAllPortsLow(); // Helps detect shorted pins
   CAU::pinMode(ppAn, ANALOG_INPUT);
@@ -824,13 +824,13 @@ void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
   valHigh = CAU::analogRead(ppAn);
   if (valLow >= 70 || valHigh <=4050)
   {
-    CAU::log("  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
+    CA_LOG("  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
   }
 }
 
 boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut)
 {
-  uint8 val0, val1;
+  uint8_t val0, val1;
   boolean ret = true;
 
   caAllPortsLow(); // Helps detect shorted pins
@@ -852,7 +852,7 @@ boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut)
 void caAllPortsLow()
 {
   hwPortPin pp0;
-  uint8 i, j;
+  uint8_t i, j;
 
   // Aux Port
   for(i=0; i<46; ++i)
