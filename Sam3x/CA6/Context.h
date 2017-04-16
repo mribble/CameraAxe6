@@ -3,7 +3,7 @@
 
 #include <CAPacket.h>
 
-#define NUM_MENUS   3  /* Includes 1 for the null menu */
+#define NUM_MENUS   4  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 
@@ -14,11 +14,11 @@ struct CtxModules
 
 struct CtxProcTable
 {
-  void (*funcInfo[NUM_MENUS])()          {NULL, MenuSound_Info, MenuTest_Info};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, MenuSound_PhotoRun, MenuTest_PhotoRun};
+  void (*funcInfo[NUM_MENUS])()          {NULL, MenuSound_Info, MenuTest_Info, MenuLightning_Info};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit, MenuLightning_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit, MenuLightning_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun, MenuLightning_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, MenuSound_PhotoRun, MenuTest_PhotoRun, MenuLightning_PhotoRun};
 };
 
 enum CAState {

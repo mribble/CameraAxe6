@@ -23,6 +23,13 @@ extern void MenuTest_PhotoInit();
 extern void MenuTest_MenuRun();
 extern void MenuTest_PhotoRun();
 
+// Lightning Menu
+extern void MenuLightning_Info();
+extern void MenuLightning_MenuInit();
+extern void MenuLightning_PhotoInit();
+extern void MenuLightning_MenuRun();
+extern void MenuLightning_PhotoRun();
+
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.

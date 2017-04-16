@@ -1,0 +1,26 @@
+MENU_HEADER 2 1 "Lightning"
+	EDIT_NUMBER 0 4 0 2 4094 40 "Trigger Difference Threshold: "
+	EDIT_NUMBER 0 4 0 0 9999 200 "Update Reference Period (ms): "			# -> EEPROM_LTG_SENSOR_UPD_BASE_PERIOD
+	TEXT_DYNAMIC 0 "--Current Sensor Value is: " "????"						# -> sensorVal
+	##DROP_SELECT 0 0 "Display Mode During Shooting: " "Simple|Advanced"	# -> EEPROM_LTG_PHOTO_MENU_SIMPLE_ADV
+
+	# -- the client code will then need to pull the camera settings (Prefocus Y/N, and Duration or Post Trigger delay) for each camera port
+	# -- along with the number of cameras to trigger
+	# -> EEPROM_LTG_NUM_CAM_PORTS, EEPROM_LTG_DEVICE_PREFOCUS[], EEPROM_LTG_DEVICE_CYCLE[]
+SCRIPT_END
+
+MENU_HEADER 2 1 "Lightning Active"
+	TEXT_DYNAMIC 0 "Reference Base: " "????"
+	TEXT_DYNAMIC 0 "--Current Sensor Value is: " "????"
+	TEXT_DYNAMIC 0 "   Difference: " "????"
+	TEXT_DYNAMIC 0 "   Trigger Value: " "????"
+	TEXT_DYNAMIC 0 " Update Reference Period (ms)" "????"
+	TEXT_DYNAMIC 0 " Trigger Count: " "????"
+	TEXT_STATIC "---Details For Last 5 Strikes---"
+	TEXT_STATIC "Strike Ref- Peak Duration(ms)"
+	TEXT_DYNAMIC 0 "L   " "?"
+	TEXT_DYNAMIC 0 "L-1 " "?"
+	TEXT_DYNAMIC 0 "L-2 " "?"
+	TEXT_DYNAMIC 0 "L-3 " "?"
+	TEXT_DYNAMIC 0 "L-4 " "?"
+SCRIPT_END

@@ -488,7 +488,7 @@ checkDuplicateTokens(KEY_TOKEN_LIST)
 # Creates both Menu and Photo Mode Menus
 gScriptState = scriptState.INITIAL_STATE
 menuCount = 0
-fout.write("  const uint8 sDataMenu[] PROGMEM = {\n");
+fout.write("  const uint8_t sDataMenu[] PROGMEM = {\n");
 for line in fin.readlines():
     processLine(line)
     if (gScriptState == scriptState.SCRIPT_END):
@@ -500,7 +500,7 @@ for line in fin.readlines():
             gClientHostId = 0
             gBytesWritten = 0
             menuCount = menuCount+1
-            fout.write("\n  const uint8 sDataActive[] PROGMEM = {\n");
+            fout.write("\n  const uint8_t sDataActive[] PROGMEM = {\n");
 
 fout.close()
 fin.close()
