@@ -5,8 +5,15 @@
         font-size: 200%;
         color: black;
     }
+    div {
+        font-size: 100%;
+        color: black;
+    }
     label {
         color: gray;
+    }
+    table, th, td {
+        border: 1px solid black;
     }
     .normal {
         font-size: 100%;
