@@ -2,9 +2,9 @@
 <html>
     <head>
         <title>Menu Tester</title>
+        <script src="myScript.js"></script>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="myStyle.css">
-        <script src="myScript.js"></script>
     </head>
 
     <body>
@@ -21,9 +21,7 @@
         <tr> 
             <td>This is a button</td>
             <td>
-                <form class="normal" >
-                    <input type ="button" class="button" name="id1" value="Button"/>
-                </form>
+                <button onclick="sendButton(0);"/>Button</button>
             </td>
         </tr>
         <tr> 
@@ -63,7 +61,25 @@
                 </form>
             </td>
         </tr>
+       <tr> 
+            <td>This is an edit number</td>
+            <td>
+                <form class="normal" >
+                    <input type ="number" name="id4" size="6" value="432"/>
+                </form>
+            </td>
+        </tr>
+        <tr> 
+            <td>This is a slider</td>
+            <td>
+                <input class="slider" type="range" id="id5" min="0" max="255" value="0" step="1" onchange="sendDac(document.getElementById('pin5').value, this.value);"/>
+                <span id="id5b">  0</span>
+            </td>
+        </tr>
     </table>
+    
+    <p id="id1000"> - </p>
+    
     </body>
 </html>
 
