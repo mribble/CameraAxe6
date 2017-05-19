@@ -1,597 +1,199 @@
 #include <ESP8266WiFi.h>
-#include <WiFiUDP.h>
-
-#include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>                         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
-#include <NetDiscovery.h>                        // https://github.com/Rom3oDelta7/NetDiscovery
-#include <ArduinoOTA.h>	
+#include <FS.h>
+#include <CAStd_esp8266.h>
 #include <EEPROM.h>
 
-// ESP8266 SDK                                   Ref: https://espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
-extern "C" {
-#include "user_interface.h"
-}
-
-// define these symbols before including the CAStd header file
-//#define CA_DEBUG_ERROR                         // *** comment out to disable debug messages ***
-//#define CA_DEBUG_INFO                          // *** comment out to disable debug messages ***
-
-#define CA_DEBUG_LOG                             // comment out to avoid status messages while establishing connection
-#define CA_DEBUG_ASSERT                          // comment out to delete assertions (usually enabled)
-
-//#define ESP_ALT_CONSOLE                        // define to enable console output on Serial1 - if not defined, console output will be written to Serial
-
-#ifdef ESP_ALT_CONSOLE
-   #define SerialIO      Serial1                 // UART on GPIO2 - use a pullup (this is necessary for boot anyway)
-#else
-   #define SerialIO      Serial
-#endif
-
-#include <CAStd.h>
-
 #define AP_WORKAROUND                            // disable this define to eliminate the function to display the host IP address as an SSID
-#define SIMULATE_CLIENT_ACK                      // *** COMMENT OUT FOR NORMAL OPERATION *** [TESTING] do not wait for client to ACK before confirming connection established
 
-// for LED status management
+#define CA_AP_PASSWORD "ca6admin"
 
-#define LED_STATUS_DELAY      30000UL            // how long to keep the connection status LED lights illuminated
+WiFiManager gWifiManager;
+WiFiServer gServer(80);
+WiFiClient gClient;
+String gCssString;
+String gScriptString;
+String gMenuString;
 
-os_timer_t  extinguishLED;                       // disable LED after timeout
-
-typedef enum { OFF, ON, BLINK_OFF, BLINK_ON } LedState;
-
-class Led {
-public:
-   Led(const int pin);                           // constructor
- 
-   // set the target LED state
-   void     setState (const LedState ledState, const uint32_t interval = 0);
-   // toggle current state - called by function set by setToggleFunction()
-   void     toggleState(void);
-   /*
-    function to be called to change physical pin state
-
-    this workaround is necessary since the ESP SDK is in C so we cannot get fancy with "this" etc.
-    (the issue is pointers to member functions are not the same as pointers to functions [C++ naming, "this" is an implicit parameter in C++, etc.]
-
-    need a function pointer for each instantiation of the class
-    */
-   void     setToggleFunction (void (*func)(void *pArg));
-
-
-private:
-   int        _ledPin;
-   volatile    bool _illuminated = false;           // for blinking
-   void       (*_toggle)(void *pArg) = nullptr;     // pointer to function to change pin value
-   bool       _timerArmed = false;                  
-   os_timer_t _timer;                               // ESP OS software timer (ESP8266 SDK)
-};
-
-/*
- Led constructor
- */
-Led::Led (const int pin) {
-   _ledPin = pin;
-   pinMode(_ledPin, OUTPUT);
-}
-
-
-/*
- set the callback function for the os_timer for blinking
- */
-void Led::setToggleFunction (void (*func)(void *pArg)) {
-   _toggle = func;
-   os_timer_setfn(&_timer, _toggle, nullptr);
-}
-
-/*
- This is called by the physical pin change "C" function to change the current (temporal) state for blinking
- */
-void Led::toggleState (void) {
-   os_intr_lock();                           // disable interrupts
-   if ( _illuminated ) {
-      _illuminated = false;
-      digitalWrite(_ledPin, LOW);
-   } else {
-      _illuminated = true;
-      digitalWrite(_ledPin, HIGH);
-   }
-   os_intr_unlock();                        // enable interrupts again
-}
-
-
-/*
- set a new target state of the LED
- for blinking, the state indicates the initial condition of the LED - this allows us to have alternating LEDs
- */
-void Led::setState(const LedState ledState, const uint32_t interval) {                    
-   if ( _timerArmed ) {
-      // reset the timer whenever we change the state
-      os_timer_disarm(&_timer);
-      _timerArmed = false;
-   }
-   switch ( ledState ) {
-   case OFF:
-      digitalWrite(_ledPin, LOW);
-      _illuminated = false;
-      break;
-
-   case ON:
-      digitalWrite(_ledPin, HIGH);
-      _illuminated = true;
-      break;
-
-   case BLINK_ON:
-      // blink, with initial state ON
-      digitalWrite(_ledPin, HIGH);
-      _illuminated = true;
-      // min interval is 5 - see ESP SDK documentation
-      os_timer_arm(&_timer, interval >= 5 ? interval : 5, true);
-      _timerArmed = true;
-      break;
-
-   case BLINK_OFF:
-      // blink, with initial state OFF
-      digitalWrite(_ledPin, LOW);
-      _illuminated = false;
-      os_timer_arm(&_timer, interval >= 5 ? interval : 5, true);
-      _timerArmed = true;
-      break;
-
-   default:
-      break;
-   }
-}
-
-Led greenLED(4);
-Led redLED(5);
-
-/*
- LED toggle functions 
- see note in class declaration for why this is necessary
- */
-void toggleRedLED (void *pArg) {
-   redLED.toggleState();
-}
-
-void toggleGreenLED (void *pArg) {
-   greenLED.toggleState();
-}
-
-/*
- disable the LED connection status indicators after a delay to save power
- */
-void LEDTimeout (void *pArg ) { // arg not used
-   greenLED.setState(OFF);
-   redLED.setState(OFF);
-}
-
-
-
-// auto-discovery globals
-#define MCAST_PORT          7247
-#define MCAST_ADDRESS       239, 12, 17, 87
-#define CA6_ANNOUNCE_ID     "CA6ANC"                      // announcement packet ID
-#define AD_ANNOUNCE_DELAY   2000UL	                         // frequency of autodiscovery announcements  (msec)
-
-NetDiscovery   discovery;
-IPAddress      mcastIP(MCAST_ADDRESS);
-os_timer_t     ADBeacon;
-
-
-// WiFiManager globals
-
-#define AP_PASSWORD         "ca6admin"                    // TODO: determine if this needs to be more secure
-
-WiFiManager    wifiManager;
-
-// client globals
-#define UDP_PORT            4045
-
-typedef enum { C_NOT_STARTED, C_PENDING, C_WAITING, C_ACKNOWLEDGED, C_ESTABLISHED } ClientState;
-
-typedef enum { NO_MODE, STA_MODE, AP_MODE } ConnectionMode;
-
-// all the state info we need to manage a client connection
-typedef struct {
-   uint16_t       port = UDP_PORT;                 // UDP port number
-   uint16_t       udpSize = 0;                     // incoming data (UDP)
-   uint16_t       serialSize = 0;                  // serial IO input pending
-   uint16_t       packetSize = 0;                  // outgoing data
-   WiFiUDP        stream;
-   IPAddress      address;
-   ConnectionMode mode = NO_MODE;
-   ClientState    state = C_NOT_STARTED;
-} CA6Client;
-
-CA6Client client;
-
-ConnectionMode connectToNetwork(void);             // IDE inserts the prototypes way above this, so we need this one to catch our typedef. Error results otherwise. IDE issue ... again :-(
-
-
-/*
- Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
- Form the SSID as an IP address so the user knows what address to connect to when in AP mode just in case
- (Even though the config page typically comes up automatically without the user having to enter a URL)
-*/
+// Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
+// Form the SSID as an IP address so the user knows what address to connect to when in AP mode just in case
+// (Even though the config page typically comes up automatically without the user having to enter a URL)
 String createUniqueSSID (void) {
-   uint8_t  mac[WL_MAC_ADDR_LENGTH];
-   String   uSSID;
+  uint8_t mac[WL_MAC_ADDR_LENGTH];
+  String uSSID;
 
-   WiFi.softAPmacAddress(mac);
-   uSSID = String("CA6_") + String ("10.") + String(mac[WL_MAC_ADDR_LENGTH - 3]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 2]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 1]);
-   CA_INFO(F("Derived SSID"), uSSID);
-   return uSSID;
+  WiFi.softAPmacAddress(mac);
+  uSSID = String("CA6_AP_") + String ("10.") + String(mac[WL_MAC_ADDR_LENGTH - 3]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 2]) + String(".") + String(mac[WL_MAC_ADDR_LENGTH - 1]);
+  CA_INFO("Derived SSID", uSSID);
+  return uSSID;
 }
 
-/*
- return a unique class A private IP address using the ESP8266 WiFi MAC address
- we use class A private addresses to have a large potential address space to avoid conflicts
-*/
+// return a unique class A private IP address using the ESP8266 WiFi MAC address
+// we use class A private addresses to have a large potential address space to avoid conflicts
 IPAddress createUniqueIP (void) {
-   uint8_t   mac[WL_MAC_ADDR_LENGTH];
-   IPAddress result;
+  uint8_t   mac[WL_MAC_ADDR_LENGTH];
+  IPAddress result;
 
-   WiFi.softAPmacAddress(mac);
-   result[0] = 10;
-   result[1] = mac[WL_MAC_ADDR_LENGTH - 3];
-   result[2] = mac[WL_MAC_ADDR_LENGTH - 2];
-   result[3] = mac[WL_MAC_ADDR_LENGTH - 1];
-   CA_INFO(F("Derived IP"), result);
-   return result;
+  WiFi.softAPmacAddress(mac);
+  result[0] = 10;
+  result[1] = mac[WL_MAC_ADDR_LENGTH - 3];
+  result[2] = mac[WL_MAC_ADDR_LENGTH - 2];
+  result[3] = mac[WL_MAC_ADDR_LENGTH - 1];
+  CA_INFO(F("Derived IP"), result);
+  return result;
 }
 
-/*
- autodiscovery handler
+void fileToString(const char *name, String &out) {
+  File f = SPIFFS.open(name, "r");
 
- currently tracks only one client device, which may change over time
- the client is always the most recent responder to the announcement
+  if (!f) {
+    if (!f.available()) {
+      f.close();
+    }
+    CA_INFO("Failed to load file: ", name);
+    return;
+  }
 
- See Extras\ADClientStub\ADClientStub.ino for the client-side logic part of this protocol 
+  out = f.readString();
+  f.close();
+}
 
- TODO: handle multiple clients (separate UDP ports)
-*/
-void autoDiscovery (void *pArg) {  //arg not used
-   ND_Packet localPacket, remotePacket;
+void setupWiFi ( void ) {
+  IPAddress myIPAddress = createUniqueIP();
 
-   
-   //CA_INFO(F("autoDiscovery"), F(CA6_ANNOUNCE_ID));
-   os_intr_lock();
-   // client must check this ID string to determine if this is a CA6 discovery packet
-   strcpy((char *)&localPacket.payload[0], CA6_ANNOUNCE_ID);
-   if ( discovery.announce(&localPacket) ) {
-#ifndef SIMULATE_CLIENT_ACK
-      if ( (discovery.listen(&remotePacket) == ND_ACK) && (client.state == C_PENDING || client.state == C_WAITING) ) {
-         // it is the responsibility of the client to only send a single ACK
-         CA_INFO(F("autoDiscovery"), F("ACK"));
-         if ( strcmp((char *)&remotePacket.payload[0], CA6_ANNOUNCE_ID) == 0 ) {    // is this ACK for us?
-            client.address = remotePacket.addressIP;
-            client.state = C_ACKNOWLEDGED;
-            CA_INFO(F("Client acknowledged"), (IPAddress)client.address);
-         }
-      }
+  // First check that there are WiFi networks to possibly connect to
+  int netCount = WiFi.scanNetworks();
+  bool connectToAP = false;
+
+  if ( netCount > 0 ) {
+    // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
+    WiFiManager wifiManager;
+#ifdef CA_DEBUG_INFO
+    wifiManager.setDebugOutput(true);
 #else
-      // simulate an ACK if not already set as connected
-      if ( client.state == C_PENDING || client.state == C_WAITING ) {
-         client.state = C_ACKNOWLEDGED; 
-         CA_INFO(F("Simulated client ACK"), "");
-      }
-#endif
-   } else {
-      CA_ERROR(F("autoDiscovery"), F("announce failed"));
-   }
-   os_intr_unlock();
-}
-
-
-/*
- Connect to the network or establish a standalone AP network
- connection is fully established once the client sends an ACK via auto-discovery
- returns type of connection being established - STA or AP
- */
-ConnectionMode connectToNetwork (void) {
-   IPAddress      AP_Address = createUniqueIP();                 // prevent conflicts with multiple devices
-   ConnectionMode mode = NO_MODE;
-
-   // first check that there are WiFi networks to possibly connect to
-   int netCount = WiFi.scanNetworks();
-   bool connectToAP = false;
-   if ( netCount > 0 ) {
-      // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
-
-      CA_INFO(F("Network scan"), netCount);
-
-      WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));	                   // workaround for callout issue
-
-      if ( wifiManager.autoConnect(createUniqueSSID().c_str(), AP_PASSWORD) ) {
-         CA_LOG(PSTR("STA mode connection at %s\n"), WiFi.localIP().toString().c_str());
-         mode = STA_MODE;
-
-         /*
-          If we get to this point in the code, we are connected as a client and the ESP is in STA mode
-          For a discussion of switching WiFi modes, see https://github.com/esp8266/Arduino/issues/2352
-         */
-#ifdef AP_WORKAROUND
-         /*
-         Until we implement autodiscovery on the client, the user must manually enter the address of the client
-         The temporary workaround is to switch to mixed mode and reset the AP config to use the host address as the SSID
-         while keeping the original MAC_based AP IP address. They user can thus find the local address by looking at the scanned SSIDs on their device.
-         Disable this once autodiscovery has been implemented on the client.
-         */
-
-         WiFi.mode(WIFI_AP_STA);
-         String ssid = String("Host IP: ") + WiFi.localIP().toString();
-         WiFi.softAP(ssid.c_str());
-         CA_INFO(F("Host IP as SSID"), ssid);
-         WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
-         //WiFi.reconnect();                                        // supposedly required, but does not work if this is called
-
-         CA_LOG(PSTR("AP+STA mode workaround ENABLED. AP IP address: %s\n"), WiFi.softAPIP().toString().c_str());
-#ifdef CA_INFO 
-         CA_INFO(F("Workaround AP diag:"), "");
-         WiFi.printDiag(SerialIO);
+    wifiManager.setDebugOutput(false);
 #endif
 
-#endif // AP_WORKAROUND
+    CA_INFO("Network scan count: ", netCount);
 
-         /*
-          OTA setup, which only makes sense when on a local WiFi network
-         */
-         // Port defaults to 8266
-         ArduinoOTA.setPort(8266);
+    wifiManager.setBreakAfterConfig(true);                         // undocumented function to return if config unsuccessful
+    wifiManager.setSaveCredentialsInEEPROM(true);                  // [Local mod] forces credentials to be saved in EEPROM also
+    wifiManager.setExitButtonLabel("Standalone Mode");             // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
 
-         // Hostname defaults to esp8266-[ChipID]
-         //ArduinoOTA.setHostname("myesp8266");
+    //wifiManager.setAPStaticIPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));    // use native WiFi class call below instead
+    WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));                    // Force a static ip
+    WiFi.setAutoConnect(true);
 
-         // No authentication by default
-         // ArduinoOTA.setPassword((const char *)"123");
+    if ( wifiManager.autoConnect(createUniqueSSID().c_str(), CA_AP_PASSWORD) ) {
+      // we are connected as a client and the ESP is in STA mode Ref: https://github.com/esp8266/Arduino/issues/2352
+      CA_INFO("Connected(STA mode) local WiFi ip:)", WiFi.localIP().toString());
 
-         ArduinoOTA.onStart([]() {
-            CA_LOG(PSTR("OTA Start\n"));
-         });
-         ArduinoOTA.onEnd([]() {
-            CA_LOG(PSTR("\nOTA End. Restarting ...\n"));
-            delay(5000);
-            ESP.restart();                          // the OTA library calls restart, but we never return, so force it.
-         });
-         ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-            CA_LOG(PSTR("OTA Progress: %u%%\r"), (progress / (total / 100)));
-         });
-         ArduinoOTA.onError([](ota_error_t error) {
-            CA_LOG(PSTR("OTA Error[%u]: "), error);
-            switch ( error ) {
-            case OTA_AUTH_ERROR:
-               CA_LOG(PSTR("OTA Auth Failed\n"));
-               break;
-
-            case OTA_BEGIN_ERROR:
-               CA_LOG(PSTR("OTA Begin Failed\n"));
-               break;
-
-            case OTA_CONNECT_ERROR:
-               CA_LOG(PSTR("OTA Connect Failed\n"));
-               break;
-
-            case OTA_RECEIVE_ERROR:
-               CA_LOG(PSTR("OTA Receive Failed\n"));
-               break;
-
-            case OTA_END_ERROR:
-               CA_LOG(PSTR("OTA End Failed\n"));
-               break;
-
-            default:
-               CA_LOG(PSTR("OTA Unknown error\n"));
-               break;
-            }
-         });
-         ArduinoOTA.begin();
-         CA_LOG(PSTR("OTA Ready. IP Address: %s Chip ID %0X\n"), WiFi.localIP().toString().c_str(), ESP.getChipId());
-      } else {
-         // we get here if the credentials on the setup page are incorrect (or blank - easy way to exit)
-         CA_INFO(F("Did not connect to local WiFi"), F("using AP mode"));
-         connectToAP = true;
-      }
-   } else {
-      CA_INFO(F("No local networks"), F("using AP mode"));
+      // We also need to know the address of the client as it will be running our HTTP server
+      // Switch to mixed mode and broadcast the local IP address in the AP SSID name.
+      // The user can thus find the local address by looking at the scanned SSIDs on their device
+      WiFi.mode(WIFI_AP_STA);
+      String ssid = String("CA6_STA_") + WiFi.localIP().toString();
+      CA_INFO(F("Local IP as SSID"), ssid);
+      WiFi.softAP(ssid.c_str());
+      WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
+      //WiFi.reconnect();  // supposedly required, but does not work if this is called
+    } else {
+      // We get here if the credentials on the setup page are incorrect, blank, or the "Exit" button was used
+      CA_INFO("Did not connect to local WiFi", "");
       connectToAP = true;
-   }
-
-   if ( connectToAP ) {
-      // use AP mode	 - WiFiManager leaves the ESP in AP+STA mode if there was no local connection made 
-      CA_LOG(PSTR("AP mode connection at %s\n"), AP_Address.toString().c_str());
-      mode = AP_MODE;
-
-      WiFi.mode(WIFI_AP);
-      WiFi.softAP(createUniqueSSID().c_str(), AP_PASSWORD);
-      WiFi.softAPConfig(AP_Address, AP_Address, IPAddress(255, 0, 0, 0));
-#ifdef CA_DEBUG_INFO
-      CA_INFO(F("AP Diag:"), "");
-      WiFi.printDiag(SerialIO);
-#endif
-   }
-   return mode;
-}
-
-
-void setup (void) {
-   Serial.begin(4800);                      // SAM3X
-#ifdef ESP_ALT_CONSOLE
-   SerialIO.begin(74880);                   // console output
-#endif
-   EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
-
-#ifdef CA_DEBUG_INFO
-   wifiManager.setDebugOutput(true);                       // NOTE: wifi manager library debug output goes to Serial, NOT Serial1
-#else
-   wifiManager.setDebugOutput(false);
-#endif
-
-   wifiManager.setBreakAfterConfig(true);	                 // undocumented function to return if config unsuccessful/skipped
-   wifiManager.setSaveCredentialsInEEPROM(true);           // [Local mod] forces credentials to be saved in EEPROM also
-   wifiManager.setExitButtonLabel("Access Point Mode");    // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
-                                                       
-   greenLED.setToggleFunction(&toggleGreenLED);            // init LED toggle functions for LED blinking
-   greenLED.setState(OFF);
-   redLED.setToggleFunction(&toggleRedLED);
-   redLED.setState(OFF);
-
-   // establish timer callout functions - arm timers in loop()
-   os_timer_setfn(&ADBeacon, &autoDiscovery, nullptr);     // auto-discovery announcement beacon
-   os_timer_setfn(&extinguishLED, &LEDTimeout, nullptr);   // turn off LED after setup
-}
-
-#define PACKET_SIZE_SIZE 2
-
-uint16_t genPacketSize(uint8_t b0, uint8_t b1) {
-  uint16_t ret = uint16_t(b0) + (uint16_t(b1)<<8);
-  return ret;
-}
-
-uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
-  if (byteNumber == 0) {
-    return uint8_t(val & 0xFF);
+    }
   } else {
-    return val >> 8;
+    CA_INFO("No WiFI networks", "");
+    connectToAP = true;
+  }
+
+  if (connectToAP) {
+    // use AP mode   - WiFiManager leaves the ESP in AP+STA mode at this point
+    CA_INFO("Using AP Mode", myIPAddress.toString());
+    WiFi.softAP(createUniqueSSID().c_str(), CA_AP_PASSWORD);
+    WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
+    WiFi.mode(WIFI_AP);
+  }
+
+  // start the server & init the SPIFFS file system
+  gServer.begin();
+  if (!SPIFFS.begin()) {
+    CA_INFO("Cannot open SPIFFS file system", "");
+  }
+
+#ifdef CA_DEBUG_INFO
+  Dir dir = SPIFFS.openDir("/");
+  Serial.println(F("SPIFFS directory contents:"));
+  while (dir.next()) {
+    Serial.print(dir.fileName());
+    File f = dir.openFile("r");
+    Serial.print(": Size: ");
+    Serial.println(f.size());
+  }
+#endif  
+
+  fileToString("/css.html", gCssString);
+  fileToString("/script.html", gScriptString);
+  fileToString("/testMenu.html", gMenuString);
+}
+
+
+
+void parseUri(String &uri, const char* title) {
+  if (uri.indexOf("GET /updateAll ") != -1) {
+    // Reload dynamic data
+    static int val = 0;
+    ++val;
+    gClient.println(val);
+  } else if (uri.indexOf("GET /button0 ") != -1) {
+    // Button pressed
+        
+  } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
+    // Initial page load
+    sendHtml(title);
+  } else if (uri.indexOf("GET /favicon.ico") != -1) {
+    // ignore this case
+  } else {
+    CA_INFO("ERROR - Unknown URI - ", uri);
   }
 }
 
-#ifdef CA_DEBUG_INFO
-void hexDump (const uint8_t *buf, const int len) {
-   SerialIO.printf("Dumping %d bytes:", len);
-   for ( int i = 0; i < len; i++) {
-      if ( i % 4 == 0 ) {
-         SerialIO.write(" ");
-      }
-      SerialIO.printf("%02x", buf[i]);
-   }
-   SerialIO.write("\n");
-}
-#endif
+void processHtml(const char* title) {
+  gClient = gServer.available();
+  if (!gClient || !gClient.connected()) {
+    return;
+  }
 
-bool fatalError = false;                    // true if fatal error occurred 
+  String uri = gClient.readStringUntil('\r');
+  gClient.flush();
+  CA_INFO("URI: ", uri.c_str());
+  parseUri(uri, title);
+
+  gClient.stop();
+}
+
+void sendHtml(const char* title) {
+  gClient.println("HTTP/1.1 200 OK");
+  gClient.println("Content-Type: text/html\r\n");
+  gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
+  gClient.println(title);
+  gClient.println("</TITLE> <meta charset=\"UTF-8\">");
+  gClient.print(gCssString);
+  gClient.print(gScriptString);
+  gClient.println("</HEAD>");
+  gClient.println(gMenuString);
+  gClient.println("</HTML>");
+}
+
+void setup (void) {
+  Serial.begin(4800);                      // SAM3X
+  EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
+
+  setupWiFi();
+}
 
 void loop (void) {
-   if ( fatalError ) {
-      // TODO: any better way to recover (restart??)
-      greenLED.setState(OFF);
-      redLED.setState(ON);
-      while (true) delay(1000);
-   }
-   if ( client.mode == NO_MODE ) {
-      // initiate network connection - can only do this section once
-      greenLED.setState(BLINK_ON, 500UL);
-      redLED.setState(BLINK_OFF, 500UL);
-      client.mode = connectToNetwork();
-      client.state = C_PENDING;
 
-      // initialize auto-discovery
-      if ( discovery.begin(mcastIP, MCAST_PORT, client.mode == AP_MODE ? WiFi.softAPIP() : WiFi.localIP()) ) {
-         os_timer_arm(&ADBeacon, AD_ANNOUNCE_DELAY, true);
-         CA_INFO(F("Auto-discovery"), F("Started"));
-      } else {
-         CA_ERROR(F("Auto-discovery"), F("Failed"));
-         fatalError = true;
-      }
-   } else if ( client.state == C_PENDING ) {
-      // connected to network but no ACK from client yet
-      switch ( client.mode ) {
-      case STA_MODE:
-         greenLED.setState(BLINK_ON, 500UL);
-         redLED.setState(OFF);
-         break;
-
-      case AP_MODE:
-         greenLED.setState(BLINK_ON, 125UL);
-         redLED.setState(OFF);
-         break;
-
-      default:
-         break;
-      }
-      client.state = C_WAITING;       // like pending, but leaves LED state as-is
-   } else if ( client.state == C_ACKNOWLEDGED ) {
-      // ACK received
-      if ( client.stream.begin(client.port) ) {
-         /*
-          Any device could have opened up this port, but we'll consider this OK and validate
-          the addresses once we receive a packet (only time the address is available)
-          */
-         CA_LOG(PSTR("Client connected on port %d\n"), client.port);
-         client.state = C_ESTABLISHED;
-         greenLED.setState(ON);
-         redLED.setState(OFF);
-         os_timer_arm(&extinguishLED, LED_STATUS_DELAY, false);        // this is a 1-shot event
-      } else {
-         // don't change state - will keep trying to establish connection
-         CA_ERROR(F("UDP connection"), F("Failed"));
-         greenLED.setState(BLINK_ON, 125UL);
-         redLED.setState(BLINK_OFF, 125UL);
-      }
-   } else if ( client.state == C_ESTABLISHED ) {
-      // end-to-end connection in place  Note: no Serial I/O except to the SAM3x at this point
-      if ( client.stream.parsePacket() > 0 ) {
-         uint8_t buf[2048];
-#ifdef SIMULATE_CLIENT_ACK
-         client.address = client.stream.remoteIP();              // force this for testing
-#endif
-         // for security, verify that the client that sent the ACK is the same as the one that sent this packet
-         if ( client.address == client.stream.remoteIP() ) {
-            client.udpSize = client.stream.read(buf, sizeof(buf));
-            CA_INFO(F("UDP packet rcvd"), client.udpSize);
-            size_t len = Serial.write(buf, client.udpSize);
-#ifdef CA_DEBUG_INFO 
-            hexDump(buf, client.udpSize);
-#endif
-            CA_ASSERT(len == client.udpSize, F("failed"));
-         } else {                           
-            CA_ERROR(F("UDP stream IP Address mismatch"), (IPAddress)client.stream.remoteIP());
-         }
-      }
-
-      client.serialSize = Serial.available();
-      if ( client.serialSize > 0 ) {
-         // data avilable from the SAM3X for the client
-         CA_INFO(F("Client data available"), client.serialSize);
-    
-         if ( client.packetSize == 0 && (client.serialSize >= PACKET_SIZE_SIZE) ) {
-            // calculate the size of the packet from the first 2 bytes in the stream
-            uint8_t ibuf[PACKET_SIZE_SIZE];
-            Serial.readBytes(ibuf, PACKET_SIZE_SIZE);
-            client.packetSize = genPacketSize(ibuf[0], ibuf[1]);
-            CA_INFO(F("packet size"), client.packetSize);
-         }
-         /*
-          the remaining bytes are the packet contents - copy from serial and send UDP packet
-          it make take a couple of interations until all the bytes are available in the stream
-          */
-         if ( client.packetSize != 0 && (client.serialSize >= client.packetSize - PACKET_SIZE_SIZE) ) {
-            uint8_t buf[2048];
-            buf[0] = getPacketSize(client.packetSize, 0);
-            buf[1] = getPacketSize(client.packetSize, 1);
-            Serial.readBytes(buf+PACKET_SIZE_SIZE, client.packetSize-PACKET_SIZE_SIZE);
-            /*
-             already verified that the request's UDP IP source addr matches the ACKing client,
-             so no need to further validate this
-             */
-            if ( client.stream.beginPacket(client.address, client.port + 1) ) {
-               size_t length = client.stream.write(buf, client.packetSize);
-               if ( length == client.packetSize ) {
-                  if ( client.stream.endPacket() == 0 ) {
-                     CA_ERROR(F("Packet send error"), (IPAddress)client.address);
-                  }
-               } else {
-                  CA_ERROR(F("Packet write failed"), length);
-               }
-               client.packetSize = 0;
-            } else {
-               CA_ERROR(F("Cannot create packet"), (IPAddress)client.address);
-            }
-         }
-      }
-   }
-
-   ArduinoOTA.handle();
-   yield();
+  processHtml("Blah");
 }
