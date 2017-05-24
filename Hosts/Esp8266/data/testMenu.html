@@ -1,76 +1,10 @@
-<body>
-    <h1>Menu Tester</h1>
-    <table>
-        <tr> 
-            <td>Static text</td>
-            <td/>
-        </tr>
-        <tr>
-            <td>Dynamic Text</td>
-            <td>
-                <div id="id0">hi</div>
-            </td>
-        </tr>
-        <tr> 
-            <td>This is a button</td>
-            <td>
-                <button onclick="sendButton(0);">Button</button>
-            </td>
-        </tr>
-        <tr> 
-            <td>This is a checkbox</td>
-            <td>
-                <form>
-                    <input type="checkbox" name="id2">
-                    </form>
-                </td>
-            </tr>
-            <tr> 
-                <td>This is a dropdown</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="dropbtn">Dropdown</button>
-                        <div class="dropdown-content">
-                            <a href="#">Link 1</a>
-                            <a href="#">Link 2</a>
-                            <a href="#">Link 3</a>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            <tr> 
-                <td>This is an edit number</td>
-                <td>
-                    <form class="normal" >
-                        <input type ="number" name="id4" size="6" value="432"/>
-                    </form>
-                </td>
-            </tr>
-            <tr> 
-                <td>This is a timebox</td>
-                <td>
-                    <form class="normal" >
-                        <input type ="number" name="id5" size="6" value="12"/>
-                    </form>
-                </td>
-            </tr>
-            <tr> 
-                <td>This is an edit number</td>
-                <td>
-                    <form class="normal" >
-                        <input type ="number" name="id4" size="6" value="432"/>
-                    </form>
-                </td>
-            </tr>
-            <tr> 
-                <td>This is a slider</td>
-                <td>
-                    <input class="slider" type="range" id="id5" min="0" max="255" value="0" step="1" onchange="sendDac(document.getElementById('pin5').value, this.value);"/>
-                    <span id="id5b">  0</span>
-                </td>
-            </tr>
-        </table>
-
-        <p id="id1000"> - </p>
-    </body>
-    
+caStartMenu(0,1,"Test Menu 123");
+caTextStatic("Static text");
+caTextDynamic("id0", "visible", "Dynamic text", "777");
+caButton("id1", "visible", "This is a button", "Button");
+caCheckBox("id2", "visible", 0, "This is a checkbox");
+caDropSelect("id3", "visible", 0, "This is a dropdown", "no|yes|maybe");
+caEditNumber("id4", "visible", 4, 2, 0, 999999, 2, "This is an edit number");
+caTimeBox("id5", "visible", 1, 59, 58, 800, 801, 801, "This is a timebox");
+caSlider("id6", "visible", 10, "This is a slider");
+caEndMenu();
