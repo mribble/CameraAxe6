@@ -3,7 +3,7 @@ void caRunTests()
   //caTestSerialWritePerf();
   //caTestNetworkEcho();
   //caTestTickTimer();
-  //caTestPackets();
+  caTestPackets();
   //caTestBlinkLed();
   //caTestPerf();
   //caTestModulePorts();

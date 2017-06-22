@@ -14,11 +14,10 @@ void setup() {
   SerialIO.begin(9600);
   CAU::initializeAnalog();
 
+  g_ctx.esp8266.init(4800);
   hwPortPin rts = CAU::getModulePin(0,0);
   hwPortPin cts = CAU::getModulePin(0,1);
-
-  g_ctx.esp8266.init(4800);
-  g_ctx.packetHelper.init(g_ctx.esp8266.getSerial(), rts, cts);
+  g_ctx.packetHelper.init(g_ctx.esp8266.getSerial());
 }
 
 void loop() {

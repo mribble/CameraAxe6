@@ -2,13 +2,11 @@
 #define __CAPACKET_HELPER_H__
 
 #include "CAPacket.h"
-#include "CAUtility.h"
-
-#define MAX_PACKET_SIZE      128
-#define NUM_CAMERAS 8
 
 class CAPacketHelper {
 public:
+    static const uint16_t MAX_PACKET_SIZE = 64;
+    
     CAPacketHelper() : 
     mSize(0),
     mPacker(STATE_PACKER, mData, MAX_PACKET_SIZE),
@@ -18,7 +16,7 @@ public:
     CAPacket& getUnpacker() {return mUnpacker;};
     uint8_t* getData() {return mData;};
     
-    void init(HardwareSerial *serial, hwPortPin rts, hwPortPin cts);
+    void init(HardwareSerial *serial);
     boolean readOnePacket(uint8_t *data);
     void writeOnePacket(uint8_t *data);
     void writeMenu(const uint8_t *sData, uint16_t sz);
@@ -35,13 +33,10 @@ public:
 
 private:
     uint16_t serialFlowControlAvailable();
-    void serialFlowControlPoll();
     void serialFlowControlRead(uint8_t *buf, uint16_t length);
     void serialFlowControlWrite(const uint8_t *buf, uint16_t length);
 
     HardwareSerial *mSerial;
-    hwPortPin mRtsPin;
-    hwPortPin mCtsPin;
     uint16_t mSize;
     CAPacket mPacker;
     CAPacket mUnpacker;
@@ -57,8 +52,8 @@ private:
             return val && 0xFF;
         } else {
             return val >> 8;
+        }
     }
-}
     
 };
 
