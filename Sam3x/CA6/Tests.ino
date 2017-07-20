@@ -104,422 +104,251 @@ void toggleLed()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPackets()
 {
-  const uint8_t sDataMenu[] PROGMEM = {
-  20,0,PID_MENU_HEADER,1,0,2,0,'U','I',' ','T','e','s','t',' ','M','e','n','u',0,  // MENU_HEADER 1 2 "UI Test Menu"
-  15,0,PID_TEXT_STATIC,'S','t','a','t','i','c',' ','T','e','x','t',0,  // TEXT_STATIC "Static Text"
-  22,0,PID_TEXT_DYNAMIC,0,0,'D','y','n','a','m','i','c',' ','T','e','x','t',0,'1','2','3',0,  // TEXT_DYNAMIC 0 "Dynamic Text" "123"  **gClientHostId_0**
-  30,0,PID_BUTTON,1,0,17,'T','h','i','s',' ','i','s',' ','a',' ','b','u','t','t','o','n',0,'B','u','t','t','o','n',0,  // BUTTON 0 1 1 "This is a button" "Button"  **gClientHostId_1**
-  26,0,PID_CHECK_BOX,2,1,0,'T','h','i','s',' ','i','s',' ','a',' ','c','h','e','c','k',' ','b','o','x',0,  // CHECK_BOX 1 0 "This is a check box"  **gClientHostId_2**
-  35,0,PID_DROP_SELECT,3,2,1,'T','h','i','s',' ','i','s',' ','a',' ','d','r','o','p',' ','s','e','l','e','c','t',0,'n','o','|','y','e','s',0,  // DROP_SELECT 2 1 "This is a drop select" "no|yes"  **gClientHostId_3**
-  41,0,PID_EDIT_NUMBER,4,0,50,0,0,0,0,159,134,1,0,80,195,0,0,'T','h','i','s',' ','i','s',' ','a','n',' ','e','d','i','t',' ','n','u','m','b','e','r',0,  // EDIT_NUMBER 0 2 3 0 99999 50000 "This is an edit number"  **gClientHostId_4**
-  32,0,PID_TIME_BOX,5,0,223,24,59,122,62,125,144,1,'T','h','i','s',' ','i','s',' ','a',' ','t','i','m','e',' ','b','o','x',0,  // TIME_BOX 0 1 1 1 1 1 0 99 59 40 999 500 400 "This is a time box"  **gClientHostId_5**
-  3,0,PID_SCRIPT_END,  // SCRIPT_END
-  };  // Total Bytes = 224
-  
-  const uint8_t BUF_SIZE = 224;
-  uint8_t data[BUF_SIZE];
-  const uint8_t *dataPtr = data;
-  uint8_t totalUnpackSize=0;
-  // Move progmem data to a buffer for this test
-  for(uint16_t i=0; i<BUF_SIZE; ++i)
-  {
-   data[i] = pgm_read_byte_near(sDataMenu+i);
-  }
-
-  uint8_t dataA[512];
-  uint8_t packType;
+  uint8_t unpackType;
   uint16_t packSize, unpackSize;
-  memset(dataA, 0, 512);
-  CAPacket unpack0(STATE_UNPACKER, data, BUF_SIZE);
-  CAPacket pack0(STATE_PACKER, dataA, 512);
+  uint8_t data[512];
+  uint8_t flags = 0;
 
-  {  // MENU_HEADER 1 2 "UI Test Menu"
-    CAPacketMenuHeader unpack1(unpack0);          // Update per type
-    CAPacketMenuHeader pack1(pack0);              // Update per type
-  
-    pack1.set(1, 2, "UI Test Menu");              // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_MENU_HEADER ||            // Update per type
-        unpack1.getMajorVersion() != 1 ||
-        unpack1.getMinorVersion() != 2 ||
-        strcmp(unpack1.getMenuName(), "UI Test Menu") != 0) {
-      CA_LOG("ERROR - MENU_HEADER test failed\n");
+  memset(data, 0, 512);
+  CAPacket unpackBase(STATE_UNPACKER, data, 512);
+  CAPacket packBase(STATE_PACKER, data, 512);
+
+  { // STRING Packet Test
+    CAPacketString unpack0(unpackBase);             // Update per type
+    CAPacketString pack0(packBase);                 // Update per type
+    pack0.set(1, flags, "This is a string");        // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
+    if (packSize != unpackSize ||
+          unpackType != PID_STRING ||               // Update per type
+          unpack0.getClientHostId() != 1 ||
+          unpack0.getFlags() != flags ||
+          strcmp(unpack0.getString(), "This is a string") != 0) {
+      CA_LOG("ERROR - STRING test failed\n");
     }
   }
 
-  {  // TEXT_STATIC "Static Text"
-    CAPacketTextStatic unpack1(unpack0);          // Update per type
-    CAPacketTextStatic pack1(pack0);              // Update per type
-  
-    pack1.set("Static Text");                     // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_TEXT_STATIC ||            // Update per type
-        strcmp(unpack1.getText0(), "Static Text") != 0) {
-      CA_LOG("ERROR - TEXT_STATIC test failed\n");
+  {  // UINT32 Packet Test
+    CAPacketUint32 unpack0(unpackBase);             // Update per type
+    CAPacketUint32 pack0(packBase);                 // Update per type
+    pack0.set(2, flags, 123);                       // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
+    if (packSize != unpackSize ||
+        unpackType != PID_UINT32 ||                 // Update per type
+        unpack0.getClientHostId() != 2 ||
+        unpack0.getFlags() != flags ||
+        unpack0.getValue() != 123) {
+      CA_LOG("ERROR - UINT32 test failed\n");
     }
   }
 
-  {  // TEXT_DYNAMIC 0 "Dynamic Text" "123"  **gClientHostId_0**
-    CAPacketTextDynamic unpack1(unpack0);         // Update per type
-    CAPacketTextDynamic pack1(pack0);             // Update per type
-  
-    pack1.set(0, 0, "Dynamic Text", "123");       // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_TEXT_DYNAMIC ||           // Update per type
-        unpack1.getClientHostId() != 0 ||
-        unpack1.getModAttribute() != 0 ||
-        strcmp(unpack1.getText0(), "Dynamic Text") != 0 ||
-        strcmp(unpack1.getText1(), "123") != 0) {
-      CA_LOG("ERROR - TEXT_DYNAMIC test failed\n");
-    }
-  }
-
-  { // BUTTON 0 1 1 "This is a button" "Button"  **gClientHostId_1**
-    CAPacketButton unpack1(unpack0);              // Update per type
-    CAPacketButton pack1(pack0);                  // Update per type
-  
-    pack1.set(1, 0, 1, 1, "This is a button", "Button"); // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_BUTTON ||                 // Update per type
-        unpack1.getClientHostId() != 1 ||
-        unpack1.getModAttribute() != 0 ||
-        unpack1.getType() != 1 ||
-        unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText0(), "This is a button") != 0 ||
-        strcmp(unpack1.getText1(), "Button") != 0) {
-      CA_LOG("ERROR - BUTTON test failed\n");
-    }
-  }
-
-  {  // CHECK_BOX 1 0 "This is a check box"  **gClientHostId_2**
-    CAPacketCheckBox unpack1(unpack0);            // Update per type
-    CAPacketCheckBox pack1(pack0);                // Update per type
-  
-    pack1.set(2, 1, 0, "This is a check box");    // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_CHECK_BOX ||              // Update per type
-        unpack1.getClientHostId() != 2 ||
-        unpack1.getModAttribute() != 1 ||
-        unpack1.getValue() != 0 ||
-        strcmp(unpack1.getText0(), "This is a check box") != 0) {
-      CA_LOG("ERROR - CHECK_BOX test failed\n");
-    }
-  }
-
-  {  // DROP_SELECT 2 1 "This is a drop select" "no|yes"  **gClientHostId_3**
-    CAPacketDropSelect unpack1(unpack0);          // Update per type
-    CAPacketDropSelect pack1(pack0);              // Update per type
-  
-    pack1.set(3, 2, 1, "This is a drop select", "no|yes"); // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_DROP_SELECT ||            // Update per type
-        unpack1.getClientHostId() != 3 ||
-        unpack1.getModAttribute() != 2 ||
-        unpack1.getValue() != 1 ||
-        strcmp(unpack1.getText0(), "This is a drop select") != 0 ||
-        strcmp(unpack1.getText1(), "no|yes") != 0) {
-      CA_LOG("ERROR - DROP_SELECT test failed\n");
-    }
-  }
-
-  {  // EDIT_NUMBER 0 2 3 0 99999 50000 "This is an edit number"  **gClientHostId_4**
-    CAPacketEditNumber unpack1(unpack0);          // Update per type
-    CAPacketEditNumber pack1(pack0);              // Update per type
-  
-    pack1.set(4, 0, 2, 3, 0, 99999, 50000, "This is an edit number"); // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_EDIT_NUMBER ||            // Update per type
-        unpack1.getClientHostId() != 4 ||
-        unpack1.getModAttribute() != 0 ||
-        unpack1.getDigitsBeforeDecimal() != 2 ||
-        unpack1.getDigitsAfterDecimal() != 3 ||
-        unpack1.getMinValue() != 0 ||
-        unpack1.getMaxValue() != 99999 ||
-        unpack1.getValue() != 50000 ||
-        strcmp(unpack1.getText0(), "This is an edit number") != 0) {
-      CA_LOG("ERROR - EDIT_NUMBER test failed\n");
-    }
-  }
-
-  {  // TIME_BOX 0 1 1 1 1 1 0 99 59 40 999 500 400 "This is a time box"  **gClientHostId_5**
-    CAPacketTimeBox unpack1(unpack0);             // Update per type
-    CAPacketTimeBox pack1(pack0);                 // Update per type
-  
-    pack1.set(5, 0, 0x1f, 99, 59, 40, 999, 500, 400, "This is a time box"); // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_TIME_BOX ||               // Update per type
-        unpack1.getClientHostId() != 5 ||
-        unpack1.getModAttribute() != 0 ||
-        unpack1.getEnableMask() != 0x1f ||
-        unpack1.getHours() != 99 ||
-        unpack1.getMinutes() != 59 ||
-        unpack1.getSeconds() != 40 ||
-        unpack1.getMilliseconds() != 999 ||
-        unpack1.getMicroseconds() != 500 ||
-        unpack1.getNanoseconds() != 400 ||
-        strcmp(unpack1.getText0(), "This is a time box") != 0) {
+  {  // TIME_BOX Packet Test
+    CAPacketTimeBox unpack0(unpackBase);            // Update per type
+    CAPacketTimeBox pack0(packBase);                // Update per type
+    pack0.set(3, flags, 99, 59, 40, 999, 500, 400); // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
+    if (packSize != unpackSize ||
+        unpackType != PID_TIME_BOX ||               // Update per type
+        unpack0.getClientHostId() != 3 ||
+        unpack0.getFlags() != flags ||
+        unpack0.getHours() != 99 ||
+        unpack0.getMinutes() != 59 ||
+        unpack0.getSeconds() != 40 ||
+        unpack0.getMilliseconds() != 999 ||
+        unpack0.getMicroseconds() != 500 ||
+        unpack0.getNanoseconds() != 400) 
+        {
       CA_LOG("ERROR - TIME_BOX test failed\n");
     }
   }
 
-  {  // SCRIPT_END
-    CAPacketScriptEnd unpack1(unpack0);           // Update per type
-    CAPacketScriptEnd pack1(pack0);               // Update per type
-  
-    //pack1.set();                                // Update per type
-    unpackSize = unpack0.unpackSize();
-    packType = unpack0.unpackType();
-    //unpack1.unpack();
-    packSize = pack1.pack();
-    totalUnpackSize += unpackSize;
-    if (memcmp(data, dataA, totalUnpackSize) != 0 ||
-        packSize != unpackSize ||
-        packType != PID_SCRIPT_END) {             // Update per type
-      CA_LOG("ERROR - SCRIPT_END test failed\n");
-    }
-  }
-
-  // The following are packet types that don't exist in the script files
-  memset(dataA, 0, 256);
-  CAPacket unpack10(STATE_UNPACKER, dataA, 256);
-  CAPacket pack10(STATE_PACKER, dataA, 256);
-
   { // MENU_SELECT Packet Test
-    CAPacketMenuSelect unpack11(unpack10);        // Update per type
-    CAPacketMenuSelect pack11(pack10);            // Update per type
-    
-    pack11.set(1, 23);                            // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketMenuSelect unpack0(unpackBase);         // Update per type
+    CAPacketMenuSelect pack0(packBase);             // Update per type
+    pack0.set(1, 23);                               // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_MENU_SELECT ||          // Update per type
-          unpack11.getMode() != 1 ||
-          unpack11.getMenuNumber() != 23) {
+          unpackType != PID_MENU_SELECT ||          // Update per type
+          unpack0.getMode() != 1 ||
+          unpack0.getMenuNumber() != 23) {
       CA_LOG("ERROR - MENU_SELECT test failed\n");
     } 
   }
 
   { // MENU_LIST Packet Test
-    CAPacketMenuList unpack11(unpack10);          // Update per type
-    CAPacketMenuList pack11(pack10);              // Update per type
-    
-    pack11.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketMenuList unpack0(unpackBase);           // Update per type
+    CAPacketMenuList pack0(packBase);               // Update per type
+    pack0.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_MENU_LIST ||            // Update per type
-          unpack11.getMenuId() != 1 ||
-          unpack11.getModuleId0() != 2 ||
-          unpack11.getModuleMask0() != 3 ||
-          unpack11.getModuleId1() != 4 ||
-          unpack11.getModuleMask1() != 5 ||
-          unpack11.getModuleId2() != 6 ||
-          unpack11.getModuleMask2() != 7 ||
-          unpack11.getModuleId3() != 8 ||
-          unpack11.getModuleMask3() != 9 ||
-          unpack11.getModuleTypeId0() != 10 ||
-          unpack11.getModuleTypeMask0() != 11 ||
-          unpack11.getModuleTypeId1() != 12 ||
-          unpack11.getModuleTypeMask1() != 13 ||
-          strcmp(unpack11.getMenuName(), "menuList") != 0) {
+          unpackType != PID_MENU_LIST ||            // Update per type
+          unpack0.getMenuId() != 1 ||
+          unpack0.getModuleId0() != 2 ||
+          unpack0.getModuleMask0() != 3 ||
+          unpack0.getModuleId1() != 4 ||
+          unpack0.getModuleMask1() != 5 ||
+          unpack0.getModuleId2() != 6 ||
+          unpack0.getModuleMask2() != 7 ||
+          unpack0.getModuleId3() != 8 ||
+          unpack0.getModuleMask3() != 9 ||
+          unpack0.getModuleTypeId0() != 10 ||
+          unpack0.getModuleTypeMask0() != 11 ||
+          unpack0.getModuleTypeId1() != 12 ||
+          unpack0.getModuleTypeMask1() != 13 ||
+          strcmp(unpack0.getMenuName(), "menuList") != 0) {
       CA_LOG("ERROR - MENU_LIST test failed\n");
     } 
   }
 
   { // MODULE_LIST Packet Test
-    CAPacketModuleList unpack11(unpack10);        // Update per type
-    CAPacketModuleList pack11(pack10);            // Update per type
-    
-    pack11.set(33, 44, "moduleList");             // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketModuleList unpack0(unpackBase);         // Update per type
+    CAPacketModuleList pack0(packBase);             // Update per type
+    pack0.set(33, 44, "moduleList");                // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_MODULE_LIST ||          // Update per type
-          unpack11.getModuleId() != 33 ||
-          unpack11.getModuleTypeId() != 44 ||
-          strcmp(unpack11.getModuleName(), "moduleList") != 0) {
+          unpackType != PID_MODULE_LIST ||          // Update per type
+          unpack0.getModuleId() != 33 ||
+          unpack0.getModuleTypeId() != 44 ||
+          strcmp(unpack0.getModuleName(), "moduleList") != 0) {
       CA_LOG("ERROR - MODULE_LIST test failed\n");
     } 
   }
   
   { // LOGGER Packet Test
-    CAPacketLogger unpack11(unpack10);            // Update per type
-    CAPacketLogger pack11(pack10);                // Update per type
-    
-    pack11.set("This is a log");                  // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketLogger unpack0(unpackBase);             // Update per type
+    CAPacketLogger pack0(packBase);                 // Update per type
+    pack0.set("This is a log");                     // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_LOGGER ||               // Update per type
-          strcmp(unpack11.getLog(), "This is a log") != 0) {
+          unpackType != PID_LOGGER ||               // Update per type
+          strcmp(unpack0.getLog(), "This is a log") != 0) {
       CA_LOG("ERROR - LOG test failed\n");
     } 
   }
 
   { // CAM_STATE Packet Test
-    CAPacketCamState unpack11(unpack10);          // Update per type
-    CAPacketCamState pack11(pack10);              // Update per type
-    
-    pack11.set(2, 0xc1, 0xf0);                    // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketCamState unpack0(unpackBase);           // Update per type
+    CAPacketCamState pack0(packBase);               // Update per type
+    pack0.set(2, 0xc1, 0xf0);                       // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_CAM_STATE ||            // Update per type
-          unpack11.getMultiplier() != 2 ||
-          unpack11.getFocus() != 0xc1 ||
-          unpack11.getShutter() != 0xf0) {
+          unpackType != PID_CAM_STATE ||            // Update per type
+          unpack0.getMultiplier() != 2 ||
+          unpack0.getFocus() != 0xc1 ||
+          unpack0.getShutter() != 0xf0) {
       CA_LOG("ERROR - CAM_STATE test failed\n");
     } 
   }
 
   { // CAM_SETTINGS Packet Test
-    CAPacketCamSettings unpack11(unpack10);       // Update per type
-    CAPacketCamSettings pack11(pack10);           // Update per type
-    
-    pack11.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketCamSettings unpack0(unpackBase);        // Update per type
+    CAPacketCamSettings pack0(packBase);            // Update per type
+    pack0.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_CAM_SETTINGS ||       // Update per type
-          unpack11.getCamPortNumber() != 50 ||
-          unpack11.getMode() != 1 ||
-          unpack11.getDelayHours() != 999 ||
-          unpack11.getDelayMinutes() != 59 ||
-          unpack11.getDelaySeconds() != 58 ||
-          unpack11.getDelayMilliseconds() != 998 ||
-          unpack11.getDelayMicroseconds() != 997 ||
-          unpack11.getDurationHours() != 996 ||
-          unpack11.getDurationMinutes() != 57 ||
-          unpack11.getDurationSeconds() != 56 ||
-          unpack11.getDurationMilliseconds() != 995 ||
-          unpack11.getDurationMicroseconds() != 994 ||
-          unpack11.getSequencer() != 0xbe ||
-          unpack11.getApplyIntervalometer() != 1 ||
-          unpack11.getSmartPreview() != 5 ||
-          unpack11.getMirrorLockupEnable() != 1 ||
-          unpack11.getMirrorLockupMinutes() != 40 ||
-          unpack11.getMirrorLockupSeconds() != 41 ||
-          unpack11.getMirrorLockupMilliseconds() != 900 ) {
+          unpackType != PID_CAM_SETTINGS ||         // Update per type
+          unpack0.getCamPortNumber() != 50 ||
+          unpack0.getMode() != 1 ||
+          unpack0.getDelayHours() != 999 ||
+          unpack0.getDelayMinutes() != 59 ||
+          unpack0.getDelaySeconds() != 58 ||
+          unpack0.getDelayMilliseconds() != 998 ||
+          unpack0.getDelayMicroseconds() != 997 ||
+          unpack0.getDurationHours() != 996 ||
+          unpack0.getDurationMinutes() != 57 ||
+          unpack0.getDurationSeconds() != 56 ||
+          unpack0.getDurationMilliseconds() != 995 ||
+          unpack0.getDurationMicroseconds() != 994 ||
+          unpack0.getSequencer() != 0xbe ||
+          unpack0.getApplyIntervalometer() != 1 ||
+          unpack0.getSmartPreview() != 5 ||
+          unpack0.getMirrorLockupEnable() != 1 ||
+          unpack0.getMirrorLockupMinutes() != 40 ||
+          unpack0.getMirrorLockupSeconds() != 41 ||
+          unpack0.getMirrorLockupMilliseconds() != 900 ) {
       CA_LOG("ERROR - CAM_SETTINGS test failed\n");
     } 
   }
 
   { // INTERVALOMETER Packet Test
-    CAPacketIntervalometer unpack11(unpack10);    // Update per type
-    CAPacketIntervalometer pack11(pack10);        // Update per type
-    
-    pack11.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketIntervalometer unpack0(unpackBase);     // Update per type
+    CAPacketIntervalometer pack0(packBase);         // Update per type
+    pack0.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_INTERVALOMETER ||            // Update per type
-          unpack11.getStartHours() != 900 ||
-          unpack11.getStartMinutes() != 50 ||
-          unpack11.getStartSeconds() != 51 ||
-          unpack11.getStartMilliseconds() != 901 ||
-          unpack11.getStartMicroseconds() != 902 ||
-          unpack11.getIntervalHours() != 903 ||
-          unpack11.getIntervalMinutes() != 52 ||
-          unpack11.getIntervalSeconds() != 53 ||
-          unpack11.getIntervalMilliseconds() != 904 ||
-          unpack11.getIntervalMicroseconds() != 905 ||
-          unpack11.getRepeats() != 9999 ) {
+          unpackType != PID_INTERVALOMETER ||       // Update per type
+          unpack0.getStartHours() != 900 ||
+          unpack0.getStartMinutes() != 50 ||
+          unpack0.getStartSeconds() != 51 ||
+          unpack0.getStartMilliseconds() != 901 ||
+          unpack0.getStartMicroseconds() != 902 ||
+          unpack0.getIntervalHours() != 903 ||
+          unpack0.getIntervalMinutes() != 52 ||
+          unpack0.getIntervalSeconds() != 53 ||
+          unpack0.getIntervalMilliseconds() != 904 ||
+          unpack0.getIntervalMicroseconds() != 905 ||
+          unpack0.getRepeats() != 9999 ) {
       CA_LOG("ERROR - INTERVALOMETER test failed\n");
     } 
   }
 
   { // CONTROL_FLAGS Packet Test
-    CAPacketControlFlags unpack11(unpack10);      // Update per type
-    CAPacketControlFlags pack11(pack10);          // Update per type
-    
-    pack11.set(1, 1);                             // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketControlFlags unpack0(unpackBase);       // Update per type
+    CAPacketControlFlags pack0(packBase);           // Update per type
+    pack0.set(1, 1);                                // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_CONTROL_FLAGS ||        // Update per type
-          unpack11.getSlaveModeEnable() != 1 ||
-          unpack11.getExtraMessagesEnable() != 1 ) {
+          unpackType != PID_CONTROL_FLAGS ||        // Update per type
+          unpack0.getSlaveModeEnable() != 1 ||
+          unpack0.getExtraMessagesEnable() != 1 ) {
       CA_LOG("ERROR - CONTROL_FLAGS test failed\n");
     } 
   }
 
   { // ECHO Packet Test
-    CAPacketEcho unpack11(unpack10);              // Update per type
-    CAPacketEcho pack11(pack10);                  // Update per type
-    
-    pack11.set(1, "Echo Packet");                 // Update per type
-    uint8_t packSize = pack11.pack();
-    uint8_t unpackSize = unpack10.unpackSize();
-    uint8_t packType = unpack10.unpackType();
-    unpack11.unpack();
+    CAPacketEcho unpack0(unpackBase);               // Update per type
+    CAPacketEcho pack0(packBase);                   // Update per type
+    pack0.set(1, "Echo Packet");                    // Update per type
+    packSize = pack0.pack();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
     if (packSize != unpackSize ||
-          packType != PID_ECHO ||                 // Update per type
-          unpack11.getMode() != 1 ||
-          strcmp(unpack11.getString(), "Echo Packet") != 0) {
+          unpackType != PID_ECHO ||                 // Update per type
+          unpack0.getMode() != 1 ||
+          strcmp(unpack0.getString(), "Echo Packet") != 0) {
       CA_LOG("ERROR - ECHO test failed\n");
     } 
   }
@@ -626,7 +455,7 @@ void caTestModulePorts()
 void caTestLinkAndCamPorts()
 {
   hwPortPin ppFocus, ppShutter;
-  uint8_t cam, i;
+  uint8_t cam;
   hwPortPin linkFocus   = CAU::getLinkPin(FOCUS);
   hwPortPin linkShutter = CAU::getLinkPin(SHUTTER);
   uint8_t val0, val1, val2, val3, val4, val5;

@@ -21,10 +21,10 @@ public:
     void writeOnePacket(uint8_t *data);
     void writeMenu(const uint8_t *sData, uint16_t sz);
     void flushGarbagePackets();
-    
+
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
-    void writePacketTextDynamic(uint8_t clientHostId, uint8_t modAttribute, const char* text1);
+    void writePacketString(uint8_t clientHostId, uint8_t flags, const char* str);
     void writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
                 uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
                 uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,

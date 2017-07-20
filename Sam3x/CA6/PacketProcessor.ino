@@ -8,71 +8,32 @@
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
   uint8_t *mData = ph.getData();
+  CAPacketElement *ret = NULL;
 
   if (ph.readOnePacket(mData)) {
     uint8_t packetSize = mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();
-    CAPacketElement *ret = NULL;
 
     switch (packetType) {
-      case PID_MENU_HEADER: {
-        CAPacketMenuHeader unpack(mUnpacker);
+      case PID_STRING: {
+        CAPacketString unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_MENU_HEADER - %d %d %s\n", packetSize, unpack.getMajorVersion(), unpack.getMinorVersion(), unpack.getMenuName());
-        CA_ERROR("Should never be called.\n", 0);
+        CA_LOG("%d PID_STRING - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getFlags(), unpack.getString());
         break;
       }
-      case PID_TEXT_STATIC: {
-        CAPacketTextStatic unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_TEXT_STATIC - %s\n", packetSize, unpack.getText0());
-        break;
-      }
-      case PID_TEXT_DYNAMIC: {
-        CAPacketTextDynamic unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_TEXT_DYNAMIC - %d %d %s %d\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getText0(), unpack.getText1());
-        break;
-      }
-      case PID_BUTTON: {
-        CAPacketButton unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_Button - %d %d %d %d %s %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getType(), unpack.getValue(), unpack.getText0(), unpack.getText1());
-        break;
-      }
-      case PID_CHECK_BOX: {
-        CAPacketCheckBox unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_CHECK_BOX - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0());
-        break;
-      }
-      case PID_DROP_SELECT: {
-        CAPacketDropSelect unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_DROP_SELECT - %d %d %d %s %s \n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getValue(), unpack.getText0(), unpack.getText1());
-        break;
-      }
-      case PID_EDIT_NUMBER: {
-        CAPacketEditNumber *unpack = new CAPacketEditNumber(mUnpacker);
+      case PID_UINT32: {
+        CAPacketUint32 *unpack = new CAPacketUint32(mUnpacker);
         unpack->unpack();
-        CA_LOG("%d PID_EDIT_NUMBER - %d %d %d %d %d %d %d %s \n", packetSize, unpack->getClientHostId(), unpack->getModAttribute(), unpack->getDigitsBeforeDecimal(),
-                  unpack->getDigitsAfterDecimal(), unpack->getMinValue(), unpack->getMaxValue(), unpack->getValue(), unpack->getText0());
+        CA_LOG("%d PID_UINT32 - %d %d %d %d\n", packetSize, unpack->getClientHostId(), unpack->getFlags(), unpack->getValue());
         ret = unpack;
         break;
       }
       case PID_TIME_BOX: {
         CAPacketTimeBox unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getModAttribute(), unpack.getEnableMask(),
+        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), unpack.getFlags(),
                   unpack.getHours(), unpack.getMinutes(), unpack.getSeconds(), unpack.getMilliseconds(), unpack.getMicroseconds(),
-                  unpack.getNanoseconds(), unpack.getText0());
-        break;
-      }
-      case PID_SCRIPT_END: {
-        CAPacketScriptEnd unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_SCRIPT_END\n", packetSize);
-        CA_ERROR("Should never be called.", 0);
+                  unpack.getNanoseconds());
         break;
       }
       case PID_MENU_SELECT: {
@@ -162,28 +123,28 @@
       }
     }
     mUnpacker.resetBuffer();
-    return ret;
   }
+  return ret;
 }
 
-CAPacketElement* incomingPacketCheckEditNumber(CAPacketElement* p, uint8_t clientHostId, uint32_t &val) {
-  if (p != NULL) {
-    if (p->getPacketType() == PID_EDIT_NUMBER) {
-      if (p->getClientHostId() == clientHostId) {
-        CAPacketEditNumber *p1 = (CAPacketEditNumber*) p;
-        val = p1->getValue();
-        delete p;
+CAPacketElement* incomingPacketCheckUint32(CAPacketElement* base, uint8_t clientHostId, uint32_t &val) {
+  if (base != NULL) {
+    if (base->getPacketType() == PID_UINT32) {
+      if (base->getClientHostId() == clientHostId) {
+        CAPacketUint32 *p = (CAPacketUint32*) base;
+        val = p->getValue();
+        delete base;
         return NULL;
       }
     }
   }
-  return p;
+  return base;
 }
 
-void incomingPacketFinish(CAPacketElement* p) {
-  if (p != NULL) {
-    delete p;
-    CA_ERROR("Invalid packet found during incomingPacketCheckFinish()", 0);
+void incomingPacketFinish(CAPacketElement* base) {
+  if (base != NULL) {
+    delete base;
+    CA_ERROR("Unprocessed packet found during incomingPacketCheckFinish()", 0);
   }
 }
 
