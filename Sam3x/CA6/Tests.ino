@@ -128,6 +128,13 @@ void caTestPackets()
           strcmp(unpack0.getString(), "This is a string") != 0) {
       CA_LOG("ERROR - STRING test failed\n");
     }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - STRING test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   {  // UINT32 Packet Test
@@ -231,21 +238,6 @@ void caTestPackets()
     } 
   }
   
-  { // LOGGER Packet Test
-    CAPacketLogger unpack0(unpackBase);             // Update per type
-    CAPacketLogger pack0(packBase);                 // Update per type
-    pack0.set("This is a log");                     // Update per type
-    packSize = pack0.pack();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (packSize != unpackSize ||
-          unpackType != PID_LOGGER ||               // Update per type
-          strcmp(unpack0.getLog(), "This is a log") != 0) {
-      CA_LOG("ERROR - LOG test failed\n");
-    } 
-  }
-
   { // CAM_STATE Packet Test
     CAPacketCamState unpack0(unpackBase);           // Update per type
     CAPacketCamState pack0(packBase);               // Update per type

@@ -144,6 +144,22 @@ uint16_t CAPacketString::pack() {
     return packetSize;
 }
 
+void CAPacketString::packetToString(String& str) {
+    str = (String)PID_STRING + '|' + mClientHostId + '|' + mFlags + '|' + mString + '|';
+}
+
+void CAPacketString::packetFromString(const String& str) {
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mClientHostId = getUint32FromString(index, str);
+    mFlags = getUint32FromString(index, str);
+    mString = getStringFromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_STRING, "Wrong PID ID");
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Uint32 Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,6 +194,14 @@ uint16_t CAPacketUint32::pack() {
     mCAP->packer(mValue, 32);
     mCAP->flushPacket();
     return packetSize;
+}
+
+void CAPacketUint32::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketUint32::packetFromString(const String& str) {
+    //todo
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -243,6 +267,14 @@ uint16_t CAPacketTimeBox::pack() {
     return packetSize;
 }
 
+void CAPacketTimeBox::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketTimeBox::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // MenuSelect Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,6 +305,14 @@ uint16_t CAPacketMenuSelect::pack() {
     mCAP->packer(mMenuNumber, 8);
     mCAP->flushPacket();
     return packetSize;
+}
+
+void CAPacketMenuSelect::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketMenuSelect::packetFromString(const String& str) {
+    //todo
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -362,6 +402,14 @@ uint16_t CAPacketMenuList::pack() {
     return packetSize;
 }
 
+void CAPacketMenuList::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketMenuList::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ModuleList Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -396,30 +444,12 @@ uint16_t CAPacketModuleList::pack() {
     return packetSize;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Logger Packet Class
-///////////////////////////////////////////////////////////////////////////////
-CAPacketLogger::CAPacketLogger(CAPacket& caPacket) {
-    mCAP = &caPacket;
+void CAPacketModuleList::packetToString(String& str) {
+    //todo
 }
 
-void CAPacketLogger::set(String log) {
-    mLog = log;
-}
-
-void CAPacketLogger::unpack() {
-    mCAP->unpackerString(mLog);
-    mCAP->flushPacket();
-}
-
-uint16_t CAPacketLogger::pack() {
-    uint16_t len = mLog.length() + 1;  // 1 for the null terminator
-    uint16_t packetSize = 3 + len;
-    mCAP->packer(packetSize, 16);
-    mCAP->packer(PID_LOGGER, 8);
-    mCAP->packerString(mLog.c_str());
-    mCAP->flushPacket();
-    return packetSize;
+void CAPacketModuleList::packetFromString(const String& str) {
+    //todo
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -515,6 +545,14 @@ uint16_t CAPacketCamState::pack() {
     return packetSize;
 }
 
+void CAPacketCamState::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketCamState::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // CamSettings Packet Class ** Derived from CamSettingsBase
 ///////////////////////////////////////////////////////////////////////////////
@@ -601,6 +639,14 @@ uint16_t CAPacketCamSettings::pack() {
     return packetSize;
 }
 
+void CAPacketCamSettings::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketCamSettings::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Intervalometer Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -681,6 +727,14 @@ uint16_t CAPacketIntervalometer::pack() {
     return packetSize;
 }
 
+void CAPacketIntervalometer::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketIntervalometer::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ControlFlags Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -719,6 +773,14 @@ uint16_t CAPacketControlFlags::pack() {
     return packetSize;
 }
 
+void CAPacketControlFlags::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketControlFlags::packetFromString(const String& str) {
+    //todo
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Echo Packet Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -749,4 +811,12 @@ uint16_t CAPacketEcho::pack() {
     mCAP->packerString(mString.c_str());
     mCAP->flushPacket();
     return packetSize;
+}
+
+void CAPacketEcho::packetToString(String& str) {
+    //todo
+}
+
+void CAPacketEcho::packetFromString(const String& str) {
+    //todo
 }

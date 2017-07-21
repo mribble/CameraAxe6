@@ -10,13 +10,12 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_MENU_SELECT         =  4,
                 PID_MENU_LIST           =  5,
                 PID_MODULE_LIST         =  6,
-                PID_LOGGER              =  7,
-                PID_CAM_STATE           =  8,
-                PID_CAM_SETTINGS        =  9,
-                PID_INTERVALOMETER      = 10,
-                PID_CONTROL_FLAGS       = 11,
-                PID_ECHO                = 12,
-                PID_END_SENTINEL        = 13, // Must be last
+                PID_CAM_STATE           =  7,
+                PID_CAM_SETTINGS        =  8,
+                PID_INTERVALOMETER      =  9,
+                PID_CONTROL_FLAGS       = 10,
+                PID_ECHO                = 11,
+                PID_END_SENTINEL        = 12, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -65,8 +64,30 @@ public:
     virtual uint8_t getClientHostId() = 0;
     virtual void unpack() = 0;
     virtual uint16_t pack() = 0;
+    virtual void packetToString(String& str) = 0;
+    virtual void packetFromString(const String& str) = 0;
 protected:
     CAPacket* mCAP;
+    
+    // This walks through the strings from javascript that contain all the data needed to generate a packet
+    uint32_t getUint32FromString(uint16_t& startIndex, const String& str) {
+        uint16_t val;
+        uint16_t endIndex = str.indexOf('|', startIndex);
+        CA_ASSERT(endIndex!=-1, "Failed check");
+        val = (str.substring(startIndex, endIndex)).toInt();
+        startIndex = endIndex+1;
+        return val;
+    }
+
+    // This walks through the strings from javascript that contain all the data needed to generate a packet
+    String getStringFromString(uint16_t& startIndex, const String& str) {
+        String val;
+        uint16_t endIndex = str.indexOf('|', startIndex);
+        CA_ASSERT(endIndex!=-1, "Failed check");
+        val = str.substring(startIndex, endIndex);
+        startIndex = endIndex+1;
+        return val;
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,21 +105,17 @@ public:
     CAPacketString(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_STRING;};
     uint8_t getClientHostId() {return mClientHostId;};
-
-    // Make these virtual
-    String getPacketString();
-    void set(char* packet);
-
     uint8_t getFlags() {return mFlags;};
     const char* getString() {return mString.c_str();};
     void set(uint8_t clientHostId, uint8_t flags, String str);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
     String mString;
-    String mPacketString;
 };
 
 class CAPacketUint32 : public CAPacketElement {
@@ -111,6 +128,8 @@ public:
     void set(uint8_t clientHostId, uint8_t flags, uint32_t value);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
@@ -133,6 +152,8 @@ public:
                 uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
@@ -154,6 +175,8 @@ public:
     void set(uint8_t activate, uint8_t menuNumber);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mMode;
     uint8_t mMenuNumber;
@@ -184,6 +207,8 @@ public:
                 String menuName);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mMenuId;
     uint8_t mModuleId0;
@@ -212,23 +237,12 @@ public:
     void set(uint8_t moduleId, uint8_t moduleTypeId, String moduleName);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mModuleId;
     uint8_t mModuleTypeId;
     String mModuleName;
-};
-
-class CAPacketLogger : public CAPacketElement {
-public:
-    CAPacketLogger(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_LOGGER;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    const char* getLog() {return mLog.c_str();};
-    void set(String log);
-    void unpack();
-    uint16_t pack();
-private:
-    String mLog;
 };
 
 class CAPacketCamState : public CAPacketElement {
@@ -250,6 +264,8 @@ public:
     void set(uint8_t multiplier, uint8_t focus, uint8_t shutter);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mMultiplier;
     uint8_t mFocus;
@@ -321,6 +337,8 @@ public:
     uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
 };
 
@@ -346,6 +364,8 @@ public:
                 uint16_t repeats);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint16_t mStartHours;
     uint8_t mStartMinutes;
@@ -370,6 +390,8 @@ public:
     void set(uint8_t slaveModeEnabe, uint8_t extraMessagesEnable);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mSlaveModeEnable;
     uint8_t mExtraMessagesEnable;
@@ -385,6 +407,8 @@ public:
     void set(uint8_t mode, String str);
     void unpack();
     uint16_t pack();
+    void packetToString(String& str);
+    void packetFromString(const String& str);
 private:
     uint8_t mMode;
     String mString;

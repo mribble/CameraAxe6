@@ -88,14 +88,6 @@ void CAPacketHelper::flushGarbagePackets() {
     while (mSerial->read() != -1){}   // flush out all the writes
  }
 
-void CAPacketHelper::writePacketLogger(const char* str) {
-    CAPacketLogger pack0(mPacker);
-    pack0.set(str);
-    uint16_t packSize = pack0.pack();
-    writeOnePacket(mData);
-    mPacker.resetBuffer();
-}
-
 void CAPacketHelper::writePacketString(uint8_t clientHostId, uint8_t flags, const char* str) {
     CAPacketString pack0(mPacker);
     pack0.set(clientHostId, flags, str);

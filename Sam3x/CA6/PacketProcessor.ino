@@ -1,10 +1,9 @@
-
- // processIncomingPacket() handles packets coming from the client (Android) to the host (sam3x).
- // Some packets always do the same thing so we handle those in this function and return null.
- // Other packets are menu specific and have to be handled outside this function.  In those cases we return
- // the packet from this function.  In these cases the caller must delete tthe packet when it's done.
+// processIncomingPacket() handles packets coming from the client (Android) to the host (sam3x).
+// Some packets always do the same thing so we handle those in this function and return null.
+// Other packets are menu specific and have to be handled outside this function.  In those cases we return
+// the packet from this function.  In these cases the caller must delete tthe packet when it's done.
  
- CAPacketElement* processIncomingPacket() {
+CAPacketElement* processIncomingPacket() {
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
   uint8_t *mData = ph.getData();
@@ -66,12 +65,6 @@
         CAPacketModuleList unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_MODULE_LIST - %d %d %s\n", packetSize, unpack.getModuleId(), unpack.getModuleTypeId(), unpack.getModuleName());
-        break;
-      }
-      case PID_LOGGER: {
-        CAPacketLogger unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_LOGGER - %s\n", packetSize, unpack.getLog());
         break;
       }
       case PID_CAM_STATE: {
