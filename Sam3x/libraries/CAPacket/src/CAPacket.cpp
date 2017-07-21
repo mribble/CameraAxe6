@@ -5,7 +5,6 @@ CAPacket::CAPacket(uint8_t state, uint8_t *buf, uint16_t bufSize) {
     mBitsUsed = 0;
     mBitsVal = 0;
     mBytesUsed = 0;
-
     mState = state;
     mBuf = buf;
     mBufSize = bufSize;
@@ -197,11 +196,19 @@ uint16_t CAPacketUint32::pack() {
 }
 
 void CAPacketUint32::packetToString(String& str) {
-    //todo
+    str = (String)PID_UINT32 + '|' + mClientHostId + '|' + mFlags + '|' + mValue + '|';
 }
 
 void CAPacketUint32::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mClientHostId = getUint32FromString(index, str);
+    mFlags = getUint32FromString(index, str);
+    mValue = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_UINT32, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,11 +275,25 @@ uint16_t CAPacketTimeBox::pack() {
 }
 
 void CAPacketTimeBox::packetToString(String& str) {
-    //todo
+    str = (String)PID_TIME_BOX + '|' + mClientHostId + '|' + mFlags + '|' + mHours + '|' + mMinutes + '|' + 
+            mSeconds + '|' + mMilliseconds + '|' + mMicroseconds + '|' + mNanoseconds + '|';
 }
 
 void CAPacketTimeBox::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mClientHostId = getUint32FromString(index, str);
+    mFlags = getUint32FromString(index, str);
+    mHours = getUint32FromString(index, str);
+    mMinutes = getUint32FromString(index, str);
+    mSeconds = getUint32FromString(index, str);
+    mMilliseconds = getUint32FromString(index, str);
+    mMicroseconds = getUint32FromString(index, str);
+    mNanoseconds = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_TIME_BOX, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -308,11 +329,18 @@ uint16_t CAPacketMenuSelect::pack() {
 }
 
 void CAPacketMenuSelect::packetToString(String& str) {
-    //todo
+    str = (String)PID_MENU_SELECT + '|' + mMode + '|' + mMenuNumber + '|';
 }
 
 void CAPacketMenuSelect::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mMode = getUint32FromString(index, str);
+    mMenuNumber = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_MENU_SELECT, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -403,11 +431,33 @@ uint16_t CAPacketMenuList::pack() {
 }
 
 void CAPacketMenuList::packetToString(String& str) {
-    //todo
+    str = (String)PID_MENU_LIST + '|' + mMenuId + '|' + mModuleId0 + '|' + mModuleMask0 + '|' + 
+            mModuleId1 + '|' + mModuleMask1 + '|' + mModuleId2 + '|' + mModuleMask2 + '|' +
+            mModuleId3 + '|' + mModuleMask3 + '|' + mModuleTypeId0 + '|' + mModuleTypeMask0 + '|' +
+            mModuleTypeId1 + '|' + mModuleTypeMask1 + '|' + mMenuName + '|';
 }
 
 void CAPacketMenuList::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mMenuId = getUint32FromString(index, str);
+    mModuleId0 = getUint32FromString(index, str);
+    mModuleMask0 = getUint32FromString(index, str);
+    mModuleId1 = getUint32FromString(index, str);
+    mModuleMask1 = getUint32FromString(index, str);
+    mModuleId2 = getUint32FromString(index, str);
+    mModuleMask2 = getUint32FromString(index, str);
+    mModuleId3 = getUint32FromString(index, str);
+    mModuleMask3 = getUint32FromString(index, str);
+    mModuleTypeId0 = getUint32FromString(index, str);
+    mModuleTypeMask0 = getUint32FromString(index, str);
+    mModuleTypeId1 = getUint32FromString(index, str);
+    mModuleTypeMask1 = getUint32FromString(index, str);
+    mMenuName = getStringFromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_MENU_LIST, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -445,11 +495,19 @@ uint16_t CAPacketModuleList::pack() {
 }
 
 void CAPacketModuleList::packetToString(String& str) {
-    //todo
+    str = (String)PID_MODULE_LIST + '|' + mModuleId + '|' + mModuleTypeId + '|' + mModuleName + '|';
 }
 
 void CAPacketModuleList::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mModuleId = getUint32FromString(index, str);
+    mModuleTypeId = getUint32FromString(index, str);
+    mModuleName = getStringFromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_MODULE_LIST, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -546,11 +604,19 @@ uint16_t CAPacketCamState::pack() {
 }
 
 void CAPacketCamState::packetToString(String& str) {
-    //todo
+    str = (String)PID_CAM_STATE + '|' + mMultiplier + '|' + mFocus + '|' + mShutter + '|';
 }
 
 void CAPacketCamState::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mMultiplier = getUint32FromString(index, str);
+    mFocus = getUint32FromString(index, str);
+    mShutter = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_CAM_STATE, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -640,11 +706,39 @@ uint16_t CAPacketCamSettings::pack() {
 }
 
 void CAPacketCamSettings::packetToString(String& str) {
-    //todo
+    str = (String)PID_CAM_SETTINGS + '|' + mCamPortNumber + '|' + mMode + '|' + mDelayHours + '|' + mDelayMinutes +
+            '|' + mDelaySeconds + '|' + mDelayMilliseconds + '|' + mDelayMicroseconds + '|' + mDurationHours + '|' +
+            mDurationMinutes + '|' + mDurationSeconds + '|' + mDurationMilliseconds + '|' + mDurationMicroseconds +
+            '|' + mSequencer + '|' + mApplyIntervalometer + '|' + mSmartPreview + '|' + mMirrorLockupEnable + '|' +
+            mMirrorLockupMinutes + '|' + mMirrorLockupSeconds + '|' + mMirrorLockupMilliseconds + '|';
 }
 
 void CAPacketCamSettings::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mCamPortNumber = getUint32FromString(index, str);
+    mMode = getUint32FromString(index, str);
+    mDelayHours = getUint32FromString(index, str);
+    mDelayMinutes = getUint32FromString(index, str);
+    mDelaySeconds = getUint32FromString(index, str);
+    mDelayMilliseconds = getUint32FromString(index, str);
+    mDelayMicroseconds = getUint32FromString(index, str);
+    mDurationHours = getUint32FromString(index, str);
+    mDurationMinutes = getUint32FromString(index, str);
+    mDurationSeconds = getUint32FromString(index, str);
+    mDurationMilliseconds = getUint32FromString(index, str);
+    mDurationMicroseconds = getUint32FromString(index, str);
+    mSequencer = getUint32FromString(index, str);
+    mApplyIntervalometer = getUint32FromString(index, str);
+    mSmartPreview = getUint32FromString(index, str);
+    mMirrorLockupEnable = getUint32FromString(index, str);
+    mMirrorLockupMinutes = getUint32FromString(index, str);
+    mMirrorLockupSeconds = getUint32FromString(index, str);
+    mMirrorLockupMilliseconds = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_CAM_SETTINGS, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -728,11 +822,29 @@ uint16_t CAPacketIntervalometer::pack() {
 }
 
 void CAPacketIntervalometer::packetToString(String& str) {
-    //todo
+    str = (String)PID_INTERVALOMETER + '|' + mStartHours + '|' + mStartMinutes + '|' + mStartSeconds + '|' +
+                mStartMilliseconds + '|' + mStartMicroseconds + '|' + mIntervalHours + '|' + mIntervalMinutes + '|'+
+                mIntervalSeconds + '|' + mIntervalMilliseconds + '|' + mIntervalMicroseconds + '|' + mRepeats + '|';
 }
 
 void CAPacketIntervalometer::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mStartHours = getUint32FromString(index, str);
+    mStartMinutes = getUint32FromString(index, str);
+    mStartSeconds = getUint32FromString(index, str);
+    mStartMilliseconds = getUint32FromString(index, str);
+    mStartMicroseconds = getUint32FromString(index, str);
+    mIntervalHours = getUint32FromString(index, str);
+    mIntervalMinutes = getUint32FromString(index, str);
+    mIntervalSeconds = getUint32FromString(index, str);
+    mIntervalMilliseconds = getUint32FromString(index, str);
+    mIntervalMicroseconds = getUint32FromString(index, str);
+    mRepeats = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_INTERVALOMETER, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -774,11 +886,18 @@ uint16_t CAPacketControlFlags::pack() {
 }
 
 void CAPacketControlFlags::packetToString(String& str) {
-    //todo
+    str = (String)PID_CONTROL_FLAGS + '|' + mSlaveModeEnable + '|' + mExtraMessagesEnable + '|';
 }
 
 void CAPacketControlFlags::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mSlaveModeEnable = getUint32FromString(index, str);
+    mExtraMessagesEnable = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_CONTROL_FLAGS, "Wrong PID ID");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -814,9 +933,16 @@ uint16_t CAPacketEcho::pack() {
 }
 
 void CAPacketEcho::packetToString(String& str) {
-    //todo
+    str = (String)PID_ECHO + '|' + mMode + '|' + mString + '|';
 }
 
 void CAPacketEcho::packetFromString(const String& str) {
-    //todo
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mMode = getUint32FromString(index, str);
+    mString = getStringFromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_ECHO, "Wrong PID ID");
 }

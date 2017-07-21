@@ -152,6 +152,13 @@ void caTestPackets()
         unpack0.getValue() != 123) {
       CA_LOG("ERROR - UINT32 test failed\n");
     }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - UINT32 test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   {  // TIME_BOX Packet Test
@@ -175,6 +182,13 @@ void caTestPackets()
         {
       CA_LOG("ERROR - TIME_BOX test failed\n");
     }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - TIME_BOX test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // MENU_SELECT Packet Test
@@ -190,7 +204,14 @@ void caTestPackets()
           unpack0.getMode() != 1 ||
           unpack0.getMenuNumber() != 23) {
       CA_LOG("ERROR - MENU_SELECT test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - MENU_SELECT test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // MENU_LIST Packet Test
@@ -218,7 +239,14 @@ void caTestPackets()
           unpack0.getModuleTypeMask1() != 13 ||
           strcmp(unpack0.getMenuName(), "menuList") != 0) {
       CA_LOG("ERROR - MENU_LIST test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - MENU_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // MODULE_LIST Packet Test
@@ -235,7 +263,14 @@ void caTestPackets()
           unpack0.getModuleTypeId() != 44 ||
           strcmp(unpack0.getModuleName(), "moduleList") != 0) {
       CA_LOG("ERROR - MODULE_LIST test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - MODULE_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
   
   { // CAM_STATE Packet Test
@@ -252,7 +287,14 @@ void caTestPackets()
           unpack0.getFocus() != 0xc1 ||
           unpack0.getShutter() != 0xf0) {
       CA_LOG("ERROR - CAM_STATE test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - CAM_STATE test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // CAM_SETTINGS Packet Test
@@ -285,7 +327,14 @@ void caTestPackets()
           unpack0.getMirrorLockupSeconds() != 41 ||
           unpack0.getMirrorLockupMilliseconds() != 900 ) {
       CA_LOG("ERROR - CAM_SETTINGS test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - CAM_SETTINGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // INTERVALOMETER Packet Test
@@ -310,7 +359,15 @@ void caTestPackets()
           unpack0.getIntervalMicroseconds() != 905 ||
           unpack0.getRepeats() != 9999 ) {
       CA_LOG("ERROR - INTERVALOMETER test failed\n");
-    } 
+    }
+    
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - INTERVALOMETER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // CONTROL_FLAGS Packet Test
@@ -326,7 +383,14 @@ void caTestPackets()
           unpack0.getSlaveModeEnable() != 1 ||
           unpack0.getExtraMessagesEnable() != 1 ) {
       CA_LOG("ERROR - CONTROL_FLAGS test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - CONTROL_FLAGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   { // ECHO Packet Test
@@ -342,7 +406,14 @@ void caTestPackets()
           unpack0.getMode() != 1 ||
           strcmp(unpack0.getString(), "Echo Packet") != 0) {
       CA_LOG("ERROR - ECHO test failed\n");
-    } 
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.packetFromString(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - ECHO test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
   }
 
   CA_LOG("Done - testPackets\n");
