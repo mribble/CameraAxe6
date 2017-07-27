@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Menu Mode Page</title>
+		<style>
+			body {
+				background-color: white;
+			}
+			h1 {
+				font-size: 200%;
+				color: black;
+			}
+			div {
+				font-size: 100%;
+				color: black;
+			}
+			label {
+				color: gray;
+			}
+			table, th, td {
+				border: 1px solid black;
+			}
+			.normal {
+				font-size: 100%;
+			}
+			.button {
+			  background-color: #cccccc;
+			  border: none;
+			  color: black;
+			  padding: 5px 5px;
+			  text-align: center;
+			  text-decoration: none;
+			  display: inline-block;
+			  font-size: 100%;
+			  margin: 2px 10px;
+			  cursor: pointer;
+			}
+			.slider {
+			   width: 90px;
+			   height: 30px;
+			}
+			
+			/* The Modal (background) */
+			.modal {
+				display: none; /* Hidden by default */
+				position: fixed; /* Stay in place */
+				z-index: 1; /* Sit on top */
+				padding-top: 100px; /* Location of the box */
+				left: 0;
+				top: 0;
+				width: 450px; /* Full width */
+				height: 100%; /* Full height */
+				overflow: auto; /* Enable scroll if needed */
+			}
+
+			/* Modal Content */
+			.modal-content {
+				background-color: #fefefe;
+				margin: auto;
+				padding: 20px;
+				border: 1px solid #888;
+				width: 80%;
+			}
+
+			/* The Close Button */
+			.close {
+				color: #aaaaaa;
+				float: right;
+				font-size: 28px;
+				font-weight: bold;
+			}
+
+			.close:hover,
+			.close:focus {
+				color: #000;
+				text-decoration: none;
+				cursor: pointer;
+			}
+			
+			#timeboxModal table, #timeboxModal table tr td{
+				border: none;
+			}
+		</style>
+
+		<script>
+			var gTable;
+			
+			function caStartMenu(majorVersion, minorVersion, menuString) {
+				document.getElementById("title").innerHTML = menuString;
+				gTable = document.createElement('table');
+			}
+
+			function caTextStatic(text0) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.colSpan = "2";
+				cell0.innerHTML = text0;
+			}
+			
+			function caTextDynamic(id, text0, text1) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				cell1.id = id;
+				cell1.innerHTML = text1;
+				window.setInterval(function(){
+				  document.getElementById(id).innerHTML = +document.getElementById(id).innerHTML + +1;
+				}, 1000);
+			}
+			
+			function caButton(id, text0, text1) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var b = document.createElement('button');
+				b.id = id;
+				b.innerHTML = text1;
+				b.onclick = function(){
+					document.getElementById("debugText").innerHTML = id+"#"+this.innerHTML;
+				}
+				cell1.appendChild(b);
+			}
+
+			function caCheckBox(id, value, text0) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement('input');
+				x.type = "checkbox";
+				x.id = id;
+				x.checked = value;
+				x.onchange = function(){
+					document.getElementById("debugText").innerHTML = id+"#"+this.checked;
+				}
+				cell1.appendChild(x);
+			}
+
+			function caDropSelect(id, value, text0, text1) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement('select');
+				x.id = id;
+				var a = text1.split("|");
+				var i;
+				
+				for(i=0; i<a.length; i++) {
+					var option = document.createElement('option');
+					option.value = a[i];
+					option.textContent = a[i];
+					x.appendChild(option);
+				}
+				
+				x.onchange = function(){
+					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+				}
+				cell1.appendChild(x);
+			}
+
+			function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement('input');
+				x.type = "number";
+				x.id = id;
+				x.min=minValue;
+				x.max=maxValue;
+				x.oninput = function () {
+					if (this.value.length > maxLength) {
+						this.value = this.value.slice(0,maxLength); 
+					}
+					if (this.value < 0) {
+						this.value = 0;
+					}
+					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+				}
+				//x.size = 2;
+				x.value = value;
+				cell1.appendChild(x);
+			}
+
+			function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement('input');
+				x.type = "text";
+				x.id = id;
+				x.name = "timebox";
+				//x.size = 2;
+				x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
+				x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
+				cell1.appendChild(x);
+			}
+			
+			function f0(id,text0) {
+				var bob = prompt("Please enter your time:", text0);
+				if(bob){
+					document.getElementById(id).value=bob;
+					document.getElementById("debugText").innerHTML = id+"#"+bob;
+				}
+			}
+
+			function caSlider(id, minValue, maxValue, value, text0) {
+				var row = gTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement('input');
+				x.class = "slider";
+				x.type = "range";
+				x.id = id;
+				x.min=minValue;
+				x.max=maxValue;
+				x.value=value;
+				x.step="1";
+				x.onchange = function(){
+					document.getElementById(id+'b').innerHTML = this.value;
+					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+				}
+				//x.size = 2;
+				cell1.appendChild(x);
+				var x1 = document.createElement('span');
+				x1.id = id+"b";
+				x1.innerHTML = value;
+				cell1.appendChild(x1);
+			}
+
+			function caEndMenu() {
+				document.body.appendChild(gTable);        
+			}
+			
+			function redirectTo(href) {
+				document.location.href=href;
+			}
+			
+		</script>
+
+	</head>
+
+	<body>
+		<button class="button" onclick="redirectTo('HomePage.html');">Home</button>
+		<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
+		<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
+		<h1 id="title"></h1>
+		
+		<!-- The Modal -->
+		<div id="timeboxModal" class="modal">
+
+			<!-- Modal content -->
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<h3>Setting Time</h3>
+				<form id="timeboxForm" name="timeboxForm">
+					<table style="width:100%;">
+						<tr style="display:none;" id="hours">
+							<td style="width:50%;">Hours (0-999)</td>
+							<td style="width:50%;">
+								<input type="number" name="hours" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="minutes">
+							<td>Minutes (0-59)</td>
+							<td>
+								<input type="number" name="minutes" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="seconds">
+							<td>Seconds (0-59)</td>
+							<td>
+								<input type="number" name="seconds" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="milliseconds">
+							<td>Milliseconds (0-999)</td>
+							<td>
+								<input type="number" name="milliseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="microseconds">
+							<td>Microseconds (0-999)</td>
+							<td>
+								<input type="number" name="microseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="nanoseconds">
+							<td>Nanoseconds (0-999)</td>
+							<td>
+								<input type="number" name="nanoseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:center;" colspan="2"><br><br><br><br>
+								<input type="hidden" id="boxName" name="boxName" value="">
+								<button onclick="saveValues();" type="button">Ok</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+
+		</div>
+		
+		<script>
+			caStartMenu(0,1,"Test Menu 123");
+			caTextStatic("Static text");
+			caTextDynamic("id0", "Dynamic text", "777");
+			caButton("id1", "This is a button", "Button");
+			caCheckBox("id2", 0, "This is a checkbox");
+			caDropSelect("id3", 0, "This is a dropdown", "no|yes|maybe");
+			caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
+			caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
+			caSlider("id6", 0, 255, 10, "This is a slider");
+			caEndMenu();
+			
+			// Get the modal
+			var modal = document.getElementById('timeboxModal');
+
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("close")[0];
+
+			// When the user clicks the input, open the timebox modal 
+			function openTimeBox(box,hours,minutes,seconds,milliseconds,microseconds,nanoseconds) {
+				if(hours){
+					document.getElementById("hours").style.display = "";
+					document.getElementsByName("hours")[0].value=0;
+				}else{
+					document.getElementById("hours").style.display = "none";
+				}
+				
+				if(minutes){
+					document.getElementById("minutes").style.display = "";
+					document.getElementsByName("minutes")[0].value=0;
+				}else{
+					document.getElementById("minutes").style.display = "none";
+				}
+				
+				if(seconds){
+					document.getElementById("seconds").style.display = "";
+					document.getElementsByName("seconds")[0].value=0;
+				}else{
+					document.getElementById("seconds").style.display = "none";
+				}
+				
+				if(milliseconds){
+					document.getElementById("milliseconds").style.display = "";
+					document.getElementsByName("milliseconds")[0].value=0;
+				}else{
+					document.getElementById("milliseconds").style.display = "none";
+				}
+				
+				if(microseconds){
+					document.getElementById("microseconds").style.display = "";
+					document.getElementsByName("microseconds")[0].value=0;
+				}else{
+					document.getElementById("microseconds").style.display = "none";
+				}
+				
+				if(nanoseconds){
+					document.getElementById("nanoseconds").style.display = "";
+					document.getElementsByName("nanoseconds")[0].value=0;
+				}else{
+					document.getElementById("nanoseconds").style.display = "none";
+				}
+				
+				document.getElementById("boxName").value = box.name;
+				
+				loadValues(box,hours,minutes,seconds,milliseconds,microseconds,nanoseconds);
+				modal.style.display = "block";
+			}
+			
+			// When the user clicks on OK button, update the box value
+			function saveValues(){
+				var timeboxForm = document.forms["timeboxForm"];
+				var boxValue = "";
+				for(i=0; i<timeboxForm.length; i++)
+				{
+					if(timeboxForm[i].type=="number" && document.getElementById(timeboxForm[i].name).style.display!="none"){
+						if(i>0 && boxValue!=""){
+							if(timeboxForm[i].name=="minutes" || timeboxForm[i].name=="seconds"){
+								boxValue += ":";
+							}
+							else{
+								boxValue += ".";
+							}
+						}
+						boxValue += timeboxForm[i].value;
+					}
+				}
+				document.getElementsByName(document.getElementById("boxName").value)[0].value = boxValue;
+				modal.style.display = "none";
+			}
+			
+			// When the user clicks on input field, loads the current field value in timebox against each input fields
+			function loadValues(inputField,hours,minutes,seconds,milliseconds,microseconds,nanoseconds){
+				var timeArray = {
+					"hours" : hours,
+					"minutes" : minutes,
+					"seconds" : seconds,
+					"milliseconds" : milliseconds,
+					"microseconds" : microseconds,
+					"nanoseconds" : nanoseconds
+				};
+				var j=0;
+				var i=0;
+				var inputFieldValue = inputField.value;
+				var splitInputField = inputFieldValue.split(/[:.]/);
+				for(var key in timeArray){
+					if(timeArray[key])
+					{
+						document.getElementsByName(key)[0].value = splitInputField[j];
+						j++;
+					}
+				}
+			}
+			
+			// When the user clicks on <span> (x), close the modal
+			span.onclick = function() {
+				modal.style.display = "none";
+			}
+
+			// When the user clicks anywhere outside of the modal, close it
+			window.onclick = function(event) {
+				if (event.target == modal) {
+					modal.style.display = "none";
+				}
+			}
+			
+			function validateNumber(number,maxLength) {
+				if (number.value.length > maxLength) {
+					number.value = number.value.slice(0,maxLength); 
+				}
+				if (number.value.length > 1 && number.value[0]==0){
+					number.value = (number.value).replace("0","");
+				}
+				if (number.value < 0 || number.value=="") {
+					number.value = 0;
+				}
+				if (+number.value > +number.max) {
+					number.value = number.max;
+				}
+			}
+		</script>
+		<p id="debugText"> - </p>
+	</body>
+</html>

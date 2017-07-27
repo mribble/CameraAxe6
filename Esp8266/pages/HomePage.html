@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Home Page</title>
+		<style>
+			body{
+				font-family: "arial";
+			}
+			#container{
+				width: 450px;
+				height: 650px;
+				padding: 12px;
+			}
+			button,#listButtons{
+				padding:12px;
+				text-align: left;
+				font-size: 20px;
+			}
+			button{
+				width: 70%;
+			}
+			#listButtons, #container{
+				border: 1px solid #000;
+			}
+			#listButtons{
+				background-color:#eee;
+				padding: 0px;
+			}
+			#listButtons li{
+				list-style: none;
+				padding: 8px;
+			}
+			#listButtons li a{
+				text-decoration: none;
+				color: #000;
+			}
+			#listButtons li:not(:last-child){
+				border-bottom: 1px solid;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container">
+			<h1>Camera Axe Home - v<span id="version"></span></h1>
+			
+			<button onclick="redirectTo('CameraFlashSettings.html');">Camera Flash Settings</button>
+			
+			<ul id="listButtons"></ul>
+			
+			<button onclick="redirectTo('AdvancedSettings.html');">Advanced Settings</button>
+		</div>
+		
+		<script>
+			function DebugInit(version,photoMenus) {
+				document.getElementById("version").innerHTML = version;
+				var listItems = "";
+				for(i=0; i<photoMenus.length; i++){
+					listItems += '<li><a href="MenuModePage.html">'+photoMenus[i]+'</a></li>';
+				}
+				document.getElementById("listButtons").innerHTML = listItems;
+			}
+			DebugInit("0.1",["Sound","Lightning","Projectile"]);
+			
+			function redirectTo(href) {
+				document.location.href=href;
+			}
+		</script>
+	</body>
+
+</html>
