@@ -12,16 +12,15 @@ void CAEsp8266::init(uint32_t baud) {
     // from uart on low).  The other is mEspReset and that controls resetting (reset on low).
     // The initial state is boot from flash and don't reset
 
-    // TODO - Need to update these pins on v4 pcb
-    mEspGpio0 = CAU::getModulePin(0, 1); // Use module0 3rd wire for ESP GPIO0/Flash
-    mEspReset = CAU::getModulePin(0, 2); // Use module0 4th wire for ESP RESET
+    mEspGpio0 = CAU::getOnboardDevicePin(CC_PROG);
+    mEspReset = CAU::getOnboardDevicePin(CC_RESET);
 
     CAU::pinMode(mEspGpio0, OUTPUT);
     CAU::digitalWrite(mEspGpio0, HIGH);
     CAU::pinMode(mEspReset, OUTPUT);
     CAU::digitalWrite(mEspReset, HIGH);
     
-    Serial1.begin(baud);
+    getSerial()->begin(baud);
 }
 
 void CAEsp8266::reprogramESP() {
@@ -59,5 +58,5 @@ void CAEsp8266::resetESP() {
         input = SerialIO.read();
     }
     
-    SerialUSB.print("ESP8266 Reset complete, back to data mode\n");
+    CA_LOG("ESP8266 Reset complete, back to data mode\n");
 }

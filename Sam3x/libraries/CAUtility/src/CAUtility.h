@@ -5,7 +5,8 @@
 
 enum hwPorts {PORT_A=0, PORT_B=1, PORT_C=2, PORT_D=3};
 enum camPinType {FOCUS=0, SHUTTER=1};
-enum hwDevice {EEPROM_PIN=0, BLE_TX_PIN=1, BLE_RX_PIN=2, BLE_RTS_PIN=3, BLE_CTS_PIN=4, LED_GREEN_PIN=5, LED_RED_PIN=6, LV_DETECT_PIN=7};
+enum hwDevice {EEPROM_PIN=0, LV_DETECT_PIN=1, CC_PROG=2, CC_RESET=3, CC_CTS=4,
+                CC_RTS=5, CC_TX=6, CC_RX=7, CC_EXT0=8, CC_EXT1=9};
 
 #define NO_PIN -1
 
@@ -29,7 +30,6 @@ namespace CAU
     inline uint16_t analogRead(hwPortPin pp);
     hwPortPin getModulePin(uint8_t module, uint8_t pin);
     hwPortPin getCameraPin(uint8_t cam, camPinType type);
-    hwPortPin getLinkPin(camPinType type);
     hwPortPin getAuxPin(uint8_t pin);
     hwPortPin getOnboardDevicePin(hwDevice device);
 

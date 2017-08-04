@@ -7,7 +7,7 @@ class CAEsp8266
 {
  public:
     void init(uint32_t baud);
-    HardwareSerial* getSerial() {return &Serial1;};
+    HardwareSerial* getSerial() {return &Serial2;};
     void reprogramESP();
     void resetESP();
 

@@ -179,20 +179,20 @@ void sendHtml(const char* title) {
   gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
   gClient.println(title);
   gClient.println("</TITLE> <meta charset=\"UTF-8\">");
-  gClient.println(gCssString);
+  gClient.print(gCssString);
 
   //Serial.print(gScriptString);
-  /*uint32_t i = 0;
+  uint32_t i = 0;
   while(i<gScriptString.length()) {
-    Serial.print(gScriptString.substring(i,i+1024));
+    gClient.print(gScriptString.substring(i,i+1024));
     i+=1024;
-  }*/
-  gClient.println(gScriptString);
+  }
+  //gClient.print(gScriptString);
   gClient.println("</HEAD>");
   gClient.println("<BODY>");
   gClient.println("<H1 id=\"title\"></H1>");
   gClient.println("<SCRIPT>");
-  gClient.println(gMenuString);
+  gClient.print(gMenuString);
   gClient.println("</SCRIPT>");
   gClient.println("</BODY>");
   gClient.println("</HTML>");

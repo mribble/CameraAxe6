@@ -1,16 +1,15 @@
 void caRunTests()
 {
-  //caTestSerialWritePerf();
-  //caTestNetworkEcho();
-  //caTestTickTimer();
+  //caTestSerialWritePerf();  // look into this
+  //caTestNetworkEcho();      // look into this
+  caTestTickTimer();
   caTestPackets();
-  //caTestBlinkLed();
-  //caTestPerf();
-  //caTestModulePorts();
-  //caTestLinkAndCamPorts();
-  //caTestAuxPort();
+  caTestPerf();
+  caTestModulePorts();
+  caTestAuxAndCamPorts();
   //caTestEeprom();
-  //caTestAnalog();
+  caTestAnalog();
+  delay(5000); // wait 5000 ms
 }
 
 void caTestSerialWritePerf() {
@@ -72,31 +71,30 @@ void caTestNetworkEcho() {
 void caTestTickTimer()
 {
   uint64_t ticks;
-  CATickTimer bob(0);
-  ticks = bob.convertTimeToTicks(0,0,0,100,0,0);
-  bob.start(toggleLed, ticks, true);
-  delay(5000);
-  bob.stop();
+  CATickTimer timer(0);
+  ticks = timer.convertTimeToTicks(0,0,0,100,0,0);
+  timer.start(toggleCamPort0, ticks, true);
+  delay(200);
+  timer.stop();
 }
-void toggleLed()
+void toggleCamPort0()
 {
   static uint8_t toggle = 1;
 
-  hwPortPin led = CAU::getOnboardDevicePin(LED_GREEN_PIN);
-  CAU::pinMode(led, OUTPUT);
+  hwPortPin cam0 = CAU::getCameraPin(0, SHUTTER);
+  CAU::pinMode(cam0, OUTPUT);
 
   if (toggle)
   {
-    CAU::digitalWrite(led, HIGH);
+    CAU::digitalWrite(cam0, HIGH);
     toggle = 0;
   }
   else
   {
-    CAU::digitalWrite(led, LOW);
+    CAU::digitalWrite(cam0, LOW);
     toggle = 1;
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestPackets - Tests packing and unpacking of data packets
@@ -417,28 +415,6 @@ void caTestPackets()
   }
 
   CA_LOG("Done - testPackets\n");
-  delay(2000);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestBlinkLed - Test blinks LEDs.
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestBlinkLed()
-{
-  hwPortPin led = CAU::getOnboardDevicePin(LED_GREEN_PIN);
-  CAU::pinMode(led, OUTPUT);
-  CAU::digitalWrite(led, HIGH);
-  delay(1000);
-  CAU::digitalWrite(led, LOW);
-  delay(200);
-
-  led = CAU::getOnboardDevicePin(LED_RED_PIN);
-  CAU::pinMode(led, OUTPUT);
-  CAU::digitalWrite(led, HIGH);
-  delay(200);
-  CAU::digitalWrite(led, LOW);
-  delay(200);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,7 +454,7 @@ void caTestPerf()
     val16 = CAU::analogRead(pp0);
   }
   endTime = micros();
-  CA_LOG("  10,000 analogRead() = %dus\n", endTime-startTime);
+  CA_LOG("  10,000 analogRead() = %dus  --junk(%d%d)\n", endTime-startTime, val16, val8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,22 +488,39 @@ void caTestModulePorts()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestLinkAndCamPorts - Tests link and camera ports.  Reports which ones failed. - Requires a special test dongle.
+// caTestAuxAndCamPorts - Tests the aux and cameraa ports.  Reports which pins failed. - Requires a special test dongle.
 // returns  - NA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestLinkAndCamPorts()
+void caTestAuxAndCamPorts()
 {
+  uint8_t pin;
+  hwPortPin pp0, pp1;
+
+  for(pin=0; pin<46; pin+=2)
+  {
+    pp0 = CAU::getAuxPin(pin);
+    pp1 = CAU::getAuxPin(pin+1);
+    if (!caTestTwoPins(pp0, pp1))
+    {
+      CA_LOG("  Aux Port %d failed\n", pin);
+    }
+    if (!caTestTwoPins(pp1, pp0))
+    {
+      CA_LOG("  Aux Port %d failed\n", pin+1);
+    }
+  }
+
   hwPortPin ppFocus, ppShutter;
   uint8_t cam;
-  hwPortPin linkFocus   = CAU::getLinkPin(FOCUS);
-  hwPortPin linkShutter = CAU::getLinkPin(SHUTTER);
+  hwPortPin linkFocus = CAU::getAuxPin(47);
+  hwPortPin linkShutter = CAU::getAuxPin(46);
   uint8_t val0, val1, val2, val3, val4, val5;
-  
+
   for(cam=0; cam<8; ++cam)
   {
     caAllPortsLow(); // Must reset all cam ports here
-    CAU::pinMode(linkFocus,   INPUT);
-    CAU::pinMode(linkShutter, INPUT);
+    CAU::pinMode(linkFocus,   INPUT_PULLUP);
+    CAU::pinMode(linkShutter, INPUT_PULLUP);
 
     delayMicroseconds(90);  // Without this delay optoisolator trigger time causes failure
     val0 = CAU::digitalRead(linkFocus);    // Should be high due to pullup resistor
@@ -549,37 +542,11 @@ void caTestLinkAndCamPorts()
         (val2 != LOW)  || (val3 != HIGH) ||
         (val4 != HIGH) || (val5 != LOW))
     {
-      CA_LOG("  Camera/Link Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
+      CA_LOG("  Camera/Aux Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
     }
   }
   
-  CA_LOG("Done - camera/linkports\n");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestLinkAndCamPorts - Tests the aux port.  Reports which pins failed. - Requires a special test dongle.
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestAuxPort()
-{
-  uint8_t pin;
-  hwPortPin pp0, pp1;
-
-  for(pin=0; pin<46; pin+=2)
-  {
-    pp0 = CAU::getAuxPin(pin);
-    pp1 = CAU::getAuxPin(pin+1);
-    if (!caTestTwoPins(pp0, pp1))
-    {
-      CA_LOG("  Aux Port %d failed\n", pin);
-    }
-    if (!caTestTwoPins(pp1, pp0))
-    {
-      CA_LOG("  Aux Port %d failed\n", pin+1);
-    }
-  }
-  
-  CA_LOG("Done - aux port\n");
+  CA_LOG("Done - aux and camera ports\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -673,17 +640,17 @@ void caTestAnalog()
   ppAn = CAU::getModulePin(3, 0);
   ppDig = CAU::getModulePin(3, 1);
   caTestAnalogPin(ppAn, ppDig);
-  ppAn = CAU::getAuxPin(33);
-  ppDig = CAU::getAuxPin(32);
+  ppAn = CAU::getAuxPin(39);
+  ppDig = CAU::getAuxPin(38);
   caTestAnalogPin(ppAn, ppDig);
-  ppAn = CAU::getAuxPin(34);
-  ppDig = CAU::getAuxPin(35);
+  ppAn = CAU::getAuxPin(40);
+  ppDig = CAU::getAuxPin(41);
   caTestAnalogPin(ppAn, ppDig);
-  ppAn = CAU::getAuxPin(35);
-  ppDig = CAU::getAuxPin(34);
+  ppAn = CAU::getAuxPin(41);
+  ppDig = CAU::getAuxPin(40);
   caTestAnalogPin(ppAn, ppDig);
-  ppAn = CAU::getAuxPin(36);
-  ppDig = CAU::getAuxPin(37);
+  ppAn = CAU::getAuxPin(42);
+  ppDig = CAU::getAuxPin(43);
   caTestAnalogPin(ppAn, ppDig);
 
   ppAn = CAU::getOnboardDevicePin(LV_DETECT_PIN);
@@ -747,7 +714,7 @@ void caAllPortsLow()
   uint8_t i, j;
 
   // Aux Port
-  for(i=0; i<46; ++i)
+  for(i=0; i<48; ++i)
   {
     pp0 = CAU::getAuxPin(i);
     CAU::pinMode(pp0, OUTPUT);
@@ -775,13 +742,5 @@ void caAllPortsLow()
     CAU::pinMode(pp0, OUTPUT);
     CAU::digitalWrite(pp0, LOW);
   }
-
-  // Link Port
-  pp0 = CAU::getLinkPin(FOCUS);
-  CAU::pinMode(pp0, OUTPUT);
-  CAU::digitalWrite(pp0, LOW);
-  pp0 = CAU::getLinkPin(SHUTTER);
-  CAU::pinMode(pp0, OUTPUT);
-  CAU::digitalWrite(pp0, LOW);
 }
 
