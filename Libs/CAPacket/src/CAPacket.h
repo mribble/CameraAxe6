@@ -20,6 +20,9 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
 
+#define UNPACK_GUARD_SZ     4
+#define UNPACK_SIZE_SZ      2
+#define UNPACK_TYPE_SZ      1
 #define NULL_CLIENT_HOST_ID 0xff
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
