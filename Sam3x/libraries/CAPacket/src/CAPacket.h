@@ -1,7 +1,7 @@
 #ifndef __CAPACKET_H__
 #define __CAPACKET_H__
 
-#include "CAUtility.h"
+#include <CAStd.h>
 
 enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_STRING              =  1,

@@ -1,5 +1,4 @@
 #include <CAPacket.h>
-#include <CAUtility.h>
 
 CAPacket::CAPacket(uint8_t state, uint8_t *buf, uint16_t bufSize) {
     mBitsUsed = 0;
@@ -257,7 +256,7 @@ void CAPacketTimeBox::unpack() {
 }
 
 uint16_t CAPacketTimeBox::pack() {
-    uint8_t unused;
+    uint8_t unused = 0;
     uint16_t packetSize = 3 + 9;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
@@ -677,7 +676,7 @@ void CAPacketCamSettings::unpack() {
 }
 
 uint16_t CAPacketCamSettings::pack() {
-    uint8_t unused;
+    uint8_t unused = 0;
     uint16_t packetSize = 3 + 17;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_SETTINGS, 8);
@@ -801,7 +800,7 @@ void CAPacketIntervalometer::unpack() {
 }
 
 uint16_t CAPacketIntervalometer::pack() {
-    uint8_t unused;
+    uint8_t unused = 0;
     uint16_t packetSize = 3 + 13;
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_INTERVALOMETER, 8);

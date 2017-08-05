@@ -2,14 +2,14 @@ void caRunTests()
 {
   //caTestSerialWritePerf();  // look into this
   //caTestNetworkEcho();      // look into this
-  caTestTickTimer();
-  caTestPackets();
-  caTestPerf();
-  caTestModulePorts();
-  caTestAuxAndCamPorts();
+  //caTestTickTimer();
+  //caTestPackets();
+  //caTestPerf();
+  //caTestModulePorts();
+  //caTestAuxAndCamPorts();
   //caTestEeprom();
-  caTestAnalog();
-  delay(5000); // wait 5000 ms
+  //caTestAnalog();
+  //delay(5000); // wait 5000 ms
 }
 
 void caTestSerialWritePerf() {

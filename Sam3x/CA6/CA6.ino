@@ -13,7 +13,7 @@ Context g_ctx;
 void setup() {
   SerialIO.begin(9600);
   CAU::initializeAnalog();
-  g_ctx.esp8266.init(4800);
+  g_ctx.esp8266.init(74880);
   g_ctx.packetHelper.init(g_ctx.esp8266.getSerial());
 }
 

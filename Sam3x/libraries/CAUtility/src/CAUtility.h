@@ -1,7 +1,7 @@
 #ifndef __CAUTILITY_H__
 #define __CAUTILITY_H__
 
-#include <CAStd_sam3x.h>
+#include <CAStd.h>
 
 enum hwPorts {PORT_A=0, PORT_B=1, PORT_C=2, PORT_D=3};
 enum camPinType {FOCUS=0, SHUTTER=1};

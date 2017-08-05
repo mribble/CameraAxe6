@@ -2,8 +2,10 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>                         // fork of tzapu WiFiManasger library: https://github.com/Rom3oDelta7/WiFiManager
 #include <FS.h>
-#include <CAStd_esp8266.h>
+#include <CAStd.h>
 #include <EEPROM.h>
+//#include <CAPacket.h>
+//#include <CAPacketHelper.h>
 
 #define AP_WORKAROUND                            // disable this define to eliminate the function to display the host IP address as an SSID
 
@@ -199,8 +201,8 @@ void sendHtml(const char* title) {
 }
 
 void setup (void) {
-  Serial.begin(115200);                    // SAM3X
-  EEPROM.begin(128);                       // allocates 128 bytes for wifiManager (required by the library)
+  Serial.begin(74880);    // SAM3X
+  EEPROM.begin(128);      // allocates 128 bytes for wifiManager (required by the library)
 
   setupWiFi();
 }

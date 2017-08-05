@@ -2,6 +2,24 @@
 #define __CASTD_H__
 
 
+#if defined(__SAM3X8E__)
+    #include <Arduino.h>
+    #define CA_DEBUG_LOG
+    #define CA_DEBUG_ASSERT
+    #define CA_DEBUG_INFO
+    #define CA_DEBUG_ERROR
+    #define SerialIO SerialUSB
+#elif defined (ESP8266)
+    #define CA_DEBUG_LOG
+    #define CA_DEBUG_ASSERT
+    #define CA_DEBUG_INFO
+    #define CA_DEBUG_ERROR
+    #define SerialIO Serial
+    //#define SerialIO Serial1               // UART on GPIO2 - use a pullup 
+#else
+    #error Need a supported microchip
+#endif
+
 // Common macros for embedded microcontrollers
 // Each of the following must be defined or or there is no
 // output for their respective macro.
