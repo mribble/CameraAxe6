@@ -14,9 +14,6 @@
 WiFiManager gWifiManager;
 WiFiServer gServer(80);
 WiFiClient gClient;
-String gCssString;
-String gScriptString;
-String gMenuString;
 
 // Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
 // Form the SSID as an IP address so the user knows what address to connect to when in AP mode just in case
@@ -46,18 +43,34 @@ IPAddress createUniqueIP (void) {
   return result;
 }
 
-void fileToString(const char *name, String &out) {
-  File f = SPIFFS.open(name, "r");
+void printFile(const char *fileName) {
+  const uint16_t bufSize = 1024;
+  static uint8_t buf[bufSize];
+  int16_t sz;
+  File f = SPIFFS.open(fileName, "r");
 
   if (!f) {
     if (!f.available()) {
       f.close();
     }
-    CA_INFO("Failed to load file: ", name);
+    CA_INFO("Failed to load file: ", fileName);
     return;
   }
 
-  out = f.readString();
+  sz = f.size();
+  do {
+    if (sz > bufSize) {
+      f.read(buf, bufSize);
+      gClient.write((uint8_t*)buf, bufSize);\
+      sz -= bufSize;
+    }
+    else {
+      f.read(buf, sz);
+      gClient.write((uint8_t*)buf, sz);
+      sz = 0;
+    }
+  } while (sz);
+
   f.close();
 }
 
@@ -134,10 +147,6 @@ void setupWiFi ( void ) {
     Serial.println(f.size());
   }
 #endif  
-
-  fileToString("/css.html", gCssString);
-  fileToString("/script.html", gScriptString);
-  fileToString("/testMenu.html", gMenuString);
 }
 
 
@@ -181,20 +190,15 @@ void sendHtml(const char* title) {
   gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
   gClient.println(title);
   gClient.println("</TITLE> <meta charset=\"UTF-8\">");
-  gClient.print(gCssString);
+  printFile("/css.html");
 
-  //Serial.print(gScriptString);
-  uint32_t i = 0;
-  while(i<gScriptString.length()) {
-    gClient.print(gScriptString.substring(i,i+1024));
-    i+=1024;
-  }
-  //gClient.print(gScriptString);
+  printFile("/script.html");
+ 
   gClient.println("</HEAD>");
   gClient.println("<BODY>");
   gClient.println("<H1 id=\"title\"></H1>");
   gClient.println("<SCRIPT>");
-  gClient.print(gMenuString);
+  printFile("/testMenu.html");
   gClient.println("</SCRIPT>");
   gClient.println("</BODY>");
   gClient.println("</HTML>");
