@@ -32,6 +32,16 @@ void setup (void) {
     Serial.print(": Size: ");
     Serial.println(f.size());
   }
+  FSInfo info;
+  SPIFFS.info(info);
+  CA_LOG("SPIFFS - TotalBytes: %d | UsedBytes: %d\n", info.totalBytes, info.usedBytes);
+
+  FlashMode_t ideMode = ESP.getFlashChipMode();
+  Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
+  Serial.printf("Flash real size: %u\n\n", ESP.getFlashChipRealSize());
+  Serial.printf("Flash ide  size: %u\n", ESP.getFlashChipSize()); // Size programmed by ide (should match real size)
+  Serial.printf("Flash ide speed: %u\n", ESP.getFlashChipSpeed());
+  Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 #endif  
 
 }

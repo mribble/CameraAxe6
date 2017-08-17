@@ -41,7 +41,6 @@
 			   height: 30px;
 			}
 			
-			/* The Modal (background) */
 			.modal {
 				display: none; /* Hidden by default */
 				position: fixed; /* Stay in place */
@@ -84,6 +83,11 @@
 		</style>
 
 		<script>
+            var PID_STRING = 1;
+            var PID_UINT32 = 2;
+            var PID_TIME_BOX = 3;
+            var FLAGS = 0;
+
 			var gTable;
 			
 			function caStartMenu(majorVersion, minorVersion, menuString) {
@@ -106,7 +110,7 @@
 				cell1.id = id;
 				cell1.innerHTML = text1;
 				window.setInterval(function(){
-				  document.getElementById(id).innerHTML = +document.getElementById(id).innerHTML + +1;
+				  document.getElementById(id).innerHTML = +document.getElementById(id).innerHTML + 1;
 				}, 1000);
 			}
 			
@@ -119,7 +123,8 @@
 				b.id = id;
 				b.innerHTML = text1;
 				b.onclick = function(){
-					document.getElementById("debugText").innerHTML = id+"#"+this.innerHTML;
+					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
+                        this.innerHTML+"|";
 				}
 				cell1.appendChild(b);
 			}
@@ -134,7 +139,8 @@
 				x.id = id;
 				x.checked = value;
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = id+"#"+this.checked;
+					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+
+                        FLAGS+"|"+(this.checked ? 1 : 0)+"|";
 				}
 				cell1.appendChild(x);
 			}
@@ -157,7 +163,8 @@
 				}
 				
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
+                        this.selectedIndex+"|";
 				}
 				cell1.appendChild(x);
 			}
@@ -179,9 +186,9 @@
 					if (this.value < 0) {
 						this.value = 0;
 					}
-					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
+                        this.value+"|";
 				}
-				//x.size = 2;
 				x.value = value;
 				cell1.appendChild(x);
 			}
@@ -201,14 +208,6 @@
 				cell1.appendChild(x);
 			}
 			
-			function f0(id,text0) {
-				var bob = prompt("Please enter your time:", text0);
-				if(bob){
-					document.getElementById(id).value=bob;
-					document.getElementById("debugText").innerHTML = id+"#"+bob;
-				}
-			}
-
 			function caSlider(id, minValue, maxValue, value, text0) {
 				var row = gTable.insertRow();
 				var cell0 = row.insertCell();
@@ -224,9 +223,9 @@
 				x.step="1";
 				x.onchange = function(){
 					document.getElementById(id+'b').innerHTML = this.value;
-					document.getElementById("debugText").innerHTML = id+"#"+this.value;
+					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
+                        this.value+"|";
 				}
-				//x.size = 2;
 				cell1.appendChild(x);
 				var x1 = document.createElement('span');
 				x1.id = id+"b";
