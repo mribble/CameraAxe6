@@ -10,6 +10,7 @@
     #define CA_DEBUG_ERROR
     #define SerialIO SerialUSB
 #elif defined (ESP8266)
+    #include <Arduino.h>
     #define CA_DEBUG_LOG
     #define CA_DEBUG_ASSERT
     #define CA_DEBUG_INFO
@@ -40,9 +41,9 @@
 //  While there is a Serial.printf available for the ESP8266, it is best to maintain consistency with the use of PSTR()
 
 // This should not be called directly (only call through macros below)
-void CALog(PGM_P fmt, ...) __attribute__((format(printf, 1, 2)));
+void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
-inline void CALog(PGM_P fmt, ...) {
+inline void CALog(const char* fmt, ...) {
    const uint8_t maxSize = 128;
    char          buf[maxSize];
    va_list       args;
@@ -53,6 +54,10 @@ inline void CALog(PGM_P fmt, ...) {
    strncpy_P(fmt2, fmt, maxSize);
    vsnprintf(buf, maxSize, fmt2, args);
 #elif ESP8266
+   char fmt2[maxSize];                  // ESP8266 has no vsnprintf_P so copy into a char array first
+   strncpy_P(fmt2, fmt, maxSize);
+   vsnprintf(buf, maxSize, fmt2, args);
+#else
    vsnprintf_P(buf, maxSize, fmt, args);
 #endif
    va_end(args);

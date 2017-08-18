@@ -75,7 +75,7 @@ protected:
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     uint32_t getUint32FromString(uint16_t& startIndex, const String& str) {
         uint16_t val;
-        uint16_t endIndex = str.indexOf('|', startIndex);
+        int16_t endIndex = str.indexOf('|', startIndex);
         CA_ASSERT(endIndex!=-1, "Failed check");
         val = (str.substring(startIndex, endIndex)).toInt();
         startIndex = endIndex+1;
@@ -85,7 +85,7 @@ protected:
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     String getStringFromString(uint16_t& startIndex, const String& str) {
         String val;
-        uint16_t endIndex = str.indexOf('|', startIndex);
+        int16_t endIndex = str.indexOf('|', startIndex);
         CA_ASSERT(endIndex!=-1, "Failed check");
         val = str.substring(startIndex, endIndex);
         startIndex = endIndex+1;

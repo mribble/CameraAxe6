@@ -68,21 +68,13 @@ void processHtml(const char* title) {
 void sendHtml(const char* title) {
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
+  printFile("/MenuModePage.html");
+/*
   gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
   gClient.println(title);
   gClient.println("</TITLE> <meta charset=\"UTF-8\">");
   printFile("/css.html");
-  //gClient.print(gCssString);
-
-  //Serial.print(gScriptString);
-//  uint32_t i = 0;
-//  while(i<gScriptString.length()) {
-//    gClient.print(gScriptString.substring(i,i+1024));
-//    i+=1024;
-//  }
-  //gClient.print(gScriptString);
   printFile("/script.html");
- 
   gClient.println("</HEAD>");
   gClient.println("<BODY>");
   gClient.println("<H1 id=\"title\"></H1>");
@@ -91,6 +83,6 @@ void sendHtml(const char* title) {
   printFile("/testMenu.html");
   gClient.println("</SCRIPT>");
   gClient.println("</BODY>");
-  gClient.println("</HTML>");
+  gClient.println("</HTML>");*/
 }
 
