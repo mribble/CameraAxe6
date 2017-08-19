@@ -75,11 +75,11 @@ inline void CALog(const char* fmt, ...) {
    {                                       \
       if(!(cond)) {                        \
          SerialIO.print(__FILE__);         \
-         SerialIO.print(F(" line("));      \
+         SerialIO.print(" line(");         \
          SerialIO.print(__LINE__);         \
-         SerialIO.print(F(") -- cond=(")); \
+         SerialIO.print(") -- cond=(");     \
          SerialIO.print(#cond);            \
-         SerialIO.print(F(") -- "));       \
+         SerialIO.print(") -- ");           \
          SerialIO.println(str);            \
       }                                    \
    }

@@ -4,8 +4,8 @@
 #include <FS.h>
 #include <CAStd.h>
 #include <EEPROM.h>
-//#include <CAPacket.h>
-//#include <CAPacketHelper.h>
+#include <CAPacket.h>
+#include <CAPacketHelper.h>
 
 #define CA_AP_PASSWORD "ca6admin"
 
