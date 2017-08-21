@@ -9,7 +9,7 @@ void caRunTests()
   //caTestAuxAndCamPorts();
   //caTestEeprom();
   //caTestAnalog();
-  delay(5000); // wait 5000 ms
+  //delay(5000); // wait 5000 ms
 }
 
 void caTestSerialWritePerf() {

@@ -10,8 +10,11 @@ CAPacketElement* processIncomingPacket() {
   CAPacketElement *ret = NULL;
 
   if (ph.readOnePacket(mData)) {
+    bool packetGuard = mUnpacker.unpackGuard();
     uint8_t packetSize = mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();
+
+    CA_ASSERT(packetGuard==true, "Failed guard check");
 
     switch (packetType) {
       case PID_STRING: {

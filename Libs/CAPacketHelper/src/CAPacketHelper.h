@@ -52,7 +52,7 @@ private:
 
     uint8_t getPacketSize(uint16_t val, uint8_t byteNumber) {
         if (byteNumber == 0) {
-            return val && 0xFF;
+            return val & 0xFF;
         } else {
             return val >> 8;
         }

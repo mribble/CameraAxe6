@@ -50,9 +50,9 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
     avaliableBytes = serialFlowControlAvailable();
     if (mGuardFound && (avaliableBytes >= PACK_SIZE_SZ)) {
         if (mSize == 0) {
-            uint8_t buf[2];
-            serialFlowControlRead(buf, 2);
-            avaliableBytes -= 2;
+            uint8_t buf[PACK_SIZE_SZ];
+            serialFlowControlRead(buf, PACK_SIZE_SZ);
+            avaliableBytes -= PACK_SIZE_SZ;
             mSize = genPacketSize(buf[0], buf[1]);
             CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
         }

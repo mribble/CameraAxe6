@@ -33,22 +33,27 @@ void printFile(const char *fileName) {
 }
 
 void parseUri(String &uri, const char* title) {
-  CA_INFO("URI: ", uri.c_str());
-  
+
   if (uri.indexOf("GET /updateAll ") != -1) {
-    // Reload dynamic data
+    // Reload dynamic data (todo fix to use real packet data)
     static int val = 0;
     ++val;
     gClient.print(val);
     gClient.println(" x");
-  } else if (uri.indexOf("GET /button0 ") != -1) {
-    // Button pressed
-        
   } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     // Initial page load
     sendHtml(title);
   } else if (uri.indexOf("GET /favicon.ico") != -1) {
     // ignore this case
+  } else if (uri.indexOf("~") != -1) {
+    uint8_t buf[128];
+    uint16_t packSize;
+    String x = uri.substring(5, uri.length()-9);
+    CAPacket packBase(STATE_PACKER, buf, 128);
+    CAPacketUint32 bob(packBase);
+    bob.packetFromString(x);
+    packSize = bob.pack();
+    SerialIO.write(buf, packSize);
   } else {
     CA_INFO("ERROR - Unknown URI - ", uri);
   }
