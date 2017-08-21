@@ -5,9 +5,10 @@
 
 class CAPacketHelper {
 public:
-    static const uint16_t MAX_PACKET_SIZE = 64;
+    static const uint16_t MAX_PACKET_SIZE = 128;
     
-    CAPacketHelper() : 
+    CAPacketHelper() :
+    mGuardFound(false),
     mSize(0),
     mPacker(STATE_PACKER, mData, MAX_PACKET_SIZE),
     mUnpacker(STATE_UNPACKER, mData, MAX_PACKET_SIZE)
@@ -16,7 +17,7 @@ public:
     CAPacket& getUnpacker() {return mUnpacker;};
     uint8_t* getData() {return mData;};
     
-    void init(HardwareSerial *serial);
+    void init(HardwareSerial *serial, HardwareSerial *debugSerial);
     boolean readOnePacket(uint8_t *data);
     void writeOnePacket(uint8_t *data);
     void writeMenu(const uint8_t *sData, uint16_t sz);
@@ -37,6 +38,8 @@ private:
     void serialFlowControlWrite(const uint8_t *buf, uint16_t length);
 
     HardwareSerial *mSerial;
+    HardwareSerial *mDebugSerial;
+    bool mGuardFound;
     uint16_t mSize;
     CAPacket mPacker;
     CAPacket mUnpacker;

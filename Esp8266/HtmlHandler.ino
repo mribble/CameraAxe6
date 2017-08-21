@@ -33,11 +33,14 @@ void printFile(const char *fileName) {
 }
 
 void parseUri(String &uri, const char* title) {
+  CA_INFO("URI: ", uri.c_str());
+  
   if (uri.indexOf("GET /updateAll ") != -1) {
     // Reload dynamic data
     static int val = 0;
     ++val;
-    gClient.println(val);
+    gClient.print(val);
+    gClient.println(" x");
   } else if (uri.indexOf("GET /button0 ") != -1) {
     // Button pressed
         
@@ -59,7 +62,6 @@ void processHtml(const char* title) {
 
   String uri = gClient.readStringUntil('\r');
   gClient.flush();
-  CA_INFO("URI: ", uri.c_str());
   parseUri(uri, title);
 
   gClient.stop();

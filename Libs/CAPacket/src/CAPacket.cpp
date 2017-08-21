@@ -16,6 +16,16 @@ void CAPacket::resetBuffer() {
     mBytesUsed = 0;
 }
 
+boolean CAPacket::unpackGuard() {
+    boolean ret;
+    if (unpacker(8) == GUARD_PACKET) {
+        ret = true;
+    } else {
+        ret = false;
+    }
+    return ret;
+}
+
 uint16_t CAPacket::unpackSize() {
     return (uint16_t)unpacker(16);
 }
@@ -132,7 +142,8 @@ void CAPacketString::unpack() {
 
 uint16_t CAPacketString::pack() {
     uint16_t len = mString.length()+1;  // 1 for the null terminator
-    uint16_t packetSize = 3 + 2 + len;
+    uint16_t packetSize = PACK_TOTAL_SZ + 2 + len;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_STRING, 8);
     mCAP->packer(mClientHostId, 8);
@@ -143,7 +154,7 @@ uint16_t CAPacketString::pack() {
 }
 
 void CAPacketString::packetToString(String& str) {
-    str = (String)PID_STRING + '|' + mClientHostId + '|' + mFlags + '|' + mString + '|';
+    str = (String)PID_STRING + '~' + mClientHostId + '~' + mFlags + '~' + mString + '~';
 }
 
 void CAPacketString::packetFromString(const String& str) {
@@ -184,7 +195,8 @@ void CAPacketUint32::unpack() {
 }
 
 uint16_t CAPacketUint32::pack() {
-    uint16_t packetSize = 3 + 6;
+    uint16_t packetSize = PACK_TOTAL_SZ + 6;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_UINT32, 8);
     mCAP->packer(mClientHostId, 8);
@@ -195,7 +207,7 @@ uint16_t CAPacketUint32::pack() {
 }
 
 void CAPacketUint32::packetToString(String& str) {
-    str = (String)PID_UINT32 + '|' + mClientHostId + '|' + mFlags + '|' + mValue + '|';
+    str = (String)PID_UINT32 + '~' + mClientHostId + '~' + mFlags + '~' + mValue + '~';
 }
 
 void CAPacketUint32::packetFromString(const String& str) {
@@ -257,7 +269,8 @@ void CAPacketTimeBox::unpack() {
 
 uint16_t CAPacketTimeBox::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = 3 + 9;
+    uint16_t packetSize = PACK_TOTAL_SZ + 9;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
     mCAP->packer(mClientHostId, 8);
@@ -274,8 +287,8 @@ uint16_t CAPacketTimeBox::pack() {
 }
 
 void CAPacketTimeBox::packetToString(String& str) {
-    str = (String)PID_TIME_BOX + '|' + mClientHostId + '|' + mFlags + '|' + mHours + '|' + mMinutes + '|' + 
-            mSeconds + '|' + mMilliseconds + '|' + mMicroseconds + '|' + mNanoseconds + '|';
+    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mFlags + '~' + mHours + '~' + mMinutes + '~' + 
+            mSeconds + '~' + mMilliseconds + '~' + mMicroseconds + '~' + mNanoseconds + '~';
 }
 
 void CAPacketTimeBox::packetFromString(const String& str) {
@@ -318,7 +331,8 @@ void CAPacketMenuSelect::unpack() {
 }
 
 uint16_t CAPacketMenuSelect::pack() {
-    uint16_t packetSize = 3 + 2;
+    uint16_t packetSize = PACK_TOTAL_SZ + 2;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_SELECT, 8);
     mCAP->packer(mMode, 8);
@@ -328,7 +342,7 @@ uint16_t CAPacketMenuSelect::pack() {
 }
 
 void CAPacketMenuSelect::packetToString(String& str) {
-    str = (String)PID_MENU_SELECT + '|' + mMode + '|' + mMenuNumber + '|';
+    str = (String)PID_MENU_SELECT + '~' + mMode + '~' + mMenuNumber + '~';
 }
 
 void CAPacketMenuSelect::packetFromString(const String& str) {
@@ -408,7 +422,8 @@ void CAPacketMenuList::unpack() {
 
 uint16_t CAPacketMenuList::pack() {
     uint16_t len = mMenuName.length() + 1;  // 1 for the null terminator
-    uint16_t packetSize = 3 + 10 + len;
+    uint16_t packetSize = PACK_TOTAL_SZ + 10 + len;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_LIST, 8);
     mCAP->packer(mMenuId, 8);
@@ -430,10 +445,10 @@ uint16_t CAPacketMenuList::pack() {
 }
 
 void CAPacketMenuList::packetToString(String& str) {
-    str = (String)PID_MENU_LIST + '|' + mMenuId + '|' + mModuleId0 + '|' + mModuleMask0 + '|' + 
-            mModuleId1 + '|' + mModuleMask1 + '|' + mModuleId2 + '|' + mModuleMask2 + '|' +
-            mModuleId3 + '|' + mModuleMask3 + '|' + mModuleTypeId0 + '|' + mModuleTypeMask0 + '|' +
-            mModuleTypeId1 + '|' + mModuleTypeMask1 + '|' + mMenuName + '|';
+    str = (String)PID_MENU_LIST + '~' + mMenuId + '~' + mModuleId0 + '~' + mModuleMask0 + '~' + 
+            mModuleId1 + '~' + mModuleMask1 + '~' + mModuleId2 + '~' + mModuleMask2 + '~' +
+            mModuleId3 + '~' + mModuleMask3 + '~' + mModuleTypeId0 + '~' + mModuleTypeMask0 + '~' +
+            mModuleTypeId1 + '~' + mModuleTypeMask1 + '~' + mMenuName + '~';
 }
 
 void CAPacketMenuList::packetFromString(const String& str) {
@@ -483,7 +498,8 @@ void CAPacketModuleList::unpack() {
 
 uint16_t CAPacketModuleList::pack() {
     uint16_t len = mModuleName.length() + 1;  // 1 for the null terminator
-    uint16_t packetSize = 3 + 2 + len;
+    uint16_t packetSize = PACK_TOTAL_SZ + 2 + len;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MODULE_LIST, 8);
     mCAP->packer(mModuleId, 8);
@@ -494,7 +510,7 @@ uint16_t CAPacketModuleList::pack() {
 }
 
 void CAPacketModuleList::packetToString(String& str) {
-    str = (String)PID_MODULE_LIST + '|' + mModuleId + '|' + mModuleTypeId + '|' + mModuleName + '|';
+    str = (String)PID_MODULE_LIST + '~' + mModuleId + '~' + mModuleTypeId + '~' + mModuleName + '~';
 }
 
 void CAPacketModuleList::packetFromString(const String& str) {
@@ -592,7 +608,8 @@ void CAPacketCamState::unpack() {
 }
 
 uint16_t CAPacketCamState::pack() {
-    uint16_t packetSize = 3 + 3;
+    uint16_t packetSize = PACK_TOTAL_SZ + 3;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_STATE, 8);
     mCAP->packer(mMultiplier, 8);
@@ -603,7 +620,7 @@ uint16_t CAPacketCamState::pack() {
 }
 
 void CAPacketCamState::packetToString(String& str) {
-    str = (String)PID_CAM_STATE + '|' + mMultiplier + '|' + mFocus + '|' + mShutter + '|';
+    str = (String)PID_CAM_STATE + '~' + mMultiplier + '~' + mFocus + '~' + mShutter + '~';
 }
 
 void CAPacketCamState::packetFromString(const String& str) {
@@ -677,7 +694,8 @@ void CAPacketCamSettings::unpack() {
 
 uint16_t CAPacketCamSettings::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = 3 + 17;
+    uint16_t packetSize = PACK_TOTAL_SZ + 17;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_SETTINGS, 8);
     mCAP->packer(mCamPortNumber, 8);
@@ -705,11 +723,11 @@ uint16_t CAPacketCamSettings::pack() {
 }
 
 void CAPacketCamSettings::packetToString(String& str) {
-    str = (String)PID_CAM_SETTINGS + '|' + mCamPortNumber + '|' + mMode + '|' + mDelayHours + '|' + mDelayMinutes +
-            '|' + mDelaySeconds + '|' + mDelayMilliseconds + '|' + mDelayMicroseconds + '|' + mDurationHours + '|' +
-            mDurationMinutes + '|' + mDurationSeconds + '|' + mDurationMilliseconds + '|' + mDurationMicroseconds +
-            '|' + mSequencer + '|' + mApplyIntervalometer + '|' + mSmartPreview + '|' + mMirrorLockupEnable + '|' +
-            mMirrorLockupMinutes + '|' + mMirrorLockupSeconds + '|' + mMirrorLockupMilliseconds + '|';
+    str = (String)PID_CAM_SETTINGS + '~' + mCamPortNumber + '~' + mMode + '~' + mDelayHours + '~' + mDelayMinutes +
+            '~' + mDelaySeconds + '~' + mDelayMilliseconds + '~' + mDelayMicroseconds + '~' + mDurationHours + '~' +
+            mDurationMinutes + '~' + mDurationSeconds + '~' + mDurationMilliseconds + '~' + mDurationMicroseconds +
+            '~' + mSequencer + '~' + mApplyIntervalometer + '~' + mSmartPreview + '~' + mMirrorLockupEnable + '~' +
+            mMirrorLockupMinutes + '~' + mMirrorLockupSeconds + '~' + mMirrorLockupMilliseconds + '~';
 }
 
 void CAPacketCamSettings::packetFromString(const String& str) {
@@ -801,7 +819,8 @@ void CAPacketIntervalometer::unpack() {
 
 uint16_t CAPacketIntervalometer::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = 3 + 13;
+    uint16_t packetSize = PACK_TOTAL_SZ + 13;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_INTERVALOMETER, 8);
     mCAP->packer(mStartHours, 10);
@@ -821,9 +840,9 @@ uint16_t CAPacketIntervalometer::pack() {
 }
 
 void CAPacketIntervalometer::packetToString(String& str) {
-    str = (String)PID_INTERVALOMETER + '|' + mStartHours + '|' + mStartMinutes + '|' + mStartSeconds + '|' +
-                mStartMilliseconds + '|' + mStartMicroseconds + '|' + mIntervalHours + '|' + mIntervalMinutes + '|'+
-                mIntervalSeconds + '|' + mIntervalMilliseconds + '|' + mIntervalMicroseconds + '|' + mRepeats + '|';
+    str = (String)PID_INTERVALOMETER + '~' + mStartHours + '~' + mStartMinutes + '~' + mStartSeconds + '~' +
+                mStartMilliseconds + '~' + mStartMicroseconds + '~' + mIntervalHours + '~' + mIntervalMinutes + '~'+
+                mIntervalSeconds + '~' + mIntervalMilliseconds + '~' + mIntervalMicroseconds + '~' + mRepeats + '~';
 }
 
 void CAPacketIntervalometer::packetFromString(const String& str) {
@@ -874,7 +893,8 @@ void CAPacketControlFlags::unpack() {
 
 uint16_t CAPacketControlFlags::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = 3 + 1;
+    uint16_t packetSize = PACK_TOTAL_SZ + 1;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CONTROL_FLAGS, 8);
     mCAP->packer(mSlaveModeEnable, 1);
@@ -885,7 +905,7 @@ uint16_t CAPacketControlFlags::pack() {
 }
 
 void CAPacketControlFlags::packetToString(String& str) {
-    str = (String)PID_CONTROL_FLAGS + '|' + mSlaveModeEnable + '|' + mExtraMessagesEnable + '|';
+    str = (String)PID_CONTROL_FLAGS + '~' + mSlaveModeEnable + '~' + mExtraMessagesEnable + '~';
 }
 
 void CAPacketControlFlags::packetFromString(const String& str) {
@@ -922,7 +942,8 @@ void CAPacketEcho::unpack() {
 
 uint16_t CAPacketEcho::pack() {
     uint16_t len = mString.length() + 1;  // 1 for the null terminator
-    uint16_t packetSize = 3 + 1 + len;
+    uint16_t packetSize = PACK_TOTAL_SZ + 1 + len;
+    mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_ECHO, 8);
     mCAP->packer(mMode, 8);
@@ -932,7 +953,7 @@ uint16_t CAPacketEcho::pack() {
 }
 
 void CAPacketEcho::packetToString(String& str) {
-    str = (String)PID_ECHO + '|' + mMode + '|' + mString + '|';
+    str = (String)PID_ECHO + '~' + mMode + '~' + mString + '~';
 }
 
 void CAPacketEcho::packetFromString(const String& str) {

@@ -17,19 +17,38 @@ void CAPacketHelper::serialFlowControlWrite(const uint8_t *buf, uint16_t length)
     mSerial->write(buf, length);
 }
     
-void CAPacketHelper::init(HardwareSerial *serial) {
+void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
     mSerial = serial;
+    mDebugSerial = debugSerial;
     flushGarbagePackets();
 }
 
 boolean CAPacketHelper::readOnePacket(uint8_t *data) {
     boolean ret = false;
-    uint8_t avaliableBytes = serialFlowControlAvailable();
-    
-    // To read one packet you need to know the first two bytes in a packet is the size.  This code assumes that.
-    // The third byte is always the packet type, but this code doesn't need to know that.
-    
-    if (avaliableBytes >= 2) {
+    uint16_t avaliableBytes = serialFlowControlAvailable();
+
+    // This reads the first byte, which verifies it's a valid packet, and then moves on
+    //  Unless it isn't the guard byte and then it writes the char to the output serial port
+    if (avaliableBytes && (mGuardFound == false)) {
+        for(uint16_t i=0; i<avaliableBytes; ++i) {
+            uint8_t buf[1];
+            serialFlowControlRead(buf, 1);
+            if (buf[0] == GUARD_PACKET) {
+                mGuardFound = true;
+                break;
+            } else {
+                if (mDebugSerial) {
+                    mDebugSerial->print((char)(buf[0]));
+                }
+            }
+        }
+    }
+
+    // To read one packet you need to know the first byte is the guard.  The next two bytes in a packet is the size.  
+    // This code assumes that.  The third byte is always the packet type, but this code doesn't need to know that.
+
+    avaliableBytes = serialFlowControlAvailable();
+    if (mGuardFound && (avaliableBytes >= PACK_SIZE_SZ)) {
         if (mSize == 0) {
             uint8_t buf[2];
             serialFlowControlRead(buf, 2);
@@ -38,10 +57,11 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
             CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
         }
 
-        if (avaliableBytes >= mSize-2) {
-            data[0] = getPacketSize(mSize, 0);
-            data[1] = getPacketSize(mSize, 1);
-            serialFlowControlRead(data+2, mSize-2);
+        if (avaliableBytes >= mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ)) {
+            data[0] = GUARD_PACKET;
+            data[1] = getPacketSize(mSize, 0);
+            data[2] = getPacketSize(mSize, 1);
+            serialFlowControlRead(data+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
             mSize = 0;
             ret = true;
         }

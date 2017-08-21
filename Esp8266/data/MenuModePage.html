@@ -89,6 +89,25 @@
             var FLAGS = 0;
 
 			var gTable;
+            var request;
+            window.onload = updateState;
+
+            function updateState() {
+                setTimeout(updateState, 5000);
+                document.getElementById("debugText").innerHTML = "Done";
+                server = "updateAll";
+                request = new XMLHttpRequest();
+                request.onreadystatechange = updateStatus;
+                request.open("GET", server, true);
+                request.send();
+            }
+
+            function updateStatus() {
+                if ((request.readyState == 4) && (request.status == 200)) {
+                    result = request.responseText;
+                    document.getElementById("debugText").innerHTML = result;
+                }
+            }
 			
 			function caStartMenu(majorVersion, minorVersion, menuString) {
 				document.getElementById("title").innerHTML = menuString;
@@ -123,8 +142,11 @@
 				b.id = id;
 				b.innerHTML = text1;
 				b.onclick = function(){
-					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
-                        this.innerHTML+"|";
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+"1"+"~";
+                    document.getElementById("debugText").innerHTML = val;
+                    request = new XMLHttpRequest();
+                    request.open("GET", val, true);
+                    request.send();
 				}
 				cell1.appendChild(b);
 			}
@@ -139,8 +161,8 @@
 				x.id = id;
 				x.checked = value;
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+
-                        FLAGS+"|"+(this.checked ? 1 : 0)+"|";
+					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+
+                        FLAGS+"~"+(this.checked ? 1 : 0)+"~";
 				}
 				cell1.appendChild(x);
 			}
@@ -152,7 +174,7 @@
 				var cell1 = row.insertCell();
 				var x = document.createElement('select');
 				x.id = id;
-				var a = text1.split("|");
+				var a = text1.split("~");
 				var i;
 				
 				for(i=0; i<a.length; i++) {
@@ -163,8 +185,8 @@
 				}
 				
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
-                        this.selectedIndex+"|";
+					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
+                        this.selectedIndex+"~";
 				}
 				cell1.appendChild(x);
 			}
@@ -186,8 +208,8 @@
 					if (this.value < 0) {
 						this.value = 0;
 					}
-					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
-                        this.value+"|";
+					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
+                        this.value+"~";
 				}
 				x.value = value;
 				cell1.appendChild(x);
@@ -223,8 +245,8 @@
 				x.step="1";
 				x.onchange = function(){
 					document.getElementById(id+'b').innerHTML = this.value;
-					document.getElementById("debugText").innerHTML = PID_UINT32+"|"+id.substring(2)+"|"+FLAGS+"|"+
-                        this.value+"|";
+					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
+                        this.value+"~";
 				}
 				cell1.appendChild(x);
 				var x1 = document.createElement('span');

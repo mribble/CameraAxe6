@@ -20,9 +20,13 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
 
-#define UNPACK_GUARD_SZ     4
-#define UNPACK_SIZE_SZ      2
-#define UNPACK_TYPE_SZ      1
+#define GUARD_PACKET        22
+
+#define PACK_GUARD_SZ     1
+#define PACK_SIZE_SZ      2
+#define PACK_TYPE_SZ      1
+#define PACK_TOTAL_SZ     (PACK_GUARD_SZ+PACK_SIZE_SZ+PACK_TYPE_SZ)
+
 #define NULL_CLIENT_HOST_ID 0xff
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +45,7 @@ class CAPacket
 public:
     CAPacket(uint8_t state, uint8_t *buf, uint16_t bufSize);
     void resetBuffer();                                 // Resets the data buffer back to the start
+    boolean unpackGuard();                              // Test to make sure it's a valid packet
     uint16_t unpackSize();                              // Unpacks the size of the packet
     uint8_t unpackType();                               // Unpacks the type of the packet
     uint32_t unpacker(uint8_t unpackBits);              // Unpacks 1..32 bits from the byte stream
@@ -69,13 +74,11 @@ public:
     virtual uint16_t pack() = 0;
     virtual void packetToString(String& str) = 0;
     virtual void packetFromString(const String& str) = 0;
-protected:
-    CAPacket* mCAP;
-    
+
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     uint32_t getUint32FromString(uint16_t& startIndex, const String& str) {
         uint16_t val;
-        int16_t endIndex = str.indexOf('|', startIndex);
+        int16_t endIndex = str.indexOf('~', startIndex);
         CA_ASSERT(endIndex!=-1, "Failed check");
         val = (str.substring(startIndex, endIndex)).toInt();
         startIndex = endIndex+1;
@@ -85,12 +88,15 @@ protected:
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     String getStringFromString(uint16_t& startIndex, const String& str) {
         String val;
-        int16_t endIndex = str.indexOf('|', startIndex);
+        int16_t endIndex = str.indexOf('~', startIndex);
         CA_ASSERT(endIndex!=-1, "Failed check");
         val = str.substring(startIndex, endIndex);
         startIndex = endIndex+1;
         return val;
     }
+    
+protected:
+    CAPacket* mCAP;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

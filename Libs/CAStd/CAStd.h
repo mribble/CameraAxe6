@@ -77,9 +77,9 @@ inline void CALog(const char* fmt, ...) {
          SerialIO.print(__FILE__);         \
          SerialIO.print(" line(");         \
          SerialIO.print(__LINE__);         \
-         SerialIO.print(") -- cond=(");     \
+         SerialIO.print(" -- cond=(");     \
          SerialIO.print(#cond);            \
-         SerialIO.print(") -- ");           \
+         SerialIO.print(" -- ");           \
          SerialIO.println(str);            \
       }                                    \
    }

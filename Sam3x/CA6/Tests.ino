@@ -9,7 +9,7 @@ void caRunTests()
   //caTestAuxAndCamPorts();
   //caTestEeprom();
   //caTestAnalog();
-  //delay(5000); // wait 5000 ms
+  delay(5000); // wait 5000 ms
 }
 
 void caTestSerialWritePerf() {
@@ -102,6 +102,7 @@ void toggleCamPort0()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void caTestPackets()
 {
+  bool unpackGuard;
   uint8_t unpackType;
   uint16_t packSize, unpackSize;
   uint8_t data[512];
@@ -116,10 +117,12 @@ void caTestPackets()
     CAPacketString pack0(packBase);                 // Update per type
     pack0.set(1, flags, "This is a string");        // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_STRING ||               // Update per type
           unpack0.getClientHostId() != 1 ||
           unpack0.getFlags() != flags ||
@@ -140,10 +143,12 @@ void caTestPackets()
     CAPacketUint32 pack0(packBase);                 // Update per type
     pack0.set(2, flags, 123);                       // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+        packSize != unpackSize ||
         unpackType != PID_UINT32 ||                 // Update per type
         unpack0.getClientHostId() != 2 ||
         unpack0.getFlags() != flags ||
@@ -164,10 +169,12 @@ void caTestPackets()
     CAPacketTimeBox pack0(packBase);                // Update per type
     pack0.set(3, flags, 99, 59, 40, 999, 500, 400); // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+        packSize != unpackSize ||
         unpackType != PID_TIME_BOX ||               // Update per type
         unpack0.getClientHostId() != 3 ||
         unpack0.getFlags() != flags ||
@@ -194,10 +201,12 @@ void caTestPackets()
     CAPacketMenuSelect pack0(packBase);             // Update per type
     pack0.set(1, 23);                               // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_MENU_SELECT ||          // Update per type
           unpack0.getMode() != 1 ||
           unpack0.getMenuNumber() != 23) {
@@ -217,10 +226,12 @@ void caTestPackets()
     CAPacketMenuList pack0(packBase);               // Update per type
     pack0.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_MENU_LIST ||            // Update per type
           unpack0.getMenuId() != 1 ||
           unpack0.getModuleId0() != 2 ||
@@ -252,10 +263,12 @@ void caTestPackets()
     CAPacketModuleList pack0(packBase);             // Update per type
     pack0.set(33, 44, "moduleList");                // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_MODULE_LIST ||          // Update per type
           unpack0.getModuleId() != 33 ||
           unpack0.getModuleTypeId() != 44 ||
@@ -276,10 +289,12 @@ void caTestPackets()
     CAPacketCamState pack0(packBase);               // Update per type
     pack0.set(2, 0xc1, 0xf0);                       // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_CAM_STATE ||            // Update per type
           unpack0.getMultiplier() != 2 ||
           unpack0.getFocus() != 0xc1 ||
@@ -300,10 +315,12 @@ void caTestPackets()
     CAPacketCamSettings pack0(packBase);            // Update per type
     pack0.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_CAM_SETTINGS ||         // Update per type
           unpack0.getCamPortNumber() != 50 ||
           unpack0.getMode() != 1 ||
@@ -340,10 +357,12 @@ void caTestPackets()
     CAPacketIntervalometer pack0(packBase);         // Update per type
     pack0.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_INTERVALOMETER ||       // Update per type
           unpack0.getStartHours() != 900 ||
           unpack0.getStartMinutes() != 50 ||
@@ -373,10 +392,12 @@ void caTestPackets()
     CAPacketControlFlags pack0(packBase);           // Update per type
     pack0.set(1, 1);                                // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_CONTROL_FLAGS ||        // Update per type
           unpack0.getSlaveModeEnable() != 1 ||
           unpack0.getExtraMessagesEnable() != 1 ) {
@@ -396,10 +417,12 @@ void caTestPackets()
     CAPacketEcho pack0(packBase);                   // Update per type
     pack0.set(1, "Echo Packet");                    // Update per type
     packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
     unpackType = unpackBase.unpackType();
     unpack0.unpack();
-    if (packSize != unpackSize ||
+    if (unpackGuard != true ||
+          packSize != unpackSize ||
           unpackType != PID_ECHO ||                 // Update per type
           unpack0.getMode() != 1 ||
           strcmp(unpack0.getString(), "Echo Packet") != 0) {
