@@ -161,8 +161,11 @@
 				x.id = id;
 				x.checked = value;
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+
-                        FLAGS+"~"+(this.checked ? 1 : 0)+"~";
+                    var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+(this.checked ? 1 : 0)+"~";
+                    document.getElementById("debugText").innerHTML = val;
+                    request = new XMLHttpRequest();
+                    request.open("GET", val, true);
+                    request.send();
 				}
 				cell1.appendChild(x);
 			}
@@ -185,8 +188,11 @@
 				}
 				
 				x.onchange = function(){
-					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
-                        this.selectedIndex+"~";
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.selectedIndex+"~";
+                    document.getElementById("debugText").innerHTML = val;
+                    request = new XMLHttpRequest();
+                    request.open("GET", val, true);
+                    request.send();
 				}
 				cell1.appendChild(x);
 			}
@@ -208,8 +214,11 @@
 					if (this.value < 0) {
 						this.value = 0;
 					}
-					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
-                        this.value+"~";
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+                    document.getElementById("debugText").innerHTML = val;
+                    request = new XMLHttpRequest();
+                    request.open("GET", val, true);
+                    request.send();
 				}
 				x.value = value;
 				cell1.appendChild(x);
@@ -224,7 +233,6 @@
 				x.type = "text";
 				x.id = id;
 				x.name = "timebox";
-				//x.size = 2;
 				x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
 				x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
 				cell1.appendChild(x);
@@ -245,8 +253,11 @@
 				x.step="1";
 				x.onchange = function(){
 					document.getElementById(id+'b').innerHTML = this.value;
-					document.getElementById("debugText").innerHTML = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+
-                        this.value+"~";
+   					var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+                    document.getElementById("debugText").innerHTML = val;
+                    request = new XMLHttpRequest();
+                    request.open("GET", val, true);
+                    request.send();
 				}
 				cell1.appendChild(x);
 				var x1 = document.createElement('span');
@@ -336,7 +347,7 @@
 			caTextDynamic("id0", "Dynamic text", "777");
 			caButton("id1", "This is a button", "Button");
 			caCheckBox("id2", 0, "This is a checkbox");
-			caDropSelect("id3", 0, "This is a dropdown", "no|yes|maybe");
+			caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
 			caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
 			caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
 			caSlider("id6", 0, 255, 10, "This is a slider");

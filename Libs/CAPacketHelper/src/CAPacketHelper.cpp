@@ -118,6 +118,14 @@ void CAPacketHelper::writePacketString(uint8_t clientHostId, uint8_t flags, cons
     mPacker.resetBuffer();
 }
 
+void CAPacketHelper::writePacketString(const String& str) {
+    CAPacketString pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
 void CAPacketHelper::writePacketUint32(uint8_t clientHostId, uint8_t flags, uint32_t val) {
     CAPacketUint32 pack0(mPacker);
     pack0.set(clientHostId, flags, val);
@@ -126,8 +134,26 @@ void CAPacketHelper::writePacketUint32(uint8_t clientHostId, uint8_t flags, uint
     mPacker.resetBuffer();
 }
 
-void CAPacketHelper::writePacketUint32(const char* str) {
+void CAPacketHelper::writePacketUint32(const String& str) {
     CAPacketUint32 pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketTimeBox(uint8_t clientHostId, uint8_t flags, uint16_t hours, uint8_t minutes, uint8_t seconds,
+                uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds){
+    CAPacketTimeBox pack0(mPacker);
+    pack0.set(clientHostId, flags, hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+
+}
+
+void CAPacketHelper::writePacketTimeBox(const String& str) {
+    CAPacketTimeBox pack0(mPacker);
     pack0.set(str);
     pack0.pack();
     writeOnePacket(mData);

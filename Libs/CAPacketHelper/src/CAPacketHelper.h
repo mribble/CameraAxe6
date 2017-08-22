@@ -23,11 +23,15 @@ public:
     void writeMenu(const uint8_t *sData, uint16_t sz);
     void flushGarbagePackets();
 
-    //todo add missing packet functions here
-    void writePacketLogger(const char* str);
     void writePacketString(uint8_t clientHostId, uint8_t flags, const char* str);
+    void writePacketString(const String& str);
     void writePacketUint32(uint8_t clientHostId, uint8_t flags, uint32_t val);
-    void writePacketUint32(const char* str);
+    void writePacketUint32(const String& str);
+    void writePacketTimeBox(uint8_t clientHostId, uint8_t flags, uint16_t hours, uint8_t minutes, uint8_t seconds,
+                uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
+    void writePacketTimeBox(const String& str);
+    // todo add missing packet types
+    
     void writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
                 uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
                 uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
