@@ -46,8 +46,8 @@ void parseUri(String &uri, const char* title) {
   } else if (uri.indexOf("GET /favicon.ico") != -1) {
     // ignore this case
   } else if (uri.indexOf("~") != -1) {
-    String x = uri.substring(5, uri.length()-9);
-    gPh.writePacketUint32(x.c_str());
+    String packetStr = uri.substring(5, uri.length()-9);
+    sendPacket(packetStr);
   } else {
     CA_INFO("ERROR - Unknown URI - ", uri);
   }
