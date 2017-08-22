@@ -26,7 +26,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_UINT32: {
         CAPacketUint32 *unpack = new CAPacketUint32(mUnpacker);
         unpack->unpack();
-        CA_LOG("%d PID_UINT32 - %d %d %d %d\n", packetSize, unpack->getClientHostId(), unpack->getFlags(), unpack->getValue());
+        CA_LOG("%d PID_UINT32 - %d %d %d\n", packetSize, unpack->getClientHostId(), unpack->getFlags(), unpack->getValue());
         ret = unpack;
         break;
       }

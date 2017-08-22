@@ -26,6 +26,8 @@ public:
     //todo add missing packet functions here
     void writePacketLogger(const char* str);
     void writePacketString(uint8_t clientHostId, uint8_t flags, const char* str);
+    void writePacketUint32(uint8_t clientHostId, uint8_t flags, uint32_t val);
+    void writePacketUint32(const char* str);
     void writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
                 uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
                 uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,

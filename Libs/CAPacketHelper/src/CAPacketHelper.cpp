@@ -63,6 +63,7 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
             data[2] = getPacketSize(mSize, 1);
             serialFlowControlRead(data+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
             mSize = 0;
+            mGuardFound = false;
             ret = true;
         }
     }
@@ -70,7 +71,8 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
 }
 
 void CAPacketHelper::writeOnePacket(uint8_t *data) {
-    uint16_t bufSize = genPacketSize(data[0], data[1]);
+    CA_ASSERT(data[0] == GUARD_PACKET, "Failed packet guard check")
+    uint16_t bufSize = genPacketSize(data[1], data[2]);
 
     if (bufSize >= MAX_PACKET_SIZE) {
         CA_ASSERT(0, "Exceeded Max packet size");
@@ -111,6 +113,22 @@ void CAPacketHelper::flushGarbagePackets() {
 void CAPacketHelper::writePacketString(uint8_t clientHostId, uint8_t flags, const char* str) {
     CAPacketString pack0(mPacker);
     pack0.set(clientHostId, flags, str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketUint32(uint8_t clientHostId, uint8_t flags, uint32_t val) {
+    CAPacketUint32 pack0(mPacker);
+    pack0.set(clientHostId, flags, val);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketUint32(const char* str) {
+    CAPacketUint32 pack0(mPacker);
+    pack0.set(str);
     pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();

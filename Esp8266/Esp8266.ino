@@ -12,12 +12,14 @@
 WiFiManager gWifiManager;
 WiFiServer gServer(80);
 WiFiClient gClient;
+CAPacketHelper gPh;
 
 void setup (void) {
   Serial.begin(74880);    // SAM3X
   EEPROM.begin(128);      // allocates 128 bytes for wifiManager (required by the library)
 
   setupWiFi();
+  gPh.init((HardwareSerial*)(&SerialIO), NULL);
 
   if (!SPIFFS.begin()) {
     CA_INFO("Cannot open SPIFFS file system", "");

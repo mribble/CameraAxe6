@@ -46,14 +46,8 @@ void parseUri(String &uri, const char* title) {
   } else if (uri.indexOf("GET /favicon.ico") != -1) {
     // ignore this case
   } else if (uri.indexOf("~") != -1) {
-    uint8_t buf[128];
-    uint16_t packSize;
     String x = uri.substring(5, uri.length()-9);
-    CAPacket packBase(STATE_PACKER, buf, 128);
-    CAPacketUint32 bob(packBase);
-    bob.packetFromString(x);
-    packSize = bob.pack();
-    SerialIO.write(buf, packSize);
+    gPh.writePacketUint32(x.c_str());
   } else {
     CA_INFO("ERROR - Unknown URI - ", uri);
   }

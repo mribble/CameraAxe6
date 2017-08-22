@@ -131,7 +131,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - STRING test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -157,7 +157,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - UINT32 test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -189,7 +189,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - TIME_BOX test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -214,7 +214,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - MENU_SELECT test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -251,7 +251,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - MENU_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -277,7 +277,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - MODULE_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -303,7 +303,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - CAM_STATE test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -345,7 +345,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - CAM_SETTINGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -380,7 +380,7 @@ void caTestPackets()
     
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - INTERVALOMETER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -405,7 +405,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - CONTROL_FLAGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
@@ -430,7 +430,7 @@ void caTestPackets()
     }
     String str0, str1;
     unpack0.packetToString(str0);
-    unpack0.packetFromString(str0);
+    unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - ECHO test failed2 %s ** %s\n", str0.c_str(), str1.c_str());

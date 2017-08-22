@@ -72,8 +72,6 @@ public:
     virtual uint8_t getClientHostId() = 0;
     virtual void unpack() = 0;
     virtual uint16_t pack() = 0;
-    virtual void packetToString(String& str) = 0;
-    virtual void packetFromString(const String& str) = 0;
 
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     uint32_t getUint32FromString(uint16_t& startIndex, const String& str) {
@@ -108,7 +106,6 @@ protected:
 //   * All these classes have a pack() method to do the packing (including the packet size and type)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 class CAPacketString : public CAPacketElement {
 public:
     CAPacketString(CAPacket& caPacket);
@@ -117,10 +114,10 @@ public:
     uint8_t getFlags() {return mFlags;};
     const char* getString() {return mString.c_str();};
     void set(uint8_t clientHostId, uint8_t flags, String str);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
@@ -135,10 +132,10 @@ public:
     uint8_t getFlags() {return mFlags;};
     uint32_t getValue() {return mValue;};
     void set(uint8_t clientHostId, uint8_t flags, uint32_t value);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
@@ -159,10 +156,10 @@ public:
     uint16_t getNanoseconds() {return mNanoseconds;};
     void set(uint8_t clientHostId, uint8_t flags, uint16_t hours, uint8_t minutes, uint8_t seconds,
                 uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mClientHostId;
     uint8_t mFlags;
@@ -182,10 +179,10 @@ public:
     uint8_t getMode() {return mMode;};
     uint8_t getMenuNumber() {return mMenuNumber;};
     void set(uint8_t activate, uint8_t menuNumber);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mMode;
     uint8_t mMenuNumber;
@@ -214,10 +211,10 @@ public:
                 uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
                 uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
                 String menuName);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mMenuId;
     uint8_t mModuleId0;
@@ -244,10 +241,10 @@ public:
     uint8_t getModuleTypeId() {return mModuleTypeId;};
     const char* getModuleName() {return mModuleName.c_str();};
     void set(uint8_t moduleId, uint8_t moduleTypeId, String moduleName);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mModuleId;
     uint8_t mModuleTypeId;
@@ -271,17 +268,17 @@ public:
     uint8_t getFocus() {return mFocus;};
     uint8_t getShutter() {return mShutter;};
     void set(uint8_t multiplier, uint8_t focus, uint8_t shutter);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mMultiplier;
     uint8_t mFocus;
     uint8_t mShutter;
 };
 
-class CAPacketCamSettingsBase {
+class CAPacketCamSettings : public CAPacketElement  {
 public:
     const uint8_t SEQ0    = 0x01;
     const uint8_t SEQ1    = 0x02;
@@ -291,7 +288,7 @@ public:
     const uint8_t SEQ5    = 0x20;
     const uint8_t SEQ6    = 0x40;
     const uint8_t SEQ7    = 0x80;
-    CAPacketCamSettingsBase();
+    CAPacketCamSettings();
     uint8_t getCamPortNumber() {return mCamPortNumber;};
     uint8_t getMode() {return mMode;};
     uint16_t getDelayHours() {return mDelayHours;};
@@ -317,7 +314,14 @@ public:
                 uint16_t durationMilliseconds, uint16_t durationMicroseconds, uint8_t sequencer,
                 uint8_t applyIntervalometer, uint8_t smartPreview, uint8_t mirrorLockupEnable, 
                 uint8_t mirrorLockupMinutes, uint8_t mirrorLockupSeconds, uint16_t mirrorLockupMilliseconds);
-protected:
+                CAPacketCamSettings(CAPacket& caPacket);
+    void set(const String& str);
+    uint8_t getPacketType() {return PID_CAM_SETTINGS;};
+    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
+    void unpack();
+    uint16_t pack();
+    void packetToString(String& str);
+private:
     uint8_t mCamPortNumber;
     uint8_t mMode;
     uint16_t mDelayHours;
@@ -337,18 +341,6 @@ protected:
     uint8_t mMirrorLockupMinutes;
     uint8_t mMirrorLockupSeconds;
     uint16_t mMirrorLockupMilliseconds;
-};
-
-class CAPacketCamSettings : public CAPacketCamSettingsBase, public CAPacketElement  {
-public:
-    CAPacketCamSettings(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_CAM_SETTINGS;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-    void packetFromString(const String& str);
-private:
 };
 
 class CAPacketIntervalometer : public CAPacketElement {
@@ -371,10 +363,10 @@ public:
                 uint16_t startMicroseconds, uint16_t intervalHours, uint8_t intervalMinutes,
                 uint8_t intervalSeconds, uint16_t intervalMilliseconds, uint16_t intervalMicroseconds,
                 uint16_t repeats);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint16_t mStartHours;
     uint8_t mStartMinutes;
@@ -397,10 +389,10 @@ public:
     uint8_t getSlaveModeEnable() {return mSlaveModeEnable;};
     uint8_t getExtraMessagesEnable() {return mExtraMessagesEnable;};
     void set(uint8_t slaveModeEnabe, uint8_t extraMessagesEnable);
+    void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
 private:
     uint8_t mSlaveModeEnable;
     uint8_t mExtraMessagesEnable;
@@ -417,7 +409,7 @@ public:
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
-    void packetFromString(const String& str);
+    void set(const String& str);
 private:
     uint8_t mMode;
     String mString;

@@ -33,7 +33,7 @@ struct Context {
 
   CAState state = CA_STATE_LOADING_MENU;
   uint8_t menuId = 0;
-  CAPacketCamSettingsBase camSettings[NUM_CAMERAS];
+  CAPacketCamSettings camSettings[NUM_CAMERAS];
 
   CtxModules modules[NUM_MODULES];
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
