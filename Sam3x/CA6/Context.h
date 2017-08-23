@@ -7,11 +7,6 @@
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 
-struct CtxModules
-{
-  uint8_t modId = 0;
-};
-
 struct CtxProcTable
 {
   void (*funcInfo[NUM_MENUS])()          {NULL, MenuSound_Info, MenuTest_Info};
@@ -22,7 +17,6 @@ struct CtxProcTable
 };
 
 enum CAState {
-  CA_STATE_LOADING_MENU,
   CA_STATE_MENU_MODE,
   CA_STATE_PHOTO_MODE,
 };
@@ -31,16 +25,13 @@ struct Context {
   // Constructor with initialization list
   Context(){}
 
-  CAState state = CA_STATE_LOADING_MENU;
+  CAState state = CA_STATE_MENU_MODE;
   uint8_t menuId = 0;
   CAPacketCamSettings camSettings[NUM_CAMERAS];
-
-  CtxModules modules[NUM_MODULES];
-  CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CtxProcTable procTable;
 
+  CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CAEsp8266 esp8266;
-  uint8_t echoReceived = 0;
 };
 
 #endif // CONTEXT_H

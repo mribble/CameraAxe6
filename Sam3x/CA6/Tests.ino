@@ -1,7 +1,6 @@
 void caRunTests()
 {
   //caTestSerialWritePerf();  // look into this
-  //caTestNetworkEcho();      // look into this
   //caTestTickTimer();
   //caTestPackets();
   //caTestPerf();
@@ -33,36 +32,6 @@ void caTestSerialWritePerf() {
 
   CA_LOG("Serial Write perf (%d bytes): %d us\n", bufSize, endTime-startTime);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestNetworkEcho - Tests performance of a round trip network
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestNetworkEcho() {
-  bool done = false;
-
-  g_ctx.echoReceived = 0;
-
-  uint32_t endTime;
-  uint32_t startTime = millis();
-  g_ctx.packetHelper.writePacketEcho(0, "01234");  // 0 means back to sam3x
-  for(uint16_t i=0; i<5000; ++i) {
-    processIncomingPacket();
-    if (g_ctx.echoReceived) {
-      endTime = millis();
-      done = true;
-      break;
-    }
-    delay(1);
-  }
-
-  if (done) {
-    CA_LOG("Time in milliseconds: %d\n", endTime-startTime);
-  } else {
-    CA_LOG("ERROR - Packet was never returned.\n");
-  }
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestTickTimer - Tests the CATickTimer class

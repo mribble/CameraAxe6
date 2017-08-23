@@ -36,6 +36,9 @@ void parseUri(String &uri, const char* title) {
 
   if (uri.indexOf("GET /updateAll ") != -1) {
     // Reload dynamic data (todo fix to use real packet data)
+
+    // Send data from menu.
+    
     static int val = 0;
     ++val;
     gClient.print(val);
@@ -69,7 +72,7 @@ void processHtml(const char* title) {
 void sendHtml(const char* title) {
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
-  printFile("/MenuModePage.html");
+  printFile("/MenuMode.html");
 /*
   gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
   gClient.println(title);

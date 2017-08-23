@@ -49,6 +49,5 @@ void setup (void) {
 }
 
 void loop (void) {
-
   processHtml("Blah");
 }

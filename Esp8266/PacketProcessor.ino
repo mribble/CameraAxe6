@@ -42,3 +42,9 @@ void sendPacket(String &packetStr) {
   }
 }
 
+void recievePacket() {
+  // todo
+  // read serial for packets
+  // put latest packet data into buffer to be processed by html handler
+}
+

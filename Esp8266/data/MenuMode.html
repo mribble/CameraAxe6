@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Menu Mode Page</title>
+		<title>Camera Axe 6</title>
 		<style>
 			body {
 				background-color: white;
@@ -128,9 +128,6 @@
 				var cell1 = row.insertCell();
 				cell1.id = id;
 				cell1.innerHTML = text1;
-				window.setInterval(function(){
-				  document.getElementById(id).innerHTML = +document.getElementById(id).innerHTML + 1;
-				}, 1000);
 			}
 			
 			function caButton(id, text0, text1) {
@@ -279,7 +276,7 @@
 	</head>
 
 	<body>
-		<button class="button" onclick="redirectTo('HomePage.html');">Home</button>
+		<button class="button" onclick="redirectTo('Home.html');">Home</button>
 		<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
 		<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
 		<h1 id="title"></h1>

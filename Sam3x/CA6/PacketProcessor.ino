@@ -43,7 +43,6 @@ CAPacketElement* processIncomingPacket() {
         unpack.unpack();
         CA_LOG("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
         g_ctx.menuId = unpack.getMenuNumber();
-        g_ctx.state = CA_STATE_LOADING_MENU;
         if (unpack.getMode() == 0) {
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
@@ -108,7 +107,7 @@ CAPacketElement* processIncomingPacket() {
         if (unpack.getMode() == 1) { // 1 means echo back to Android
           g_ctx.packetHelper.writePacketEcho(1, unpack.getString());
         } else {
-          g_ctx.echoReceived = 1;
+          //g_ctx.echoReceived = 1;
         }
         CA_LOG("%d PID_ECHO - %d %s\n", packetSize, unpack.getMode(), unpack.getString());
         break;
