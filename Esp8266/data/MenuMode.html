@@ -90,22 +90,31 @@
 
 			var gTable;
             var request;
-            window.onload = updateState;
+            window.onload = updateDynamicState;
 
-            function updateState() {
-                setTimeout(updateState, 5000);
+            function updateDynamicState() {
+                setTimeout(updateDynamicState, 5000);
                 document.getElementById("debugText").innerHTML = "Done";
-                server = "updateAll";
                 request = new XMLHttpRequest();
-                request.onreadystatechange = updateStatus;
-                request.open("GET", server, true);
+                request.onreadystatechange = updateIds;
+                request.open("GET", "updateAll", true);
                 request.send();
             }
 
-            function updateStatus() {
+            function updateIds() {
                 if ((request.readyState == 4) && (request.status == 200)) {
-                    result = request.responseText;
-                    document.getElementById("debugText").innerHTML = result;
+                    var str = request.responseText;
+                    var indexPrev = -1;
+                    do {
+                        var index0 = str.indexOf("~", indexPrev+1);
+                        var index1 = str.indexOf("~", index0+1)
+                        if (index1 != -1) {
+                            var id = str.substring(indexPrev+1, index0);
+                            var val = str.substring(index0+1, index1);
+                            document.getElementById(id).innerHTML = val;
+                            indexPrev = index1;
+                        }
+                    } while (indexPrev != str.lastIndexOf("~"));
                 }
             }
 			

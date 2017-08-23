@@ -35,14 +35,10 @@ void printFile(const char *fileName) {
 void parseUri(String &uri, const char* title) {
 
   if (uri.indexOf("GET /updateAll ") != -1) {
-    // Reload dynamic data (todo fix to use real packet data)
-
-    // Send data from menu.
-    
     static int val = 0;
     ++val;
-    gClient.print(val);
-    gClient.println(" x");
+    String bob = (String)"id0~" + val + "~";
+    gClient.print(bob);
   } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     // Initial page load
     sendHtml(title);
