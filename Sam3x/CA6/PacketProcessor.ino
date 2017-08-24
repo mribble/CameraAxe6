@@ -20,7 +20,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_STRING: {
         CAPacketString unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_STRING - %d %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getFlags(), unpack.getString());
+        CA_LOG("%d PID_STRING - %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getFlags(), unpack.getString());
         break;
       }
       case PID_UINT32: {

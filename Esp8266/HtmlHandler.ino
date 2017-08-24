@@ -35,10 +35,12 @@ void printFile(const char *fileName) {
 void parseUri(String &uri, const char* title) {
 
   if (uri.indexOf("GET /updateAll ") != -1) {
-    static int val = 0;
-    ++val;
-    String bob = (String)"id0~" + val + "~";
-    gClient.print(bob);
+    String val;
+    for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
+      val += String("id") + gDynamicMessages.id[i] + "~" + gDynamicMessages.str[i] + "~";
+    }
+    gDynamicMessages.numMessages = 0;
+    gClient.print(val);
   } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     // Initial page load
     sendHtml(title);
@@ -69,20 +71,5 @@ void sendHtml(const char* title) {
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
   printFile("/MenuMode.html");
-/*
-  gClient.println("<!DOCTYPE HTML> <HTML> <HEAD> <TITLE>");
-  gClient.println(title);
-  gClient.println("</TITLE> <meta charset=\"UTF-8\">");
-  printFile("/css.html");
-  printFile("/script.html");
-  gClient.println("</HEAD>");
-  gClient.println("<BODY>");
-  gClient.println("<H1 id=\"title\"></H1>");
-  gClient.println("<SCRIPT>");
-  //gClient.print(gMenuString);
-  printFile("/testMenu.html");
-  gClient.println("</SCRIPT>");
-  gClient.println("</BODY>");
-  gClient.println("</HTML>");*/
 }
 

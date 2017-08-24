@@ -32,7 +32,7 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
     if (avaliableBytes && (mGuardFound == false)) {
         for(uint16_t i=0; i<avaliableBytes; ++i) {
             uint8_t buf[1];
-            serialFlowControlRead(buf, 1);
+            serialFlowControlRead(buf, PACK_GUARD_SZ);
             if (buf[0] == GUARD_PACKET) {
                 mGuardFound = true;
                 break;

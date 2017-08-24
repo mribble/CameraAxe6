@@ -9,10 +9,19 @@
 
 #define CA_AP_PASSWORD "ca6admin"
 
+#define MAX_DYNAMIC_MESSAGES 4
+struct DynamicMessages
+{
+  uint8_t numMessages = 0;
+  uint8_t id[MAX_DYNAMIC_MESSAGES];
+  String str[MAX_DYNAMIC_MESSAGES];
+};
+
 WiFiManager gWifiManager;
 WiFiServer gServer(80);
 WiFiClient gClient;
 CAPacketHelper gPh;
+DynamicMessages gDynamicMessages;
 
 void setup (void) {
   Serial.begin(74880);    // SAM3X
@@ -49,5 +58,6 @@ void setup (void) {
 }
 
 void loop (void) {
+  receivePacket();
   processHtml("Blah");
 }

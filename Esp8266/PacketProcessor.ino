@@ -42,9 +42,48 @@ void sendPacket(String &packetStr) {
   }
 }
 
-void recievePacket() {
-  // todo
-  // read serial for packets
-  // put latest packet data into buffer to be processed by html handler
+void receivePacket() {
+  CAPacket &mUnpacker = gPh.getUnpacker();
+  uint8_t *mData = gPh.getData();
+
+  if (gPh.readOnePacket(mData)) {
+    bool packetGuard = mUnpacker.unpackGuard();
+    uint8_t packetSize = mUnpacker.unpackSize();
+    uint8_t packetType = mUnpacker.unpackType();
+
+    CA_ASSERT(packetGuard==true, "Failed guard check");
+
+    switch (packetType) {
+      case PID_STRING: {
+        bool found = false;
+        CAPacketString unpack(mUnpacker);
+        unpack.unpack();
+        uint8_t curId = unpack.getClientHostId();
+
+        for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
+          if (curId == gDynamicMessages.id[i]) {
+            gDynamicMessages.str[i] = unpack.getString();
+            found = true;
+          }
+        }
+        if (!found) {
+          if (gDynamicMessages.numMessages < MAX_DYNAMIC_MESSAGES) {
+            uint8_t x = gDynamicMessages.numMessages++;
+            gDynamicMessages.id[x] = curId;
+            gDynamicMessages.str[x] = unpack.getString();
+          }
+          else {
+            CA_INFO("Exceeded max dynamic messages", MAX_DYNAMIC_MESSAGES);
+          }
+        }
+        break;
+      }
+      default: {
+        CA_ASSERT(0, "Unknown packet");
+        break;
+      }
+    }
+    mUnpacker.resetBuffer();
+  }
 }
 

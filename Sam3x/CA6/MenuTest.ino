@@ -22,6 +22,14 @@ void MenuTest_PhotoInit() {
 void MenuTest_MenuRun() {
   uint32_t updateFrequency = 1000;  // 1000 ms
   uint32_t curTime = millis();
+  static bool firstRun = true;
+
+  // remove once we get init hooked up
+  if (firstRun) {
+    gMenuTestData.nextSendUpdate = millis();
+    gMenuTestData.count = 0;
+    firstRun = false;
+  }
   uint32_t nextUpdate = gMenuTestData.nextSendUpdate;
 
   // Handle incoming packets
@@ -31,8 +39,8 @@ void MenuTest_MenuRun() {
   incomingPacketFinish(packet);
 
   // Handle outgoing packets
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
-     gMenuTestData.count = (++gMenuTestData.count)%10000;
+  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*256)) { // Handles wraparounds
+    ++gMenuTestData.count;
     g_ctx.packetHelper.writePacketString(0, 0, String(gMenuTestData.count).c_str());
     gMenuTestData.nextSendUpdate = curTime + updateFrequency;
   }

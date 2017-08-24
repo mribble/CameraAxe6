@@ -21,6 +21,8 @@ void loop() {
   //caRunTests();
   processTerminalCmds();
 
+  g_ctx.menuId = 2;  // todo remove this eventually, but for now set to test menu
+
   if (g_ctx.state == CA_STATE_MENU_MODE) {
     if (g_ctx.menuId == 0) {
       // Menus normally process packets, but menuId is a null menu which means we need to handle the processing here
