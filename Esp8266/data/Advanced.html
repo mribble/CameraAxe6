@@ -50,39 +50,27 @@
 		</script>		
 	</head>
 	<body>
-<!--Home Page (Start)-->
-		<div id="homePage" class="mainBox">
-			<style>
-			.fullWidth{
-				width: 100%;
-			}
-			#listButtons{
-				padding: 12px;
-				text-align: left;
-				font-size: 20px;
-			}
-			</style>
-			<h1 class="topText">Camera Axe Home - v<span id="version"></span></h1>
-			
-			<button onclick="redirectTo('CameraFlash.html');">Camera Flash Settings</button>
-			
-			<h2>Menus</h2>
-			<div id="listButtons"></div><br><br>
-			
-			<button onclick="redirectTo('Advanced.html');">Advanced</button>
+<!--Advanced Page (Start)-->
+		<div id="advancedPage" class="mainBox">
+			<h1 class="topText">Advanced</h1>
+			<button class="topButton" onclick="redirectTo('Home.html');">Home</button>
+			<div style="clear:both;"></div>
+			<p>
+				Program Module 0: 
+				<input type="number" name="number" min="0" max="65535" oninput='validateNumber(this,5);' onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="5"> 
+				<button onclick="debugSend();">Send</button>
+			</p>
+			<br>
+			<p style="text-align:center">
+				<button onclick="redirectTo('Intervalometer.html');">Setup Intervalometer</button>
+			</p>
 			<script>
-				function DebugInit(version, photoMenus) {
-					document.getElementById("version").innerHTML = version;
-					var listItems = "";
-					for(i=0; i<photoMenus.length; i++){
-						listItems += "<button class=\"fullWidth\" onclick=\"redirectTo('MenuMode.html');\">"+photoMenus[i]+"</button>";
-					}
-					document.getElementById("listButtons").innerHTML = listItems;
+				function debugSend() {
+					document.getElementById("debugText").innerHTML = document.getElementsByName("number")[0].value;
 				}
-				DebugInit("0.1",["Sound","Lightning","Projectile"]);
 			</script>
 		</div>
-<!--Home Page (End)-->		
+<!--Advanced Page (End)-->
 		<p id="debugText"> - </p>
 	</body>
 </html>

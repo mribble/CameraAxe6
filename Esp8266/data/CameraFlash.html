@@ -255,233 +255,189 @@
 				}
 			</script>
 		</div>
-<!--Timebox Popup (End)-->	
-<!--Menu Mode Page (Start)-->
-		<div id="menuModePage" class="mainBox">
-			<button class="button" onclick="redirectTo('Home.html');">Home</button>
-			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
-			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
-			<h1 id="title"></h1>
+<!--Timebox Popup (End)-->
+	
+<!--Camera Flash Page (Start)-->
 
+		<div id="cameraFlashPage" class="mainBox">
 			<style>
-				table, th, td {
-					border: 1px solid black;
+				ul {
+					list-style: none;
+					padding:0px;
+					margin:0px;
 				}
-				.slider {
-				   width: 90px;
-				   height: 30px;
+				li {
+					display: inline-block;
 				}
-			</style>
+				#customRadioButtons input[type=radio] {
+					visibility:hidden;
+					display:none;
+				}
+				label {
+					cursor: pointer;
+					padding:12px;
+					border:1px solid;
+				}
+				input:checked + label {
+					background: #00ff00;
+				}
+			</style>		
 
+			<h1 class="topText">Camera Flash</h1>
+			<button class="topButton" onclick="redirectTo('Home.html');">Home</button>
+			<div style="clear:both;"></div>
+			
+			<form id="cameraFlashSetupForm" name="cameraFlashSetupForm">
+				<ul id="customRadioButtons">
+					<li>
+						<input type='radio' checked value='1' name='radio' id='radio1'/>
+						<label for='radio1'>1</label>
+					</li>
+					<li>
+						<input type='radio' value='2' name='radio' id='radio2'/>
+						<label for='radio2'>2</label>
+					</li>
+					<li>
+						<input type='radio' value='3' name='radio' id='radio3'/>
+						<label for='radio3'>3</label>
+					</li>
+					<li>
+						<input type='radio' value='4' name='radio' id='radio4'/>
+						<label for='radio4'>4</label>
+					</li>
+					<li>
+						<input type='radio' value='5' name='radio' id='radio5'/>
+						<label for='radio5'>5</label>
+					</li>
+					<li>
+						<input type='radio' value='6' name='radio' id='radio6'/>
+						<label for='radio6'>6</label>
+					</li>
+					<li>
+						<input type='radio' value='7' name='radio' id='radio7'/>
+						<label for='radio7'>7</label>
+					</li>
+					<li>
+						<input type='radio' value='8' name='radio' id='radio8'/>
+						<label for='radio8'>8</label>
+					</li>
+				</ul><br>
+				<table style="width:100%;">
+					<tr>
+						<td style="width:50%;">Mode</td>
+						<td style="width:50%;">
+							<select name="mode">
+								<option value="0">Camera</option>
+								<option value="1">Camera Prefocus On</option>
+								<option value="2">Flash</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Delay</td>
+						<td>
+							<input type="text" name="delay" onclick="openTimeBox(this,false,true,true,true,true,false);" value="0:0.0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>Duration (bulb)</td>
+						<td>
+							<input type="text" name="duration_bulb" onclick="openTimeBox(this,false,true,true,true,true,false);" value="0:0.0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>Post Trigger Delay</td>
+						<td>
+							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,false,false,true,true,true,false);" value="0:0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>Camera Lag</td>
+						<td>
+							<input type="text" name="camera_lag" onclick="openTimeBox(this,false,false,false,true,true,false);" value="0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							Sequencer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<input type="checkbox" checked name="sequencer1" value="1" />1 
+							<input type="checkbox" checked name="sequencer2" value="2" />2 
+							<input type="checkbox" checked name="sequencer3" value="3" />3 
+							<input type="checkbox" checked name="sequencer4" value="4" />4 
+							<input type="checkbox" checked name="sequencer5" value="5" />5 
+							<input type="checkbox" checked name="sequencer6" value="6" />6 
+							<input type="checkbox" checked name="sequencer7" value="7" />7 
+							<input type="checkbox" checked name="sequencer8" value="8" />8 
+						</td>
+					</tr>
+					<tr>
+						<td>Smart Preview</td>
+						<td>
+							<input type="text" name="smart_preview" onclick="openTimeBox(this,false,true,false,false,false,false);" value="0" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Mirror Lockup
+							<input style="float:right;" type="checkbox" checked name="mirror_lockup_check" value="1" />
+						</td>
+						<td>
+							<input type="text"  name="mirror_lockup" onclick="openTimeBox(this,false,true,true,false,false,false);" value="0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Apply Intervalometer
+							<input style="float:right;" type="checkbox" checked name="apply_intervalometer" value="1" />
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td colspan="2"><br><br><br><br><br><br><br>
+							Copy Settings from Camera/Flash 
+							<input type="text" name="copy_settings_from_camera_flash" value="--" />
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:center;" colspan="2"><br><br>
+							<button onclick="debugInputs()" type="button">Test Trigger</button>
+							<button type="reset">Reset Defaults</button>
+						</td>
+					</tr>
+				</table>
+			</form>
 			<script>
-				var PID_STRING = 1;
-				var PID_UINT32 = 2;
-				var PID_TIME_BOX = 3;
-				var FLAGS = 0;
-
-				var gTable;
-				var request;
-				window.onload = updateDynamicState;
-
-				function updateDynamicState() {
-					setTimeout(updateDynamicState, 5000);
-					document.getElementById("debugText").innerHTML = "Done";
-					request = new XMLHttpRequest();
-					request.onreadystatechange = updateIds;
-					request.open("GET", "updateAll", true);
-					request.send();
-				}
-
-				function updateIds() {
-					if ((request.readyState == 4) && (request.status == 200)) {
-						var str = request.responseText;
-						var indexPrev = -1;
-						do {
-							var index0 = str.indexOf("~", indexPrev+1);
-							var index1 = str.indexOf("~", index0+1)
-							if (index1 != -1) {
-								var id = str.substring(indexPrev+1, index0);
-								var val = str.substring(index0+1, index1);
-								document.getElementById(id).innerHTML = val;
-								indexPrev = index1;
+				function debugInputs() {
+					var cameraFlashSetupForm = document.forms["cameraFlashSetupForm"];
+					var debugString = "";
+					for(i=0; i<cameraFlashSetupForm.length; i++)
+					{
+						if(cameraFlashSetupForm[i].type=="button"){
+							continue;
+						}
+						if(cameraFlashSetupForm[i].type=="radio" || cameraFlashSetupForm[i].type=="checkbox"){
+							if(i>0 && debugString!=""){
+								debugString += "#";
 							}
-						} while (indexPrev != str.lastIndexOf("~"));
-					}
-				}
-				
-				function caStartMenu(majorVersion, minorVersion, menuString) {
-					document.getElementById("title").innerHTML = menuString;
-					gTable = document.createElement('table');
-				}
-
-				function caTextStatic(text0) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.colSpan = "2";
-					cell0.innerHTML = text0;
-				}
-				
-				function caTextDynamic(id, text0, text1) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					cell1.id = id;
-					cell1.innerHTML = text1;
-				}
-				
-				function caButton(id, text0, text1) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var b = document.createElement('button');
-					b.id = id;
-					b.innerHTML = text1;
-					b.onclick = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+"1"+"~";
-						document.getElementById("debugText").innerHTML = val;
-						request = new XMLHttpRequest();
-						request.open("GET", val, true);
-						request.send();
-					}
-					cell1.appendChild(b);
-				}
-
-				function caCheckBox(id, value, text0) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var x = document.createElement('input');
-					x.type = "checkbox";
-					x.id = id;
-					x.checked = value;
-					x.onchange = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+(this.checked ? 1 : 0)+"~";
-						document.getElementById("debugText").innerHTML = val;
-						request = new XMLHttpRequest();
-						request.open("GET", val, true);
-						request.send();
-					}
-					cell1.appendChild(x);
-				}
-
-				function caDropSelect(id, value, text0, text1) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var x = document.createElement('select');
-					x.id = id;
-					var a = text1.split("~");
-					var i;
-					
-					for(i=0; i<a.length; i++) {
-						var option = document.createElement('option');
-						option.value = a[i];
-						option.textContent = a[i];
-						x.appendChild(option);
-					}
-					
-					x.onchange = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.selectedIndex+"~";
-						document.getElementById("debugText").innerHTML = val;
-						request = new XMLHttpRequest();
-						request.open("GET", val, true);
-						request.send();
-					}
-					cell1.appendChild(x);
-				}
-
-				function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var x = document.createElement('input');
-					x.type = "number";
-					x.id = id;
-					x.min=minValue;
-					x.max=maxValue;
-					x.oninput = function () {
-						if (this.value.length > maxLength) {
-							this.value = this.value.slice(0,maxLength); 
+							if(cameraFlashSetupForm[i].checked){
+								debugString += "1";
+							}
+							else{
+								debugString += "0";
+							}
 						}
-						if (this.value < 0) {
-							this.value = 0;
+						else{
+							if(i>0 && debugString!=""){
+								debugString += "#";
+							}
+							debugString += cameraFlashSetupForm[i].value;
 						}
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
-						document.getElementById("debugText").innerHTML = val;
-						request = new XMLHttpRequest();
-						request.open("GET", val, true);
-						request.send();
 					}
-					x.value = value;
-					cell1.appendChild(x);
+					document.getElementById("debugText").innerHTML = debugString;
 				}
-
-				function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var x = document.createElement('input');
-					x.type = "text";
-					x.id = id;
-					x.name = "timebox";
-					x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
-					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
-					cell1.appendChild(x);
-				}
-				
-				function caSlider(id, minValue, maxValue, value, text0) {
-					var row = gTable.insertRow();
-					var cell0 = row.insertCell();
-					cell0.innerHTML = text0;
-					var cell1 = row.insertCell();
-					var x = document.createElement('input');
-					x.class = "slider";
-					x.type = "range";
-					x.id = id;
-					x.min=minValue;
-					x.max=maxValue;
-					x.value=value;
-					x.step="1";
-					x.onchange = function(){
-						document.getElementById(id+'b').innerHTML = this.value;
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
-						document.getElementById("debugText").innerHTML = val;
-						request = new XMLHttpRequest();
-						request.open("GET", val, true);
-						request.send();
-					}
-					cell1.appendChild(x);
-					var x1 = document.createElement('span');
-					x1.id = id+"b";
-					x1.innerHTML = value;
-					cell1.appendChild(x1);
-				}
-
-				function caEndMenu() {
-					document.getElementById("menuModePage").appendChild(gTable);   
-				}
-			</script>		
-		
-			<script>
-				caStartMenu(0,1,"Test Menu 123");
-				caTextStatic("Static text");
-				caTextDynamic("id0", "Dynamic text", "777");
-				caButton("id1", "This is a button", "Button");
-				caCheckBox("id2", 0, "This is a checkbox");
-				caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
-				caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
-				caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
-				caSlider("id6", 0, 255, 10, "This is a slider");
-				caEndMenu();
 			</script>
 		</div>
-<!--Menu Mode Page (End)-->
+<!--Camera Flash Page (End)-->
 		<p id="debugText"> - </p>
 	</body>
 </html>
