@@ -30,8 +30,15 @@
 		</style>
 <!--Global Script-->
 		<script>
-			function redirectTo(href) {
-				document.location.href=href;
+			function loadPage(page) {
+				document.location.href=page;
+				//document.getElementById("Home").style.display = "none";
+				//document.getElementById("MenuMode").style.display = "none";
+				//document.getElementById("CameraFlash").style.display = "none";
+				//document.getElementById("Advanced").style.display = "none";
+				//document.getElementById("Intervalometer").style.display = "none";
+				//var s = page.substring(0, page.length-5); // Remove .html which will match div id
+				//document.getElementById(s).style.display = "block";
 			}
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
@@ -51,7 +58,7 @@
 	</head>
 	<body>
 <!--Home Page (Start)-->
-		<div id="homePage" class="mainBox">
+		<div id="Home" class="mainBox">
 			<style>
 			.fullWidth{
 				width: 100%;
@@ -64,25 +71,25 @@
 			</style>
 			<h1 class="topText">Camera Axe Home - v<span id="version"></span></h1>
 			
-			<button onclick="redirectTo('CameraFlash.html');">Camera Flash Settings</button>
+			<button onclick="loadPage('CameraFlash.html');">Camera Flash Settings</button>
 			
 			<h2>Menus</h2>
 			<div id="listButtons"></div><br><br>
 			
-			<button onclick="redirectTo('Advanced.html');">Advanced</button>
+			<button onclick="loadPage('Advanced.html');">Advanced</button>
 			<script>
 				function DebugInit(version, photoMenus) {
 					document.getElementById("version").innerHTML = version;
 					var listItems = "";
 					for(i=0; i<photoMenus.length; i++){
-						listItems += "<button class=\"fullWidth\" onclick=\"redirectTo('MenuMode.html');\">"+photoMenus[i]+"</button>";
+						listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode.html');\">"+photoMenus[i]+"</button>";
 					}
 					document.getElementById("listButtons").innerHTML = listItems;
 				}
 				DebugInit("0.1",["Sound","Lightning","Projectile"]);
 			</script>
 		</div>
-<!--Home Page (End)-->		
+<!--Home Page (End)-->
 		<p id="debugText"> - </p>
 	</body>
 </html>

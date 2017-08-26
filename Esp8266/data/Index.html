@@ -31,7 +31,14 @@
 <!--Global Script-->
 		<script>
 			function loadPage(page) {
-				document.location.href=page;
+				//document.location.href=page;
+				document.getElementById("Home").style.display = "none";
+				document.getElementById("MenuMode").style.display = "none";
+				document.getElementById("CameraFlash").style.display = "none";
+				document.getElementById("Advanced").style.display = "none";
+				document.getElementById("Intervalometer").style.display = "none";
+				var s = page.substring(0, page.length-5); // Remove .html which will match div id
+				document.getElementById(s).style.display = "block";
 			}
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
@@ -255,8 +262,266 @@
 				}
 			</script>
 		</div>
-<!--Timebox Popup (End)-->
-	
+<!--Timebox Popup (End)-->	
+<!--Home Page (Start)-->
+		<div id="Home" class="mainBox">
+			<style>
+			.fullWidth{
+				width: 100%;
+			}
+			#listButtons{
+				padding: 12px;
+				text-align: left;
+				font-size: 20px;
+			}
+			</style>
+			<h1 class="topText">Camera Axe Home - v<span id="version"></span></h1>
+			
+			<button onclick="loadPage('CameraFlash.html');">Camera Flash Settings</button>
+			
+			<h2>Menus</h2>
+			<div id="listButtons"></div><br><br>
+			
+			<button onclick="loadPage('Advanced.html');">Advanced</button>
+			<script>
+				function DebugInit(version, photoMenus) {
+					document.getElementById("version").innerHTML = version;
+					var listItems = "";
+					for(i=0; i<photoMenus.length; i++){
+						listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode.html');\">"+photoMenus[i]+"</button>";
+					}
+					document.getElementById("listButtons").innerHTML = listItems;
+				}
+				DebugInit("0.1",["Sound","Lightning","Projectile"]);
+			</script>
+		</div>
+<!--Home Page (End)-->
+<!--Menu Mode Page (Start)-->
+		<div id="MenuMode" class="mainBox">
+			<button class="button" onclick="loadPage('Home.html');">Home</button>
+			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
+			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
+			<h1 id="title"></h1>
+
+			<style>
+				table, th, td {
+					border: 1px solid black;
+				}
+				.slider {
+				   width: 90px;
+				   height: 30px;
+				}
+			</style>
+
+			<script>
+				var PID_STRING = 1;
+				var PID_UINT32 = 2;
+				var PID_TIME_BOX = 3;
+				var FLAGS = 0;
+
+				var gTable;
+				var request;
+				window.onload = updateDynamicState;
+
+				function updateDynamicState() {
+					setTimeout(updateDynamicState, 5000);
+					document.getElementById("debugText").innerHTML = "Done";
+					request = new XMLHttpRequest();
+					request.onreadystatechange = updateIds;
+					request.open("GET", "updateAll", true);
+					request.send();
+				}
+
+				function updateIds() {
+					if ((request.readyState == 4) && (request.status == 200)) {
+						var str = request.responseText;
+						var indexPrev = -1;
+						do {
+							var index0 = str.indexOf("~", indexPrev+1);
+							var index1 = str.indexOf("~", index0+1)
+							if (index1 != -1) {
+								var id = str.substring(indexPrev+1, index0);
+								var val = str.substring(index0+1, index1);
+								document.getElementById(id).innerHTML = val;
+								indexPrev = index1;
+							}
+						} while (indexPrev != str.lastIndexOf("~"));
+					}
+				}
+				
+				function caStartMenu(majorVersion, minorVersion, menuString) {
+					document.getElementById("title").innerHTML = menuString;
+					gTable = document.createElement('table');
+				}
+
+				function caTextStatic(text0) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.colSpan = "2";
+					cell0.innerHTML = text0;
+				}
+				
+				function caTextDynamic(id, text0, text1) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					cell1.id = id;
+					cell1.innerHTML = text1;
+				}
+				
+				function caButton(id, text0, text1) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var b = document.createElement('button');
+					b.id = id;
+					b.innerHTML = text1;
+					b.onclick = function(){
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+"1"+"~";
+						document.getElementById("debugText").innerHTML = val;
+						request = new XMLHttpRequest();
+						request.open("GET", val, true);
+						request.send();
+					}
+					cell1.appendChild(b);
+				}
+
+				function caCheckBox(id, value, text0) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var x = document.createElement('input');
+					x.type = "checkbox";
+					x.id = id;
+					x.checked = value;
+					x.onchange = function(){
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+(this.checked ? 1 : 0)+"~";
+						document.getElementById("debugText").innerHTML = val;
+						request = new XMLHttpRequest();
+						request.open("GET", val, true);
+						request.send();
+					}
+					cell1.appendChild(x);
+				}
+
+				function caDropSelect(id, value, text0, text1) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var x = document.createElement('select');
+					x.id = id;
+					var a = text1.split("~");
+					var i;
+					
+					for(i=0; i<a.length; i++) {
+						var option = document.createElement('option');
+						option.value = a[i];
+						option.textContent = a[i];
+						x.appendChild(option);
+					}
+					
+					x.onchange = function(){
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.selectedIndex+"~";
+						document.getElementById("debugText").innerHTML = val;
+						request = new XMLHttpRequest();
+						request.open("GET", val, true);
+						request.send();
+					}
+					cell1.appendChild(x);
+				}
+
+				function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var x = document.createElement('input');
+					x.type = "number";
+					x.id = id;
+					x.min=minValue;
+					x.max=maxValue;
+					x.oninput = function () {
+						if (this.value.length > maxLength) {
+							this.value = this.value.slice(0,maxLength); 
+						}
+						if (this.value < 0) {
+							this.value = 0;
+						}
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+						document.getElementById("debugText").innerHTML = val;
+						request = new XMLHttpRequest();
+						request.open("GET", val, true);
+						request.send();
+					}
+					x.value = value;
+					cell1.appendChild(x);
+				}
+
+				function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var x = document.createElement('input');
+					x.type = "text";
+					x.id = id;
+					x.name = "timebox";
+					x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
+					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
+					cell1.appendChild(x);
+				}
+				
+				function caSlider(id, minValue, maxValue, value, text0) {
+					var row = gTable.insertRow();
+					var cell0 = row.insertCell();
+					cell0.innerHTML = text0;
+					var cell1 = row.insertCell();
+					var x = document.createElement('input');
+					x.class = "slider";
+					x.type = "range";
+					x.id = id;
+					x.min=minValue;
+					x.max=maxValue;
+					x.value=value;
+					x.step="1";
+					x.onchange = function(){
+						document.getElementById(id+'b').innerHTML = this.value;
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+						document.getElementById("debugText").innerHTML = val;
+						request = new XMLHttpRequest();
+						request.open("GET", val, true);
+						request.send();
+					}
+					cell1.appendChild(x);
+					var x1 = document.createElement('span');
+					x1.id = id+"b";
+					x1.innerHTML = value;
+					cell1.appendChild(x1);
+				}
+
+				function caEndMenu() {
+					document.getElementById("MenuMode").appendChild(gTable);   
+				}
+			</script>		
+		
+			<script>
+				caStartMenu(0,1,"Test Menu 123");
+				caTextStatic("Static text");
+				caTextDynamic("id0", "Dynamic text", "777");
+				caButton("id1", "This is a button", "Button");
+				caCheckBox("id2", 0, "This is a checkbox");
+				caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
+				caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
+				caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
+				caSlider("id6", 0, 255, 10, "This is a slider");
+				caEndMenu();
+			</script>
+		</div>
+<!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
 
 		<div id="CameraFlash" class="mainBox">
@@ -438,6 +703,66 @@
 			</script>
 		</div>
 <!--Camera Flash Page (End)-->
+<!--Advanced Page (Start)-->
+		<div id="Advanced" class="mainBox">
+			<h1 class="topText">Advanced</h1>
+			<button class="topButton" onclick="loadPage('Home.html');">Home</button>
+			<div style="clear:both;"></div>
+			<p>
+				Program Module 0: 
+				<input type="number" name="number" min="0" max="65535" oninput='validateNumber(this,5);' onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="5"> 
+				<button onclick="debugSend();">Send</button>
+			</p>
+			<br>
+			<p style="text-align:center">
+				<button onclick="loadPage('Intervalometer.html');">Setup Intervalometer</button>
+			</p>
+			<script>
+				function debugSend() {
+					document.getElementById("debugText").innerHTML = document.getElementsByName("number")[0].value;
+				}
+			</script>
+		</div>
+<!--Advanced Page (End)-->
+<!--Intervalometer Page (Start)-->
+		<div id="Intervalometer" class="mainBox">
+			<h1 class="topText">Intervalometer</h1>
+			<button class="topButton" onclick="loadPage('Advanced.html');">Advanced</button>
+			<div style="clear:both;"></div>
+			<form id="intervalometerForm" name="intervalometerForm">
+				<table style="width:100%;">
+					<tr>
+						<td style="width:50%;">Start Delay</td>
+						<td style="width:50%;">
+							<input type="text" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true);" value="0:0:0.0.0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>Interval</td>
+						<td>
+							<input type="text" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true);" value="0:0:0.0.0.0" />
+						</td>
+					</tr>
+					<tr>
+						<td>Number of Repeats (0 = Infinite)</td>
+						<td>
+							<input type="number" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:center;" colspan="2"><br><br><br><br>
+							<button onclick="debugInputs()" type="button">Test Trigger</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+			<script>
+				function debugInputs() {
+					document.getElementById("debugText").innerHTML = "Test Trigger";
+				}
+			</script>
+		</div>
+<!--Intervalometer Page (End)-->
 		<p id="debugText"> - </p>
 	</body>
 </html>

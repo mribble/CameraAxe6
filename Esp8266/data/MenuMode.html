@@ -30,8 +30,8 @@
 		</style>
 <!--Global Script-->
 		<script>
-			function redirectTo(href) {
-				document.location.href=href;
+			function loadPage(page) {
+				document.location.href=page;
 			}
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
@@ -257,8 +257,8 @@
 		</div>
 <!--Timebox Popup (End)-->	
 <!--Menu Mode Page (Start)-->
-		<div id="menuModePage" class="mainBox">
-			<button class="button" onclick="redirectTo('Home.html');">Home</button>
+		<div id="MenuMode" class="mainBox">
+			<button class="button" onclick="loadPage('Home.html');">Home</button>
 			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
 			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
 			<h1 id="title"></h1>
@@ -464,7 +464,7 @@
 				}
 
 				function caEndMenu() {
-					document.getElementById("menuModePage").appendChild(gTable);   
+					document.getElementById("MenuMode").appendChild(gTable);   
 				}
 			</script>		
 		

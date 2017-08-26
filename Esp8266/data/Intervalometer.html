@@ -30,8 +30,8 @@
 		</style>
 <!--Global Script-->
 		<script>
-			function redirectTo(href) {
-				document.location.href=href;
+			function loadPage(page) {
+				document.location.href=page;
 			}
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
@@ -258,9 +258,9 @@
 <!--Timebox Popup (End)-->
 	
 <!--Intervalometer Page (Start)-->
-		<div id="intervalometerPage" class="mainBox">
+		<div id="Intervalometer" class="mainBox">
 			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="redirectTo('Advanced.html');">Advanced</button>
+			<button class="topButton" onclick="loadPage('Advanced.html');">Advanced</button>
 			<div style="clear:both;"></div>
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
@@ -294,7 +294,6 @@
 					document.getElementById("debugText").innerHTML = "Test Trigger";
 				}
 			</script>
-			
 		</div>
 <!--Intervalometer Page (End)-->
 		<p id="debugText"> - </p>

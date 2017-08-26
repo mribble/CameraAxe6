@@ -30,8 +30,8 @@
 		</style>
 <!--Global Script-->
 		<script>
-			function redirectTo(href) {
-				document.location.href=href;
+			function loadPage(page) {
+				document.location.href=page;
 			}
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
@@ -51,9 +51,9 @@
 	</head>
 	<body>
 <!--Advanced Page (Start)-->
-		<div id="advancedPage" class="mainBox">
+		<div id="Advanced" class="mainBox">
 			<h1 class="topText">Advanced</h1>
-			<button class="topButton" onclick="redirectTo('Home.html');">Home</button>
+			<button class="topButton" onclick="loadPage('Home.html');">Home</button>
 			<div style="clear:both;"></div>
 			<p>
 				Program Module 0: 
@@ -62,7 +62,7 @@
 			</p>
 			<br>
 			<p style="text-align:center">
-				<button onclick="redirectTo('Intervalometer.html');">Setup Intervalometer</button>
+				<button onclick="loadPage('Intervalometer.html');">Setup Intervalometer</button>
 			</p>
 			<script>
 				function debugSend() {
