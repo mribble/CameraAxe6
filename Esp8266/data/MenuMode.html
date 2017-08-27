@@ -314,9 +314,15 @@
 			<h1 id="title"></h1>
 
 			<style>
-				table, th, td {
+				.modeTable {
+					border-collapse: collapse;
 					border: 1px solid black;
 				}
+
+				.modeCell {
+					border: 1px solid black;
+				}
+
 				.slider {
 				   width: 90px;
 				   height: 30px;
@@ -334,6 +340,7 @@
 				function caStartMenu(majorVersion, minorVersion, menuString) {
 					document.getElementById("title").innerHTML = menuString;
 					gTable = document.createElement('table');
+					gTable.classList.add("modeTable");
 				}
 
 				function caTextStatic(text0) {
@@ -341,6 +348,7 @@
 					var cell0 = row.insertCell();
 					cell0.colSpan = "2";
 					cell0.innerHTML = text0;
+					cell0.classList.add("modeCell");
 				}
 				
 				function caTextDynamic(id, text0, text1) {
@@ -350,6 +358,8 @@
 					var cell1 = row.insertCell();
 					cell1.id = id;
 					cell1.innerHTML = text1;
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 				
 				function caButton(id, text0, text1) {
@@ -368,6 +378,8 @@
 						gRequest.send();
 					}
 					cell1.appendChild(b);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 
 				function caCheckBox(id, value, text0) {
@@ -387,6 +399,9 @@
 						gRequest.send();
 					}
 					cell1.appendChild(x);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
+
 				}
 
 				function caDropSelect(id, value, text0, text1) {
@@ -414,6 +429,8 @@
 						gRequest.send();
 					}
 					cell1.appendChild(x);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 
 				function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
@@ -441,6 +458,8 @@
 					}
 					x.value = value;
 					cell1.appendChild(x);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 
 				function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
@@ -455,6 +474,8 @@
 					x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
 					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
 					cell1.appendChild(x);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 				
 				function caSlider(id, minValue, maxValue, value, text0) {
@@ -483,6 +504,8 @@
 					x1.id = id+"b";
 					x1.innerHTML = value;
 					cell1.appendChild(x1);
+					cell0.classList.add("modeCell");
+					cell1.classList.add("modeCell");
 				}
 
 				function caEndMenu() {
