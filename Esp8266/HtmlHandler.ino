@@ -33,7 +33,6 @@ void printFile(const char *fileName) {
 }
 
 void parseUri(String &uri, const char* title) {
-
   if (uri.indexOf("GET /updateDynamicState ") != -1) {
     String val;
     for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
@@ -41,7 +40,7 @@ void parseUri(String &uri, const char* title) {
     }
     gDynamicMessages.numMessages = 0;
     gClient.print(val);
-  } else if (uri.indexOf("GET /updateDynamicMenuList ") != -1) {
+  } else if (uri.indexOf("GET /updateMenuList ") != -1) {
     Dir dir = SPIFFS.openDir("/menus/");
         String str;
     while (dir.next()) {
@@ -54,13 +53,13 @@ void parseUri(String &uri, const char* title) {
       uri.replace("GET /updateDynamicMenu", "");
       uri.replace(" HTTP/1.1", "");
       str = String("/menus/") + uri;
-      printFile(str.c_str());
+      printFile(str.c_str());  // Sends file with dynamic menu to javascript
   } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     // Initial page load
     sendHtml(title);
   } else if (uri.indexOf("GET /favicon.ico") != -1) {
     // ignore this case
-  } else if (uri.indexOf("~") != -1) {
+  } else if (uri.indexOf("~") != -1) {    // This is the dynamic state case
     String packetStr = uri.substring(5, uri.length()-9);
     sendPacket(packetStr);
   } else {

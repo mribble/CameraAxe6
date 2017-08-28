@@ -36,59 +36,15 @@
 			
 			function initPage() {
 				if (gSinglePage) {
-					loadPage("Home.html", null);
+					loadPage("Home", null);
 				}
 				if (document.getElementById("MenuMode") != null) {
 					gRequest = new XMLHttpRequest();
-					gRequest.onreadystatechange = updateMenuList;
+					gRequest.onreadystatechange = updateMenuListAjax;
 					gRequest.open("GET", "updateMenuList", true);
 					gRequest.send();
 				}
 				updateDynamicState();
-			}
-
-			function LoadMenuList(photoMenus) {
-				var listItems = "";
-				for(i=0; i<photoMenus.length; i++){
-					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode.html', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
-				}
-				document.getElementById("listButtons").innerHTML = listItems;
-			}
-
-			function updateMenuList() {
-				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
-					var menuList = gRequest.responseText.slice(0, -1).split("~");
-					LoadMenuList(menuList);
-				}
-			}
-
-			function updateDynamicState() {
-				setTimeout(updateDynamicState, 5000);
-				document.getElementById("debugText").innerHTML = "Done";
-				if (document.getElementById("MenuMode") != null &&
-					document.getElementById("MenuMode").style.display != "none") {
-					gRequest = new XMLHttpRequest();
-					gRequest.onreadystatechange = updateDynamicState2;
-					gRequest.open("GET", "updateDynamicState", true);
-					gRequest.send();
-				}
-			}
-
-			function updateDynamicState2() {
-				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
-					var str = gRequest.responseText;
-					var indexPrev = -1;
-					do {
-						var index0 = str.indexOf("~", indexPrev+1);
-						var index1 = str.indexOf("~", index0+1)
-						if (index1 != -1) {
-							var id = str.substring(indexPrev+1, index0);
-							var val = str.substring(index0+1, index1);
-							document.getElementById(id).innerHTML = val;
-							indexPrev = index1;
-						}
-					} while (indexPrev != str.lastIndexOf("~"));
-				}
 			}
 
 			function loadPage(page, dynamicScript) {
@@ -98,40 +54,64 @@
 					document.getElementById("CameraFlash").style.display = "none";
 					document.getElementById("Advanced").style.display = "none";
 					document.getElementById("Intervalometer").style.display = "none";
-					var s = page.substring(0, page.length-5); // Remove .html which will match div id
-					document.getElementById(s).style.display = "block";
+					document.getElementById(page).style.display = "block";
 					if (dynamicScript != null) {
 						gRequest = new XMLHttpRequest();
-						gRequest.onreadystatechange = updateDynamicMenu;
+						gRequest.onreadystatechange = updateDynamicMenuAjax;
 						gRequest.open("GET", "updateDynamicMenu"+dynamicScript, true);
 						gRequest.send();
 					}
 
 				} else {
+					page += ".html";
 					document.location.href=page;
 				}
 			}
+			
+			function LoadMenuList(photoMenus) {
+				var listItems = "";
+				for(i=0; i<photoMenus.length; i++){
+					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
+				}
+				document.getElementById("listButtons").innerHTML = listItems;
+			}
 
-			function updateDynamicMenu() {
+			function updateDynamicState() {
+				setTimeout(updateDynamicState, 5000);
+				document.getElementById("debugText").innerHTML = "Done";
+				if (document.getElementById("MenuMode") != null &&
+					document.getElementById("MenuMode").style.display != "none") {
+					gRequest = new XMLHttpRequest();
+					gRequest.onreadystatechange = updateDynamicStateAjax;
+					gRequest.open("GET", "updateDynamicState", true);
+					gRequest.send();
+				}
+			}
+			
+			function updateMenuListAjax() {
+				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
+					var menuList = gRequest.responseText.slice(0, -1).split("~");
+					LoadMenuList(menuList);
+				}
+			}
+
+			function updateDynamicStateAjax() {
+				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
+					var str = gRequest.responseText;
+					var stateList = gRequest.responseText.slice(0, -1).split("~");
+					for(var i=0; i<stateList.length; i+=2) {
+						document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+					}
+				}
+			}
+
+			function updateDynamicMenuAjax() {
 				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
 					eval(gRequest.responseText);
 				}
 			}
 
-			function validateNumber(number,maxLength) {
-				if (number.value.length > maxLength) {
-					number.value = number.value.slice(0,maxLength); 
-				}
-				if (number.value.length > 1 && number.value[0]==0){
-					number.value = (number.value).replace("0","");
-				}
-				if (number.value < 0 || number.value=="") {
-					number.value = 0;
-				}
-				if (+number.value > +number.max) {
-					number.value = number.max;
-				}
-			}
+
 		</script>		
 	</head>
 	<body>
@@ -355,12 +335,12 @@
 			</style>
 			<h1 class="topText">Camera Axe Home - v<span id="version"></span></h1>
 			
-			<button onclick="loadPage('CameraFlash.html');">Camera Flash Settings</button>
+			<button onclick="loadPage('CameraFlash');">Camera Flash Settings</button>
 			
 			<h2>Menus</h2>
 			<div id="listButtons"></div><br><br>
 			
-			<button onclick="loadPage('Advanced.html');">Advanced</button>
+			<button onclick="loadPage('Advanced');">Advanced</button>
 			<script>
 				document.getElementById("version").innerHTML = "0.2"
 				LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -369,7 +349,7 @@
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
-			<button class="button" onclick="loadPage('Home.html');">Home</button>
+			<button class="button" onclick="loadPage('Home');">Home</button>
 			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
 			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
 			<h1 id="title"></h1>
@@ -401,7 +381,7 @@
 				function caStartMenu(majorVersion, minorVersion, menuString) {
 					document.getElementById("title").innerHTML = menuString;
 					if (gTable != null) {
-						gTable.remove();
+					gTable.remove();
 					}
 					gTable = document.createElement('table');
 					gTable.classList.add("modeTable");
@@ -575,8 +555,8 @@
 				function caEndMenu() {
 					document.getElementById("MenuMode").appendChild(gTable);   
 				}
-			</script>
-		
+			</script>		
+			<div id="dynamicScriptId">
 			<script>
 				caStartMenu(0,1,"Test Menu 123");
 				caTextStatic("Static text");
@@ -589,6 +569,7 @@
 				caSlider("id6", 0, 255, 10, "This is a slider");
 				caEndMenu();
 			</script>
+			</div>
 		</div>
 <!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
@@ -618,7 +599,7 @@
 			</style>		
 
 			<h1 class="topText">Camera Flash</h1>
-			<button class="topButton" onclick="loadPage('Home.html');">Home</button>
+			<button class="topButton" onclick="loadPage('Home');">Home</button>
 			<div style="clear:both;"></div>
 			
 			<form id="cameraFlashSetupForm" name="cameraFlashSetupForm">
@@ -775,7 +756,7 @@
 <!--Advanced Page (Start)-->
 		<div id="Advanced" class="mainBox">
 			<h1 class="topText">Advanced</h1>
-			<button class="topButton" onclick="loadPage('Home.html');">Home</button>
+			<button class="topButton" onclick="loadPage('Home');">Home</button>
 			<div style="clear:both;"></div>
 			<p>
 				Program Module 0: 
@@ -784,7 +765,7 @@
 			</p>
 			<br>
 			<p style="text-align:center">
-				<button onclick="loadPage('Intervalometer.html');">Setup Intervalometer</button>
+				<button onclick="loadPage('Intervalometer');">Setup Intervalometer</button>
 			</p>
 			<script>
 				function debugSend() {
@@ -796,7 +777,7 @@
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
 			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="loadPage('Advanced.html');">Advanced</button>
+			<button class="topButton" onclick="loadPage('Advanced');">Advanced</button>
 			<div style="clear:both;"></div>
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
