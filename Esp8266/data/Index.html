@@ -36,9 +36,30 @@
 			
 			function initPage() {
 				if (gSinglePage) {
-					loadPage("Home.html");
+					loadPage("Home.html", null);
+				}
+				if (document.getElementById("MenuMode") != null) {
+					gRequest = new XMLHttpRequest();
+					gRequest.onreadystatechange = updateMenuList;
+					gRequest.open("GET", "updateMenuList", true);
+					gRequest.send();
 				}
 				updateDynamicState();
+			}
+
+			function LoadMenuList(photoMenus) {
+				var listItems = "";
+				for(i=0; i<photoMenus.length; i++){
+					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode.html', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
+				}
+				document.getElementById("listButtons").innerHTML = listItems;
+			}
+
+			function updateMenuList() {
+				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
+					var menuList = gRequest.responseText.slice(0, -1).split("~");
+					LoadMenuList(menuList);
+				}
 			}
 
 			function updateDynamicState() {
@@ -47,13 +68,13 @@
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {
 					gRequest = new XMLHttpRequest();
-					gRequest.onreadystatechange = updateIds;
-					gRequest.open("GET", "updateAll", true);
+					gRequest.onreadystatechange = updateDynamicState2;
+					gRequest.open("GET", "updateDynamicState", true);
 					gRequest.send();
 				}
 			}
 
-			function updateIds() {
+			function updateDynamicState2() {
 				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
 					var str = gRequest.responseText;
 					var indexPrev = -1;
@@ -70,7 +91,7 @@
 				}
 			}
 
-			function loadPage(page) {
+			function loadPage(page, dynamicScript) {
 				if (gSinglePage) {
 					document.getElementById("Home").style.display = "none";
 					document.getElementById("MenuMode").style.display = "none";
@@ -79,10 +100,24 @@
 					document.getElementById("Intervalometer").style.display = "none";
 					var s = page.substring(0, page.length-5); // Remove .html which will match div id
 					document.getElementById(s).style.display = "block";
+					if (dynamicScript != null) {
+						gRequest = new XMLHttpRequest();
+						gRequest.onreadystatechange = updateDynamicMenu;
+						gRequest.open("GET", "updateDynamicMenu"+dynamicScript, true);
+						gRequest.send();
+					}
+
 				} else {
 					document.location.href=page;
 				}
 			}
+
+			function updateDynamicMenu() {
+				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
+					eval(gRequest.responseText);
+				}
+			}
+
 			function validateNumber(number,maxLength) {
 				if (number.value.length > maxLength) {
 					number.value = number.value.slice(0,maxLength); 
@@ -327,15 +362,8 @@
 			
 			<button onclick="loadPage('Advanced.html');">Advanced</button>
 			<script>
-				function DebugInit(version, photoMenus) {
-					document.getElementById("version").innerHTML = version;
-					var listItems = "";
-					for(i=0; i<photoMenus.length; i++){
-						listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode.html');\">"+photoMenus[i]+"</button>";
-					}
-					document.getElementById("listButtons").innerHTML = listItems;
-				}
-				DebugInit("0.1",["Sound","Lightning","Projectile"]);
+				document.getElementById("version").innerHTML = "0.2"
+				LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
 			</script>
 		</div>
 <!--Home Page (End)-->
@@ -372,6 +400,9 @@
 				
 				function caStartMenu(majorVersion, minorVersion, menuString) {
 					document.getElementById("title").innerHTML = menuString;
+					if (gTable != null) {
+						gTable.remove();
+					}
 					gTable = document.createElement('table');
 					gTable.classList.add("modeTable");
 				}
@@ -544,7 +575,7 @@
 				function caEndMenu() {
 					document.getElementById("MenuMode").appendChild(gTable);   
 				}
-			</script>		
+			</script>
 		
 			<script>
 				caStartMenu(0,1,"Test Menu 123");

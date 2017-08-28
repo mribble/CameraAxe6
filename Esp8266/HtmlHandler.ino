@@ -2,7 +2,7 @@
 // This function uses a buffer to control the amount of memory used here
 // The size of this buffer has a big impact on performance
 void printFile(const char *fileName) {
-  const uint16_t bufSize = 1024;
+  const uint16_t bufSize = 512;
   static uint8_t buf[bufSize];
   int16_t sz;
   File f = SPIFFS.open(fileName, "r");
@@ -34,13 +34,27 @@ void printFile(const char *fileName) {
 
 void parseUri(String &uri, const char* title) {
 
-  if (uri.indexOf("GET /updateAll ") != -1) {
+  if (uri.indexOf("GET /updateDynamicState ") != -1) {
     String val;
     for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
       val += String("id") + gDynamicMessages.id[i] + "~" + gDynamicMessages.str[i] + "~";
     }
     gDynamicMessages.numMessages = 0;
     gClient.print(val);
+  } else if (uri.indexOf("GET /updateDynamicMenuList ") != -1) {
+    Dir dir = SPIFFS.openDir("/menus/");
+        String str;
+    while (dir.next()) {
+      str += String(dir.fileName()).substring(7) + "~";
+    }
+    gClient.print(str);
+  } else if (uri.indexOf("GET /updateDynamicMenu") != -1){
+      String str;
+      uri.replace("%20", " ");
+      uri.replace("GET /updateDynamicMenu", "");
+      uri.replace(" HTTP/1.1", "");
+      str = String("/menus/") + uri;
+      printFile(str.c_str());
   } else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     // Initial page load
     sendHtml(title);
@@ -70,6 +84,6 @@ void processHtml(const char* title) {
 void sendHtml(const char* title) {
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
-  printFile("/MenuMode.html");
+  printFile("/Index.html");
 }
 

@@ -36,7 +36,7 @@ void setup (void) {
 
 #ifdef CA_DEBUG_INFO
   Dir dir = SPIFFS.openDir("/");
-  Serial.println(F("SPIFFS directory contents:"));
+  Serial.println("SPIFFS directory contents:");
   while (dir.next()) {
     Serial.print(dir.fileName());
     File f = dir.openFile("r");
