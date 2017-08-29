@@ -18,7 +18,7 @@ void setup() {
 }
 
 void loop() {
-  //caRunTests();
+  caRunTests();
   processTerminalCmds();
 
   g_ctx.menuId = 2;  // todo remove this eventually, but for now set to test menu

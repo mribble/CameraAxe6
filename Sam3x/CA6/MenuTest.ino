@@ -41,7 +41,7 @@ void MenuTest_MenuRun() {
   // Handle outgoing packets
   if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*256)) { // Handles wraparounds
     ++gMenuTestData.count;
-    g_ctx.packetHelper.writePacketString(0, 0, String(gMenuTestData.count).c_str());
+    g_ctx.packetHelper.writePacketString(0, String(gMenuTestData.count).c_str());
     gMenuTestData.nextSendUpdate = curTime + updateFrequency;
   }
 }

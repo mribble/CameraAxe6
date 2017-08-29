@@ -119,16 +119,13 @@ void CAPacket::flushPacket() {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketString::CAPacketString(CAPacket& caPacket) {
     mClientHostId = 0;
-    mFlags = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketString::set(uint8_t clientHostId, uint8_t flags, String str) {
+void CAPacketString::set(uint8_t clientHostId, String str) {
+    CA_ASSERT(str.length() < MAX_STRING_SIZE, "String too long");
     mClientHostId = clientHostId;
-    mFlags = flags;
     mString = str;
-    CA_ASSERT(mFlags <= 2,
-        "Error in CAPacketString::set()");
 }
 
 void CAPacketString::set(const String& str) {
@@ -137,36 +134,33 @@ void CAPacketString::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mClientHostId = getUint32FromString(index, str);
-    mFlags = getUint32FromString(index, str);
     mString = getStringFromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_STRING, "Wrong PID ID");
+    CA_ASSERT(mString.length() < MAX_STRING_SIZE, "String too long");
 }
 
 void CAPacketString::unpack() {
     mClientHostId = mCAP->unpacker(8);
-    mFlags = mCAP->unpacker(8);
     mCAP->unpackerString(mString);
     mCAP->flushPacket();
-    CA_ASSERT(mFlags <= 2,
-        "Error in CAPacketString::unpack()");
+	CA_ASSERT(mString.length() < MAX_STRING_SIZE, "String too long");
 }
 
 uint16_t CAPacketString::pack() {
     uint16_t len = mString.length()+1;  // 1 for the null terminator
-    uint16_t packetSize = PACK_TOTAL_SZ + 2 + len;
+    uint16_t packetSize = PACK_TOTAL_SZ + 1 + len;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_STRING, 8);
     mCAP->packer(mClientHostId, 8);
-    mCAP->packer(mFlags, 8);
     mCAP->packerString(mString.c_str());
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketString::packetToString(String& str) {
-    str = (String)PID_STRING + '~' + mClientHostId + '~' + mFlags + '~' + mString + '~';
+    str = (String)PID_STRING + '~' + mClientHostId + '~' + mString + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -174,16 +168,13 @@ void CAPacketString::packetToString(String& str) {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketUint32::CAPacketUint32(CAPacket& caPacket) {
     mClientHostId = 0;
-    mFlags = 0;
     mValue = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketUint32::set(uint8_t clientHostId, uint8_t flags, uint32_t value) {
+void CAPacketUint32::set(uint8_t clientHostId, uint32_t value) {
     mClientHostId = clientHostId;
-    mFlags = flags;
     mValue = value;
-    CA_ASSERT(mFlags <= 2, "Error in CAPacketUint32::set()");
 }
 
 void CAPacketUint32::set(const String& str) {
@@ -192,7 +183,6 @@ void CAPacketUint32::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mClientHostId = getUint32FromString(index, str);
-    mFlags = getUint32FromString(index, str);
     mValue = getUint32FromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_UINT32, "Wrong PID ID");
@@ -200,26 +190,23 @@ void CAPacketUint32::set(const String& str) {
 
 void CAPacketUint32::unpack() {
     mClientHostId = mCAP->unpacker(8);
-    mFlags = mCAP->unpacker(8);
     mValue = mCAP->unpacker(32);
     mCAP->flushPacket();
-    CA_ASSERT(mFlags <= 2, "Error in CAPacketUint32::unpack()");
 }
 
 uint16_t CAPacketUint32::pack() {
-    uint16_t packetSize = PACK_TOTAL_SZ + 6;
+    uint16_t packetSize = PACK_TOTAL_SZ + 5;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_UINT32, 8);
     mCAP->packer(mClientHostId, 8);
-    mCAP->packer(mFlags, 8);
     mCAP->packer(mValue, 32);
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketUint32::packetToString(String& str) {
-    str = (String)PID_UINT32 + '~' + mClientHostId + '~' + mFlags + '~' + mValue + '~';
+    str = (String)PID_UINT32 + '~' + mClientHostId + '~' + mValue + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -227,7 +214,6 @@ void CAPacketUint32::packetToString(String& str) {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
     mClientHostId = 0;
-    mFlags = 0;
     mHours = 0;
     mMinutes = 0;
     mSeconds = 0;
@@ -237,10 +223,9 @@ CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketTimeBox::set(uint8_t clientHostId, uint8_t flags, uint16_t hours, uint8_t minutes,
-                            uint8_t seconds, uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds) {
+void CAPacketTimeBox::set(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds, 
+						    uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds) {
     mClientHostId = clientHostId;
-    mFlags = flags;
     mHours = hours;
     mMinutes = minutes;
     mSeconds = seconds;
@@ -248,7 +233,7 @@ void CAPacketTimeBox::set(uint8_t clientHostId, uint8_t flags, uint16_t hours, u
     mMicroseconds = microseconds;
     mNanoseconds = nanoseconds;
     CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) && (mMilliseconds <= 999) &&
-                (mMicroseconds <= 999) && (mNanoseconds <= 999) && (mFlags <= 2), "Error in CAPacketTimeBox::set()");
+                (mMicroseconds <= 999) && (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
 }
 
 void CAPacketTimeBox::set(const String& str) {
@@ -257,7 +242,6 @@ void CAPacketTimeBox::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mClientHostId = getUint32FromString(index, str);
-    mFlags = getUint32FromString(index, str);
     mHours = getUint32FromString(index, str);
     mMinutes = getUint32FromString(index, str);
     mSeconds = getUint32FromString(index, str);
@@ -270,7 +254,6 @@ void CAPacketTimeBox::set(const String& str) {
 
 void CAPacketTimeBox::unpack() {
     mClientHostId = mCAP->unpacker(8);
-    mFlags = mCAP->unpacker(8);
     mHours = mCAP->unpacker(10);
     mMinutes = mCAP->unpacker(6);
     mSeconds = mCAP->unpacker(6);
@@ -280,18 +263,16 @@ void CAPacketTimeBox::unpack() {
     mCAP->unpacker(4); // Unused
     mCAP->flushPacket();
     CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) && (mMilliseconds <= 999) && 
-                (mMicroseconds <= 999) && (mNanoseconds <= 999) && (mFlags <= 2),
-                "Error in CAPacketTimeBox::set()");
+                (mMicroseconds <= 999) && (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
 }
 
 uint16_t CAPacketTimeBox::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = PACK_TOTAL_SZ + 9;
+    uint16_t packetSize = PACK_TOTAL_SZ + 8;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
     mCAP->packer(mClientHostId, 8);
-    mCAP->packer(mFlags, 8);
     mCAP->packer(mHours, 10);
     mCAP->packer(mMinutes, 6);
     mCAP->packer(mSeconds, 6);
@@ -304,7 +285,7 @@ uint16_t CAPacketTimeBox::pack() {
 }
 
 void CAPacketTimeBox::packetToString(String& str) {
-    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mFlags + '~' + mHours + '~' + mMinutes + '~' + 
+    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mHours + '~' + mMinutes + '~' + 
             mSeconds + '~' + mMilliseconds + '~' + mMicroseconds + '~' + mNanoseconds + '~';
 }
 
@@ -312,15 +293,15 @@ void CAPacketTimeBox::packetToString(String& str) {
 // MenuSelect Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketMenuSelect::CAPacketMenuSelect(CAPacket& caPacket) {
-    mMode = 0;
-    mMenuNumber = 0;
+    mMenuMode = 1;
     mCAP = &caPacket;
 }
 
-void CAPacketMenuSelect::set(uint8_t mode, uint8_t menuNumber) {
-    mMode = mode;
-    mMenuNumber = menuNumber;
-    CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::set()");
+void CAPacketMenuSelect::set(uint8_t menuMode, String menuName) {
+    mMenuMode = menuMode;
+    mMenuName = menuName;
+    CA_ASSERT((mMenuMode <= 1), "Error in CAPacketMenuSelect::set()");
+    CA_ASSERT(mMenuName.length() < MAX_STRING_SIZE, "String too long");
 }
 
 void CAPacketMenuSelect::set(const String& str) {
@@ -328,32 +309,36 @@ void CAPacketMenuSelect::set(const String& str) {
     uint8_t id; 
 
     id = getUint32FromString(index, str);
-    mMode = getUint32FromString(index, str);
-    mMenuNumber = getUint32FromString(index, str);
+    mMenuMode = getUint32FromString(index, str);
+    mMenuName = getStringFromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_MENU_SELECT, "Wrong PID ID");
+    CA_ASSERT((mMenuMode <= 1), "Error in CAPacketMenuSelect::set()");
+    CA_ASSERT(mMenuName.length() < MAX_STRING_SIZE, "String too long");
 }
 
 void CAPacketMenuSelect::unpack() {
-    mMode = mCAP->unpacker(8);
-    mMenuNumber = mCAP->unpacker(8);
+    mMenuMode = mCAP->unpacker(8);
+    mCAP->unpackerString(mMenuName);
     mCAP->flushPacket();
-    CA_ASSERT((mMode <= 1), "Error in CAPacketMenuSelect::unpack()");
+    CA_ASSERT((mMenuMode <= 1), "Error in CAPacketMenuSelect::unpack)");
+    CA_ASSERT(mMenuName.length() < MAX_STRING_SIZE, "String too long");
 }
 
 uint16_t CAPacketMenuSelect::pack() {
-    uint16_t packetSize = PACK_TOTAL_SZ + 2;
+    uint16_t len = mMenuName.length()+1;  // 1 for the null terminator
+    uint16_t packetSize = PACK_TOTAL_SZ + 1 + len;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_MENU_SELECT, 8);
-    mCAP->packer(mMode, 8);
-    mCAP->packer(mMenuNumber, 8);
+    mCAP->packer(mMenuMode, 8);
+    mCAP->packerString(mMenuName.c_str());
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketMenuSelect::packetToString(String& str) {
-    str = (String)PID_MENU_SELECT + '~' + mMode + '~' + mMenuNumber + '~';
+    str = (String)PID_MENU_SELECT + '~' + mMenuMode + '~' + mMenuName + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////

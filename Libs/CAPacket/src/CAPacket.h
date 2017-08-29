@@ -20,7 +20,9 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
 
-#define GUARD_PACKET        22
+#define MAX_STRING_SIZE  	64
+
+#define GUARD_PACKET     	22
 
 #define PACK_GUARD_SZ     1
 #define PACK_SIZE_SZ      2
@@ -111,16 +113,14 @@ public:
     CAPacketString(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_STRING;};
     uint8_t getClientHostId() {return mClientHostId;};
-    uint8_t getFlags() {return mFlags;};
     const char* getString() {return mString.c_str();};
-    void set(uint8_t clientHostId, uint8_t flags, String str);
+    void set(uint8_t clientHostId, String str);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
     uint8_t mClientHostId;
-    uint8_t mFlags;
     String mString;
 };
 
@@ -129,16 +129,14 @@ public:
     CAPacketUint32(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_UINT32;};
     uint8_t getClientHostId() {return mClientHostId;};
-    uint8_t getFlags() {return mFlags;};
     uint32_t getValue() {return mValue;};
-    void set(uint8_t clientHostId, uint8_t flags, uint32_t value);
+    void set(uint8_t clientHostId, uint32_t value);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
     uint8_t mClientHostId;
-    uint8_t mFlags;
     uint32_t mValue;
 };
 
@@ -147,14 +145,13 @@ public:
     CAPacketTimeBox(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_TIME_BOX;};
     uint8_t getClientHostId() {return mClientHostId;};
-    uint8_t getFlags() {return mFlags;};
     uint16_t getHours() {return mHours;};
     uint8_t getMinutes() {return mMinutes;};
     uint8_t getSeconds() {return mSeconds;};
     uint16_t getMilliseconds() {return mMilliseconds;};
     uint16_t getMicroseconds() {return mMicroseconds;};
     uint16_t getNanoseconds() {return mNanoseconds;};
-    void set(uint8_t clientHostId, uint8_t flags, uint16_t hours, uint8_t minutes, uint8_t seconds,
+    void set(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds,
                 uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
     void set(const String& str);
     void unpack();
@@ -162,7 +159,6 @@ public:
     void packetToString(String& str);
 private:
     uint8_t mClientHostId;
-    uint8_t mFlags;
     uint16_t mHours;
     uint8_t mMinutes;
     uint8_t mSeconds;
@@ -176,16 +172,16 @@ public:
     CAPacketMenuSelect(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_MENU_SELECT;};
     uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getMode() {return mMode;};
-    uint8_t getMenuNumber() {return mMenuNumber;};
-    void set(uint8_t activate, uint8_t menuNumber);
+    uint8_t getMenuMode() {return mMenuMode;};
+    const char* getMenuName() {return mMenuName.c_str();};
+    void set(uint8_t menuMode, String menuName);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
-    uint8_t mMode;
-    uint8_t mMenuNumber;
+    uint8_t mMenuMode;
+    String mMenuName;
 };
 
 class CAPacketMenuList : public CAPacketElement {

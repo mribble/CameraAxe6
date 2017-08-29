@@ -20,20 +20,20 @@ CAPacketElement* processIncomingPacket() {
       case PID_STRING: {
         CAPacketString unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_STRING - %d %d %s\n", packetSize, unpack.getClientHostId(), unpack.getFlags(), unpack.getString());
+        CA_LOG("%d PID_STRING - %d %s\n", packetSize, unpack.getClientHostId(), unpack.getString());
         break;
       }
       case PID_UINT32: {
         CAPacketUint32 *unpack = new CAPacketUint32(mUnpacker);
         unpack->unpack();
-        CA_LOG("%d PID_UINT32 - %d %d %d\n", packetSize, unpack->getClientHostId(), unpack->getFlags(), unpack->getValue());
+        CA_LOG("%d PID_UINT32 - %d %d\n", packetSize, unpack->getClientHostId(), unpack->getValue());
         ret = unpack;
         break;
       }
       case PID_TIME_BOX: {
         CAPacketTimeBox unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), unpack.getFlags(),
+        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), 
                   unpack.getHours(), unpack.getMinutes(), unpack.getSeconds(), unpack.getMilliseconds(), unpack.getMicroseconds(),
                   unpack.getNanoseconds());
         break;
@@ -41,9 +41,9 @@ CAPacketElement* processIncomingPacket() {
       case PID_MENU_SELECT: {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_MENU_SELECT - %d %d\n", packetSize, unpack.getMode(), unpack.getMenuNumber());
-        g_ctx.menuId = unpack.getMenuNumber();
-        if (unpack.getMode() == 0) {
+        CA_LOG("%d PID_MENU_SELECT - %d %s\n", packetSize, unpack.getMenuMode(), unpack.getMenuName());
+        g_ctx.menuId = 1; // todo covert menu name into index  (unpack.getMenuName())
+        if (unpack.getMenuMode() == 0) {
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
         } else {

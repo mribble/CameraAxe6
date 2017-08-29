@@ -35,7 +35,7 @@ void MenuSound_MenuRun() {
   // Handle outgoing packets
   if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
     uint16_t val = CAU::analogRead(gMenuSoundData.ppSound);
-    g_ctx.packetHelper.writePacketString(1, 0, String(val).c_str());
+    g_ctx.packetHelper.writePacketString(1, String(val).c_str());
     gMenuSoundData.nextSendUpdate = curTime + updateFrequency;
   }
 }
@@ -53,7 +53,7 @@ void MenuSound_PhotoRun() {
 
   // Handle outgoing packets
   if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
-    g_ctx.packetHelper.writePacketString(0, 0, String(val).c_str());
+    g_ctx.packetHelper.writePacketString(0, String(val).c_str());
     gMenuSoundData.nextSendUpdate = curTime + updateFrequency;
   }
 

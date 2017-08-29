@@ -75,7 +75,6 @@ void caTestPackets()
   uint8_t unpackType;
   uint16_t packSize, unpackSize;
   uint8_t data[512];
-  uint8_t flags = 0;
 
   memset(data, 0, 512);
   CAPacket unpackBase(STATE_UNPACKER, data, 512);
@@ -84,7 +83,7 @@ void caTestPackets()
   { // STRING Packet Test
     CAPacketString unpack0(unpackBase);             // Update per type
     CAPacketString pack0(packBase);                 // Update per type
-    pack0.set(1, flags, "This is a string");        // Update per type
+    pack0.set(1, "This is a string");               // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -94,7 +93,6 @@ void caTestPackets()
           packSize != unpackSize ||
           unpackType != PID_STRING ||               // Update per type
           unpack0.getClientHostId() != 1 ||
-          unpack0.getFlags() != flags ||
           strcmp(unpack0.getString(), "This is a string") != 0) {
       CA_LOG("ERROR - STRING test failed\n");
     }
@@ -110,7 +108,7 @@ void caTestPackets()
   {  // UINT32 Packet Test
     CAPacketUint32 unpack0(unpackBase);             // Update per type
     CAPacketUint32 pack0(packBase);                 // Update per type
-    pack0.set(2, flags, 123);                       // Update per type
+    pack0.set(2, 123);                              // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -120,7 +118,6 @@ void caTestPackets()
         packSize != unpackSize ||
         unpackType != PID_UINT32 ||                 // Update per type
         unpack0.getClientHostId() != 2 ||
-        unpack0.getFlags() != flags ||
         unpack0.getValue() != 123) {
       CA_LOG("ERROR - UINT32 test failed\n");
     }
@@ -136,7 +133,7 @@ void caTestPackets()
   {  // TIME_BOX Packet Test
     CAPacketTimeBox unpack0(unpackBase);            // Update per type
     CAPacketTimeBox pack0(packBase);                // Update per type
-    pack0.set(3, flags, 99, 59, 40, 999, 500, 400); // Update per type
+    pack0.set(3, 99, 59, 40, 999, 500, 400);        // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -146,7 +143,6 @@ void caTestPackets()
         packSize != unpackSize ||
         unpackType != PID_TIME_BOX ||               // Update per type
         unpack0.getClientHostId() != 3 ||
-        unpack0.getFlags() != flags ||
         unpack0.getHours() != 99 ||
         unpack0.getMinutes() != 59 ||
         unpack0.getSeconds() != 40 ||
@@ -168,7 +164,7 @@ void caTestPackets()
   { // MENU_SELECT Packet Test
     CAPacketMenuSelect unpack0(unpackBase);         // Update per type
     CAPacketMenuSelect pack0(packBase);             // Update per type
-    pack0.set(1, 23);                               // Update per type
+    pack0.set(1, "Test");                           // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -177,8 +173,8 @@ void caTestPackets()
     if (unpackGuard != true ||
           packSize != unpackSize ||
           unpackType != PID_MENU_SELECT ||          // Update per type
-          unpack0.getMode() != 1 ||
-          unpack0.getMenuNumber() != 23) {
+          unpack0.getMenuMode() != 1 ||
+          strcmp(unpack0.getMenuName(), "Test") != 0) {
       CA_LOG("ERROR - MENU_SELECT test failed\n");
     }
     String str0, str1;
