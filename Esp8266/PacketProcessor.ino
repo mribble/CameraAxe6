@@ -15,15 +15,6 @@ void sendPacket(String &packetStr) {
     case PID_MENU_SELECT:
       CA_ASSERT(0, "Not implemented");
       break;
-    case PID_MENU_LIST:
-      CA_ASSERT(0, "Not implemented");
-      break;
-    case PID_MODULE_LIST:
-      CA_ASSERT(0, "Not implemented");
-      break;
-    case PID_CAM_STATE:
-      CA_ASSERT(0, "Not implemented");
-      break;
     case PID_CAM_SETTINGS:
       CA_ASSERT(0, "Not implemented");
       break;
@@ -31,9 +22,6 @@ void sendPacket(String &packetStr) {
       CA_ASSERT(0, "Not implemented");
       break;
     case PID_CONTROL_FLAGS:
-      CA_ASSERT(0, "Not implemented");
-      break;
-    case PID_ECHO:
       CA_ASSERT(0, "Not implemented");
       break;
     default:

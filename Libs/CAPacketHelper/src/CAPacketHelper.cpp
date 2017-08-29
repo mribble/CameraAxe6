@@ -134,23 +134,3 @@ void CAPacketHelper::writePacketTimeBox(const String& str) {
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
-
-void CAPacketHelper::writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1,
-                uint8_t moduleMask1, uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
-                uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
-                String menuName) {
-    CAPacketMenuList pack0(mPacker);
-    pack0.set(menuId, moduleId0, moduleMask0,  moduleId1, moduleMask1, moduleId2, moduleMask2, moduleId3, moduleMask3,
-                moduleTypeId0, moduleTypeMask0, moduleTypeId1, moduleTypeMask1, menuName);
-    pack0.pack();
-    writeOnePacket(mData);
-    mPacker.resetBuffer();
-}
-
-void CAPacketHelper::writePacketEcho(uint8_t mode, const char* str) {
-    CAPacketEcho pack0(mPacker);
-    pack0.set(mode, str);
-    pack0.pack();
-    writeOnePacket(mData);
-    mPacker.resetBuffer();
-}

@@ -7,7 +7,7 @@ typedef struct {
 MenuSoundData gMenuSoundData;
 
 void MenuSound_Info() {
-  g_ctx.packetHelper.writePacketMenuList(1, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Sound Menu");
+  //todo
 }
 
 void MenuSound_MenuInit() {

@@ -52,29 +52,6 @@ CAPacketElement* processIncomingPacket() {
         }
         break;
       }
-      case PID_MENU_LIST: {
-        CAPacketMenuList unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_MENU_LIST - %d %d %x %d %x %d %x %d %x %d %x %d %x %s\n", packetSize, unpack.getMenuId(), unpack.getModuleId0(), unpack.getModuleMask0(),
-                  unpack.getModuleId1(), unpack.getModuleMask1(), unpack.getModuleId2(), unpack.getModuleMask2(), unpack.getModuleId3(), unpack.getModuleMask3(),
-                  unpack.getModuleTypeId0(), unpack.getModuleTypeMask0(), unpack.getModuleTypeId1(), unpack.getModuleTypeMask1(), unpack.getMenuName());
-        for(int i=1; i<NUM_MENUS; ++i) {
-          g_ctx.procTable.funcInfo[i]();
-        }
-        break;
-      }
-      case PID_MODULE_LIST: {
-        CAPacketModuleList unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_MODULE_LIST - %d %d %s\n", packetSize, unpack.getModuleId(), unpack.getModuleTypeId(), unpack.getModuleName());
-        break;
-      }
-      case PID_CAM_STATE: {
-        CAPacketCamState unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_CAM_STATE - %d %d %d\n", packetSize, unpack.getMultiplier(), unpack.getFocus(), unpack.getShutter());
-        break;
-      }
       case PID_CAM_SETTINGS: {
         CAPacketCamSettings unpack(mUnpacker);
         unpack.unpack();
@@ -99,17 +76,6 @@ CAPacketElement* processIncomingPacket() {
         CAPacketControlFlags unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_CONTROL_FLAGS - %d %d\n", packetSize, unpack.getSlaveModeEnable(), unpack.getExtraMessagesEnable());
-        break;
-      }
-      case PID_ECHO: {
-        CAPacketEcho unpack(mUnpacker);
-        unpack.unpack();
-        if (unpack.getMode() == 1) { // 1 means echo back to Android
-          g_ctx.packetHelper.writePacketEcho(1, unpack.getString());
-        } else {
-          //g_ctx.echoReceived = 1;
-        }
-        CA_LOG("%d PID_ECHO - %d %s\n", packetSize, unpack.getMode(), unpack.getString());
         break;
       }
       default: {

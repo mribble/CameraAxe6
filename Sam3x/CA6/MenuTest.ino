@@ -6,7 +6,7 @@ typedef struct {
 MenuTestData gMenuTestData;
 
 void MenuTest_Info() {
-  g_ctx.packetHelper.writePacketMenuList(2, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Test Menu");
+  //todo
 }
 
 void MenuTest_MenuInit() {

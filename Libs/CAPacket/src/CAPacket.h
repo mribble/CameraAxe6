@@ -8,14 +8,10 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_UINT32              =  2,
                 PID_TIME_BOX            =  3,
                 PID_MENU_SELECT         =  4,
-                PID_MENU_LIST           =  5,
-                PID_MODULE_LIST         =  6,
-                PID_CAM_STATE           =  7,
-                PID_CAM_SETTINGS        =  8,
-                PID_INTERVALOMETER      =  9,
-                PID_CONTROL_FLAGS       = 10,
-                PID_ECHO                = 11,
-                PID_END_SENTINEL        = 12, // Must be last
+                PID_CAM_SETTINGS        =  5,
+                PID_INTERVALOMETER      =  6,
+                PID_CONTROL_FLAGS       =  7,
+                PID_END_SENTINEL        =  8, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -184,96 +180,6 @@ private:
     String mMenuName;
 };
 
-class CAPacketMenuList : public CAPacketElement {
-public:
-    CAPacketMenuList(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_MENU_LIST;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getMenuId() {return mMenuId;};
-    uint8_t getModuleId0() {return mModuleId0;};
-    uint8_t getModuleMask0() {return mModuleMask0;};
-    uint8_t getModuleId1() {return mModuleId1;};
-    uint8_t getModuleMask1() {return mModuleMask1;};
-    uint8_t getModuleId2() {return mModuleId2;};
-    uint8_t getModuleMask2() {return mModuleMask2;};
-    uint8_t getModuleId3() {return mModuleId3;};
-    uint8_t getModuleMask3() {return mModuleMask3;};
-    uint8_t getModuleTypeId0() {return mModuleTypeId0;};
-    uint8_t getModuleTypeMask0() {return mModuleTypeMask0;};
-    uint8_t getModuleTypeId1() {return mModuleTypeId1;};
-    uint8_t getModuleTypeMask1() {return mModuleTypeMask1;};
-    const char* getMenuName() {return mMenuName.c_str();};
-    void set(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
-                uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
-                uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
-                String menuName);
-    void set(const String& str);
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-private:
-    uint8_t mMenuId;
-    uint8_t mModuleId0;
-    uint8_t mModuleMask0;
-    uint8_t mModuleId1;
-    uint8_t mModuleMask1;
-    uint8_t mModuleId2;
-    uint8_t mModuleMask2;
-    uint8_t mModuleId3;
-    uint8_t mModuleMask3;
-    uint8_t mModuleTypeId0;
-    uint8_t mModuleTypeMask0;
-    uint8_t mModuleTypeId1;
-    uint8_t mModuleTypeMask1;
-    String mMenuName;
-};
-
-class CAPacketModuleList : public CAPacketElement {
-public:
-    CAPacketModuleList(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_MODULE_LIST;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getModuleId() {return mModuleId;};
-    uint8_t getModuleTypeId() {return mModuleTypeId;};
-    const char* getModuleName() {return mModuleName.c_str();};
-    void set(uint8_t moduleId, uint8_t moduleTypeId, String moduleName);
-    void set(const String& str);
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-private:
-    uint8_t mModuleId;
-    uint8_t mModuleTypeId;
-    String mModuleName;
-};
-
-class CAPacketCamState : public CAPacketElement {
-public:
-    const uint8_t CAM0    = 0x01;
-    const uint8_t CAM1    = 0x02;
-    const uint8_t CAM2    = 0x04;
-    const uint8_t CAM3    = 0x08;
-    const uint8_t CAM4    = 0x10;
-    const uint8_t CAM5    = 0x20;
-    const uint8_t CAM6    = 0x40;
-    const uint8_t CAM7    = 0x80;
-    CAPacketCamState(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_CAM_STATE;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getMultiplier() {return mMultiplier;};
-    uint8_t getFocus() {return mFocus;};
-    uint8_t getShutter() {return mShutter;};
-    void set(uint8_t multiplier, uint8_t focus, uint8_t shutter);
-    void set(const String& str);
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-private:
-    uint8_t mMultiplier;
-    uint8_t mFocus;
-    uint8_t mShutter;
-};
-
 class CAPacketCamSettings : public CAPacketElement  {
 public:
     const uint8_t SEQ0    = 0x01;
@@ -392,23 +298,6 @@ public:
 private:
     uint8_t mSlaveModeEnable;
     uint8_t mExtraMessagesEnable;
-};
-
-class CAPacketEcho : public CAPacketElement {
-public:
-    CAPacketEcho(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_ECHO;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getMode() {return mMode;};
-    const char* getString() {return mString.c_str();};
-    void set(uint8_t mode, String str);
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-    void set(const String& str);
-private:
-    uint8_t mMode;
-    String mString;
 };
 
 #endif // __CAPACKET_H__

@@ -31,12 +31,6 @@ public:
     void writePacketTimeBox(const String& str);
     // todo add missing packet types
     
-    void writePacketMenuList(uint8_t menuId, uint8_t moduleId0, uint8_t moduleMask0,  uint8_t moduleId1, uint8_t moduleMask1,
-                uint8_t moduleId2, uint8_t moduleMask2, uint8_t moduleId3, uint8_t moduleMask3,
-                uint8_t moduleTypeId0, uint8_t moduleTypeMask0, uint8_t moduleTypeId1, uint8_t moduleTypeMask1,
-                String menuName);
-    void writePacketEcho(uint8_t mode, const char* str);
-
 private:
     uint16_t serialFlowControlAvailable();
     void serialFlowControlRead(uint8_t *buf, uint16_t length);

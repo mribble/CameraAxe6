@@ -186,95 +186,6 @@ void caTestPackets()
     }
   }
 
-  { // MENU_LIST Packet Test
-    CAPacketMenuList unpack0(unpackBase);           // Update per type
-    CAPacketMenuList pack0(packBase);               // Update per type
-    pack0.set(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, "menuList"); // Update per type
-    packSize = pack0.pack();
-    unpackGuard = unpackBase.unpackGuard();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (unpackGuard != true ||
-          packSize != unpackSize ||
-          unpackType != PID_MENU_LIST ||            // Update per type
-          unpack0.getMenuId() != 1 ||
-          unpack0.getModuleId0() != 2 ||
-          unpack0.getModuleMask0() != 3 ||
-          unpack0.getModuleId1() != 4 ||
-          unpack0.getModuleMask1() != 5 ||
-          unpack0.getModuleId2() != 6 ||
-          unpack0.getModuleMask2() != 7 ||
-          unpack0.getModuleId3() != 8 ||
-          unpack0.getModuleMask3() != 9 ||
-          unpack0.getModuleTypeId0() != 10 ||
-          unpack0.getModuleTypeMask0() != 11 ||
-          unpack0.getModuleTypeId1() != 12 ||
-          unpack0.getModuleTypeMask1() != 13 ||
-          strcmp(unpack0.getMenuName(), "menuList") != 0) {
-      CA_LOG("ERROR - MENU_LIST test failed\n");
-    }
-    String str0, str1;
-    unpack0.packetToString(str0);
-    unpack0.set(str0);
-    unpack0.packetToString(str1);
-    if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - MENU_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
-    }
-  }
-
-  { // MODULE_LIST Packet Test
-    CAPacketModuleList unpack0(unpackBase);         // Update per type
-    CAPacketModuleList pack0(packBase);             // Update per type
-    pack0.set(33, 44, "moduleList");                // Update per type
-    packSize = pack0.pack();
-    unpackGuard = unpackBase.unpackGuard();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (unpackGuard != true ||
-          packSize != unpackSize ||
-          unpackType != PID_MODULE_LIST ||          // Update per type
-          unpack0.getModuleId() != 33 ||
-          unpack0.getModuleTypeId() != 44 ||
-          strcmp(unpack0.getModuleName(), "moduleList") != 0) {
-      CA_LOG("ERROR - MODULE_LIST test failed\n");
-    }
-    String str0, str1;
-    unpack0.packetToString(str0);
-    unpack0.set(str0);
-    unpack0.packetToString(str1);
-    if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - MODULE_LIST test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
-    }
-  }
-  
-  { // CAM_STATE Packet Test
-    CAPacketCamState unpack0(unpackBase);           // Update per type
-    CAPacketCamState pack0(packBase);               // Update per type
-    pack0.set(2, 0xc1, 0xf0);                       // Update per type
-    packSize = pack0.pack();
-    unpackGuard = unpackBase.unpackGuard();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (unpackGuard != true ||
-          packSize != unpackSize ||
-          unpackType != PID_CAM_STATE ||            // Update per type
-          unpack0.getMultiplier() != 2 ||
-          unpack0.getFocus() != 0xc1 ||
-          unpack0.getShutter() != 0xf0) {
-      CA_LOG("ERROR - CAM_STATE test failed\n");
-    }
-    String str0, str1;
-    unpack0.packetToString(str0);
-    unpack0.set(str0);
-    unpack0.packetToString(str1);
-    if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - CAM_STATE test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
-    }
-  }
-
   { // CAM_SETTINGS Packet Test
     CAPacketCamSettings unpack0(unpackBase);        // Update per type
     CAPacketCamSettings pack0(packBase);            // Update per type
@@ -374,31 +285,6 @@ void caTestPackets()
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - CONTROL_FLAGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
-    }
-  }
-
-  { // ECHO Packet Test
-    CAPacketEcho unpack0(unpackBase);               // Update per type
-    CAPacketEcho pack0(packBase);                   // Update per type
-    pack0.set(1, "Echo Packet");                    // Update per type
-    packSize = pack0.pack();
-    unpackGuard = unpackBase.unpackGuard();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (unpackGuard != true ||
-          packSize != unpackSize ||
-          unpackType != PID_ECHO ||                 // Update per type
-          unpack0.getMode() != 1 ||
-          strcmp(unpack0.getString(), "Echo Packet") != 0) {
-      CA_LOG("ERROR - ECHO test failed\n");
-    }
-    String str0, str1;
-    unpack0.packetToString(str0);
-    unpack0.set(str0);
-    unpack0.packetToString(str1);
-    if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - ECHO test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
