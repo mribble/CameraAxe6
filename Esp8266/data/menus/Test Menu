@@ -1,4 +1,4 @@
-caStartMenu(0,1,"Test Menu");
+caStartMenu("Test Menu");
 caTextStatic("Static text");
 caTextDynamic("id0", "Dynamic text", "777");
 caButton("id1", "This is a button", "Button");

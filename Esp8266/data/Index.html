@@ -378,7 +378,7 @@
 
 				var gTable;
 				
-				function caStartMenu(majorVersion, minorVersion, menuString) {
+				function caStartMenu(menuString) {
 					document.getElementById("title").innerHTML = menuString;
 					if (gTable != null) {
 					gTable.remove();
@@ -558,7 +558,7 @@
 			</script>		
 			<div id="dynamicScriptId">
 			<script>
-				caStartMenu(0,1,"Test Menu 123");
+				caStartMenu("Test Menu 123");
 				caTextStatic("Static text");
 				caTextDynamic("id0", "Dynamic text", "777");
 				caButton("id1", "This is a button", "Button");

@@ -1,0 +1,4 @@
+caStartMenu("Sound Menu");
+caSlider("id0", 1, 100, 1, "Sound Trigger Level");
+caTextDynamic("id1", "Current Sound Level (1-100)", "1");
+caEndMenu();
