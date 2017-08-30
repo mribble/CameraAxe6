@@ -41,28 +41,20 @@ void MenuSound_MenuRun() {
 }
 
 void MenuSound_PhotoRun() {
-  uint32_t updateFrequency = 500;  // 500 ms
-  uint32_t curTime = millis();
-  uint32_t nextUpdate = gMenuSoundData.nextSendUpdate;
-  uint16_t triggerVal = gMenuSoundData.triggerVal;
-  uint16_t val = CAU::analogRead(gMenuSoundData.ppSound);
-
-  // Handle incoming packets
-  CAPacketElement *packet = processIncomingPacket();
-  incomingPacketFinish(packet);
-
-  // Handle outgoing packets
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
-    g_ctx.packetHelper.writePacketString(0, String(val).c_str());
-    gMenuSoundData.nextSendUpdate = curTime + updateFrequency;
-  }
-
-  // Handle triggering
-  uint8_t trigger = (val >= triggerVal) ? true : false;
-  if (trigger) {
-    triggerCameras();
-    CA_LOG("Trigger\n");
-  }
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    uint16_t triggerVal = gMenuSoundData.triggerVal;
+    uint16_t val = CAU::analogRead(gMenuSoundData.ppSound);
   
+    // Handle incoming packets
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
+  
+    // Handle triggering
+    uint8_t trigger = (val >= triggerVal) ? true : false;
+    if (trigger) {
+      triggerCameras();
+      CA_LOG("Trigger\n");
+    }
+  }
 }
 
