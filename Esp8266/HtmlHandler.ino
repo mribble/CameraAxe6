@@ -33,6 +33,8 @@ void printFile(const char *fileName) {
 }
 
 void parseUri(String &uri, const char* title) {
+  uri.replace("%20", " ");
+  
   if (uri.indexOf("GET /updateDynamicState ") != -1) {
     String val;
     for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
@@ -49,7 +51,6 @@ void parseUri(String &uri, const char* title) {
     gClient.print(str);
   } else if (uri.indexOf("GET /updateDynamicMenu") != -1){
       String str;
-      uri.replace("%20", " ");
       uri.replace("GET /updateDynamicMenu", "");
       uri.replace(" HTTP/1.1", "");
       str = String("/menus/") + uri;

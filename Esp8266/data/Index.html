@@ -30,7 +30,18 @@
 		</style>
 <!--Global Script-->
 		<script>
+			var PID_STRING          =  1;
+			var PID_UINT32          =  2;
+			var PID_TIME_BOX        =  3;
+			var PID_MENU_SELECT     =  4;
+			var PID_CAM_SETTINGS    =  5;
+			var PID_INTERVALOMETER  =  6;
+			var PID_CONTROL_FLAGS   =  7;
+
 			var gRequest;
+			var gRequest1;
+			var gRequest2;
+			var gRequest3;
 			var gSinglePage = true;
 			window.onload = initPage;
 			
@@ -39,16 +50,17 @@
 					loadPage("Home", null);
 				}
 				if (document.getElementById("MenuMode") != null) {
-					gRequest = new XMLHttpRequest();
-					gRequest.onreadystatechange = updateMenuListAjax;
-					gRequest.open("GET", "updateMenuList", true);
-					gRequest.send();
+					gRequest1 = new XMLHttpRequest();
+					gRequest1.onreadystatechange = updateMenuListAjax;
+					gRequest1.open("GET", "updateMenuList", true);
+					gRequest1.send();
 				}
 				updateDynamicState();
 			}
 
 			function loadPage(page, dynamicScript) {
 				if (gSinglePage) {
+					var menuName = "null";
 					document.getElementById("Home").style.display = "none";
 					document.getElementById("MenuMode").style.display = "none";
 					document.getElementById("CameraFlash").style.display = "none";
@@ -56,12 +68,16 @@
 					document.getElementById("Intervalometer").style.display = "none";
 					document.getElementById(page).style.display = "block";
 					if (dynamicScript != null) {
-						gRequest = new XMLHttpRequest();
-						gRequest.onreadystatechange = updateDynamicMenuAjax;
-						gRequest.open("GET", "updateDynamicMenu"+dynamicScript, true);
-						gRequest.send();
+						gRequest3 = new XMLHttpRequest();
+						gRequest3.onreadystatechange = updateDynamicMenuAjax;
+						gRequest3.open("GET", "updateDynamicMenu"+dynamicScript, true);
+						gRequest3.send();
+						menuName = dynamicScript;
 					}
-
+					var val = PID_MENU_SELECT+"~"+0+"~"+menuName+"~";
+					gRequest = new XMLHttpRequest();
+					gRequest.open("GET", val, true);
+					gRequest.send();
 				} else {
 					page += ".html";
 					document.location.href=page;
@@ -81,24 +97,24 @@
 				document.getElementById("debugText").innerHTML = "Done";
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {
-					gRequest = new XMLHttpRequest();
-					gRequest.onreadystatechange = updateDynamicStateAjax;
-					gRequest.open("GET", "updateDynamicState", true);
-					gRequest.send();
+					gRequest2 = new XMLHttpRequest();
+					gRequest2.onreadystatechange = updateDynamicStateAjax;
+					gRequest2.open("GET", "updateDynamicState", true);
+					gRequest2.send();
 				}
 			}
 			
 			function updateMenuListAjax() {
-				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
-					var menuList = gRequest.responseText.slice(0, -1).split("~");
+				if ((gRequest1.readyState == 4) && (gRequest1.status == 200)) {
+					var menuList = gRequest1.responseText.slice(0, -1).split("~");
 					LoadMenuList(menuList);
 				}
 			}
 
 			function updateDynamicStateAjax() {
-				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
-					var str = gRequest.responseText;
-					var stateList = gRequest.responseText.slice(0, -1).split("~");
+				if ((gRequest2.readyState == 4) && (gRequest2.status == 200)) {
+					var str = gRequest2.responseText;
+					var stateList = gRequest2.responseText.slice(0, -1).split("~");
 					for(var i=0; i<stateList.length; i+=2) {
 						document.getElementById(stateList[i]).innerHTML = stateList[i+1];
 					}
@@ -106,11 +122,10 @@
 			}
 
 			function updateDynamicMenuAjax() {
-				if ((gRequest.readyState == 4) && (gRequest.status == 200)) {
-					eval(gRequest.responseText);
+				if ((gRequest3.readyState == 4) && (gRequest3.status == 200)) {
+					eval(gRequest3.responseText);
 				}
 			}
-
 
 		</script>		
 	</head>
@@ -371,11 +386,6 @@
 			</style>
 
 			<script>
-				var PID_STRING = 1;
-				var PID_UINT32 = 2;
-				var PID_TIME_BOX = 3;
-				var FLAGS = 0;
-
 				var gTable;
 				
 				function caStartMenu(menuString) {
@@ -415,7 +425,7 @@
 					b.id = id;
 					b.innerHTML = text1;
 					b.onclick = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+"1"+"~";
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+"1"+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);
@@ -436,7 +446,7 @@
 					x.id = id;
 					x.checked = value;
 					x.onchange = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+(this.checked ? 1 : 0)+"~";
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+(this.checked ? 1 : 0)+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);
@@ -466,7 +476,7 @@
 					}
 					
 					x.onchange = function(){
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.selectedIndex+"~";
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+this.selectedIndex+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);
@@ -494,7 +504,7 @@
 						if (this.value < 0) {
 							this.value = 0;
 						}
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+this.value+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);
@@ -537,7 +547,7 @@
 					x.step="1";
 					x.onchange = function(){
 						document.getElementById(id+'b').innerHTML = this.value;
-						var val = PID_UINT32+"~"+id.substring(2)+"~"+FLAGS+"~"+this.value+"~";
+						var val = PID_UINT32+"~"+id.substring(2)+"~"+this.value+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);

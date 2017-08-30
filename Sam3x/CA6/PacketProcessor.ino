@@ -42,8 +42,25 @@ CAPacketElement* processIncomingPacket() {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_MENU_SELECT - %d %s\n", packetSize, unpack.getMenuMode(), unpack.getMenuName());
-        g_ctx.menuId = 1; // todo covert menu name into index  (unpack.getMenuName())
-        if (unpack.getMenuMode() == 0) {
+
+        uint8_t index = 0;
+        if (strcmp(unpack.getMenuName(), "null") == 0) {
+          index = 0;
+        } else {
+          for (uint8_t i=1; i<NUM_MENUS; ++i) {
+            if (strcmp(unpack.getMenuName(), g_ctx.procTable.funcName[i]()) == 0) {
+              index = i;
+            }
+          }
+          if (index == 0) {
+            CA_ERROR("No menu name match", 0);
+          }
+        }
+        g_ctx.menuId = index;
+
+        if (g_ctx.menuId == 0) {
+          g_ctx.state = CA_STATE_MENU_MODE;
+        } else if (unpack.getMenuMode() == 0) {
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
         } else {

@@ -10,14 +10,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Sound Menu
-extern void MenuSound_Info();
+extern const char* MenuSound_Name();
 extern void MenuSound_MenuInit();
 extern void MenuSound_PhotoInit();
 extern void MenuSound_MenuRun();
 extern void MenuSound_PhotoRun();
 
 // Test Menu
-extern void MenuTest_Info();
+extern const char* MenuTest_Name();
 extern void MenuTest_MenuInit();
 extern void MenuTest_PhotoInit();
 extern void MenuTest_MenuRun();

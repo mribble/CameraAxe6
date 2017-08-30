@@ -13,7 +13,7 @@ void sendPacket(String &packetStr) {
       gPh.writePacketTimeBox(packetStr);
       break;
     case PID_MENU_SELECT:
-      CA_ASSERT(0, "Not implemented");
+      gPh.writePacketMenuSelect(packetStr);
       break;
     case PID_CAM_SETTINGS:
       CA_ASSERT(0, "Not implemented");

@@ -9,7 +9,7 @@
 
 struct CtxProcTable
 {
-  void (*funcInfo[NUM_MENUS])()          {NULL, MenuSound_Info, MenuTest_Info};
+  const char* (*funcName[NUM_MENUS])()   {NULL, MenuSound_Name, MenuTest_Name};
   void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit};
   void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit};
   void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun};

@@ -29,6 +29,8 @@ public:
     void writePacketTimeBox(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds,
                 uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
     void writePacketTimeBox(const String& str);
+    void writePacketMenuSelect(uint8_t menuMode, const char* menuName);
+    void writePacketMenuSelect(const String& str);
     // todo add missing packet types
     
 private:

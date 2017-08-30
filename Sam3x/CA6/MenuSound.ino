@@ -6,8 +6,8 @@ typedef struct {
 
 MenuSoundData gMenuSoundData;
 
-void MenuSound_Info() {
-  //todo
+const char* MenuSound_Name() {
+  return "Sound Menu";
 }
 
 void MenuSound_MenuInit() {

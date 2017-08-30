@@ -5,8 +5,8 @@ typedef struct {
 
 MenuTestData gMenuTestData;
 
-void MenuTest_Info() {
-  //todo
+const char* MenuTest_Name() {
+  return "Test Menu";
 }
 
 void MenuTest_MenuInit() {

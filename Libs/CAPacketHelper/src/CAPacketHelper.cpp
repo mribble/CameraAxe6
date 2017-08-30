@@ -134,3 +134,20 @@ void CAPacketHelper::writePacketTimeBox(const String& str) {
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
+
+void CAPacketHelper::writePacketMenuSelect(uint8_t menuMode, const char* menuName) {
+    CAPacketMenuSelect pack0(mPacker);
+    pack0.set(menuMode, menuName);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketMenuSelect(const String& str) {
+    CAPacketMenuSelect pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
