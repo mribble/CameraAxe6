@@ -19,6 +19,7 @@
 				height: 650px;
 				padding: 12px;
 				border: 1px solid #000;
+				display: none;
 			}
 			.topText{
 				float: left;
@@ -42,13 +43,12 @@
 			var gRequest1;
 			var gRequest2;
 			var gRequest3;
-			var gSinglePage = true;
+			var gMenuMode = 0;
+			var gMenuName = "null";
 			window.onload = initPage;
 			
 			function initPage() {
-				if (gSinglePage) {
-					loadPage("Home", null);
-				}
+				loadPage("Home", null);
 				if (document.getElementById("MenuMode") != null) {
 					gRequest1 = new XMLHttpRequest();
 					gRequest1.onreadystatechange = updateMenuListAjax;
@@ -59,31 +59,51 @@
 			}
 
 			function loadPage(page, dynamicScript) {
-				if (gSinglePage) {
-					var menuName = "null";
-					document.getElementById("Home").style.display = "none";
-					document.getElementById("MenuMode").style.display = "none";
-					document.getElementById("CameraFlash").style.display = "none";
-					document.getElementById("Advanced").style.display = "none";
-					document.getElementById("Intervalometer").style.display = "none";
-					document.getElementById(page).style.display = "block";
-					if (dynamicScript != null) {
-						gRequest3 = new XMLHttpRequest();
-						gRequest3.onreadystatechange = updateDynamicMenuAjax;
-						gRequest3.open("GET", "updateDynamicMenu"+dynamicScript, true);
-						gRequest3.send();
-						menuName = dynamicScript;
-					}
-					var val = PID_MENU_SELECT+"~"+0+"~"+menuName+"~";
-					gRequest = new XMLHttpRequest();
-					gRequest.open("GET", val, true);
-					gRequest.send();
-				} else {
-					page += ".html";
-					document.location.href=page;
+				gMenuName = "null";
+				document.getElementById("Home").style.display = "none";
+				document.getElementById("MenuMode").style.display = "none";
+				document.getElementById("CameraFlash").style.display = "none";
+				document.getElementById("Advanced").style.display = "none";
+				document.getElementById("Intervalometer").style.display = "none";
+				document.getElementById(page).style.display = "block";
+				if (dynamicScript != null) {
+					gRequest3 = new XMLHttpRequest();
+					gRequest3.onreadystatechange = updateDynamicMenuAjax;
+					gRequest3.open("GET", "updateDynamicMenu"+dynamicScript, true);
+					gRequest3.send();
+					gMenuName = dynamicScript;
 				}
+				toggleMenuPhotoMode(true);
 			}
 			
+			function toggleMenuPhotoMode(forceMenuMode) {
+			var id = document.getElementById("MenuPhotoModeButton");
+
+			if (forceMenuMode) {
+					id.innerHTML = "Photo Mode";
+					gMenuModeTable.style.display = "table";
+					gPhotoModeTable.style.display = "none";
+					gMenuMode = 0;
+				}
+				else {	// Toggle mode
+					if (id.innerHTML == "Photo Mode") {
+						id.innerHTML = "Menu Mode";
+						gMenuModeTable.style.display = "none";
+						gPhotoModeTable.style.display = "table";
+						gMenuMode = 1;
+					} else {
+						id.innerHTML = "Photo Mode";
+						gMenuModeTable.style.display = "table";
+						gPhotoModeTable.style.display = "none";
+						gMenuMode = 0;
+					}
+				}
+				var val = PID_MENU_SELECT+"~"+gMenuMode+"~"+gMenuName+"~";
+				gRequest = new XMLHttpRequest();
+				gRequest.open("GET", val, true);
+				gRequest.send();
+			}
+
 			function LoadMenuList(photoMenus) {
 				var listItems = "";
 				for(i=0; i<photoMenus.length; i++){
@@ -366,7 +386,7 @@
 		<div id="MenuMode" class="mainBox">
 			<button class="button" onclick="loadPage('Home');">Home</button>
 			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Test Trigger';">Test Trigger</button>
-			<button class="button" onclick="document.getElementById('debugText').innerHTML = 'Photo Mode';">Photo Mode</button>
+			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false);">Photo Mode</button>
 			<h1 id="title"></h1>
 
 			<style>
@@ -386,19 +406,32 @@
 			</style>
 
 			<script>
-				var gTable;
+				var gMenuModeTable;
+				var gPhotoModeTable;
+				var gCurTable;
 				
-				function caStartMenu(menuString) {
+				function caStartMenuMode(menuString) {
 					document.getElementById("title").innerHTML = menuString;
-					if (gTable != null) {
-					gTable.remove();
+					if (gMenuModeTable != null) {
+					gMenuModeTable.remove();
 					}
-					gTable = document.createElement('table');
-					gTable.classList.add("modeTable");
+					gMenuModeTable = document.createElement('table');
+					gCurTable = gMenuModeTable;
+					gCurTable.classList.add("modeTable");
+				}
+				
+				function caStartPhotoMode() {
+					if (gPhotoModeTable != null) {
+					gPhotoModeTable.remove();
+					}
+					gPhotoModeTable = document.createElement('table');
+					gPhotoModeTable.style.display = "none";
+					gCurTable = gPhotoModeTable;
+					gCurTable.classList.add("modeTable");
 				}
 
 				function caTextStatic(text0) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.colSpan = "2";
 					cell0.innerHTML = text0;
@@ -406,7 +439,7 @@
 				}
 				
 				function caTextDynamic(id, text0, text1) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -417,7 +450,7 @@
 				}
 				
 				function caButton(id, text0, text1) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -437,7 +470,7 @@
 				}
 
 				function caCheckBox(id, value, text0) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -459,7 +492,7 @@
 				}
 
 				function caDropSelect(id, value, text0, text1) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -488,7 +521,7 @@
 				}
 
 				function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -517,7 +550,7 @@
 				}
 
 				function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -533,7 +566,7 @@
 				}
 				
 				function caSlider(id, minValue, maxValue, value, text0) {
-					var row = gTable.insertRow();
+					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
 					var cell1 = row.insertCell();
@@ -563,23 +596,17 @@
 				}
 
 				function caEndMenu() {
-					document.getElementById("MenuMode").appendChild(gTable);   
+					document.getElementById("MenuMode").appendChild(gCurTable);   
 				}
 			</script>		
-			<div id="dynamicScriptId">
 			<script>
-				caStartMenu("Test Menu 123");
-				caTextStatic("Static text");
-				caTextDynamic("id0", "Dynamic text", "777");
-				caButton("id1", "This is a button", "Button");
-				caCheckBox("id2", 0, "This is a checkbox");
-				caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
-				caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
-				caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
-				caSlider("id6", 0, 255, 10, "This is a slider");
+				caStartMenuMode("Dummy Menu");
+				caTextStatic("Menu Mode");
+				caEndMenu();
+				caStartPhotoMode();
+				caTextStatic("Photo Mode");
 				caEndMenu();
 			</script>
-			</div>
 		</div>
 <!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
