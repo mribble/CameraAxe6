@@ -414,6 +414,8 @@
 			<h2>Menus</h2>
 			<div id="listButtons"></div><br><br>
 			
+			<button onclick="loadPage('Intervalometer');">Setup Intervalometer</button>
+			<br><br>
 			<button onclick="loadPage('Advanced');">Advanced</button>
 			<script>
 				document.getElementById("version").innerHTML = "0.2"
@@ -854,25 +856,14 @@
 			<button class="topButton" onclick="loadPage('Home');">Home</button>
 			<div style="clear:both;"></div>
 			<p>
-				Program Module 0: 
-				<input type="number" name="number" min="0" max="65535" oninput='validateNumber(this,5);' onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="5"> 
-				<button onclick="debugSend();">Send</button>
+				Add options to this page later.
 			</p>
-			<br>
-			<p style="text-align:center">
-				<button onclick="loadPage('Intervalometer');">Setup Intervalometer</button>
-			</p>
-			<script>
-				function debugSend() {
-					document.getElementById("debugText").innerHTML = document.getElementsByName("number")[0].value;
-				}
-			</script>
 		</div>
 <!--Advanced Page (End)-->
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
 			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="loadPage('Advanced');">Advanced</button>
+			<button class="topButton" onclick="loadPage('Home');">Home</button>
 			<div style="clear:both;"></div>
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
