@@ -124,6 +124,21 @@
 				}
 			}
 			
+			function validateNumber(number,maxLength) {
+				if (number.value.length > maxLength) {
+					number.value = number.value.slice(0,maxLength); 
+				}
+				if (number.value.length > 1 && number.value[0]==0){
+					number.value = (number.value).replace("0","");
+				}
+				if (number.value < 0 || number.value=="") {
+					number.value = 0;
+				}
+				if (+number.value > +number.max) {
+					number.value = number.max;
+				}
+			}
+			
 			function updateMenuListAjax() {
 				if ((gRequest1.readyState == 4) && (gRequest1.status == 200)) {
 					var menuList = gRequest1.responseText.slice(0, -1).split("~");

@@ -73,7 +73,7 @@ public:
 
     // This walks through the strings from javascript that contain all the data needed to generate a packet
     uint32_t getUint32FromString(uint16_t& startIndex, const String& str) {
-        uint16_t val;
+        uint32_t val;
         int16_t endIndex = str.indexOf('~', startIndex);
         CA_ASSERT(endIndex!=-1, "Failed check");
         val = (str.substring(startIndex, endIndex)).toInt();
@@ -141,26 +141,17 @@ public:
     CAPacketTimeBox(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_TIME_BOX;};
     uint8_t getClientHostId() {return mClientHostId;};
-    uint16_t getHours() {return mHours;};
-    uint8_t getMinutes() {return mMinutes;};
-    uint8_t getSeconds() {return mSeconds;};
-    uint16_t getMilliseconds() {return mMilliseconds;};
-    uint16_t getMicroseconds() {return mMicroseconds;};
-    uint16_t getNanoseconds() {return mNanoseconds;};
-    void set(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds,
-                uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
+    uint32_t getNanoseconds() {return mNanoseconds;};
+    uint32_t getSeconds() {return mSeconds;};
+    void set(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
     uint8_t mClientHostId;
-    uint16_t mHours;
-    uint8_t mMinutes;
-    uint8_t mSeconds;
-    uint16_t mMilliseconds;
-    uint16_t mMicroseconds;
-    uint16_t mNanoseconds;
+    uint32_t mNanoseconds;
+    uint32_t mSeconds;
 };
 
 class CAPacketMenuSelect : public CAPacketElement {

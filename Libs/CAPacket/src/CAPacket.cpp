@@ -214,26 +214,15 @@ void CAPacketUint32::packetToString(String& str) {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
     mClientHostId = 0;
-    mHours = 0;
-    mMinutes = 0;
-    mSeconds = 0;
-    mMilliseconds = 0;
-    mMicroseconds = 0;
     mNanoseconds = 0;
+    mSeconds = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketTimeBox::set(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds, 
-						    uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds) {
+void CAPacketTimeBox::set(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds) {
     mClientHostId = clientHostId;
-    mHours = hours;
-    mMinutes = minutes;
-    mSeconds = seconds;
-    mMilliseconds = milliseconds;
-    mMicroseconds = microseconds;
     mNanoseconds = nanoseconds;
-    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) && (mMilliseconds <= 999) &&
-                (mMicroseconds <= 999) && (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
+    mSeconds = seconds;
 }
 
 void CAPacketTimeBox::set(const String& str) {
@@ -242,51 +231,34 @@ void CAPacketTimeBox::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mClientHostId = getUint32FromString(index, str);
-    mHours = getUint32FromString(index, str);
-    mMinutes = getUint32FromString(index, str);
-    mSeconds = getUint32FromString(index, str);
-    mMilliseconds = getUint32FromString(index, str);
-    mMicroseconds = getUint32FromString(index, str);
     mNanoseconds = getUint32FromString(index, str);
+    mSeconds = getUint32FromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_TIME_BOX, "Wrong PID ID");
 }
 
 void CAPacketTimeBox::unpack() {
     mClientHostId = mCAP->unpacker(8);
-    mHours = mCAP->unpacker(10);
-    mMinutes = mCAP->unpacker(6);
-    mSeconds = mCAP->unpacker(6);
-    mMilliseconds = mCAP->unpacker(10);
-    mMicroseconds = mCAP->unpacker(10);
-    mNanoseconds = mCAP->unpacker(10);
-    mCAP->unpacker(4); // Unused
+    mNanoseconds = mCAP->unpacker(32);
+    mSeconds = mCAP->unpacker(32);
     mCAP->flushPacket();
-    CA_ASSERT((mHours <= 999) && (mMinutes <= 59) && (mSeconds <=59) && (mMilliseconds <= 999) && 
-                (mMicroseconds <= 999) && (mNanoseconds <= 999), "Error in CAPacketTimeBox::set()");
 }
 
 uint16_t CAPacketTimeBox::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = PACK_TOTAL_SZ + 8;
+    uint16_t packetSize = PACK_TOTAL_SZ + 9;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
     mCAP->packer(mClientHostId, 8);
-    mCAP->packer(mHours, 10);
-    mCAP->packer(mMinutes, 6);
-    mCAP->packer(mSeconds, 6);
-    mCAP->packer(mMilliseconds, 10);
-    mCAP->packer(mMicroseconds, 10);
-    mCAP->packer(mNanoseconds, 10);
-    mCAP->packer(unused, 4);
+    mCAP->packer(mNanoseconds, 32);
+    mCAP->packer(mSeconds, 32);
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketTimeBox::packetToString(String& str) {
-    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mHours + '~' + mMinutes + '~' + 
-            mSeconds + '~' + mMilliseconds + '~' + mMicroseconds + '~' + mNanoseconds + '~';
+    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mNanoseconds + '~' + mSeconds + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -118,10 +118,9 @@ void CAPacketHelper::writePacketUint32(const String& str) {
     mPacker.resetBuffer();
 }
 
-void CAPacketHelper::writePacketTimeBox(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds,
-                uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds){
+void CAPacketHelper::writePacketTimeBox(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds){
     CAPacketTimeBox pack0(mPacker);
-    pack0.set(clientHostId, hours, minutes, seconds, milliseconds, microseconds, nanoseconds);
+    pack0.set(clientHostId, nanoseconds, seconds);
     pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();

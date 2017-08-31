@@ -26,8 +26,7 @@ public:
     void writePacketString(const String& str);
     void writePacketUint32(uint8_t clientHostId, uint32_t val);
     void writePacketUint32(const String& str);
-    void writePacketTimeBox(uint8_t clientHostId, uint16_t hours, uint8_t minutes, uint8_t seconds,
-                uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds);
+    void writePacketTimeBox(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds);
     void writePacketTimeBox(const String& str);
     void writePacketMenuSelect(uint8_t menuMode, const char* menuName);
     void writePacketMenuSelect(const String& str);

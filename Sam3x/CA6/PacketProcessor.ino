@@ -33,9 +33,8 @@ CAPacketElement* processIncomingPacket() {
       case PID_TIME_BOX: {
         CAPacketTimeBox unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_TIME_BOX - %d %d %d %d %d %d %d %d\n", packetSize, unpack.getClientHostId(), 
-                  unpack.getHours(), unpack.getMinutes(), unpack.getSeconds(), unpack.getMilliseconds(), unpack.getMicroseconds(),
-                  unpack.getNanoseconds());
+        CA_LOG("%d PID_TIME_BOX - %d %d %d\n", packetSize, unpack.getClientHostId(), 
+                  unpack.getNanoseconds(), unpack.getSeconds() );
         break;
       }
       case PID_MENU_SELECT: {

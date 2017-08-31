@@ -133,7 +133,7 @@ void caTestPackets()
   {  // TIME_BOX Packet Test
     CAPacketTimeBox unpack0(unpackBase);            // Update per type
     CAPacketTimeBox pack0(packBase);                // Update per type
-    pack0.set(3, 99, 59, 40, 999, 500, 400);        // Update per type
+    pack0.set(3, 99, 888888);                       // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -143,12 +143,8 @@ void caTestPackets()
         packSize != unpackSize ||
         unpackType != PID_TIME_BOX ||               // Update per type
         unpack0.getClientHostId() != 3 ||
-        unpack0.getHours() != 99 ||
-        unpack0.getMinutes() != 59 ||
-        unpack0.getSeconds() != 40 ||
-        unpack0.getMilliseconds() != 999 ||
-        unpack0.getMicroseconds() != 500 ||
-        unpack0.getNanoseconds() != 400) 
+        unpack0.getNanoseconds() != 99 ||
+        unpack0.getSeconds() != 888888) 
         {
       CA_LOG("ERROR - TIME_BOX test failed\n");
     }
