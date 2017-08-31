@@ -162,6 +162,17 @@
 				}
 			}
 
+			function getNanoseconds(time) {
+				var timeArray = time.split("."); // index 0 is days and index 6 is nanoseconds
+				var x = +timeArray[6] + timeArray[5]*1000 + timeArray[4]*1000000;
+				return x;
+			}
+			
+			function getSeconds(time) {
+				var timeArray = time.split("."); // index 0 is days and index 6 is nanoseconds
+				var x = +timeArray[3] + timeArray[2]*60 + timeArray[1]*60*60 + timeArray[0]*60*60*24;
+				return x;
+			}
 		</script>		
 	</head>
 	<body>
@@ -338,7 +349,11 @@
 							boxValue += timeboxForm[i].value;
 						}
 					}
-					document.getElementsByName(document.getElementById("boxName").value)[0].value = boxValue;
+					var el = document.getElementsByName(document.getElementById("boxName").value)[0];
+					el.value = boxValue;
+					if (el.sendTimeBoxPacket != null) {
+						el.sendTimeBoxPacket();
+					}
 					modal.style.display = "none";
 				}
 				
@@ -583,7 +598,18 @@
 					x.id = id;
 					x.name = "timebox";
 					x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
-					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true,true);};
+					x.sendTimeBoxPacket = function(){
+						var nanoseconds = getNanoseconds(x.value);
+						var seconds = getSeconds(x.value);
+						var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+nanoseconds+"~"+seconds+"~";
+						document.getElementById("debugText").innerHTML = val;
+						gRequest = new XMLHttpRequest();
+						gRequest.open("GET", val, true);
+						gRequest.send();
+					};
+					x.onclick = function(){
+						openTimeBox(x,true,true,true,true,true,true,true);
+					};
 					cell1.appendChild(x);
 					cell0.classList.add("modeCell");
 					cell1.classList.add("modeCell");

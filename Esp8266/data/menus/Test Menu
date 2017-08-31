@@ -5,7 +5,7 @@ caButton("id1", "This is a button", "Button");
 caCheckBox("id2", 0, "This is a checkbox");
 caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
 caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
-caTimeBox("id5", 1, 59, 58, 800, 801, 801, "This is a timebox");
+caTimeBox("id5", 55, 23, 59, 58, 800, 801, 801, "This is a timebox");
 caSlider("id6", 0, 255, 10, "This is a slider");
 caEndMenu();
 
