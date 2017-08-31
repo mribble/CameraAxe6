@@ -210,10 +210,16 @@
 				<h3>Setting Time</h3>
 				<form id="timeboxForm" name="timeboxForm">
 					<table style="width:100%;">
-						<tr style="display:none;" id="hours">
-							<td style="width:50%;">Hours (0-999)</td>
+						<tr style="display:none;" id="days">
+							<td style="width:50%;">Days (0-99)</td>
 							<td style="width:50%;">
-								<input type="number" name="hours" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input type="number" name="days" min="0" max="99" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							</td>
+						</tr>
+						<tr style="display:none;" id="hours">
+							<td >Hours (0-23)</td>
+							<td >
+								<input type="number" name="hours" min="0" max="23" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="minutes">
@@ -263,7 +269,14 @@
 				var span = document.getElementsByClassName("close")[0];
 
 				// When the user clicks the input, open the timebox modal 
-				function openTimeBox(box,hours,minutes,seconds,milliseconds,microseconds,nanoseconds) {
+				function openTimeBox(box,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds) {
+					if(days){
+						document.getElementById("days").style.display = "";
+						document.getElementsByName("days")[0].value=0;
+					}else{
+						document.getElementById("days").style.display = "none";
+					}
+					
 					if(hours){
 						document.getElementById("hours").style.display = "";
 						document.getElementsByName("hours")[0].value=0;
@@ -308,7 +321,7 @@
 					
 					document.getElementById("boxName").value = box.name;
 					
-					loadValues(box,hours,minutes,seconds,milliseconds,microseconds,nanoseconds);
+					loadValues(box,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds);
 					modal.style.display = "block";
 				}
 				
@@ -318,14 +331,9 @@
 					var boxValue = "";
 					for(i=0; i<timeboxForm.length; i++)
 					{
-						if(timeboxForm[i].type=="number" && document.getElementById(timeboxForm[i].name).style.display!="none"){
+						if(timeboxForm[i].type=="number"){// && document.getElementById(timeboxForm[i].name).style.display!="none"){
 							if(i>0 && boxValue!=""){
-								if(timeboxForm[i].name=="minutes" || timeboxForm[i].name=="seconds"){
-									boxValue += ":";
-								}
-								else{
-									boxValue += ".";
-								}
+								boxValue += ".";
 							}
 							boxValue += timeboxForm[i].value;
 						}
@@ -335,19 +343,20 @@
 				}
 				
 				// When the user clicks on input field, loads the current field value in timebox against each input fields
-				function loadValues(inputField,hours,minutes,seconds,milliseconds,microseconds,nanoseconds){
+				function loadValues(inputField,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds){
 					var timeArray = {
-						"hours" : hours,
-						"minutes" : minutes,
-						"seconds" : seconds,
-						"milliseconds" : milliseconds,
-						"microseconds" : microseconds,
-						"nanoseconds" : nanoseconds
+						"days" : true,//days,
+						"hours" : true,//hours,
+						"minutes" : true,//minutes,
+						"seconds" : true,//seconds,
+						"milliseconds" : true,//milliseconds,
+						"microseconds" : true,//microseconds,
+						"nanoseconds" : true,//nanoseconds
 					};
 					var j=0;
 					var i=0;
 					var inputFieldValue = inputField.value;
-					var splitInputField = inputFieldValue.split(/[:.]/);
+					var splitInputField = inputFieldValue.split(/[.]/);
 					for(var key in timeArray){
 						if(timeArray[key])
 						{
@@ -564,7 +573,7 @@
 					cell1.classList.add("modeCell");
 				}
 
-				function caTimeBox(id, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
+				function caTimeBox(id, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
 					var row = gCurTable.insertRow();
 					var cell0 = row.insertCell();
 					cell0.innerHTML = text0;
@@ -573,8 +582,8 @@
 					x.type = "text";
 					x.id = id;
 					x.name = "timebox";
-					x.value = hours+":"+minutes+":"+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
-					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true);};
+					x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
+					x.onclick = function(){openTimeBox(x,true,true,true,true,true,true,true);};
 					cell1.appendChild(x);
 					cell0.classList.add("modeCell");
 					cell1.classList.add("modeCell");
@@ -617,6 +626,14 @@
 			<script>
 				caStartMenuMode("Dummy Menu");
 				caTextStatic("Menu Mode");
+				caTextStatic("Static text");
+				caTextDynamic("id0", "Dynamic text", "777");
+				caButton("id1", "This is a button", "Button");
+				caCheckBox("id2", 0, "This is a checkbox");
+				caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
+				caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
+				caTimeBox("id5", 89, 1, 59, 58, 800, 801, 801, "This is a timebox");
+				caSlider("id6", 0, 255, 10, "This is a slider");
 				caEndMenu();
 				caStartPhotoMode();
 				caTextStatic("Photo Mode");
@@ -703,25 +720,25 @@
 					<tr>
 						<td>Delay</td>
 						<td>
-							<input type="text" name="delay" onclick="openTimeBox(this,false,true,true,true,true,false);" value="0:0.0.0" />
+							<input type="text" name="delay" onclick="openTimeBox(this,false,false,true,true,true,true,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Duration (bulb)</td>
 						<td>
-							<input type="text" name="duration_bulb" onclick="openTimeBox(this,false,true,true,true,true,false);" value="0:0.0.0" />
+							<input type="text" name="duration_bulb" onclick="openTimeBox(this,false,false,true,true,true,true,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Post Trigger Delay</td>
 						<td>
-							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,false,false,true,true,true,false);" value="0:0.0" />
+							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,false,false,false,true,true,true,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Camera Lag</td>
 						<td>
-							<input type="text" name="camera_lag" onclick="openTimeBox(this,false,false,false,true,true,false);" value="0.0" />
+							<input type="text" name="camera_lag" onclick="openTimeBox(this,false,false,false,false,true,true,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
@@ -740,7 +757,7 @@
 					<tr>
 						<td>Smart Preview</td>
 						<td>
-							<input type="text" name="smart_preview" onclick="openTimeBox(this,false,true,false,false,false,false);" value="0" />
+							<input type="text" name="smart_preview" onclick="openTimeBox(this,false,false,false,true,false,false,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
@@ -749,7 +766,7 @@
 							<input style="float:right;" type="checkbox" checked name="mirror_lockup_check" value="1" />
 						</td>
 						<td>
-							<input type="text"  name="mirror_lockup" onclick="openTimeBox(this,false,true,true,false,false,false);" value="0.0" />
+							<input type="text"  name="mirror_lockup" onclick="openTimeBox(this,false,false,true,true,false,false,false);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
@@ -836,13 +853,13 @@
 					<tr>
 						<td style="width:50%;">Start Delay</td>
 						<td style="width:50%;">
-							<input type="text" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true);" value="0:0:0.0.0.0" />
+							<input type="text" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Interval</td>
 						<td>
-							<input type="text" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true);" value="0:0:0.0.0.0" />
+							<input type="text" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
