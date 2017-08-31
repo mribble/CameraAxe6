@@ -6,6 +6,10 @@
 #include <EEPROM.h>
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
+#include <CALedControl.h>
+
+#define GREEN_PIN 4
+#define RED_PIN 5
 
 #define CA_AP_PASSWORD "ca6admin"
 
@@ -22,8 +26,11 @@ WiFiServer gServer(80);
 WiFiClient gClient;
 CAPacketHelper gPh;
 DynamicMessages gDynamicMessages;
+CALedControl gLed(GREEN_PIN, RED_PIN);
 
 void setup (void) {
+  gLed.set(CALedControl::RED_ON);
+
   Serial.begin(74880);    // SAM3X
   EEPROM.begin(128);      // allocates 128 bytes for wifiManager (required by the library)
 
@@ -53,11 +60,11 @@ void setup (void) {
   Serial.printf("Flash ide  size: %u\n", ESP.getFlashChipSize()); // Size programmed by ide (should match real size)
   Serial.printf("Flash ide speed: %u\n", ESP.getFlashChipSpeed());
   Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
-#endif  
-
+#endif
 }
 
 void loop (void) {
+  gLed.pollLeds();
   receivePacket();
   processHtml("Blah");
 }

@@ -30,7 +30,7 @@ void setupWiFi() {
   IPAddress myIPAddress = createUniqueIP();
   bool connectToAP = false;
   int netCount = WiFi.scanNetworks();  // Number of networks that we might be able to connect to
-  
+
   if ( netCount > 0 ) {
     // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
     WiFiManager wifiManager;
@@ -61,6 +61,7 @@ void setupWiFi() {
       WiFi.softAP(ssid.c_str());
       WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
       //WiFi.reconnect();  // supposedly required, but does not work if this is called
+      gLed.set(CALedControl::GREEN_BLINK);
     } else {
       // We get here if the credentials on the setup page are incorrect, blank, or the "Exit" button was used
       CA_INFO("Did not connect to local WiFi", "");
@@ -77,6 +78,7 @@ void setupWiFi() {
     WiFi.softAP(createUniqueSSID().c_str(), CA_AP_PASSWORD);
     WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
     WiFi.mode(WIFI_AP);
+    gLed.set(CALedControl::ORANGE_BLINK);
   }
 
   // start the server & init the SPIFFS file system
