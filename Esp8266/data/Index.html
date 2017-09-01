@@ -37,7 +37,6 @@
 			var PID_MENU_SELECT     =  4;
 			var PID_CAM_SETTINGS    =  5;
 			var PID_INTERVALOMETER  =  6;
-			var PID_CONTROL_FLAGS   =  7;
 
 			var gRequest;
 			var gRequest1;
@@ -601,9 +600,9 @@
 					x.name = "timebox";
 					x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
 					x.sendTimeBoxPacket = function(){
-						var nanoseconds = getNanoseconds(x.value);
 						var seconds = getSeconds(x.value);
-						var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+nanoseconds+"~"+seconds+"~";
+						var nanoseconds = getNanoseconds(x.value);
+						var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+seconds+"~"+nanoseconds+"~";
 						document.getElementById("debugText").innerHTML = val;
 						gRequest = new XMLHttpRequest();
 						gRequest.open("GET", val, true);
@@ -863,39 +862,69 @@
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
 			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="loadPage('Home');">Home</button>
+			<button class="topButton" onclick="loadPageIntervalometer('Home');">Home</button>
 			<div style="clear:both;"></div>
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
 					<tr>
-						<td style="width:50%;">Start Delay</td>
+						<td style="width:50%;">Enable</td>
 						<td style="width:50%;">
-							<input type="text" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input type="checkbox" id="inter_enable" name="inter_enable" />
+						</td>
+					</tr>
+					<tr>
+						<td>Start Delay</td>
+						<td>
+							<input type="text" id="start_delay" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Interval</td>
 						<td>
-							<input type="text" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input type="text" id="interval" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
-						<td>Number of Repeats (0 = Infinite)</td>
+						<td>Number of Repeats (0 = Inf)</td>
 						<td>
-							<input type="number" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							<input type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 						</td>
 					</tr>
 					<tr>
 						<td style="text-align:center;" colspan="2"><br><br><br><br>
-							<button onclick="debugInputs()" type="button">Test Trigger</button>
+							<button onclick="testTrigger();" type="button">Test Trigger</button>
 						</td>
 					</tr>
 				</table>
 			</form>
 			<script>
-				function debugInputs() {
-					document.getElementById("debugText").innerHTML = "Test Trigger";
+				function testTrigger() {
+					sendIntervalometerPacket();
 				}
+
+				function loadPageIntervalometer(page) {
+					sendIntervalometerPacket();
+					loadPage(page);
+				}
+				
+				function sendIntervalometerPacket(){
+					var startStr = document.getElementById("start_delay").value;
+					var intervalStr = document.getElementById("interval").value;
+					var enabled = document.getElementById("inter_enable").checked ? 1 : 0;
+					var startSeconds = getSeconds(startStr);
+					var startNanoseconds = getNanoseconds(startStr);
+					var intervalSeconds = getSeconds(intervalStr);
+					var intervalNanoseconds = getNanoseconds(intervalStr);
+					var numRepeats = document.getElementById("number_of_repeats").value
+					var str = PID_INTERVALOMETER+"~"+enabled+"~"+startSeconds+"~"+startNanoseconds+"~"+
+								intervalSeconds+"~"+intervalNanoseconds+"~"+numRepeats+"~";
+										document.getElementById("debugText").innerHTML = str;
+					document.getElementById("debugText").innerHTML = str;
+					gRequest = new XMLHttpRequest();
+					gRequest.open("GET", str, true);
+					gRequest.send();
+				}
+
 			</script>
 		</div>
 <!--Intervalometer Page (End)-->

@@ -82,16 +82,8 @@ CAPacketElement* processIncomingPacket() {
       case PID_INTERVALOMETER: {
         CAPacketIntervalometer unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_INTERVALOMETER - %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getStartHours(), unpack.getStartMinutes(),
-        unpack.getStartSeconds(), unpack.getStartMilliseconds(), unpack.getStartMicroseconds(), unpack.getIntervalHours(),
-        unpack.getIntervalMinutes(), unpack.getIntervalSeconds(), unpack.getIntervalMilliseconds(), unpack.getIntervalMicroseconds(),
-        unpack.getRepeats());
-        break;
-      }
-      case PID_CONTROL_FLAGS: {
-        CAPacketControlFlags unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_CONTROL_FLAGS - %d %d\n", packetSize, unpack.getSlaveModeEnable(), unpack.getExtraMessagesEnable());
+        CA_LOG("%d PID_INTERVALOMETER - %d %d %d %d %d %d\n", packetSize, unpack.getEnable(), unpack.getStartSeconds(),
+                unpack.getStartNanoseconds(), unpack.getIntervalSeconds(), unpack.getIntervalNanoseconds(), unpack.getRepeats());
         break;
       }
       default: {

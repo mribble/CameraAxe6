@@ -143,8 +143,8 @@ void caTestPackets()
         packSize != unpackSize ||
         unpackType != PID_TIME_BOX ||               // Update per type
         unpack0.getClientHostId() != 3 ||
-        unpack0.getNanoseconds() != 99 ||
-        unpack0.getSeconds() != 888888) 
+        unpack0.getSeconds() != 99 ||
+        unpack0.getNanoseconds() != 888888) 
         {
       CA_LOG("ERROR - TIME_BOX test failed\n");
     }
@@ -227,7 +227,7 @@ void caTestPackets()
   { // INTERVALOMETER Packet Test
     CAPacketIntervalometer unpack0(unpackBase);     // Update per type
     CAPacketIntervalometer pack0(packBase);         // Update per type
-    pack0.set(900, 50, 51, 901, 902, 903, 52, 53, 904, 905, 9999); // Update per type
+    pack0.set(1, 1234567, 2345678, 3456789, 4567890, 10); // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -236,17 +236,12 @@ void caTestPackets()
     if (unpackGuard != true ||
           packSize != unpackSize ||
           unpackType != PID_INTERVALOMETER ||       // Update per type
-          unpack0.getStartHours() != 900 ||
-          unpack0.getStartMinutes() != 50 ||
-          unpack0.getStartSeconds() != 51 ||
-          unpack0.getStartMilliseconds() != 901 ||
-          unpack0.getStartMicroseconds() != 902 ||
-          unpack0.getIntervalHours() != 903 ||
-          unpack0.getIntervalMinutes() != 52 ||
-          unpack0.getIntervalSeconds() != 53 ||
-          unpack0.getIntervalMilliseconds() != 904 ||
-          unpack0.getIntervalMicroseconds() != 905 ||
-          unpack0.getRepeats() != 9999 ) {
+          unpack0.getEnable() != 1 ||
+          unpack0.getStartSeconds() != 1234567 ||
+          unpack0.getStartNanoseconds() != 2345678 ||
+          unpack0.getIntervalSeconds() != 3456789 ||
+          unpack0.getIntervalNanoseconds() != 4567890 ||
+          unpack0.getRepeats() != 10 ) {
       CA_LOG("ERROR - INTERVALOMETER test failed\n");
     }
     
@@ -256,31 +251,6 @@ void caTestPackets()
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
       CA_LOG("ERROR - INTERVALOMETER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
-    }
-  }
-
-  { // CONTROL_FLAGS Packet Test
-    CAPacketControlFlags unpack0(unpackBase);       // Update per type
-    CAPacketControlFlags pack0(packBase);           // Update per type
-    pack0.set(1, 1);                                // Update per type
-    packSize = pack0.pack();
-    unpackGuard = unpackBase.unpackGuard();
-    unpackSize = unpackBase.unpackSize();
-    unpackType = unpackBase.unpackType();
-    unpack0.unpack();
-    if (unpackGuard != true ||
-          packSize != unpackSize ||
-          unpackType != PID_CONTROL_FLAGS ||        // Update per type
-          unpack0.getSlaveModeEnable() != 1 ||
-          unpack0.getExtraMessagesEnable() != 1 ) {
-      CA_LOG("ERROR - CONTROL_FLAGS test failed\n");
-    }
-    String str0, str1;
-    unpack0.packetToString(str0);
-    unpack0.set(str0);
-    unpack0.packetToString(str1);
-    if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - CONTROL_FLAGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 

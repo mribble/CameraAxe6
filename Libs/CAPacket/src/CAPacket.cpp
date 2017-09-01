@@ -214,15 +214,15 @@ void CAPacketUint32::packetToString(String& str) {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketTimeBox::CAPacketTimeBox(CAPacket& caPacket) {
     mClientHostId = 0;
-    mNanoseconds = 0;
     mSeconds = 0;
+    mNanoseconds = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketTimeBox::set(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds) {
+void CAPacketTimeBox::set(uint8_t clientHostId, uint32_t seconds, uint32_t nanoseconds) {
     mClientHostId = clientHostId;
-    mNanoseconds = nanoseconds;
     mSeconds = seconds;
+    mNanoseconds = nanoseconds;
 }
 
 void CAPacketTimeBox::set(const String& str) {
@@ -231,16 +231,16 @@ void CAPacketTimeBox::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mClientHostId = getUint32FromString(index, str);
-    mNanoseconds = getUint32FromString(index, str);
     mSeconds = getUint32FromString(index, str);
+    mNanoseconds = getUint32FromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_TIME_BOX, "Wrong PID ID");
 }
 
 void CAPacketTimeBox::unpack() {
     mClientHostId = mCAP->unpacker(8);
-    mNanoseconds = mCAP->unpacker(32);
     mSeconds = mCAP->unpacker(32);
+    mNanoseconds = mCAP->unpacker(32);
     mCAP->flushPacket();
 }
 
@@ -251,14 +251,14 @@ uint16_t CAPacketTimeBox::pack() {
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_TIME_BOX, 8);
     mCAP->packer(mClientHostId, 8);
-    mCAP->packer(mNanoseconds, 32);
     mCAP->packer(mSeconds, 32);
+    mCAP->packer(mNanoseconds, 32);
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketTimeBox::packetToString(String& str) {
-    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mNanoseconds + '~' + mSeconds + '~';
+    str = (String)PID_TIME_BOX + '~' + mClientHostId + '~' + mSeconds + '~' + mNanoseconds + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -479,39 +479,23 @@ void CAPacketCamSettings::packetToString(String& str) {
 // Intervalometer Packet Class
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketIntervalometer::CAPacketIntervalometer(CAPacket& caPacket) {
-    mStartHours = 0;
-    mStartMinutes = 0;
+    mEnable = 0;
     mStartSeconds = 0;
-    mStartMilliseconds = 0;
-    mStartMicroseconds = 0;
-    mIntervalHours = 0;
-    mIntervalMinutes = 0;
+    mStartNanoseconds = 0;
     mIntervalSeconds = 0;
-    mIntervalMilliseconds = 0;
-    mIntervalMicroseconds = 0;
+    mIntervalNanoseconds = 0;
     mRepeats = 0;
     mCAP = &caPacket;
 }
 
-void CAPacketIntervalometer::set(uint16_t startHours, uint8_t startMinutes, uint8_t startSeconds, uint16_t startMilliseconds,
-                uint16_t startMicroseconds, uint16_t intervalHours, uint8_t intervalMinutes,
-                uint8_t intervalSeconds, uint16_t intervalMilliseconds, uint16_t intervalMicroseconds,
-                uint16_t repeats) {
-    mStartHours = startHours;
-    mStartMinutes = startMinutes;
+void CAPacketIntervalometer::set(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds,
+                                    uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats) {
+    mEnable = enable;
     mStartSeconds = startSeconds;
-    mStartMilliseconds = startMilliseconds;
-    mStartMicroseconds = startMicroseconds;
-    mIntervalHours = intervalHours;
-    mIntervalMinutes = intervalMinutes;
+    mStartNanoseconds = startNanoseconds;
     mIntervalSeconds = intervalSeconds;
-    mIntervalMilliseconds = intervalMilliseconds;
-    mIntervalMicroseconds = intervalMicroseconds;
+    mIntervalNanoseconds = intervalNanoseconds;
     mRepeats = repeats;
-    CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
-                (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
-                (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
-                (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::set()");
 }
 
 void CAPacketIntervalometer::set(const String& str) {
@@ -519,120 +503,45 @@ void CAPacketIntervalometer::set(const String& str) {
     uint8_t id; 
 
     id = getUint32FromString(index, str);
-    mStartHours = getUint32FromString(index, str);
-    mStartMinutes = getUint32FromString(index, str);
+    mEnable = getUint32FromString(index, str);
     mStartSeconds = getUint32FromString(index, str);
-    mStartMilliseconds = getUint32FromString(index, str);
-    mStartMicroseconds = getUint32FromString(index, str);
-    mIntervalHours = getUint32FromString(index, str);
-    mIntervalMinutes = getUint32FromString(index, str);
+    mStartNanoseconds = getUint32FromString(index, str);
     mIntervalSeconds = getUint32FromString(index, str);
-    mIntervalMilliseconds = getUint32FromString(index, str);
-    mIntervalMicroseconds = getUint32FromString(index, str);
+    mIntervalNanoseconds = getUint32FromString(index, str);
     mRepeats = getUint32FromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_INTERVALOMETER, "Wrong PID ID");
 }
 
 void CAPacketIntervalometer::unpack() {
-    mStartHours = mCAP->unpacker(10);
-    mStartMinutes = mCAP->unpacker(6);
-    mStartSeconds = mCAP->unpacker(6);
-    mStartMilliseconds = mCAP->unpacker(10);
-    mStartMicroseconds = mCAP->unpacker(10);
-    mIntervalHours = mCAP->unpacker(10);
-    mIntervalMinutes = mCAP->unpacker(6);
-    mIntervalSeconds = mCAP->unpacker(6);
-    mIntervalMilliseconds = mCAP->unpacker(10);
-    mIntervalMicroseconds = mCAP->unpacker(10);
+    mEnable = mCAP->unpacker(8);
+    mStartSeconds = mCAP->unpacker(32);
+    mStartNanoseconds = mCAP->unpacker(32);
+    mIntervalSeconds = mCAP->unpacker(32);
+    mIntervalNanoseconds = mCAP->unpacker(32);
     mRepeats = mCAP->unpacker(16);
-    mCAP->unpacker(4);  // Unused
     mCAP->flushPacket();
-    CA_ASSERT((mStartHours <= 999) && (mStartMinutes <= 59) && (mStartSeconds <=59) &&
-                (mStartMilliseconds <= 999) && (mStartMicroseconds <= 999) && (mIntervalHours <= 999) &&
-                (mIntervalMinutes <= 59) && (mIntervalSeconds <= 59) && (mIntervalMilliseconds <= 999) &&
-                (mIntervalMicroseconds <= 999), "Error in CAPacketIntervalometer::unpack()");
+    CA_ASSERT((mEnable <= 1), "Error in CAPacketIntervalometer::unpack()");
 }
 
 uint16_t CAPacketIntervalometer::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = PACK_TOTAL_SZ + 13;
+    uint16_t packetSize = PACK_TOTAL_SZ + 19;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_INTERVALOMETER, 8);
-    mCAP->packer(mStartHours, 10);
-    mCAP->packer(mStartMinutes, 6);
-    mCAP->packer(mStartSeconds, 6);
-    mCAP->packer(mStartMilliseconds, 10);
-    mCAP->packer(mStartMicroseconds, 10);
-    mCAP->packer(mIntervalHours, 10);
-    mCAP->packer(mIntervalMinutes, 6);
-    mCAP->packer(mIntervalSeconds, 6);
-    mCAP->packer(mIntervalMilliseconds, 10);
-    mCAP->packer(mIntervalMicroseconds, 10);
+    mCAP->packer(mEnable, 8);
+    mCAP->packer(mStartSeconds, 32);
+    mCAP->packer(mStartNanoseconds, 32);
+    mCAP->packer(mIntervalSeconds, 32);
+    mCAP->packer(mIntervalNanoseconds, 32);
     mCAP->packer(mRepeats, 16);
-    mCAP->packer(unused, 4);
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketIntervalometer::packetToString(String& str) {
-    str = (String)PID_INTERVALOMETER + '~' + mStartHours + '~' + mStartMinutes + '~' + mStartSeconds + '~' +
-                mStartMilliseconds + '~' + mStartMicroseconds + '~' + mIntervalHours + '~' + mIntervalMinutes + '~'+
-                mIntervalSeconds + '~' + mIntervalMilliseconds + '~' + mIntervalMicroseconds + '~' + mRepeats + '~';
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// ControlFlags Packet Class
-///////////////////////////////////////////////////////////////////////////////
-CAPacketControlFlags::CAPacketControlFlags(CAPacket& caPacket) {
-    mSlaveModeEnable = 0;
-    mExtraMessagesEnable = 0;
-    mCAP = &caPacket;
-}
-
-void CAPacketControlFlags::set(uint8_t slaveModeEnable, uint8_t extraMessagesEnable) {
-    mSlaveModeEnable = slaveModeEnable;
-    mExtraMessagesEnable = extraMessagesEnable;
-    CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1), 
-                "Error in CAPacketControlFlags::set()");
-}
-
-void CAPacketControlFlags::set(const String& str) {
-    uint16_t index = 0;
-    uint8_t id; 
-
-    id = getUint32FromString(index, str);
-    mSlaveModeEnable = getUint32FromString(index, str);
-    mExtraMessagesEnable = getUint32FromString(index, str);
-    CA_ASSERT(index==str.length(), "Failed end check");
-    CA_ASSERT(id==PID_CONTROL_FLAGS, "Wrong PID ID");
-}
-
-void CAPacketControlFlags::unpack() {
-    mSlaveModeEnable = mCAP->unpacker(1);
-    mExtraMessagesEnable = mCAP->unpacker(1);
-    mCAP->unpacker(6); // Unused
-    mCAP->flushPacket();
-    CA_ASSERT((mSlaveModeEnable <= 1) && (mExtraMessagesEnable <= 1), 
-                "Error in CAPacketControlFlags::unpack()");
-
-}
-
-uint16_t CAPacketControlFlags::pack() {
-    uint8_t unused = 0;
-    uint16_t packetSize = PACK_TOTAL_SZ + 1;
-    mCAP->packer(GUARD_PACKET, 8);
-    mCAP->packer(packetSize, 16);
-    mCAP->packer(PID_CONTROL_FLAGS, 8);
-    mCAP->packer(mSlaveModeEnable, 1);
-    mCAP->packer(mExtraMessagesEnable, 1);
-    mCAP->packer(unused, 6);
-    mCAP->flushPacket();
-    return packetSize;
-}
-
-void CAPacketControlFlags::packetToString(String& str) {
-    str = (String)PID_CONTROL_FLAGS + '~' + mSlaveModeEnable + '~' + mExtraMessagesEnable + '~';
+    str = (String)PID_INTERVALOMETER + '~' + mEnable + '~' + mStartSeconds + '~' + mStartNanoseconds + '~' +
+                mIntervalSeconds + '~' + mIntervalNanoseconds + '~' + mRepeats + '~';
 }
 

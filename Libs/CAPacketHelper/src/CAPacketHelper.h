@@ -26,12 +26,15 @@ public:
     void writePacketString(const String& str);
     void writePacketUint32(uint8_t clientHostId, uint32_t val);
     void writePacketUint32(const String& str);
-    void writePacketTimeBox(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds);
+    void writePacketTimeBox(uint8_t clientHostId, uint32_t seconds, uint32_t nanoseconds);
     void writePacketTimeBox(const String& str);
     void writePacketMenuSelect(uint8_t menuMode, const char* menuName);
     void writePacketMenuSelect(const String& str);
-    // todo add missing packet types
-    
+
+
+    void writePacketIntervalometer(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds, 
+                                    uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats);
+    void writePacketIntervalometer(const String& str);
 private:
     uint16_t serialFlowControlAvailable();
     void serialFlowControlRead(uint8_t *buf, uint16_t length);

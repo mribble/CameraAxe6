@@ -118,9 +118,9 @@ void CAPacketHelper::writePacketUint32(const String& str) {
     mPacker.resetBuffer();
 }
 
-void CAPacketHelper::writePacketTimeBox(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds){
+void CAPacketHelper::writePacketTimeBox(uint8_t clientHostId, uint32_t seconds, uint32_t nanoseconds){
     CAPacketTimeBox pack0(mPacker);
-    pack0.set(clientHostId, nanoseconds, seconds);
+    pack0.set(clientHostId, seconds, nanoseconds);
     pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();
@@ -150,3 +150,22 @@ void CAPacketHelper::writePacketMenuSelect(const String& str) {
     mPacker.resetBuffer();
 }
 
+
+
+
+void CAPacketHelper::writePacketIntervalometer(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds, 
+                        uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats) {
+    CAPacketIntervalometer pack0(mPacker);
+    pack0.set(enable, startSeconds, startNanoseconds, intervalSeconds, intervalNanoseconds, repeats);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketIntervalometer(const String& str) {
+    CAPacketIntervalometer pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}

@@ -10,8 +10,7 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_MENU_SELECT         =  4,
                 PID_CAM_SETTINGS        =  5,
                 PID_INTERVALOMETER      =  6,
-                PID_CONTROL_FLAGS       =  7,
-                PID_END_SENTINEL        =  8, // Must be last
+                PID_END_SENTINEL        =  7, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -141,17 +140,17 @@ public:
     CAPacketTimeBox(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_TIME_BOX;};
     uint8_t getClientHostId() {return mClientHostId;};
-    uint32_t getNanoseconds() {return mNanoseconds;};
     uint32_t getSeconds() {return mSeconds;};
-    void set(uint8_t clientHostId, uint32_t nanoseconds, uint32_t seconds);
+    uint32_t getNanoseconds() {return mNanoseconds;};
+    void set(uint8_t clientHostId, uint32_t seconds, uint32_t nanoseconds);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
     uint8_t mClientHostId;
-    uint32_t mNanoseconds;
     uint32_t mSeconds;
+    uint32_t mNanoseconds;
 };
 
 class CAPacketMenuSelect : public CAPacketElement {
@@ -241,54 +240,25 @@ public:
     CAPacketIntervalometer(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_INTERVALOMETER;};
     uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint16_t getStartHours() {return mStartHours;};
-    uint8_t getStartMinutes() {return mStartMinutes;};
-    uint8_t getStartSeconds() {return mStartSeconds;};
-    uint16_t getStartMilliseconds() {return mStartMilliseconds;};
-    uint16_t getStartMicroseconds() {return mStartMicroseconds;};
-    uint16_t getIntervalHours() {return mIntervalHours;};
-    uint8_t getIntervalMinutes() {return mIntervalMinutes;};
-    uint8_t getIntervalSeconds() {return mIntervalSeconds;};
-    uint16_t getIntervalMilliseconds() {return mIntervalMilliseconds;};
-    uint16_t getIntervalMicroseconds() {return mIntervalMicroseconds;};
+    uint8_t getEnable() {return mEnable;};
+    uint32_t getStartSeconds() {return mStartSeconds;};
+    uint32_t getStartNanoseconds() {return mStartNanoseconds;};
+    uint32_t getIntervalSeconds() {return mIntervalSeconds;};
+    uint32_t getIntervalNanoseconds() {return mIntervalNanoseconds;};
     uint16_t getRepeats() {return mRepeats;};
-    void set(uint16_t startHours, uint8_t startMinutes, uint8_t startSeconds, uint16_t startMilliseconds,
-                uint16_t startMicroseconds, uint16_t intervalHours, uint8_t intervalMinutes,
-                uint8_t intervalSeconds, uint16_t intervalMilliseconds, uint16_t intervalMicroseconds,
-                uint16_t repeats);
+    void set(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds,
+                uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
-    uint16_t mStartHours;
-    uint8_t mStartMinutes;
-    uint8_t mStartSeconds;
-    uint16_t mStartMilliseconds;
-    uint16_t mStartMicroseconds;
-    uint16_t mIntervalHours;
-    uint8_t mIntervalMinutes;
-    uint8_t mIntervalSeconds;
-    uint16_t mIntervalMilliseconds;
-    uint16_t mIntervalMicroseconds;
+    uint8_t mEnable;
+    uint32_t mStartSeconds;
+    uint32_t mStartNanoseconds;
+    uint32_t mIntervalSeconds;
+    uint32_t mIntervalNanoseconds;
     uint16_t mRepeats;
-};
-
-class CAPacketControlFlags : public CAPacketElement {
-public:
-    CAPacketControlFlags(CAPacket& caPacket);
-    uint8_t getPacketType() {return PID_CONTROL_FLAGS;};
-    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
-    uint8_t getSlaveModeEnable() {return mSlaveModeEnable;};
-    uint8_t getExtraMessagesEnable() {return mExtraMessagesEnable;};
-    void set(uint8_t slaveModeEnabe, uint8_t extraMessagesEnable);
-    void set(const String& str);
-    void unpack();
-    uint16_t pack();
-    void packetToString(String& str);
-private:
-    uint8_t mSlaveModeEnable;
-    uint8_t mExtraMessagesEnable;
 };
 
 #endif // __CAPACKET_H__

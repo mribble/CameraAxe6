@@ -19,10 +19,7 @@ void sendPacket(String &packetStr) {
       CA_ASSERT(0, "Not implemented");
       break;
     case PID_INTERVALOMETER:
-      CA_ASSERT(0, "Not implemented");
-      break;
-    case PID_CONTROL_FLAGS:
-      CA_ASSERT(0, "Not implemented");
+      gPh.writePacketIntervalometer(packetStr);
       break;
     default:
       CA_ASSERT(0, "Invalid type found");
