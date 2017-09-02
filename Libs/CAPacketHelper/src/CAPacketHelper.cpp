@@ -150,8 +150,25 @@ void CAPacketHelper::writePacketMenuSelect(const String& str) {
     mPacker.resetBuffer();
 }
 
+void CAPacketHelper::writePacketCamSettings(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, 
+                uint32_t delayNanoSeconds, uint32_t durationSeconds, uint32_t durationNanoseconds, 
+                uint32_t postDelaySeconds, uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview,
+                uint16_t mirrorLockup) {
+    CAPacketCamSettings pack0(mPacker);
+    pack0.set(camPortNumber, mode, delaySeconds, delayNanoSeconds, durationSeconds, durationNanoseconds, 
+                postDelaySeconds, postDelayNanoseconds, sequencer, smartPreview, mirrorLockup);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
 
-
+void CAPacketHelper::writePacketCamSettings(const String& str) {
+    CAPacketCamSettings pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
 
 void CAPacketHelper::writePacketIntervalometer(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds, 
                         uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats) {

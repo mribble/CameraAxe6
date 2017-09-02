@@ -71,12 +71,10 @@ CAPacketElement* processIncomingPacket() {
       case PID_CAM_SETTINGS: {
         CAPacketCamSettings unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_CAM_SETTINGS - %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getCamPortNumber(),
-                  unpack.getMode(), unpack.getDelayHours(), unpack.getDelayMinutes(), unpack.getDelaySeconds(),
-                  unpack.getDelayMilliseconds(), unpack.getDelayMicroseconds(), unpack.getDurationHours(), unpack.getDurationMinutes(),
-                  unpack.getDurationSeconds(), unpack.getDurationMilliseconds(), unpack.getDurationMicroseconds(), unpack.getSequencer(),
-                  unpack.getApplyIntervalometer(), unpack.getSmartPreview(), unpack.getMirrorLockupEnable(),
-                  unpack.getMirrorLockupMinutes(), unpack.getMirrorLockupSeconds(), unpack.getMirrorLockupMilliseconds());
+        CA_LOG("%d PID_CAM_SETTINGS - %d %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getCamPortNumber(),
+                  unpack.getMode(), unpack.getDelaySeconds(), unpack.getDelayNanoseconds(), unpack.getDurationSeconds(),
+                  unpack.getDurationNanoseconds(), unpack.getPostDelaySeconds(), unpack.getPostDelayNanoseconds(), unpack.getSequencer(),
+                  unpack.getSmartPreview(), unpack.getMirrorLockup());
         break;
       }
       case PID_INTERVALOMETER: {

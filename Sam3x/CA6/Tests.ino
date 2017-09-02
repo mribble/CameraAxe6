@@ -185,7 +185,7 @@ void caTestPackets()
   { // CAM_SETTINGS Packet Test
     CAPacketCamSettings unpack0(unpackBase);        // Update per type
     CAPacketCamSettings pack0(packBase);            // Update per type
-    pack0.set(50, 1, 999, 59, 58, 998, 997, 996, 57, 56, 995, 994, 0xbe, 1, 5, 1, 40, 41, 900);  // Update per type
+    pack0.set(6, 1, 123123, 456456, 111222, 333444, 678678, 1234567, 0xbe, 10, 9998);  // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -194,25 +194,17 @@ void caTestPackets()
     if (unpackGuard != true ||
           packSize != unpackSize ||
           unpackType != PID_CAM_SETTINGS ||         // Update per type
-          unpack0.getCamPortNumber() != 50 ||
+          unpack0.getCamPortNumber() != 6 ||
           unpack0.getMode() != 1 ||
-          unpack0.getDelayHours() != 999 ||
-          unpack0.getDelayMinutes() != 59 ||
-          unpack0.getDelaySeconds() != 58 ||
-          unpack0.getDelayMilliseconds() != 998 ||
-          unpack0.getDelayMicroseconds() != 997 ||
-          unpack0.getDurationHours() != 996 ||
-          unpack0.getDurationMinutes() != 57 ||
-          unpack0.getDurationSeconds() != 56 ||
-          unpack0.getDurationMilliseconds() != 995 ||
-          unpack0.getDurationMicroseconds() != 994 ||
+          unpack0.getDelaySeconds() != 123123 ||
+          unpack0.getDelayNanoseconds() != 456456 ||
+          unpack0.getDurationSeconds() != 111222 ||
+          unpack0.getDurationNanoseconds() != 333444 ||
+          unpack0.getPostDelaySeconds() != 678678 ||
+          unpack0.getPostDelayNanoseconds() != 1234567 ||
           unpack0.getSequencer() != 0xbe ||
-          unpack0.getApplyIntervalometer() != 1 ||
-          unpack0.getSmartPreview() != 5 ||
-          unpack0.getMirrorLockupEnable() != 1 ||
-          unpack0.getMirrorLockupMinutes() != 40 ||
-          unpack0.getMirrorLockupSeconds() != 41 ||
-          unpack0.getMirrorLockupMilliseconds() != 900 ) {
+          unpack0.getSmartPreview() != 10 ||
+          unpack0.getMirrorLockup() != 9998) {
       CA_LOG("ERROR - CAM_SETTINGS test failed\n");
     }
     String str0, str1;

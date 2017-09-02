@@ -16,7 +16,7 @@ void sendPacket(String &packetStr) {
       gPh.writePacketMenuSelect(packetStr);
       break;
     case PID_CAM_SETTINGS:
-      CA_ASSERT(0, "Not implemented");
+      gPh.writePacketCamSettings(packetStr);
       break;
     case PID_INTERVALOMETER:
       gPh.writePacketIntervalometer(packetStr);
