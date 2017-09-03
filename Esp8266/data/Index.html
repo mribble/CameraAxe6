@@ -747,25 +747,19 @@
 					<tr>
 						<td>Delay</td>
 						<td>
-							<input type="text" name="delay" onclick="openTimeBox(this,false,false,true,true,true,true,false);" value="0.0.0.0.0.0.0" />
+							<input type="text" name="delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Duration (bulb)</td>
 						<td>
-							<input type="text" name="duration_bulb" onclick="openTimeBox(this,false,false,true,true,true,true,false);" value="0.0.0.0.0.0.0" />
+							<input type="text" name="duration_bulb" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Post Trigger Delay</td>
 						<td>
-							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,false,false,false,true,true,true,false);" value="0.0.0.0.0.0.0" />
-						</td>
-					</tr>
-					<tr>
-						<td>Camera Lag</td>
-						<td>
-							<input type="text" name="camera_lag" onclick="openTimeBox(this,false,false,false,false,true,true,false);" value="0.0.0.0.0.0.0" />
+							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
@@ -782,43 +776,27 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Smart Preview</td>
+						<td>Smart Preview (seconds)</td>
 						<td>
-							<input type="text" name="smart_preview" onclick="openTimeBox(this,false,false,false,true,false,false,false);" value="0.0.0.0.0.0.0" />
+							<input type="number" name="smart_preview" min="0" max="59" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 						</td>
 					</tr>
 					<tr>
+						<td>Mirror Lockup (seconds)</td>
 						<td>
-							Mirror Lockup
-							<input style="float:right;" type="checkbox" checked name="mirror_lockup_check" value="1" />
-						</td>
-						<td>
-							<input type="text"  name="mirror_lockup" onclick="openTimeBox(this,false,false,true,true,false,false,false);" value="0.0.0.0.0.0.0" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Apply Intervalometer
-							<input style="float:right;" type="checkbox" checked name="apply_intervalometer" value="1" />
-						</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td colspan="2"><br><br><br><br><br><br><br>
-							Copy Settings from Camera/Flash 
-							<input type="text" name="copy_settings_from_camera_flash" value="--" />
+							<input type="number" name="mirror_lockup" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 						</td>
 					</tr>
 					<tr>
 						<td style="text-align:center;" colspan="2"><br><br>
-							<button onclick="debugInputs()" type="button">Test Trigger</button>
+							<button onclick="sendCamFlashPackets()" type="button">Test Trigger</button>
 							<button type="reset">Reset Defaults</button>
 						</td>
 					</tr>
 				</table>
 			</form>
 			<script>
-				function debugInputs() {
+				function sendCamFlashPackets() {
 					var cameraFlashSetupForm = document.forms["cameraFlashSetupForm"];
 					var debugString = "";
 					for(i=0; i<cameraFlashSetupForm.length; i++)
