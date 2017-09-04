@@ -34,8 +34,13 @@ void MenuTest_MenuRun() {
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
-  uint32_t val;
+  uint32_t val, sec, nano;
+  packet = incomingPacketCheckUint32(packet, 1, val);
+  packet = incomingPacketCheckUint32(packet, 2, val);
+  packet = incomingPacketCheckUint32(packet, 3, val);
   packet = incomingPacketCheckUint32(packet, 4, val);
+  packet = incomingPacketCheckTimeBox(packet, 5, sec, nano);
+  packet = incomingPacketCheckUint32(packet, 6, val);
   incomingPacketFinish(packet);
 
   // Handle outgoing packets

@@ -31,10 +31,11 @@ CAPacketElement* processIncomingPacket() {
         break;
       }
       case PID_TIME_BOX: {
-        CAPacketTimeBox unpack(mUnpacker);
-        unpack.unpack();
-        CA_LOG("%d PID_TIME_BOX - %d %d %d\n", packetSize, unpack.getClientHostId(), 
-                  unpack.getNanoseconds(), unpack.getSeconds() );
+        CAPacketTimeBox *unpack = new CAPacketTimeBox(mUnpacker);
+        unpack->unpack();
+        CA_LOG("%d PID_TIME_BOX - %d %d %d\n", packetSize, unpack->getClientHostId(), 
+                  unpack->getNanoseconds(), unpack->getSeconds() );
+        ret = unpack;
         break;
       }
       case PID_MENU_SELECT: {
@@ -108,10 +109,25 @@ CAPacketElement* incomingPacketCheckUint32(CAPacketElement* base, uint8_t client
   return base;
 }
 
+CAPacketElement* incomingPacketCheckTimeBox(CAPacketElement* base, uint8_t clientHostId, uint32_t &seconds, uint32_t &nanoseconds) {
+  if (base != NULL) {
+    if (base->getPacketType() == PID_TIME_BOX) {
+      if (base->getClientHostId() == clientHostId) {
+        CAPacketTimeBox *p = (CAPacketTimeBox*) base;
+        seconds = p->getSeconds();
+        nanoseconds = p->getNanoseconds();
+        delete base;
+        return NULL;
+      }
+    }
+  }
+  return base;
+}
+
 void incomingPacketFinish(CAPacketElement* base) {
   if (base != NULL) {
+    CA_LOG("Unprocessed packet at incomingPacketFinish() type: %d, id:%d\n", base->getPacketType(), base->getClientHostId());
     delete base;
-    CA_ERROR("Unprocessed packet found during incomingPacketCheckFinish()", 0);
   }
 }
 
