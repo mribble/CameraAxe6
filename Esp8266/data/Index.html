@@ -47,7 +47,7 @@
 			window.onload = initPage;
 			
 			function initPage() {
-				loadPage("Home", null);
+				loadPage("Home", null, null);
 				if (document.getElementById("MenuMode") != null) {
 					gRequest1 = new XMLHttpRequest();
 					gRequest1.onreadystatechange = updateMenuListAjax;
@@ -57,7 +57,7 @@
 				updateDynamicState();
 			}
 
-			function loadPage(page, dynamicScript) {
+			function loadPage(page, dynamicScript, func) {
 				gMenuName = "null";
 				document.getElementById("Home").style.display = "none";
 				document.getElementById("MenuMode").style.display = "none";
@@ -72,10 +72,14 @@
 					gRequest3.send();
 					gMenuName = dynamicScript;
 				}
-				toggleMenuPhotoMode(true);
+				if (func != null) {
+					func();
+				}
+				
+				toggleMenuPhotoMode(true, null);
 			}
 			
-			function toggleMenuPhotoMode(forceMenuMode) {
+			function toggleMenuPhotoMode(forceMenuMode, func) {
 			var id = document.getElementById("MenuPhotoModeButton");
 
 			if (forceMenuMode) {
@@ -101,6 +105,9 @@
 				gRequest = new XMLHttpRequest();
 				gRequest.open("GET", val, true);
 				gRequest.send();
+				if (func != null) {
+					func();
+				}
 			}
 
 			function LoadMenuList(photoMenus) {
@@ -408,14 +415,14 @@
 			</style>
 			<h1 class="topText">Camera Axe Home - v<span id="version"></span></h1>
 			
-			<button onclick="loadPage('CameraFlash');">Camera Flash Settings</button>
+			<button onclick="loadPage('CameraFlash', null, null);">Camera Flash Settings</button>
 			
 			<h2>Menus</h2>
 			<div id="listButtons"></div><br><br>
 			
-			<button onclick="loadPage('Intervalometer');">Setup Intervalometer</button>
+			<button onclick="loadPage('Intervalometer', null, null);">Setup Intervalometer</button>
 			<br><br>
-			<button onclick="loadPage('Advanced');">Advanced</button>
+			<button onclick="loadPage('Advanced', null, null);">Advanced</button>
 			<script>
 				document.getElementById("version").innerHTML = "0.2"
 				LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -424,9 +431,9 @@
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
-			<button class="button" onclick="loadPage('Home');">Home</button>
-			<button class="button" onclick="submitMenuModeForm();">Test Trigger</button>
-			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false);">Photo Mode</button>
+			<button class="button" onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
+			<button class="button" onclick="submitMenuModeFormPackets();">Test Trigger</button>
+			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, submitMenuModeFormPackets);">Photo Mode</button>
 			<h1 id="title"></h1>
 
 			<style>
@@ -642,7 +649,7 @@
 					document.getElementById("menuModeForm").appendChild(gCurTable);   
 				}
 				
-				function submitMenuModeForm() {
+				function submitMenuModeFormPackets() {
 					var menuModeForm = document.forms["menuModeForm"];
 					var str = PID_CAM_SETTINGS + "~";
 					
@@ -693,7 +700,6 @@
 		</div>
 <!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
-
 		<div id="CameraFlash" class="mainBox">
 			<style>
 				ul {
@@ -719,7 +725,7 @@
 			</style>		
 
 			<h1 class="topText">Camera Flash</h1>
-			<button class="topButton" onclick="loadPage('Home');">Home</button>
+			<button class="topButton" onclick="loadPage('Home', null, sendCamFlashPackets);">Home</button>
 			<div style="clear:both;"></div>
 			
 			<form id="cameraFlashSetupForm" name="cameraFlashSetupForm">
@@ -823,8 +829,7 @@
 					var str = PID_CAM_SETTINGS + "~";
 					var sequencerVal = +0;
 					
-					for(i=0; i<cameraFlashSetupForm.length; i++)
-					{
+					for(i=0; i<cameraFlashSetupForm.length; i++) {
 						if(cameraFlashSetupForm[i].type=="radio"){
 							if (cameraFlashSetupForm[i].checked) {
 								str += cameraFlashSetupForm[i].value + "~";
@@ -856,7 +861,7 @@
 <!--Advanced Page (Start)-->
 		<div id="Advanced" class="mainBox">
 			<h1 class="topText">Advanced</h1>
-			<button class="topButton" onclick="loadPage('Home');">Home</button>
+			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
 			<p>
 				Add options to this page later.
@@ -866,7 +871,7 @@
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
 			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="loadPageIntervalometer('Home');">Home</button>
+			<button class="topButton" onclick="loadPage('Home', null, sendIntervalometerPacket);">Home</button>
 			<div style="clear:both;"></div>
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
@@ -896,21 +901,12 @@
 					</tr>
 					<tr>
 						<td style="text-align:center;" colspan="2"><br><br><br><br>
-							<button onclick="testTrigger();" type="button">Test Trigger</button>
+							<button onclick="sendIntervalometerPacket();" type="button">Test Trigger</button>
 						</td>
 					</tr>
 				</table>
 			</form>
 			<script>
-				function testTrigger() {
-					sendIntervalometerPacket();
-				}
-
-				function loadPageIntervalometer(page) {
-					sendIntervalometerPacket();
-					loadPage(page);
-				}
-				
 				function sendIntervalometerPacket(){
 					var startStr = document.getElementById("start_delay").value;
 					var intervalStr = document.getElementById("interval").value;
