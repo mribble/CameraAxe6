@@ -1,6 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Maurice Ribble
+// Copyright 2017
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Create and return a unique WiFi SSID using the ESP8266 WiFi MAC address
 // Form the SSID as an IP address so the user knows what address to connect to when in AP mode just in case
 // (The config page only comes up automatically without the user having to enter a URL on some devices)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 String createUniqueSSID() {
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   String uSSID;
@@ -11,8 +18,10 @@ String createUniqueSSID() {
   return uSSID;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Return a unique class A private IP address using the ESP8266 WiFi MAC address
 // we use class A private addresses to have a large potential address space to avoid conflicts
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 IPAddress createUniqueIP() {
   uint8_t   mac[WL_MAC_ADDR_LENGTH];
   IPAddress result;
@@ -26,6 +35,9 @@ IPAddress createUniqueIP() {
   return result;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Initialize the wifi router
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setupWiFi() {
   IPAddress myIPAddress = createUniqueIP();
   bool connectToAP = false;
@@ -34,8 +46,9 @@ void setupWiFi() {
   if ( netCount > 0 ) {
     // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
     WiFiManager wifiManager;
-    CA_INFO("Network scan count: ", netCount);
-#ifdef CA_DEBUG_INFO
+    CA_INFO("Network scan count", netCount);
+//#ifdef CA_DEBUG_INFO
+#if 0
     wifiManager.setDebugOutput(true);
 #else
     wifiManager.setDebugOutput(false);
@@ -61,13 +74,15 @@ void setupWiFi() {
       WiFi.softAP(ssid.c_str());
       WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
       //WiFi.reconnect();  // supposedly required, but does not work if this is called
-      gLed.set(CALedControl::GREEN_BLINK);
-    } else {
+      gLed.set(CALed::GREEN_BLINK);
+    }
+    else {
       // We get here if the credentials on the setup page are incorrect, blank, or the "Exit" button was used
       CA_INFO("Did not connect to local WiFi", "");
       connectToAP = true;
     }
-  } else {
+  }
+  else {
     CA_INFO("No WiFI networks", "");
     connectToAP = true;
   }
@@ -78,7 +93,7 @@ void setupWiFi() {
     WiFi.softAP(createUniqueSSID().c_str(), CA_AP_PASSWORD);
     WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
     WiFi.mode(WIFI_AP);
-    gLed.set(CALedControl::ORANGE_BLINK);
+    gLed.set(CALed::ORANGE_BLINK);
   }
 
   // start the server & init the SPIFFS file system

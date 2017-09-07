@@ -1,7 +1,11 @@
-#include <CALedControl.h>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Maurice Ribble
+// Copyright 2017
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <CALed.h>
 
-CALedControl::CALedControl(uint8_t greenPin, uint8_t redPin) {
+CALed::CALed(uint8_t greenPin, uint8_t redPin) {
     mGreenPin = greenPin;
     mRedPin = redPin;
     mState = ALL_OFF;
@@ -14,14 +18,17 @@ CALedControl::CALedControl(uint8_t greenPin, uint8_t redPin) {
     digitalWrite(mRedPin, LOW);
 }
 
-void CALedControl::set(State state) {
+void CALed::set(State state) {
     mState = state;
     mNextTime = 0;
     mWriteVal = LOW;
     pollLeds();
 }
 
-void CALedControl::pollLeds() {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This should be called in a loop around every 50 ms or faster (slower mostly just affects blink times)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void CALed::pollLeds() {
     uint8_t red;
     uint8_t green;
     

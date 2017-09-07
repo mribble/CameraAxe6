@@ -1,3 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Maurice Ribble
+// Copyright 2017
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Takes the incoming string from JS (input string is a packet in string form) and converts it to a binary packet.
+//  Then send that binary packet to sam3x.
+//  This is also the place where string packets are saved to flash (so settings can be preserved across power cycles).
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sendPacket(String &packetStr) {
   uint8_t index = packetStr.indexOf('~');                   // This gets index to end of type
   uint8_t type = (packetStr.substring(0, index)).toInt();   // Assumes packet type is first element in string
@@ -19,6 +29,7 @@ void sendPacket(String &packetStr) {
       gPh.writePacketCamSettings(packetStr);
       break;
     case PID_INTERVALOMETER:
+      saveStringToFlash("/intervalData", packetStr);
       gPh.writePacketIntervalometer(packetStr);
       break;
     default:
@@ -27,46 +38,49 @@ void sendPacket(String &packetStr) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This takes a binary packet from sam3x and sends a string message to JS (via ajax hooks)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void receivePacket() {
   CAPacket &mUnpacker = gPh.getUnpacker();
   uint8_t *mData = gPh.getData();
 
   if (gPh.readOnePacket(mData)) {
     bool packetGuard = mUnpacker.unpackGuard();
-    uint8_t packetSize = mUnpacker.unpackSize();
+    mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();
 
     CA_ASSERT(packetGuard==true, "Failed guard check");
 
-    switch (packetType) {
-      case PID_STRING: {
-        bool found = false;
-        CAPacketString unpack(mUnpacker);
-        unpack.unpack();
-        uint8_t curId = unpack.getClientHostId();
+    // Currently only string data is allowed to be passed from sam3x to esp8266
+    if (packetType == PID_STRING) {
+      bool found = false;
+      CAPacketString unpack(mUnpacker);
+      unpack.unpack();
+      uint8_t curId = unpack.getClientHostId();
 
-        for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
-          if (curId == gDynamicMessages.id[i]) {
-            gDynamicMessages.str[i] = unpack.getString();
-            found = true;
-          }
+      // We store a limited number of dynamic messages per ajax refresh
+      // This code sees if the message exists and if it does it overwrites it
+      // otherwise it adds a new message to the list
+      for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
+        if (curId == gDynamicMessages.id[i]) {
+          gDynamicMessages.str[i] = unpack.getString();
+          found = true;
         }
-        if (!found) {
-          if (gDynamicMessages.numMessages < MAX_DYNAMIC_MESSAGES) {
-            uint8_t x = gDynamicMessages.numMessages++;
-            gDynamicMessages.id[x] = curId;
-            gDynamicMessages.str[x] = unpack.getString();
-          }
-          else {
-            CA_INFO("Exceeded max dynamic messages", MAX_DYNAMIC_MESSAGES);
-          }
+      }
+      if (!found) {
+        if (gDynamicMessages.numMessages < MAX_DYNAMIC_MESSAGES) {
+          uint8_t x = gDynamicMessages.numMessages++;
+          gDynamicMessages.id[x] = curId;
+          gDynamicMessages.str[x] = unpack.getString();
         }
-        break;
+        else {
+          CA_INFO("Exceeded max dynamic messages", MAX_DYNAMIC_MESSAGES);
+        }
       }
-      default: {
-        CA_ASSERT(0, "Unknown packet");
-        break;
-      }
+    }
+    else {
+      CA_ASSERT(0, "Unknown packet");
     }
     mUnpacker.resetBuffer();
   }

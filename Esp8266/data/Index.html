@@ -42,18 +42,24 @@
 			var gRequest1;
 			var gRequest2;
 			var gRequest3;
+			var gRequest4;
 			var gMenuMode = 0;
 			var gMenuName = "null";
 			window.onload = initPage;
 			
 			function initPage() {
 				loadPage("Home", null, null);
-				if (document.getElementById("MenuMode") != null) {
-					gRequest1 = new XMLHttpRequest();
-					gRequest1.onreadystatechange = updateMenuListAjax;
-					gRequest1.open("GET", "updateMenuList", true);
-					gRequest1.send();
-				}
+				
+				gRequest1 = new XMLHttpRequest();
+				gRequest1.onreadystatechange = updateMenuListAjax;
+				gRequest1.open("GET", "updateMenuList", true);
+				gRequest1.send();
+
+				gRequest4 = new XMLHttpRequest();
+				gRequest4.onreadystatechange = updateSaveStateIntervalAjax;
+				gRequest4.open("GET", "updateSaveStateInterval", true);
+				gRequest4.send();
+
 				updateDynamicState();
 			}
 
@@ -167,6 +173,21 @@
 					eval(gRequest3.responseText);
 				}
 			}
+			
+			function updateSaveStateIntervalAjax() {
+				if ((gRequest4.readyState == 4) && (gRequest4.status == 200)) {
+					if (gRequest4.responseText == "null") {
+						return;
+					}
+					var strArray = gRequest4.responseText.split("~");
+					strArray.pop(); // Last element is empty
+					var intervalForm = document.getElementById("intervalometerForm");
+					intervalForm.elements["inter_enable"].checked = strArray[1];
+					intervalForm.elements["start_delay"].value = getTimeBoxString(strArray[2], strArray[3]);
+					intervalForm.elements["interval"].value = getTimeBoxString(strArray[4], strArray[5]);
+					intervalForm.elements["number_of_repeats"].value = strArray[6];
+				}
+			}
 
 			function getNanoseconds(time) {
 				var timeArray = time.split("."); // index 0 is days and index 6 is nanoseconds
@@ -179,6 +200,19 @@
 				var x = +timeArray[3] + timeArray[2]*60 + timeArray[1]*60*60 + timeArray[0]*60*60*24;
 				return x;
 			}
+			
+			function getTimeBoxString(inSec, inNano) {
+				var days = Math.floor(inSec/(60*60*24));
+				var hours = Math.floor(inSec/(60*60) - days*24);
+				var minutes = Math.floor(inSec/60 - days*60*24 - hours*60);
+				var seconds = inSec - days*60*60*24 - hours*60*60 - minutes*60;
+				var ms = Math.floor(inNano/(1000*1000));
+				var us = Math.floor(inNano/1000 - ms*1000);
+				var ns = inNano - ms*1000*1000 - us*1000;
+				var str = days+"."+hours+"."+minutes+"."+seconds+"."+ms+"."+us+"."+ns;
+				return str;
+			}
+			
 		</script>		
 	</head>
 	<body>
