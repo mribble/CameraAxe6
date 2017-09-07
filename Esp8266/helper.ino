@@ -10,9 +10,9 @@
 //   The size of the buffer has a big impact on perf (small buffers like 64 bytes make page loading slow)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sendFileToClient(const char *fileName) {
-  const uint16_t bufSize = 1024;
+  const uint32_t bufSize = 1024;
   uint8_t buf[bufSize];
-  int16_t sz;
+  int32_t sz;
   File f = SPIFFS.open(fileName, "r");
 
   if (!f) {
@@ -25,7 +25,7 @@ void sendFileToClient(const char *fileName) {
     if (sz > bufSize) {
       // This is the case where we need to break up the writes
       f.read(buf, bufSize);
-      gClient.write((uint8_t*)buf, bufSize);\
+      gClient.write((uint8_t*)buf, bufSize);
       sz -= bufSize;
     }
     else {
