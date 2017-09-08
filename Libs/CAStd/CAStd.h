@@ -43,26 +43,7 @@
 // This should not be called directly (only call through macros below)
 void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
-inline void CALog(const char* fmt, ...) {
-   const uint8_t maxSize = 128;
-   char          buf[maxSize];
-   va_list       args;
-
-   va_start (args, fmt);
-#ifdef __SAM3X8E__
-   char fmt2[maxSize];                  // SAM3X has no vsnprintf_P so copy into a char array first
-   strncpy_P(fmt2, fmt, maxSize);
-   vsnprintf(buf, maxSize, fmt2, args);
-#elif ESP8266
-   char fmt2[maxSize];                  // ESP8266 has no vsnprintf_P so copy into a char array first
-   strncpy_P(fmt2, fmt, maxSize);
-   vsnprintf(buf, maxSize, fmt2, args);
-#else
-   vsnprintf_P(buf, maxSize, fmt, args);
-#endif
-   va_end(args);
-   SerialIO.print(buf);
-}
+#define CALog SerialIO.printf
 
 // For the CA_LOG function, you *must* use the PSTR() macro for the format string
 #define CA_LOG(fmt, ...)           CALog(fmt, ##__VA_ARGS__)

@@ -25,8 +25,15 @@ void serviceUri() {
   else if (uri.indexOf("GET /updateDynamicMenu") != -1){
     updateDynamicMenu(uri);
   }
+  else if (uri.indexOf("GET /updateAllCams") != -1) {
+    String str = uri.substring(18, uri.length()-9);
+    updateAllCams(str);
+  }
   else if (uri.indexOf("GET /updateSaveStateInterval") != -1) {
     sendFileToClient("/intervalData");
+  }
+  else if (uri.indexOf("GET /updateSaveStateCams") != -1) {
+    sendFileToClient("/camsData");
   }
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
@@ -80,4 +87,28 @@ void loadMainWebPage() {
   gClient.println("Content-Type: text/html\r\n");
   sendFileToClient("/Index.html");
 }
+
+void updateAllCams(String& packets) {
+  int16_t startOffset = 0;
+  String subStr;
+
+  saveStringToFlash("/camsData", packets);
+
+  while (startOffset != -1) {
+    startOffset = getCamPacketSubstring(packets, subStr, startOffset);
+    sendPacket(subStr);
+  }
+}
+int16_t getCamPacketSubstring(const String &str, String& subStr, int16_t startOffset) {
+  int16_t pos = str.indexOf('&', startOffset);
+  if (pos != -1) {
+    subStr = str.substring(startOffset, pos);  // Drop the trailing &
+    pos++;
+  }
+  else {
+    subStr = str.substring(startOffset);
+  }
+  return pos;
+}
+
 

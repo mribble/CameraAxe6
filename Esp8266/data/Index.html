@@ -101,6 +101,7 @@
 			var gRequest2;
 			var gRequest3;
 			var gRequest4;
+			var gRequest5;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
 			var gMenuModeTable;         // MenuMode table element for dynamic menus
 			var gPhotoModeTable;        // PhotoMode table element for dynamic menus
@@ -127,6 +128,11 @@
 				gRequest4.onreadystatechange = updateSaveStateIntervalAjax;
 				gRequest4.open("GET", "updateSaveStateInterval", true);
 				gRequest4.send();
+				
+				gRequest5 = new XMLHttpRequest();
+				gRequest5.onreadystatechange = updateSaveStateCamsAjax;
+				gRequest5.open("GET", "updateSaveStateCams", true);
+				gRequest5.send();
 
 				LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
 				updateDynamicState();
@@ -280,6 +286,18 @@
 					intervalForm.elements["start_delay"].value = getTimeBoxString(strArray[2], strArray[3]);
 					intervalForm.elements["interval"].value = getTimeBoxString(strArray[4], strArray[5]);
 					intervalForm.elements["number_of_repeats"].value = strArray[6];
+				}
+			}
+			
+			// Callback when getting the current camera/flash packets state (stored on esp8266 flash)
+			function updateSaveStateCamsAjax() {
+				if ((gRequest5.readyState == 4) && (gRequest5.status == 200)) {
+					if (gRequest5.responseText == "null") {
+						return;
+					}
+					var strArray = gRequest5.responseText.split("&");
+					gCamSettingsArray = strArray;
+					camSettingsLoad(0);
 				}
 			}
 
@@ -705,26 +723,11 @@
 
 			// Submit packets for camera flash to esp8266
 			function sendCamFlashPackets() {
-				var cameraFlashSetupForm = document.forms["cameraFlashSetupForm"];
-				var str = PID_CAM_SETTINGS + "~" + gCamSelectVal + "~";
-				var sequencerVal = +0;
+				camSettingsSave(gCamSelectVal);
 
-				for(i=0; i<cameraFlashSetupForm.length; i++) {
-					if(cameraFlashSetupForm[i].type=="checkbox"){
-						if(cameraFlashSetupForm[i].checked){
-							sequencerVal += +cameraFlashSetupForm[i].value;
-						}
-						if(cameraFlashSetupForm[i].name=="sequencer8") {
-							str += sequencerVal + "~";
-						}
-					} else if (cameraFlashSetupForm[i].type == "text") {
-						var seconds = getSeconds(cameraFlashSetupForm[i].value);
-						var nanoseconds = getNanoseconds(cameraFlashSetupForm[i].value);
-						str += seconds + "~" + nanoseconds + "~";
-					} else{
-						str += cameraFlashSetupForm[i].value + "~";
-					}
-				}
+				var str = "updateAllCams" + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" + 
+							gCamSettingsArray[2] + "&" + gCamSettingsArray[3] + "&" + gCamSettingsArray[4] + "&" +
+							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7];
 				document.getElementById("debugText").innerHTML = str;
 				gRequest = new XMLHttpRequest();
 				gRequest.open("GET", str, true);
