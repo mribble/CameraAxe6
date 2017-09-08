@@ -95,11 +95,11 @@ void updateAllCams(String& packets) {
   saveStringToFlash("/camsData", packets);
 
   while (startOffset != -1) {
-    startOffset = getCamPacketSubstring(packets, subStr, startOffset);
+    startOffset = getPacketSubstring(packets, subStr, startOffset);
     sendPacket(subStr);
   }
 }
-int16_t getCamPacketSubstring(const String &str, String& subStr, int16_t startOffset) {
+int16_t getPacketSubstring(const String &str, String& subStr, int16_t startOffset) {
   int16_t pos = str.indexOf('&', startOffset);
   if (pos != -1) {
     subStr = str.substring(startOffset, pos);  // Drop the trailing &

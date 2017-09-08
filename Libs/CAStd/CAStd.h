@@ -43,7 +43,16 @@
 // This should not be called directly (only call through macros below)
 void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
-#define CALog SerialIO.printf
+inline void CALog(const char* fmt, ...) {
+    char buf[128]; // resulting string limited to 128 chars
+    va_list args;
+    va_start (args, fmt );
+    vsnprintf(buf, 128, fmt, args);
+    va_end (args);
+    SerialIO.print(buf);
+   // On atmega we might want to use something like this if we are using F() to save ram
+   //vsnprintf_P(buf, maxSize, fmt, args);
+}
 
 // For the CA_LOG function, you *must* use the PSTR() macro for the format string
 #define CA_LOG(fmt, ...)           CALog(fmt, ##__VA_ARGS__)
