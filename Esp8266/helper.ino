@@ -82,7 +82,6 @@ void saveStringToFlash(const char* fileName, String& packetStr) {
 
   // Read contents and compare to avoid needless flash writes (flash has a limited number of writes -- generally ~50K)
   readFileToString(fileName, fileStr);
-  CA_LOG("SaveMatch %s %s\n", fileStr.c_str(), packetStr.c_str());  //todo remove this someday
   if (fileStr == packetStr) {
     match = true;
   }

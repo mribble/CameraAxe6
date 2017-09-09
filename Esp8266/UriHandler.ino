@@ -22,18 +22,29 @@ void serviceUri() {
   else if (uri.indexOf("GET /updateMenuList ") != -1) {
     updateMenuList();
   }
-  else if (uri.indexOf("GET /updateDynamicMenu") != -1){
-    updateDynamicMenu(uri);
+  else if (uri.indexOf("GET /loadDynamicMenu") != -1){
+    loadDynamicMenu(uri);
   }
   else if (uri.indexOf("GET /updateAllCams") != -1) {
     String str = uri.substring(18, uri.length()-9);
     updateAllCams(str);
   }
+  else if (uri.indexOf("GET /updateDynamicMenu") != -1) {
+    uint16_t nameEnd = uri.indexOf("&");
+    String name = uri.substring(22, nameEnd);
+    String str = uri.substring(nameEnd+1, uri.length()-9);
+    updateDynamicMenu(name, str);
+  }
   else if (uri.indexOf("GET /updateSaveStateInterval") != -1) {
-    sendFileToClient("/intervalData");
+    sendFileToClient("/d/interval");
   }
   else if (uri.indexOf("GET /updateSaveStateCams") != -1) {
-    sendFileToClient("/camsData");
+    sendFileToClient("/d/cams");
+  }
+  else if (uri.indexOf("GET /updateDynamicSettings") != -1) {
+    String name = uri.substring(26, uri.length()-9);
+    String str = String("/d/") + name;
+    sendFileToClient(str.c_str());
   }
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
@@ -74,9 +85,9 @@ void updateMenuList() {
   gClient.print(str);
 }
 
-void updateDynamicMenu(String& uri) {
+void loadDynamicMenu(String& uri) {
   String str;
-  uri.replace("GET /updateDynamicMenu", "");
+  uri.replace("GET /loadDynamicMenu", "");
   uri.replace(" HTTP/1.1", "");
   str = String("/menus/") + uri;
   sendFileToClient(str.c_str());  // Sends file with dynamic menu to javascript
@@ -88,27 +99,47 @@ void loadMainWebPage() {
   sendFileToClient("/Index.html");
 }
 
+void updateDynamicMenu(String& name, String& packets) {
+  int16_t startOffset = 0;
+  String subStr;
+  String name2 = "/d/"+name;
+
+  saveStringToFlash(name2.c_str(), packets);
+
+  while (startOffset != -1) {
+    startOffset = getPacketSubstring(packets, subStr, startOffset);
+    if (startOffset != -1) {
+      sendPacket(subStr);
+    }
+  }
+}
+
 void updateAllCams(String& packets) {
   int16_t startOffset = 0;
   String subStr;
 
-  saveStringToFlash("/camsData", packets);
+  saveStringToFlash("/d/cams", packets);
 
   while (startOffset != -1) {
     startOffset = getPacketSubstring(packets, subStr, startOffset);
-    sendPacket(subStr);
+    if (startOffset != -1) {
+      sendPacket(subStr);
+    }
   }
 }
+
 int16_t getPacketSubstring(const String &str, String& subStr, int16_t startOffset) {
-  int16_t pos = str.indexOf('&', startOffset);
-  if (pos != -1) {
-    subStr = str.substring(startOffset, pos);  // Drop the trailing &
-    pos++;
+  int16_t endOffset = str.indexOf('&', startOffset);
+  if (endOffset != -1) {
+    subStr = str.substring(startOffset, endOffset);  // Drop the trailing & per packet
+    endOffset++;
   }
-  else {
-    subStr = str.substring(startOffset);
+
+  if (subStr.length() == 0) {  // Remove the trailing &
+    endOffset = -1;
   }
-  return pos;
+  
+  return endOffset;
 }
 
 

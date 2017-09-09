@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Takes the incoming string from JS (input string is a packet in string form) and converts it to a binary packet.
 //  Then send that binary packet to sam3x.
-//  This is also the place where string packets are saved to flash (so settings can be preserved across power cycles).
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sendPacket(String &packetStr) {
   uint8_t index = packetStr.indexOf('~');                   // This gets index to end of type
@@ -29,7 +28,7 @@ void sendPacket(String &packetStr) {
       gPh.writePacketCamSettings(packetStr);
       break;
     case PID_INTERVALOMETER:
-      saveStringToFlash("/intervalData", packetStr);
+      saveStringToFlash("/d/interval", packetStr);
       gPh.writePacketIntervalometer(packetStr);
       break;
     default:
