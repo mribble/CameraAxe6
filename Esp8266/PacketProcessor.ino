@@ -23,6 +23,7 @@ void sendPacket(String &packetStr) {
       break;
     case PID_MENU_SELECT:
       gPh.writePacketMenuSelect(packetStr);
+      gDynamicMessages.numMessages = 0;
       break;
     case PID_CAM_SETTINGS:
       gPh.writePacketCamSettings(packetStr);

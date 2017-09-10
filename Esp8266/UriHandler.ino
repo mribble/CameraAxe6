@@ -77,10 +77,14 @@ void serviceUri() {
 
 void updateDynamicState() {
   String val;
+
   for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
     val += String("id") + gDynamicMessages.id[i] + "~" + gDynamicMessages.str[i] + "~";
   }
   gDynamicMessages.numMessages = 0;
+  if (val.length() == 0) {
+    val = "null";
+  }
   gClient.print(val);
 }
 

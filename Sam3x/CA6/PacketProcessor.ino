@@ -63,6 +63,7 @@ CAPacketElement* processIncomingPacket() {
         } else if (unpack.getMenuMode() == 0) {
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
+          
         } else {
           g_ctx.procTable.funcPhotoInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_PHOTO_MODE;

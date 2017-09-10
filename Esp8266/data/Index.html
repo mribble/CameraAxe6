@@ -158,7 +158,7 @@
 
 			// Called to make one of the top level pages visible
 			function loadPage(page, dynamicScript, submitPacketFunc) {
-   				toggleMenuPhotoMode(true, submitPacketFunc);
+   				toggleMenuPhotoMode(true, dynamicScript, submitPacketFunc);
 
                 gMenuName = "null";
 				document.getElementById("Home").style.display = "none";
@@ -196,7 +196,7 @@
 			}
 
 			// Change between menu mode and photo mode on dynamic menus
-			function toggleMenuPhotoMode(forceMenuMode, submitPacketFunc) {
+			function toggleMenuPhotoMode(forceMenuMode, dynamicScript, submitPacketFunc) {
 				var id = document.getElementById("MenuPhotoModeButton");
 
 				if (forceMenuMode) {
@@ -219,7 +219,7 @@
 						gMode = 0;
 					}
 				}
-				var val = PID_MENU_SELECT+"~"+gMode+"~"+gMenuName+"~";
+				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
 				gRequest0 = new XMLHttpRequest();
 				gRequest0.open("PUT", val, true);
 				gRequest0.send();
@@ -264,7 +264,10 @@
 			// Callback used when updated dynamic state is returned
 			function updateDynamicStateAjax() {
 				if ((gRequest2.readyState == 4) && (gRequest2.status == 200)) {
-					var str = gRequest2.responseText;
+                    if (gRequest2.responseText == "null") {
+                        return;
+                    }
+                    
 					var stateList = gRequest2.responseText.slice(0, -1).split("~");
 					for(var i=0; i<stateList.length; i+=2) {
 						document.getElementById(stateList[i]).innerHTML = stateList[i+1];
@@ -879,7 +882,7 @@
 		<div id="MenuMode" class="mainBox">
 			<button class="button" onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
 			<button class="button" onclick="submitMenuModeFormPackets();">Test Trigger</button>
-			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, submitMenuModeFormPackets);">Photo Mode</button>
+			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, gMenuName, submitMenuModeFormPackets);">Photo Mode</button>
 			<h1 id="title"></h1>
 
 			<form id="menuModeForm" name="menuModeForm">
