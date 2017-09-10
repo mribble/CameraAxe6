@@ -13,6 +13,7 @@ void serviceUri() {
   }
 
   String uri = gClient.readStringUntil('\r');
+  boolean putRequest = false;
   gClient.flush();
   uri.replace("%20", " "); // The uri code converts spaces to %20, this undoes that transformation
 
@@ -25,15 +26,17 @@ void serviceUri() {
   else if (uri.indexOf("GET /loadDynamicMenu") != -1){
     loadDynamicMenu(uri);
   }
-  else if (uri.indexOf("GET /updateAllCams") != -1) {
+  else if (uri.indexOf("PUT /updateAllCams") != -1) {
     String str = uri.substring(18, uri.length()-9);
     updateAllCams(str);
+    putRequest = true;
   }
-  else if (uri.indexOf("GET /updateDynamicMenu") != -1) {
+  else if (uri.indexOf("PUT /updateDynamicMenu") != -1) {
     uint16_t nameEnd = uri.indexOf("&");
     String name = uri.substring(22, nameEnd);
     String str = uri.substring(nameEnd+1, uri.length()-9);
     updateDynamicMenu(name, str);
+    putRequest = true;
   }
   else if (uri.indexOf("GET /updateSaveStateInterval") != -1) {
     sendFileToClient("/d/interval");
@@ -50,14 +53,19 @@ void serviceUri() {
     loadMainWebPage();
   }
   else if (uri.indexOf("GET /favicon.ico") != -1) {
-    // ignore this case
+    // Ignore this case
   }
   else if (uri.indexOf("~") != -1) {    // This is the dynamic state case
     String packetStr = uri.substring(5, uri.length()-9);
     sendPacket(packetStr);
+    putRequest = true;
   }
   else {
     CA_INFO("ERROR - Unknown URI - ", uri);
+  }
+
+  if (putRequest) {
+    gClient.print("HTTP/1.1 200 OK");
   }
 
   gClient.stop();

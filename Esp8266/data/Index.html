@@ -221,7 +221,7 @@
 				}
 				var val = PID_MENU_SELECT+"~"+gMode+"~"+gMenuName+"~";
 				gRequest0 = new XMLHttpRequest();
-				gRequest0.open("GET", val, true);
+				gRequest0.open("PUT", val, true);
 				gRequest0.send();
 				if (submitPacketFunc != null) {
 					submitPacketFunc();
@@ -733,7 +733,7 @@
                 if (packetStr != "updateDynamicMenu") {
                     document.getElementById("debugText").innerHTML = packetStr;
                     gRequest0 = new XMLHttpRequest();
-                    gRequest0.open("GET", packetStr, true);
+                    gRequest0.open("PUT", packetStr, true);
                     gRequest0.send();
 				}
 			}
@@ -748,7 +748,7 @@
 						// Do nothing
 					} else if (el.caType == "checkbox") {
                         var packet = packetArray[i].split("~");
-                        el.checked = packet[2];
+                        el.checked = +packet[2];
 					} else if (el.caType == "dropSelect") {
 						var packet = packetArray[i].split("~");
                         el.selectedIndex = packet[2];
@@ -776,7 +776,7 @@
 							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7] + "&";
 				document.getElementById("debugText").innerHTML = str;
 				gRequest0 = new XMLHttpRequest();
-				gRequest0.open("GET", str, true);
+				gRequest0.open("PUT", str, true);
 				gRequest0.send();
 			}
 
@@ -795,7 +795,7 @@
 									document.getElementById("debugText").innerHTML = str;
 				document.getElementById("debugText").innerHTML = str;
 				gRequest0 = new XMLHttpRequest();
-				gRequest0.open("GET", str, true);
+				gRequest0.open("PUT", str, true);
 				gRequest0.send();
 			}
 		</script>
