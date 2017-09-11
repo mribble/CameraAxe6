@@ -96,6 +96,6 @@ void setupWiFi() {
     gLed.set(CALed::ORANGE_BLINK);
   }
 
-  // start the server & init the SPIFFS file system
+  // start the server
   gServer.begin();
 }

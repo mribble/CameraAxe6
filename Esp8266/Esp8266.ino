@@ -62,7 +62,7 @@ void setup (void) {
     CA_INFO("Cannot open SPIFFS", "");
   }
   else {
-    displaySpiffsInfo();    
+    displaySpiffsInfo();  
   }
 }
 

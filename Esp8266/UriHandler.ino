@@ -115,7 +115,6 @@ void updateDynamicMenu(String& name, String& packets) {
   int16_t startOffset = 0;
   String subStr;
   String name2 = "/d/"+name;
-
   saveStringToFlash(name2.c_str(), packets);
 
   while (startOffset != -1) {

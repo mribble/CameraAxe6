@@ -1,22 +1,5 @@
 #include <CAPacketHelper.h>
 
-uint16_t CAPacketHelper::serialFlowControlAvailable() {
-    return mSerial->available();
-}
-
-void CAPacketHelper::serialFlowControlRead(uint8_t *buf, uint16_t length) {
-    mSerial->readBytes(buf, length);
-    // Code below prints out values of incoming packets for debug
-    //for(int i = 0; i < length; ++i) {
-    //    CAU::log("%d,",buf[i]);
-    //}
-    //CAU::log("\n");
-}
-
-void CAPacketHelper::serialFlowControlWrite(const uint8_t *buf, uint16_t length) {
-    mSerial->write(buf, length);
-}
-    
 void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
     mSerial = serial;
     mDebugSerial = debugSerial;
@@ -25,14 +8,14 @@ void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
 
 boolean CAPacketHelper::readOnePacket(uint8_t *data) {
     boolean ret = false;
-    uint16_t avaliableBytes = serialFlowControlAvailable();
+    uint16_t avaliableBytes = mSerial->available();
 
     // This reads the first byte, which verifies it's a valid packet, and then moves on
     //  Unless it isn't the guard byte and then it writes the char to the output serial port
     if (avaliableBytes && (mGuardFound == false)) {
         for(uint16_t i=0; i<avaliableBytes; ++i) {
             uint8_t buf[1];
-            serialFlowControlRead(buf, PACK_GUARD_SZ);
+            mSerial->readBytes(buf, PACK_GUARD_SZ);
             if (buf[0] == GUARD_PACKET) {
                 mGuardFound = true;
                 break;
@@ -47,11 +30,11 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
     // To read one packet you need to know the first byte is the guard.  The next two bytes in a packet is the size.  
     // This code assumes that.  The third byte is always the packet type, but this code doesn't need to know that.
 
-    avaliableBytes = serialFlowControlAvailable();
+    avaliableBytes = mSerial->available();
     if (mGuardFound && (avaliableBytes >= PACK_SIZE_SZ)) {
         if (mSize == 0) {
             uint8_t buf[PACK_SIZE_SZ];
-            serialFlowControlRead(buf, PACK_SIZE_SZ);
+            mSerial->readBytes(buf, PACK_SIZE_SZ);
             avaliableBytes -= PACK_SIZE_SZ;
             mSize = genPacketSize(buf[0], buf[1]);
             CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
@@ -61,7 +44,7 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
             data[0] = GUARD_PACKET;
             data[1] = getPacketSize(mSize, 0);
             data[2] = getPacketSize(mSize, 1);
-            serialFlowControlRead(data+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
+            mSerial->readBytes(data+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
             mSize = 0;
             mGuardFound = false;
             ret = true;
@@ -78,8 +61,7 @@ void CAPacketHelper::writeOnePacket(uint8_t *data) {
         CA_ASSERT(0, "Exceeded Max packet size");
         return;
     }
-
-    serialFlowControlWrite(data, bufSize);
+    mSerial->write(data, bufSize);
 }
 
 void CAPacketHelper::flushGarbagePackets() {

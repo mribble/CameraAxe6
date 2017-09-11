@@ -65,6 +65,7 @@ void readFileToString(const char* fileName, String &str) {
     }
     else {
       f.read(buf, sz);
+      buf[sz] = 0;
       str += (char*)buf;
       sz = 0;
     }
@@ -87,6 +88,8 @@ void saveStringToFlash(const char* fileName, String& packetStr) {
   }
   
   if (!match) {
+    bool del;
+    CA_LOG("SPIFF_write %s\n", fileName);
     File f = SPIFFS.open(fileName, "w");
     if (f) {
       f.print(packetStr);

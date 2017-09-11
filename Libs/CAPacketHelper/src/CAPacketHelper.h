@@ -42,10 +42,6 @@ public:
     void writePacketCamTrigger(const String& str);
     
 private:
-    uint16_t serialFlowControlAvailable();
-    void serialFlowControlRead(uint8_t *buf, uint16_t length);
-    void serialFlowControlWrite(const uint8_t *buf, uint16_t length);
-
     HardwareSerial *mSerial;
     HardwareSerial *mDebugSerial;
     bool mGuardFound;
