@@ -32,6 +32,9 @@ void sendPacket(String &packetStr) {
       saveStringToFlash("/d/interval", packetStr);
       gPh.writePacketIntervalometer(packetStr);
       break;
+    case PID_CAM_TRIGGER:
+      gPh.writePacketCamTrigger(packetStr);
+      break;
     default:
       CA_ASSERT(0, "Invalid type found");
       break;

@@ -38,6 +38,9 @@ public:
     void writePacketIntervalometer(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds, 
                                     uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats);
     void writePacketIntervalometer(const String& str);
+    void writePacketCamTrigger(uint8_t mode, uint8_t focus, uint8_t shutter);
+    void writePacketCamTrigger(const String& str);
+    
 private:
     uint16_t serialFlowControlAvailable();
     void serialFlowControlRead(uint8_t *buf, uint16_t length);

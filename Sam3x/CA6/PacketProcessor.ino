@@ -86,6 +86,13 @@ CAPacketElement* processIncomingPacket() {
                 unpack.getStartNanoseconds(), unpack.getIntervalSeconds(), unpack.getIntervalNanoseconds(), unpack.getRepeats());
         break;
       }
+      case PID_CAM_TRIGGER: {
+        CAPacketCamTrigger unpack(mUnpacker);
+        unpack.unpack();
+        CA_LOG("%d PID_CAM_TRIGGER - %d %d %d\n", packetSize, unpack.getMode(), unpack.getFocus(), unpack.getShutter());
+        triggerCameras();
+        break;
+      }
       default: {
         CA_ERROR("Unknown packet", 0);
         break;

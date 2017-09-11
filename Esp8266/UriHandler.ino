@@ -52,9 +52,9 @@ void serviceUri() {
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
   }
-  else if (uri.indexOf("GET /favicon.ico") != -1) {
-    // Ignore this case
-  }
+//  else if (uri.indexOf("GET /favicon.ico") != -1) {
+//    // Ignore this case
+//  }
   else if (uri.indexOf("~") != -1) {    // This is the dynamic state case
     String packetStr = uri.substring(5, uri.length()-9);
     sendPacket(packetStr);

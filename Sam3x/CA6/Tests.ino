@@ -246,6 +246,32 @@ void caTestPackets()
     }
   }
 
+  {  // CAM_TRIGGER Packet Test
+    CAPacketCamTrigger unpack0(unpackBase);         // Update per type
+    CAPacketCamTrigger pack0(packBase);             // Update per type
+    pack0.set(0, 0, 0);                             // Update per type
+    packSize = pack0.pack();
+    unpackGuard = unpackBase.unpackGuard();
+    unpackSize = unpackBase.unpackSize();
+    unpackType = unpackBase.unpackType();
+    unpack0.unpack();
+    if (unpackGuard != true ||
+        packSize != unpackSize ||
+        unpackType != PID_CAM_TRIGGER ||            // Update per type
+        unpack0.getMode() != 0 ||
+        unpack0.getFocus() != 0 ||
+        unpack0.getShutter() != 0) 
+        {
+      CA_LOG("ERROR - CAM_TRIGGER test failed\n");
+    }
+    String str0, str1;
+    unpack0.packetToString(str0);
+    unpack0.set(str0);
+    unpack0.packetToString(str1);
+    if (str0.compareTo(str1) != 0) {
+      CA_LOG("ERROR - CAM_TRIGGER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+    }
+  }
   CA_LOG("Done - testPackets\n");
 }
 

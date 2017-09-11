@@ -186,3 +186,19 @@ void CAPacketHelper::writePacketIntervalometer(const String& str) {
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
+
+void CAPacketHelper::writePacketCamTrigger(uint8_t mode, uint8_t focus, uint8_t shutter) {
+    CAPacketCamTrigger pack0(mPacker);
+    pack0.set(mode, focus, shutter);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketCamTrigger(const String& str) {
+    CAPacketCamTrigger pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}

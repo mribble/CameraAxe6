@@ -493,3 +493,55 @@ void CAPacketIntervalometer::packetToString(String& str) {
                 mIntervalSeconds + '~' + mIntervalNanoseconds + '~' + mRepeats + '~';
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// CamTrigger Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketCamTrigger::CAPacketCamTrigger(CAPacket& caPacket) {
+    mMode = 0;
+    mFocus = 0;
+    mShutter = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketCamTrigger::set(uint8_t mode, uint32_t focus, uint32_t shutter) {
+    mMode = mode;
+    mFocus = focus;
+    mShutter = shutter;
+}
+
+void CAPacketCamTrigger::set(const String& str) {
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mMode = getUint32FromString(index, str);
+    mFocus = getUint32FromString(index, str);
+    mShutter = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_CAM_TRIGGER, "Wrong PID ID");
+}
+
+void CAPacketCamTrigger::unpack() {
+    mMode = mCAP->unpacker(8);
+    mFocus = mCAP->unpacker(8);
+    mShutter = mCAP->unpacker(8);
+    mCAP->flushPacket();
+    CA_ASSERT((mMode == 0) && (mFocus==0) && (mShutter==0), "Error in CAPacketCamTrigger::unpack()");
+}
+
+uint16_t CAPacketCamTrigger::pack() {
+    uint8_t unused = 0;
+    uint16_t packetSize = PACK_TOTAL_SZ + 3;
+    mCAP->packer(GUARD_PACKET, 8);
+    mCAP->packer(packetSize, 16);
+    mCAP->packer(PID_CAM_TRIGGER, 8);
+    mCAP->packer(mMode, 8);
+    mCAP->packer(mFocus, 8);
+    mCAP->packer(mShutter, 8);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+void CAPacketCamTrigger::packetToString(String& str) {
+    str = (String)PID_CAM_TRIGGER + '~' + mMode + '~' + mFocus + '~' + mShutter + '~';
+}

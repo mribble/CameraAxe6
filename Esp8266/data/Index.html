@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+        <!-- Suppress browser request for favicon.ico -->
+        <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
 		<title>Camera Axe 6</title>
 
 		<style>
@@ -94,6 +96,7 @@
 			var PID_MENU_SELECT     =  4;
 			var PID_CAM_SETTINGS    =  5;
 			var PID_INTERVALOMETER  =  6;
+            var PID_CAM_TRIGGER     =  7;
 
 			// Global Variables
 			var gRequest0;               // Http requests
@@ -769,7 +772,14 @@
 				}            
             }
             
-
+            // Run test trigger function
+            function testTrigger(extraFunc) {
+                if (extraFunc != null) {
+                    extraFunc();
+                }
+                sendCamTriggerPacket();
+            }
+            
 			// Submit packets for camera flash to esp8266
 			function sendCamFlashPackets() {
 				camSettingsSave(gCamSelectVal);
@@ -796,6 +806,15 @@
 				var str = PID_INTERVALOMETER+"~"+enabled+"~"+startSeconds+"~"+startNanoseconds+"~"+
 							intervalSeconds+"~"+intervalNanoseconds+"~"+numRepeats+"~";
 									document.getElementById("debugText").innerHTML = str;
+				document.getElementById("debugText").innerHTML = str;
+				gRequest0 = new XMLHttpRequest();
+				gRequest0.open("PUT", str, true);
+				gRequest0.send();
+			}
+
+			// Submit packet to trigger the camera ports to esp8266
+			function sendCamTriggerPacket(){
+				var str = PID_CAM_TRIGGER+"~0~0~0~";  // Set mode, focus, and shutter to 0
 				document.getElementById("debugText").innerHTML = str;
 				gRequest0 = new XMLHttpRequest();
 				gRequest0.open("PUT", str, true);
@@ -881,7 +900,7 @@
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
 			<button class="button" onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
-			<button class="button" onclick="submitMenuModeFormPackets();">Test Trigger</button>
+			<button class="button" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
 			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, gMenuName, submitMenuModeFormPackets);">Photo Mode</button>
 			<h1 id="title"></h1>
 
@@ -979,7 +998,7 @@
 				</table>
 			</form>
 			<br>
-			<button onclick="sendCamFlashPackets()" type="button">Test Trigger</button>
+			<button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
 			<button type="reset">Reset Defaults</button>
 		</div>
 <!--Camera Flash Page (End)-->
@@ -1016,7 +1035,7 @@
 					</tr>
 					<tr>
 						<td style="text-align:center;" colspan="2"><br><br><br><br>
-							<button onclick="sendIntervalometerPacket();" type="button">Test Trigger</button>
+							<button onclick="testTrigger(sendIntervalometerPacket);" type="button">Test Trigger</button>
 						</td>
 					</tr>
 				</table>
