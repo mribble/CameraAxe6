@@ -74,7 +74,6 @@ void setupWiFi() {
       WiFi.softAP(ssid.c_str());
       WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
       //WiFi.reconnect();  // supposedly required, but does not work if this is called
-      gLed.set(CALed::GREEN_BLINK);
     }
     else {
       // We get here if the credentials on the setup page are incorrect, blank, or the "Exit" button was used
@@ -93,9 +92,31 @@ void setupWiFi() {
     WiFi.softAP(createUniqueSSID().c_str(), CA_AP_PASSWORD);
     WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
     WiFi.mode(WIFI_AP);
-    gLed.set(CALed::ORANGE_BLINK);
   }
 
   // start the server
   gServer.begin();
 }
+
+void pollWifiMode() {
+  if (WiFi.getMode() == WIFI_AP_STA) {
+    if (WiFi.status() == WL_CONNECTED) {
+      gLed.set(CALed::GREEN_BLINK);
+    }
+    else {
+      gLed.set(CALed::GREEN_ON);
+    }
+  }
+  else if (WiFi.getMode() == WIFI_AP) {
+    if (WiFi.getMode() == WL_CONNECTED) {
+      gLed.set(CALed::ORANGE_BLINK);
+    } else {
+      gLed.set(CALed::ORANGE_ON);
+    }
+  }
+  else {
+    gLed.set(CALed::RED_ON);
+  }
+
+}
+
