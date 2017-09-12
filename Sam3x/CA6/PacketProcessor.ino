@@ -134,7 +134,8 @@ CAPacketElement* incomingPacketCheckTimeBox(CAPacketElement* base, uint8_t clien
 
 void incomingPacketFinish(CAPacketElement* base) {
   if (base != NULL) {
-    CA_LOG("Unprocessed packet at incomingPacketFinish() type: %d, id:%d\n", base->getPacketType(), base->getClientHostId());
+    //CA_LOG("Unprocessed packet at incomingPacketFinish() type: %d, id:%d\n", base->getPacketType(), base->getClientHostId());
+    // All packets sent for menu and photo mode so there the above message prints when switching modes
     delete base;
   }
 }
