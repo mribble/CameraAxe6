@@ -1,3 +1,8 @@
-Sam3x/CA6/CA6.sln
-Sam3x/CA6/CA6.vcxproj
-Sam3x/CA6/CA6.vcxproj.filters
+/.vs
+/__vm
+/Debug
+/Release
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.bak*

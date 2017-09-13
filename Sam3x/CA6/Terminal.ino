@@ -13,7 +13,7 @@ void processTerminalCmds() {
     case 't': // Program a test module in module port 3
     {
       CAEeprom eeprom(CA_MODULE3);
-      const uint8_t testModuleId = 2;
+      const uint8_t testModuleId = 3;
       uint8_t val = 0;
 
       if (eeprom.writeModuleId(testModuleId)) {

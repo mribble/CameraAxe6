@@ -2,8 +2,8 @@
 /* Lightning Menu Copyright 2017 Dan Lenardon
  This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) International License.
  To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0
-	 Release Notes
-	 First version for CA6
+   Release Notes
+   First version for CA6
 *///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////
@@ -15,29 +15,41 @@
 //   None
 ////////////////////////////////////////
 
+#define SENSORinMODULE 1 // Since we are temporarily using Module 0 for Connection Cards, use Module 1
+#define DISPLAYFREQMS 1000  // Update the display variables every DISPLAYFREQMS milliseconds
+#define DURATIONOFFSET 3 // Microseconds to add as 1/2 the estimated time between AnalogReads in strike detection loop
+
 typedef struct {
-	uint32_t triggerDiffThreshold;
-	hwPortPin ppLight;
-	uint16_t sensorVal = 0;
-	uint32_t timeToDisplayMS;
-	uint32_t updateRefPeriodMS = 200;
-	uint16_t referenceSensorVal = 0;
-	uint16_t triggerCount = 0;
-	// variables for the Advanced Photo Display - last 5 strike details  
-	int16_t strk_num[5] = { 0, 0, 0, 0, 0};
-	int16_t ref[6] = { 0, 0, 0, 0, 0, 0};  // extra index for temp storage of ref at beginning of strike
-	int16_t peak[5] = { 0, 0, 0, 0, 0};
-	uint32_t strk_duration_us[5] = { 0, 0, 0, 0, 0};
-	int16_t peakOfStrike = 0;
-	uint32_t StrikeStartTimeUs;  // used for strike duration display
-	uint32_t StrikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
+  uint32_t triggerDiffThreshold;
+  hwPortPin ppLight;
+//  hwPortPin ppCamShutter[8];  // for now assume this is handled by general function
+//  hwPortPin ppCamFocus[8];    // also device cycles??? proably not
+  uint16_t sensorVal = 0;
+  uint32_t timeToDisplayMS;
+  uint32_t updateRefPeriodMS = 200;
+  uint32_t referenceUpdateTimeMS;
+  uint16_t referenceSensorVal = 0;
+  uint16_t triggerCount = 0;
+  boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
+//  uint32_t curTimeMS;  // not sure if this needs to be in the global structure???
+//  boolean TriggerTooHigh = false; // or Sensitivity too high
+
+// variables for the Advanced Photo Display - last 5 strike details  
+  char strikeDetailsBuf[5][24]; // circular buffer of the details for the last 5 strikes
+  uint8_t lastStrikeIndex = 0; // index into strikeDetailsBuf of the last strike
+  int16_t peakOfStrike = 0;
+  uint16_t refAtStrike = 0;
+  uint32_t strikeStartTimeUS;  // used for strike duration display
+  uint32_t strikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
+
+  const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
 
 } MenuLightningData;
 
 MenuLightningData gLightningData;
 
 void MenuLightning_Info() {
-	g_ctx.packetHelper.writePacketMenuList(3, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Lightning Menu");
+  g_ctx.packetHelper.writePacketMenuList(3, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Lightning Menu");
 }
 
 void MenuLightning_MenuInit() {
@@ -50,11 +62,11 @@ void MenuLightning_MenuInit() {
   };  // Total Bytes = 156
   g_ctx.packetHelper.writeMenu(sDataMenu, 156);
 
-//	caAllPortsLow();  This screws up packet processing!!
-	CAU::initializeAnalog();
-	gLightningData.ppLight = CAU::getModulePin(0, 0);
-	CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
-	gLightningData.timeToDisplayMS = millis();
+//	caAllPortsLow();  This screws up packet processing because it sets serial ports, too!!
+  CAU::initializeAnalog();
+  gLightningData.ppLight = CAU::getModulePin(SENSORinMODULE, 0);
+  CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
+  gLightningData.timeToDisplayMS = millis();
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
@@ -79,379 +91,275 @@ void MenuLightning_PhotoInit() {
   };  // Total Bytes = 343
   g_ctx.packetHelper.writeMenu(sDataActive, 343);
 
-	/* shouldn't have to do these twice, we already did them in Menu_Init
-	CAU::initializeAnalog();
-	gLightningData.ppLight = CAU::getModulePin(0, 0);
-	CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
+  /* shouldn't have to do these twice, we already did them in Menu_Init
+  CAU::initializeAnalog();
+  gLightningData.ppLight = CAU::getModulePin(SENSORinMODULE, 0);
+  CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   */
-	gLightningData.timeToDisplayMS = millis();
+  gLightningData.timeToDisplayMS = millis();
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
 
 void MenuLightning_MenuRun() {
-#define DISPLAYFREQMS 1000  // Update the display variables every DISPLAYFREQMS milliseconds
-	uint32_t curTimeMS = millis();
+  uint32_t curTimeMS = millis();
 
-	// Handle incoming packets
-	CAPacketElement *packet = processIncomingPacket();
-	packet = incomingPacketCheckEditNumber(packet, 0, gLightningData.triggerDiffThreshold);
-	packet = incomingPacketCheckEditNumber(packet, 1, gLightningData.updateRefPeriodMS);
-	incomingPacketFinish(packet);
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckEditNumber(packet, 0, gLightningData.triggerDiffThreshold);
+  packet = incomingPacketCheckEditNumber(packet, 1, gLightningData.updateRefPeriodMS);
+  incomingPacketFinish(packet);
 
-	// Handle outgoing packets
-	if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
-		gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
-		g_ctx.packetHelper.writePacketTextDynamic(2, 0, String(gLightningData.sensorVal).c_str());
-		gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
-	}
+  // Handle outgoing packets
+  if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+    gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+    g_ctx.packetHelper.writePacketTextDynamic(2, 0, String(gLightningData.sensorVal).c_str());
+    gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+  }
 
 // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
 
 }
 
-void MenuLightning_PhotoRun() {
-	uint32_t curTimeMS = millis();
-	gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+void LTGDisplayPhotoMode() {
+/* LTGDisplayPhotoMode Send photo-mode data back to mobile display
+    all values obtained from gLightningData
+    */
+    // Handle outgoing packets
+  g_ctx.packetHelper.writePacketTextDynamic(0, 0, String(gLightningData.referenceSensorVal).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(1, 0, String(gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(2, 0, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(3, 0, String(gLightningData.triggerDiffThreshold).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(4, 0, String(gLightningData.updateRefPeriodMS).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(5, 0, String(gLightningData.triggerCount).c_str());
+  g_ctx.packetHelper.writePacketTextDynamic(6, 0, gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex]);
+  g_ctx.packetHelper.writePacketTextDynamic(7, 0, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 1 + 5) % 5]);
+  g_ctx.packetHelper.writePacketTextDynamic(8, 0, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 2 + 5) % 5]);
+  g_ctx.packetHelper.writePacketTextDynamic(9, 0, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 3 + 5) % 5]);
+  g_ctx.packetHelper.writePacketTextDynamic(10, 0, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 4 + 5) % 5]);
 
-	// Handle incoming packets
-	CAPacketElement *packet = processIncomingPacket();
-	incomingPacketFinish(packet);
+}
+
+/*
+void extraInitStuffFromCA6Draft() {
 
 
-	// Handle outgoing packets
-	if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
-    g_ctx.packetHelper.writePacketTextDynamic(0, 0, String(gLightningData.referenceSensorVal).c_str());
-    g_ctx.packetHelper.writePacketTextDynamic(1, 0, String(gLightningData.sensorVal).c_str());
-    g_ctx.packetHelper.writePacketTextDynamic(2, 0, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
-    g_ctx.packetHelper.writePacketTextDynamic(3, 0, String(gLightningData.triggerDiffThreshold).c_str());
-    g_ctx.packetHelper.writePacketTextDynamic(4, 0, String(gLightningData.updateRefPeriodMS).c_str());
-    g_ctx.packetHelper.writePacketTextDynamic(5, 0, String(gLightningData.triggerCount).c_str());
-    gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
-    g_ctx.packetHelper.writePacketTextDynamic(6, 0, "Last strike details");
-    g_ctx.packetHelper.writePacketTextDynamic(7, 0, "Last-1 strike details");
-    g_ctx.packetHelper.writePacketTextDynamic(8, 0, "Last-2 strike details");
-    g_ctx.packetHelper.writePacketTextDynamic(9, 0, "Last-3 strike details");
-    g_ctx.packetHelper.writePacketTextDynamic(10, 0, "Last-4 strike details");
+  // eepromDeviceCycles units are tenths????? of a second
+  int16_t eepromDeviceCycles[8 * *************] = {
+    eepromReadInt(EEPROM_LTG_DEVICE_CYCLE1),       eepromReadInt(EEPROM_LTG_DEVICE_CYCLE2) };
+  int16_t eepromDevicePrefocuses[8 * *****************] = {
+    eepromReadInt(EEPROM_LTG_DEVICE_PREFOCUS1),    eepromReadInt(EEPROM_LTG_DEVICE_PREFOCUS2) };
+  int16_t eepromPhotoMenuSimpleAdv = eepromReadInt(EEPROM_LTG_PHOTO_MENU_SIMPLE_ADV);
+
+  ppLight = CAU::getModulePin(0, 0); //plug sensor into Module 0 RJ-45 pin 2 MOD0_AN1
+  for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
+    ppCamShutter[d] = CAU::getCameraPin(d, SHUTTER);  // Cam0 Shutter pin
+    CAU::pinMode(ppCamShutter[d], OUTPUT);
+    ppCamFocus[d] = CAU::getCameraPin(d, FOCUS);  // Cam0 Focus pin
+    CAU::pinMode(ppCamFocus[d], OUTPUT);
   }
 
-	// Handle triggering
-	uint8_t trigger = false;
-	if (trigger) {
-		triggerCameras();
-		CA_LOG("Trigger\n");
-	}
-
+  // Initialize Prefocus and Shutter for Cam/Flash ports
+  for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
+    CAU::digitalWrite(ppCamShutter[d], LOW);
+    if (eepromDevicePrefocuses[d])
+      CAU::digitalWrite(ppCamFocus[d], HIGH);
+    else
+      CAU::digitalWrite(ppCamFocus[d], LOW);
+  }
 }
+  */
 
 
+void MenuLightning_PhotoRun() {
+  uint32_t curTimeMS;
+  int16_t currentDif = 0;
 
 
+ // extraInitStuffFromCA6Draft(); // Deal with setting Cam Focus pins, etc. here
 
+  gLightningData.triggerCount = 0;
+  gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
+  curTimeMS = millis();  // initialize the current time to start Reference and Display timers
+  gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS;  // initialize the update timer
+  gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
 
+  /*
+  while (g_menuMode == MENUMODE_PHOTO)
+  {
+    // Loop checking for a strike (curval - ref > trigger)
+    while (!gLightningData.inStrikeCycle && g_menuMode == MENUMODE_PHOTO)
+    {
+      curTimeMS = millis();  // capture the current time
+      gLightningData.sensorVal = CAU::analogRead(ppLight);
+      currentDif = gLightningData.sensorVal - gLightningData.referenceSensorVal;
+      if (currentDif > gLightningData.triggerDiffThreshold)
+      {
+        // Begin a new strike -- strike lasts until sensor1 goes back below threshold or 2 seconds (bail out)
+        gLightningData.inStrikeCycle = true;
+        //Trigger Cameras
+        for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
+          CAU::digitalWrite(ppCamFocus[d], HIGH);
+          CAU::digitalWrite(ppCamShutter[d], HIGH);
+        }
+        gLightningData.triggerCount = gLightningData.triggerCount + 1;
+        gLightningData.peakOfStrike = gLightningData.sensorVal; // initialize the peak reading for this strike
+        gLightningData.strikeStartTimeUS = micros();  // initialize the strike start for duration measure
+        gLightningData.strikeStartTimeMS = curTimeMS;  // start clock for 2-second max check        
+        gLightningData.refAtStrike = gLightningData.referenceSensorVal;  // save reference value at beginning of strike in index 4
+                                           //Set up Cycle Times for Cameras
+        for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++)
+        {
+          if (eepromDeviceCycles[d] != 0)
+            shutterHoldTimeMS[d] = curTimeMS + (uint32_t)eepromDeviceCycles[d] * 100; //eeprom value is integer tenths of sec.
+          else
+            shutterHoldTimeMS[d] = curTimeMS + g_minShutterHoldMs; // min hold time to activate shutter
+                                                                   // known issue: If Prefocus is not set, some cameras will sometimes not trigger unless the pins are held high for >=150MS
+        }
+        break;
+      }
 
+      // Not yet in a strike event
+      // Is it time to update the Reference Value?
+      if (curTimeMS >= gLightningData.referenceUpdateTimeMS)
+      {
+        gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+        gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS;  // Update Timer 
+        if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal)
+          // At top of Sensor range - trigVal too high - can't trigger
+          TriggerTooHigh = true;  // Display a warning warning, but update ReferenceValue anyway, else continual trigger
+        else
+          TriggerTooHigh = false;
+      }
 
+      //Is it time to display current values?
+      if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+        LTGDisplayPhotoMode();
+        gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+      }
 
-//---------------------------------------------------------------------------------------//
-/*
-#include <CAStd.h>
-#include <CAstd_sam3X.h>
-#include <CAUtility.h>
-#include <CAEeprom.h> // maybe not needed if we don't check module type IDs
-#include <CAPacket.h>
+    }  // End of loop looking for start of a strike
 
-// function declarations
+       // Begin loop looking for end of strike and handling DeviceCycles
+    while (gLightningData.inStrikeCycle && g_menuMode == MENUMODE_PHOTO)
+    {
+      gLightningData.sensorVal = CAU::analogRead(ppLight);
+      gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
+      currentDif = gLightningData.sensorVal - gLightningData.referenceSensorVal;
+      // Strike is done if current value is back below threshold or 2 seconds max to prevent lockups
+      if (currentDif <= gLightningData.triggerDiffThreshold)
+        // Lightning may often have multiple short flashes/pulses, so this might just be the end of the first pulse
+      {
+        gLightningData.inStrikeCycle = false;
+        break;
+      }
+      curTimeMS = millis();
+      if (curTimeMS > (gLightningData.strikeStartTimeMS + 2000))
+      {
+        // Sensor value has been above threshold for >2 seconds - must be an ambient or sensor sensitivity change
+        // Just end the strike and reset the Reference level
+        gLightningData.inStrikeCycle = false;
+        gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+        gLightningData.referenceUpdateTimeMS = curTimeMS + (unsigned long)gLightningData.updateRefPeriodMS; // reset the Ref Update clock
+        break;
+      }
 
+      // check each device for completion of cycle time
+      for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++)
+      {
+        if (shutterHoldTimeMS[d] && (shutterHoldTimeMS[d] < curTimeMS))
+        {
+          shutterHoldTimeMS[d] = 0;
+          // Reinitialize Prefocus and Shutter for Cam/Flash ports
+          CAU::digitalWrite(ppCamShutter[d], LOW);
+          if (eepromDevicePrefocuses[d])
+            CAU::digitalWrite(ppCamFocus[d], HIGH);
+          else
+            CAU::digitalWrite(ppCamFocus[d], LOW);
+        }
+      }
+    }
 
-// *** Global Constants for Lightning Menu and Functions
-const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
+    // Strike cycle just finished
+    // bump lastStrikeIndex and store values in character buffer for display
+    uint32_t strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
+    uint32_t strikeDurMS = strikeDurUS / 1000;
+    uint32_t decimalUS = strikeDurUS % 1000;
+    (++gLightningData.lastStrikeIndex) % 5; // circular index of 5 strings of details
+    sprintf(gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
 
-// void lightningMenu()
-void setup() // Lightning Menu
-{
-	String warnTooHi = "      ";
- 
-	caAllPortsLow();
-	CAU::initializeAnalog();
-	hwPortPin ppLight = CAU::getModulePin(0, 0); //plug sensor into Module 0 RJ-45 pin 2 MOD0_AN1
-	CAU::pinMode(ppLight, ANALOG_INPUT);
-	
-	// Read the current value for display with menu items
-	gLightningData.sensorVal = CAU::analogRead(ppLight);
-	
-	//  Get input variables from Android interface
-	// All these variables will need to be passed by reference
-	getLTGMenuSettings(EEPROM_LTG_SENSOR_TRIG_VAL, gLightningData.sensorVal, gLightningData.updateRefPeriodMS,
-		EEPROM_LTG_PHOTO_MENU_SIMPLE_ADV, EEPROM_LTG_NUM_CAM_PORTS, EEPROM_LTG_DEVICE_PREFOCUS[], EEPROM_LTG_DEVICE_CYCLE[]);
+    // Loop until DeviceCycles (Bulb TImer) is completed for both devices
+    while (shutterHoldTimeMS[0] || shutterHoldTimeMS[1] * ********)
+    {
+      curTimeMS = millis();  // capture the current time
+      gLightningData.sensorVal = CAU::analogRead(ppLight);  // Just to keep the current value up to date 
+      currentDif = gLightningData.sensorVal - gLightningData.referenceSensorVal;
+      // Check if light value has gone back up over threshold -- secondary pulses/flashes
+      if (currentDif > gLightningData.triggerDiffThreshold)
+      {
+        strk_duration_us[0] = micros() - strikeStartTimeUS + 14; // Extend the strike duration to cover secondary flashes during deviceCycles
+        peak[0] = max(peak[0], gLightningData.sensorVal);  // Update the peak if needed
+      }
 
-// Do the Too High warning in the Android app
-	if( (gLightningData.sensorVal + gLightningData.triggerDiffThreshold) >= workingMaxSensorVal)
-		warnTooHi = "Too Hi";
-	else
-		warnTooHi = " ";
+      // check each device for completion of cycle time
+      for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++)
+      {
+        if (shutterHoldTimeMS[d] && (shutterHoldTimeMS[d] < curTimeMS))
+        {
+          shutterHoldTimeMS[d] = 0;
+          // Reinitialize Prefocus and Shutter for Cam/Flash ports 0 & 1
+          CAU::digitalWrite(ppCamShutter[d], LOW);
+          if (eepromDevicePrefocuses[d])
+            CAU::digitalWrite(ppCamFocus[d], HIGH);
+          else
+            CAU::digitalWrite(ppCamFocus[d], LOW);
+        }
+      }
+      delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
+    }
+    // Recheck if current value is below threshold and if so reset Reference
+    gLightningData.sensorVal = CAU::analogRead(ppLight);
+    currentDif = gLightningData.sensorVal - gLightningData.referenceSensorVal;
+    if (currentDif < gLightningData.triggerDiffThreshold)
+    {
+      gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+      gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS; // reset the Ref Update clock
+    }
+    // If still above threshold, keep old Reference to allow a retrigger to capture more secondary flashes / pulses
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+    //
+    // Out of PHOTO mode
+    //
+    // clear camera/flash back to default (especially reset camera prefocus)
+    for (d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
+      CAU::digitalWrite(ppCamShutter[d], LOW);
+      CAU::digitalWrite(ppCamFocus[d], LOW);
+    }
+    peakOfStrike = 0;  // zero out the peak before going back to MENU
+                       // Now back to MENU mode
+  }
 }
-
-////////////////////////////////////////
-// Function: lightningFunc - Handles camera/flash triggering for lightning similar to the advancedSensorFunc
-// Parameters:
-//   None
-// Returns:
-//   None
-////////////////////////////////////////
-
-void lightningFunc()
-{
-#define DISPLAYFREQMS 1000  // Update the display variables every DISPLAYFREQMS milliseconds
-	int16_t referenceSensorVal = -1;
-	int16_t currentDif = 0;
-	uint32_t ReferenceUpdateTimeMS = 0;
-	int16_t triggerCount = 0;
-	boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
-	uint32_t shutterHoldTimeMS[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint32_t curTimeMS;
-	boolean TriggerTooHigh = false;
-	int16_t refAtStrike = 0;
-	hwPortPin ppLight;
-	hwPortPin ppCamShutter[8];
-	hwPortPin ppCamFocus[8];
-	int d;
-	
-// variables for the Advanced Photo Display - last 4 strike details  
-	int16_t strk_num[4] = { 0, 0, 0, 0 };
-	int16_t ref[5] = { 0, 0, 0, 0, 0 };  // extra index for temp storage of ref at beginning of strike
-	int16_t peak[4] = { 0, 0, 0, 0 };
-	uint32_t strk_duration_us[4] = { 0, 0, 0, 0 };
-	int16_t peakOfStrike = 0;
-	uint32_t StrikeStartTimeUs;  // used for strike duration display
-	uint32_t StrikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
-	
-	// eepromDeviceCycles units are tenths????? of a second
-	int16_t eepromDeviceCycles[8**************] = { 
-		eepromReadInt(EEPROM_LTG_DEVICE_CYCLE1),       eepromReadInt(EEPROM_LTG_DEVICE_CYCLE2)     };
-	int16_t eepromDevicePrefocuses[8******************] = { 
-		eepromReadInt(EEPROM_LTG_DEVICE_PREFOCUS1),    eepromReadInt(EEPROM_LTG_DEVICE_PREFOCUS2)     };
-	int16_t eepromPhotoMenuSimpleAdv = eepromReadInt(EEPROM_LTG_PHOTO_MENU_SIMPLE_ADV);
-
-	extern void  LTGdisplayDetailsOnLCD ( int eepromPhotoMenuSimpleAdv, int *referenceSensorVal, int *sensorVal, int *currentDif,
-				boolean TriggerTooHigh, int *gLightningData.triggerDiffThreshold, int *gLightningData.updateRefPeriodMS, int *triggerCount,
-				int *peakOfStrike, int *strk_num, int *ref, int *peak, unsigned long *strk_duration_us); // added by DML1333 for compatibility with IDE 1.6.6+
-				
-//  attachInterrupt(0, activeButtonISR, LOW);
-
-	// Set up ports
-	ppLight = CAU::getModulePin(0, 0); //plug sensor into Module 0 RJ-45 pin 2 MOD0_AN1
-	for(d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
-		ppCamShutter[d] = CAU::getCameraPin(d, SHUTTER);  // Cam0 Shutter pin
-		CAU::pinMode(ppCamShutter[d], OUTPUT);
-		ppCamFocus[d] = CAU::getCameraPin(d, FOCUS);  // Cam0 Focus pin
-		CAU::pinMode(ppCamFocus[d], OUTPUT);
-	}
-	
-	// Initialize Prefocus and Shutter for Cam/Flash ports
-	for(d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
-		CAU::digitalWrite(ppCamShutter[d], LOW); 
-		if (eepromDevicePrefocuses[d])
-			CAU::digitalWrite(ppCamFocus[d], HIGH);
-		else
-			CAU::digitalWrite(ppCamFocus[d], LOW);
-	}
-	
-	triggerCount = 0;
-	referenceSensorVal = CAU::analogRead(ppLight);  // initialize reference base
-	curTimeMS = millis();  // initialize the current time to start Reference and Display timers
-	ReferenceUpdateTimeMS = curTimeMS + (uint32_t) gLightningData.updateRefPeriodMS ;  // initialize the update timer
-	gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
-	
-	while (g_menuMode == MENUMODE_PHOTO)
-	{
-		// Loop checking for a strike (curval - ref > trigger)
-		while ( !inStrikeCycle && g_menuMode == MENUMODE_PHOTO)
-		{
-			curTimeMS = millis();  // capture the current time
-			gLightningData.sensorVal = CAU::analogRead(ppLight);
-			currentDif = gLightningData.sensorVal - referenceSensorVal;
-			if (currentDif > gLightningData.triggerDiffThreshold)
-			{
-			// Begin a new strike -- strike lasts until sensor1 goes back below threshold or 2 seconds (bail out)
-				inStrikeCycle = true;
-				//Trigger Cameras
-				for(d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
-					CAU::digitalWrite(ppCamFocus[d], HIGH);
-					CAU::digitalWrite(ppCamShutter[d], HIGH); 
-				}
-				triggerCount = triggerCount + 1;
-				peakOfStrike = gLightningData.sensorVal; // initialize the peak reading for this strike
-				StrikeStartTimeUs = micros();  // initialize the strike start for duration measure
-				StrikeStartTimeMS = curTimeMS;  // start clock for 2-second max check        refAtStrike = referenceSensorVal;  // save reference value at beginning of strike in index 4
-				//Set up Cycle Times for Cameras
-				for ( d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++ )
-				{
-					if( eepromDeviceCycles[d] != 0 )
-						shutterHoldTimeMS[d] = curTimeMS + (uint32_t) eepromDeviceCycles[d]*100; //eeprom value is integer tenths of sec.
-					else
-						shutterHoldTimeMS[d] = curTimeMS + g_minShutterHoldMs; // min hold time to activate shutter
-						// known issue: If Prefocus is not set, some cameras will sometimes not trigger unless the pins are held high for >=150MS
-				}
-				break;
-			}
-			
-			// Not yet in a strike event
-			// Is it time to update the Reference Value?
-			if( curTimeMS >= ReferenceUpdateTimeMS )
-			{
-				referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
-				ReferenceUpdateTimeMS = curTimeMS + (uint32_t) gLightningData.updateRefPeriodMS;  // Update Timer 
-				if( (referenceSensorVal + gLightningData.triggerDiffThreshold) >= workingMaxSensorVal)
-					// At top of Sensor range - trigVal too high - can't trigger
-					TriggerTooHigh = true;  // Display a warning warning, but update ReferenceValue anyway, else continual trigger
-				else
-					TriggerTooHigh = false;
-			}
-
-			//Is it time to display current values?
-			if( curTimeMS >= gLightningData.timeToDisplayMS)
-			{
-				LTGdisplayCurrentValsToAndroid( eepromPhotoMenuSimpleAdv, &gLightningData.sensorVal, &referenceSensorVal, &currentDif, &TriggerTooHigh, &triggerCount);
-				gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
-			}
-		}  // End of loop looking for start of a strike
-		
-		// Begin loop looking for end of strike and handling DeviceCycles
-		while ( inStrikeCycle && g_menuMode == MENUMODE_PHOTO)
-		{
-			gLightningData.sensorVal = CAU::analogRead(ppLight);
-			peakOfStrike = max( peakOfStrike, gLightningData.sensorVal);
-			currentDif = gLightningData.sensorVal - referenceSensorVal;
-			// Strike is done if current value is back below threshold or 2 seconds max to prevent lockups
-			if (currentDif <= gLightningData.triggerDiffThreshold)
-			// Lightning may often have multiple short flashes/pulses, so this might just be the end of the first pulse
-			{
-				inStrikeCycle = false;
-				break;
-			}
-			curTimeMS = millis();
-			if (curTimeMS > (StrikeStartTimeMS + 2000))
-			{
-				// Sensor value has been above threshold for >2 seconds - must be an ambient or sensor sensitivity change
-				// Just end the strike and reset the Reference level
-				inStrikeCycle = false;
-				referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
-				ReferenceUpdateTimeMS = curTimeMS + (unsigned long) gLightningData.updateRefPeriodMS; // reset the Ref Update clock
-				break;
-			}
-				
-			// check each device for completion of cycle time
-			for ( d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++ )
-			{
-				if( shutterHoldTimeMS[d] && (shutterHoldTimeMS[d] < curTimeMS) )
-				{
-					shutterHoldTimeMS[d] = 0;
-					// Reinitialize Prefocus and Shutter for Cam/Flash ports 0 & 1
-					CAU::digitalWrite(ppCamShutter[d], LOW); 
-					if (eepromDevicePrefocuses[d])
-						CAU::digitalWrite(ppCamFocus[d], HIGH);
-					else
-						CAU::digitalWrite(ppCamFocus[d], LOW);
-				}
-			}
-		}
-		
-		// Strike cycle just finished
-		// Move the prior 3 strike details down in the arrays and store the details for this strike that just completed
-		for (int irow = 2; irow >= 0; --irow)
-		{
-			strk_num[irow + 1] = strk_num[irow];
-			ref[irow + 1] = ref[irow];
-			peak[irow + 1] = peak[irow];
-			strk_duration_us[irow + 1] = strk_duration_us[irow];
-		}
-		strk_num[0] = triggerCount;
-		ref[0] = refAtStrike;   // use temp copy of reference value set at beginning of strike because it could have changed
-		peak[0] = peakOfStrike;
-		strk_duration_us[0] = micros() - StrikeStartTimeUs + 14; // Add 14 microseconds as 1/2 the estimated time between AnalogReads in strike detection
-//    LTGdisplayStrikeDetailsToAndroid( &triggerCount, &refAtStrike, &peakOfStrike, &strk_duration_us);
-		// Loop until DeviceCycles (Bulb TImer) is completed for both devices
-		while ( shutterHoldTimeMS[0] || shutterHoldTimeMS[1] *********)
-		{
-			curTimeMS = millis();  // capture the current time
-			gLightningData.sensorVal = CAU::analogRead(ppLight);  // Just to keep the current value up to date 
-			currentDif = gLightningData.sensorVal - referenceSensorVal;
-			// Check if light value has gone back up over threshold -- secondary pulses/flashes
-			if (currentDif > gLightningData.triggerDiffThreshold)
-			{
-				strk_duration_us[0] = micros() - StrikeStartTimeUs + 14; // Extend the strike duration to cover secondary flashes during deviceCycles
-				peak[0] = max( peak[0] , gLightningData.sensorVal);  // Update the peak if needed
-			}
-
-			// check each device for completion of cycle time
-			for ( d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++ )
-			{
-				if( shutterHoldTimeMS[d] && (shutterHoldTimeMS[d] < curTimeMS) )
-				{
-					shutterHoldTimeMS[d] = 0;
-					// Reinitialize Prefocus and Shutter for Cam/Flash ports 0 & 1
-					CAU::digitalWrite(ppCamShutter[d], LOW); 
-					if (eepromDevicePrefocuses[d])
-						CAU::digitalWrite(ppCamFocus[d], HIGH);
-					else
-						CAU::digitalWrite(ppCamFocus[d], LOW);
-				}
-			}
-			delay( 1 ); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
-		}
-		// Recheck if current value is below threshold and if so reset Reference
-		gLightningData.sensorVal = CAU::analogRead(ppLight);
-		currentDif = gLightningData.sensorVal - referenceSensorVal;
-		if (currentDif < gLightningData.triggerDiffThreshold)
-		{
-			referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
-			ReferenceUpdateTimeMS = curTimeMS + (unsigned long) gLightningData.updateRefPeriodMS; // reset the Ref Update clock
-		}
-		// If still above threshold, keep old Reference to allow a retrigger to capture more secondary flashes / pulses
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-	//
-	// Out of PHOTO mode
-	//
-	// clear camera/flash back to default (especially reset camera prefocus)
-	for(d = 0; d < EEPROM_LTG_NUM_CAM_PORTS; d++) {
-		CAU::digitalWrite(ppCamShutter[d], LOW); 
-		CAU::digitalWrite(ppCamFocus[d], LOW);
-	}
-	peakOfStrike = 0;  // zero out the peak before going back to MENU
-	// Now back to MENU mode
-	}
-}
-
-//
-//
-void  getLTGMenuSettings(*********EEPROM_LTG_SENSOR_TRIG_VAL, EEPROM_LTG_SENSOR2_TRIG_NULL, gLightningData.updateRefPeriodMS,
-		EEPROM_LTG_SENSOR2_TRIG_NULL, EEPROM_LTG_PHOTO_MENU_SIMPLE_ADV, EEPROM_LTG_SENSOR2_TRIG_NULL,
-		EEPROM_LTG_DEVICE_PREFOCUS1, EEPROM_LTG_DEVICE_PREFOCUS2, EEPROM_LTG_DEVICE_CYCLE1, EEPROM_LTG_DEVICE_CYCLE2)
-		{
-		} 
-
-
-//  LTGdisplayCurrentValsToAndroid
-//    Editable Parameters should already be known to the Android device, so only pass the changable values
-//
-void  LTGdisplayCurrentValsToAndroid( int16_t eepromPhotoMenuSimpleAdv, int16_t *sensorVal, int16_t *referenceSensorVal, int16_t *currentDif,
-				boolean *TriggerTooHigh, int16_t *triggerCount)
-{
-	CAU::log("sensorVal\t%d\treferenceSensorVal\t%d\tcurrentDif\t%d\tTriggerTooHigh\t%d\n", *sensorVal, *referenceSensorVal, *currentDif, *TriggerTooHigh);
-	return;
-}
-
-//    LTGdisplayStrikeDetailsToAndroid( &triggerCount, &refAtStrike, &peakOfStrike, &strk_duration_us);
-//      Editable Parameters should already be known to the Android device, so only pass the changable values
-
-void  LTGdisplayDetailsToAndroid ( int16_t *triggerCount, int16_t *refAtStrike, int16_t *peakOfStrike, uint32_t *strk_duration_us)
-{
-	CAU::log("triggerCount\t%d\trefAtStrike\t%d\tpeakOfStrike\t%d\tstrk_duration_us\t%d\n", *triggerCount, *refAtStrike,
-					*peakOfStrike, *strk_duration_us);
-					
-	return;
-	}
 
 */
+
+
+
+  // Handle incoming packets  -- Measure loop timing impact of this
+  CAPacketElement *packet = processIncomingPacket();
+  incomingPacketFinish(packet);
+
+
+  if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+    LTGDisplayPhotoMode();
+    gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+  }
+
+  // Handle triggering
+  uint8_t trigger = false;
+  if (trigger) {
+    triggerCameras();
+    CA_LOG("Trigger\n");
+  }
+
+}
