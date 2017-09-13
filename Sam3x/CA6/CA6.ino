@@ -62,64 +62,42 @@ void triggerCameras() {
     ppShutter = CAU::getCameraPin(i, SHUTTER);
     CAU::digitalWrite(ppShutter, LOW);
   }
-
 }
 
-/*void checkModulePorts() {
-  for(uint8_t i=0; i<NUM_MODULES; ++i) {
-    uint8_t val = 0;
-    CAEeprom moduleEeprom(unioDevice(CA_MODULE0+i));
-    if (moduleEeprom.readModuleId(&val)) {
-      if (g_ctx.modules[i].modId != val) {
-        g_ctx.modules[i].modId = val;
-        // todo send update to host about changing modules
-        CA_INFO("Module detected", val);
-      }
-    }
-    else {
-      if (g_ctx.modules[i].modId != 0) {
-        // Module has been unplugged
-        g_ctx.modules[i].modId = 0;
-        // todo send update to host about changing modules
-      }
-    }
+
+void initCameraPins() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    g_ctx.camPins[i].focusPin = CAU::getCameraPin(i, FOCUS);
+    g_ctx.camPins[i].shutterPin = CAU::getCameraPin(i, SHUTTER);
   }
-}*/
-
-/*
-//#define ENABLE_CUSTOM_UART
-#ifdef ENABLE_CUSTOM_UART
-// must update C:\Users\Moe\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.6\variants\arduino_due_x/variant.cpp
-// to add -- void USART1_Handler(void) __attribute__((weak));
-void USART1_Handler(void) {
-
-  uint32_t status = _pUart->UART_SR;
-
-  // Did we receive data?
-  if ((status & UART_SR_RXRDY) == UART_SR_RXRDY)
-    _rx_buffer->store_char(_pUart->UART_RHR);
-
-  // Do we need to keep sending data?
-  if ((status & UART_SR_TXRDY) == UART_SR_TXRDY) 
-  {
-    if (_tx_buffer->_iTail != _tx_buffer->_iHead) {
-      _pUart->UART_THR = _tx_buffer->_aucBuffer[_tx_buffer->_iTail];
-      _tx_buffer->_iTail = (unsigned int)(_tx_buffer->_iTail + 1) % SERIAL_BUFFER_SIZE;
-    }
-    else
-    {
-      // Mask off transmit interrupt so we don't get it anymore
-      _pUart->UART_IDR = UART_IDR_TXRDY;
-    }
-  }
-
-  // Acknowledge errors
-  if ((status & UART_SR_OVRE) == UART_SR_OVRE || (status & UART_SR_FRAME) == UART_SR_FRAME)
-  {
-    // TODO: error reporting outside ISR
-    _pUart->UART_CR |= UART_CR_RSTSTA;
-
 }
-#endif
-*/
+
+uint64_t convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds) {
+  const uint8_t ticksPerMicroSec = 84; //Sam8 running at 84 mhz
+  uint64_t ret = ((uint64_t)seconds*1000*1000*1000 + nanoseconds)/ticksPerMicroSec;
+  return ret;
+}
+
+void setupCamTiming() {
+  uint8_t j = 0;
+
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    uint64_t t0 = convertTimeToTicks(g_ctx.camSettings[i].getDelaySeconds(), g_ctx.camSettings[i].getDelayNanoseconds());
+    uint64_t t1 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
+    uint64_t t2 = convertTimeToTicks(g_ctx.camSettings[i].getPostDelaySeconds(), g_ctx.camSettings[i].getPostDelayNanoseconds());
+    uint64_t t3 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
+    uint64_t t4 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
+    
+    g_ctx.camTimerElements[j].timeOffset = 
+    g_ctx.camTimerElements[j].camOffset = i;
+    g_ctx.camTimerElements[j].focusSig = HIGH;
+    g_ctx.camTimerElements[j++].shutterSig = HIGH;
+    g_ctx.camTimerElements[j].timeOffset = t0;
+    //todo
+  }
+}
+
+void sortCamTiming() {
+  //todo
+}
 

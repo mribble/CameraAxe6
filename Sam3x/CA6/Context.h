@@ -6,6 +6,7 @@
 #define NUM_MENUS   3  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
+#define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*5)
 
 struct CtxProcTable
 {
@@ -21,17 +22,33 @@ enum CAState {
   CA_STATE_PHOTO_MODE,
 };
 
+struct CamPin {
+  hwPortPin focusPin;
+  hwPortPin shutterPin;
+};
+
+struct CamTimerElement {
+  uint64_t timeOffset;
+  uint8_t camOffset;
+  uint8_t focusSig;
+  uint8_t shutterSig;
+};
+
 struct Context {
   // Constructor with initialization list
   Context(){}
 
   CAState state = CA_STATE_MENU_MODE;
   uint8_t menuId = 0;
-  CAPacketCamSettings camSettings[NUM_CAMERAS];
   CtxProcTable procTable;
 
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CAEsp8266 esp8266;
+
+  CAPacketCamSettings camSettings[NUM_CAMERAS];
+  CamPin camPins[NUM_CAMERAS];
+  CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
+  
 };
 
 #endif // CONTEXT_H
