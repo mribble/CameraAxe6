@@ -685,8 +685,8 @@
 						cameraFlashSetupForm.elements["sequencer"+i].checked = false;
 					}
 				}
-				cameraFlashSetupForm.elements["smart_preview"].value = strArray[10];
-				cameraFlashSetupForm.elements["mirror_lockup"].value = strArray[11];
+				cameraFlashSetupForm.elements["smart_preview"].checked = (strArray[10] == 0) ? false : true;
+				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[11] == 0) ? false : true;
 			}
 			
 			// Save current camera settings to a string
@@ -697,7 +697,13 @@
 
 				for(i=0; i<cameraFlashSetupForm.length; i++) {
 					if(cameraFlashSetupForm[i].type=="checkbox"){
-						if(cameraFlashSetupForm[i].checked){
+						if(cameraFlashSetupForm[i].name == "smart_preview" || 
+                            cameraFlashSetupForm[i].name == "mirror_lockup") {
+                            str += (cameraFlashSetupForm[i].checked) ? "1~" : "0~"
+                        }
+                        else if (cameraFlashSetupForm[i].name == "mirror_lockup") {
+                        }
+                        else if (cameraFlashSetupForm[i].checked){ // Sequencer check boxes
 							sequencerVal += +cameraFlashSetupForm[i].value;
 						}
 						if(cameraFlashSetupForm[i].name=="sequencer8") {
@@ -991,15 +997,15 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Smart Preview (seconds)</td>
+						<td>Enable Smart Preview</td>
 						<td>
-							<input type="number" name="smart_preview" min="0" max="59" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							<input type="checkbox" name="smart_preview" />
 						</td>
 					</tr>
 					<tr>
-						<td>Mirror Lockup (seconds)</td>
+						<td>Enable Mirror Lockup</td>
 						<td>
-							<input type="number" name="mirror_lockup" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							<input type="checkbox" name="mirror_lockup" />
 						</td>
 					</tr>
 				</table>

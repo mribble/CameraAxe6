@@ -195,10 +195,10 @@ public:
     uint32_t getPostDelayNanoseconds() {return mPostDelayNanoseconds;};
     uint8_t getSequencer() {return mSequencer;};
     uint8_t getSmartPreview() {return mSmartPreview;};
-    uint16_t getMirrorLockup() {return mMirrorLockup;};
+    uint8_t getMirrorLockup() {return mMirrorLockup;};
     void set(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, uint32_t delayNanoSeconds,
                 uint32_t durationSeconds, uint32_t durationNanoseconds, uint32_t postDelaySeconds,
-                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint16_t mirrorLockup);
+                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint8_t mirrorLockup);
     void set(const String& str);
     void unpack();
     uint16_t pack();
@@ -214,7 +214,7 @@ private:
     uint32_t mPostDelayNanoseconds;
     uint8_t mSequencer;
     uint8_t mSmartPreview;
-    uint16_t mMirrorLockup;
+    uint8_t mMirrorLockup;
 };
 
 class CAPacketIntervalometer : public CAPacketElement {

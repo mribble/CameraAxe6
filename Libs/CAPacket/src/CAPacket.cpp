@@ -338,7 +338,7 @@ CAPacketCamSettings::CAPacketCamSettings(CAPacket& caPacket) {
 
 void CAPacketCamSettings::set(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, uint32_t delayNanoSeconds,
                 uint32_t durationSeconds, uint32_t durationNanoseconds, uint32_t postDelaySeconds,
-                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint16_t mirrorLockup)
+                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint8_t mirrorLockup)
  {
     mCamPortNumber = camPortNumber;
     mMode = mode;
@@ -351,7 +351,7 @@ void CAPacketCamSettings::set(uint8_t camPortNumber, uint8_t mode, uint32_t dela
     mSequencer = sequencer;
     mSmartPreview = smartPreview;
     mMirrorLockup = mirrorLockup;
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 60) && (mMirrorLockup <= 9999),
+    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
 }
 
@@ -371,7 +371,7 @@ void CAPacketCamSettings::set(const String& str) {
     mSequencer = getUint32FromString(index, str);
     mSmartPreview = getUint32FromString(index, str);
     mMirrorLockup = getUint32FromString(index, str);
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 60) && (mMirrorLockup <= 9999),
+    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_CAM_SETTINGS, "Wrong PID ID");
@@ -387,17 +387,17 @@ void CAPacketCamSettings::unpack() {
     mPostDelaySeconds = mCAP->unpacker(32);
     mPostDelayNanoseconds = mCAP->unpacker(32);
     mSequencer = mCAP->unpacker(8);
-    mSmartPreview = mCAP->unpacker(8);
-    mMirrorLockup = mCAP->unpacker(16);
-    mCAP->unpacker(3); // Unused
+    mSmartPreview = mCAP->unpacker(1);
+    mMirrorLockup = mCAP->unpacker(1);
+    mCAP->unpacker(1); // Unused
     mCAP->flushPacket();
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 60) && (mMirrorLockup <= 9999),
+    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::unpack()");
 }
 
 uint16_t CAPacketCamSettings::pack() {
     uint8_t unused = 0;
-    uint16_t packetSize = PACK_TOTAL_SZ + 29;
+    uint16_t packetSize = PACK_TOTAL_SZ + 26;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_SETTINGS, 8);
@@ -410,9 +410,9 @@ uint16_t CAPacketCamSettings::pack() {
     mCAP->packer(mPostDelaySeconds, 32);
     mCAP->packer(mPostDelayNanoseconds, 32);
     mCAP->packer(mSequencer, 8);
-    mCAP->packer(mSmartPreview, 8);
-    mCAP->packer(mMirrorLockup, 16);
-    mCAP->packer(unused, 3);
+    mCAP->packer(mSmartPreview, 1);
+    mCAP->packer(mMirrorLockup, 1);
+    mCAP->packer(unused, 1);
     mCAP->flushPacket();
     return packetSize;
 }
