@@ -80,20 +80,35 @@ uint64_t convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds) {
 
 void setupCamTiming() {
   uint8_t j = 0;
-
+  uint64_t maxTotalTime = 0;
+  
   for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
     uint64_t t0 = convertTimeToTicks(g_ctx.camSettings[i].getDelaySeconds(), g_ctx.camSettings[i].getDelayNanoseconds());
     uint64_t t1 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
     uint64_t t2 = convertTimeToTicks(g_ctx.camSettings[i].getPostDelaySeconds(), g_ctx.camSettings[i].getPostDelayNanoseconds());
-    uint64_t t3 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
-    uint64_t t4 = convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
     
-    g_ctx.camTimerElements[j].timeOffset = 
+    uint8_t mode = g_ctx.camSettings[i].getMode();
+
+    uint8_t focusAfterDelay = (mode == CA_MODE_FLASH) ? LOW : HIGH;
+    //uint8_t focusAfterDuration = (;
+    //uint8_t focusAtEnd = ;
+
+    maxTotalTime = max(t0+t1+t2, maxTotalTime);
+
+    // Set focus/shutter pins right after delay time
+    g_ctx.camTimerElements[j].timeOffset = t0;
     g_ctx.camTimerElements[j].camOffset = i;
     g_ctx.camTimerElements[j].focusSig = HIGH;
     g_ctx.camTimerElements[j++].shutterSig = HIGH;
+    // Set focus/shutter pins right after duration time
     g_ctx.camTimerElements[j].timeOffset = t0;
-    //todo
+    g_ctx.camTimerElements[j].camOffset = i;
+    g_ctx.camTimerElements[j].focusSig = HIGH;
+    g_ctx.camTimerElements[j++].shutterSig = HIGH;
+  }
+
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    // Set focus/shutter pins at very end of trigger  
   }
 }
 

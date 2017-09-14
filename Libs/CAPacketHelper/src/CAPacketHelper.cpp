@@ -134,11 +134,10 @@ void CAPacketHelper::writePacketMenuSelect(const String& str) {
 
 void CAPacketHelper::writePacketCamSettings(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, 
                 uint32_t delayNanoSeconds, uint32_t durationSeconds, uint32_t durationNanoseconds, 
-                uint32_t postDelaySeconds, uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview,
-                uint8_t mirrorLockup) {
+                uint32_t postDelaySeconds, uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t mirrorLockup) {
     CAPacketCamSettings pack0(mPacker);
     pack0.set(camPortNumber, mode, delaySeconds, delayNanoSeconds, durationSeconds, durationNanoseconds, 
-                postDelaySeconds, postDelayNanoseconds, sequencer, smartPreview, mirrorLockup);
+                postDelaySeconds, postDelayNanoseconds, sequencer, mirrorLockup);
     pack0.pack();
     writeOnePacket(mData);
     mPacker.resetBuffer();

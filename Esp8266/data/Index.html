@@ -112,10 +112,10 @@
 			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gMenuName = "null";     // The current top level menu name (examples: Home, MenuMode, ...)
             var gCamSelectVal = 0;      // The current camera/flash selected in the UI
-            var gCamSettingsArray = ["5~0~0~0~0~0~0~0~0~255~0~0~", "5~1~0~0~0~0~0~0~0~255~0~0~",
-									 "5~2~0~0~0~0~0~0~0~255~0~0~", "5~3~0~0~0~0~0~0~0~255~0~0~",
-									 "5~4~0~0~0~0~0~0~0~255~0~0~", "5~5~0~0~0~0~0~0~0~255~0~0~",
-									 "5~6~0~0~0~0~0~0~0~255~0~0~", "5~7~0~0~0~0~0~0~0~255~0~0~"];
+            var gCamSettingsArray = ["5~0~0~0~0~0~0~0~0~255~0~", "5~1~0~0~0~0~0~0~0~255~0~",
+									 "5~2~0~0~0~0~0~0~0~255~0~", "5~3~0~0~0~0~0~0~0~255~0~",
+									 "5~4~0~0~0~0~0~0~0~255~0~", "5~5~0~0~0~0~0~0~0~255~0~",
+									 "5~6~0~0~0~0~0~0~0~255~0~", "5~7~0~0~0~0~0~0~0~255~0~"];
 
 			window.onload = initPage;
 
@@ -685,8 +685,7 @@
 						cameraFlashSetupForm.elements["sequencer"+i].checked = false;
 					}
 				}
-				cameraFlashSetupForm.elements["smart_preview"].checked = (strArray[10] == 0) ? false : true;
-				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[11] == 0) ? false : true;
+				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[10] == 0) ? false : true;
 			}
 			
 			// Save current camera settings to a string
@@ -697,11 +696,8 @@
 
 				for(i=0; i<cameraFlashSetupForm.length; i++) {
 					if(cameraFlashSetupForm[i].type=="checkbox"){
-						if(cameraFlashSetupForm[i].name == "smart_preview" || 
-                            cameraFlashSetupForm[i].name == "mirror_lockup") {
+						if(cameraFlashSetupForm[i].name == "mirror_lockup") {
                             str += (cameraFlashSetupForm[i].checked) ? "1~" : "0~"
-                        }
-                        else if (cameraFlashSetupForm[i].name == "mirror_lockup") {
                         }
                         else if (cameraFlashSetupForm[i].checked){ // Sequencer check boxes
 							sequencerVal += +cameraFlashSetupForm[i].value;
@@ -960,8 +956,9 @@
 						<td style="width:50%;">
 							<select name="mode">
 								<option value="0">Camera</option>
-								<option value="1">Camera Prefocus On</option>
-								<option value="2">Flash</option>
+								<option value="1">Camera Prefocus</option>
+								<option value="2">Camera Prefocus Smart</option>
+								<option value="3">Flash</option>
 							</select>
 						</td>
 					</tr>
@@ -994,12 +991,6 @@
 							<input type="checkbox" checked name="sequencer6" value="32" />6
 							<input type="checkbox" checked name="sequencer7" value="64" />7
 							<input type="checkbox" checked name="sequencer8" value="128" />8
-						</td>
-					</tr>
-					<tr>
-						<td>Enable Smart Preview</td>
-						<td>
-							<input type="checkbox" name="smart_preview" />
 						</td>
 					</tr>
 					<tr>

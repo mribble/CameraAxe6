@@ -185,7 +185,7 @@ void caTestPackets()
   { // CAM_SETTINGS Packet Test
     CAPacketCamSettings unpack0(unpackBase);        // Update per type
     CAPacketCamSettings pack0(packBase);            // Update per type
-    pack0.set(6, 1, 123123, 456456, 111222, 333444, 678678, 1234567, 0xbe, 1, 1);  // Update per type
+    pack0.set(6, 1, 123123, 456456, 111222, 333444, 678678, 1234567, 0xbe, 1);  // Update per type
     packSize = pack0.pack();
     unpackGuard = unpackBase.unpackGuard();
     unpackSize = unpackBase.unpackSize();
@@ -203,7 +203,6 @@ void caTestPackets()
           unpack0.getPostDelaySeconds() != 678678 ||
           unpack0.getPostDelayNanoseconds() != 1234567 ||
           unpack0.getSequencer() != 0xbe ||
-          unpack0.getSmartPreview() != 1 ||
           unpack0.getMirrorLockup() != 1) {
       CA_LOG("ERROR - CAM_SETTINGS test failed\n");
     }

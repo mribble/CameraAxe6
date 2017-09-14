@@ -6,7 +6,7 @@
 #define NUM_MENUS   3  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
-#define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*5)
+#define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*3)
 
 struct CtxProcTable
 {

@@ -32,8 +32,7 @@ public:
     void writePacketMenuSelect(const String& str);
     void writePacketCamSettings(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, 
                 uint32_t delayNanoSeconds, uint32_t durationSeconds, uint32_t durationNanoseconds, 
-                uint32_t postDelaySeconds, uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview,
-                uint8_t mirrorLockup);
+                uint32_t postDelaySeconds, uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t mirrorLockup);
     void writePacketCamSettings(const String& str);
     void writePacketIntervalometer(uint8_t enable, uint32_t startSeconds, uint32_t startNanoseconds, 
                                     uint32_t intervalSeconds, uint32_t intervalNanoseconds, uint16_t repeats);

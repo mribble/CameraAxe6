@@ -171,16 +171,25 @@ private:
     String mMenuName;
 };
 
+enum CAM_SETTINGS_SEQ {
+    CA_SEQ0    = 0x01,
+    CA_SEQ1    = 0x02,
+    CA_SEQ2    = 0x04,
+    CA_SEQ3    = 0x08,
+    CA_SEQ4    = 0x10,
+    CA_SEQ5    = 0x20,
+    CA_SEQ6    = 0x40,
+    CA_SEQ7    = 0x80
+};
+enum CAM_SETTINGS_MODE {
+    CA_MODE_CAMERA         = 0,
+    CA_MODE_PREFOCUS       = 1,
+    CA_MODE_SMART_PREFOCUS = 2,
+    CA_MODE_FLASH          = 3,
+};
+
 class CAPacketCamSettings : public CAPacketElement  {
 public:
-    const uint8_t SEQ0    = 0x01;
-    const uint8_t SEQ1    = 0x02;
-    const uint8_t SEQ2    = 0x04;
-    const uint8_t SEQ3    = 0x08;
-    const uint8_t SEQ4    = 0x10;
-    const uint8_t SEQ5    = 0x20;
-    const uint8_t SEQ6    = 0x40;
-    const uint8_t SEQ7    = 0x80;
     CAPacketCamSettings();
     CAPacketCamSettings(CAPacket& caPacket);
     uint8_t getPacketType() {return PID_CAM_SETTINGS;};
@@ -194,11 +203,10 @@ public:
     uint32_t getPostDelaySeconds() {return mPostDelaySeconds;};
     uint32_t getPostDelayNanoseconds() {return mPostDelayNanoseconds;};
     uint8_t getSequencer() {return mSequencer;};
-    uint8_t getSmartPreview() {return mSmartPreview;};
     uint8_t getMirrorLockup() {return mMirrorLockup;};
     void set(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, uint32_t delayNanoSeconds,
                 uint32_t durationSeconds, uint32_t durationNanoseconds, uint32_t postDelaySeconds,
-                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint8_t mirrorLockup);
+                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t mirrorLockup);
     void set(const String& str);
     void unpack();
     uint16_t pack();
@@ -213,7 +221,6 @@ private:
     uint32_t mPostDelaySeconds;
     uint32_t mPostDelayNanoseconds;
     uint8_t mSequencer;
-    uint8_t mSmartPreview;
     uint8_t mMirrorLockup;
 };
 

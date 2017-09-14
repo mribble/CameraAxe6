@@ -326,7 +326,6 @@ CAPacketCamSettings::CAPacketCamSettings() {
     mPostDelaySeconds = 0;
     mPostDelayNanoseconds = 0;
     mSequencer = 0;
-    mSmartPreview = 0;
     mMirrorLockup = 0;
     mCAP = NULL;
 }
@@ -338,7 +337,7 @@ CAPacketCamSettings::CAPacketCamSettings(CAPacket& caPacket) {
 
 void CAPacketCamSettings::set(uint8_t camPortNumber, uint8_t mode, uint32_t delaySeconds, uint32_t delayNanoSeconds,
                 uint32_t durationSeconds, uint32_t durationNanoseconds, uint32_t postDelaySeconds,
-                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t smartPreview, uint8_t mirrorLockup)
+                uint32_t postDelayNanoseconds, uint8_t sequencer, uint8_t mirrorLockup)
  {
     mCamPortNumber = camPortNumber;
     mMode = mode;
@@ -349,9 +348,8 @@ void CAPacketCamSettings::set(uint8_t camPortNumber, uint8_t mode, uint32_t dela
     mPostDelaySeconds = postDelaySeconds;
     mPostDelayNanoseconds = postDelayNanoseconds;
     mSequencer = sequencer;
-    mSmartPreview = smartPreview;
     mMirrorLockup = mirrorLockup;
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
 }
 
@@ -369,11 +367,10 @@ void CAPacketCamSettings::set(const String& str) {
     mPostDelaySeconds = getUint32FromString(index, str);
     mPostDelayNanoseconds = getUint32FromString(index, str);
     mSequencer = getUint32FromString(index, str);
-    mSmartPreview = getUint32FromString(index, str);
     mMirrorLockup = getUint32FromString(index, str);
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
-    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(index==str.length(), str.c_str());
     CA_ASSERT(id==PID_CAM_SETTINGS, "Wrong PID ID");
 }
 
@@ -387,11 +384,10 @@ void CAPacketCamSettings::unpack() {
     mPostDelaySeconds = mCAP->unpacker(32);
     mPostDelayNanoseconds = mCAP->unpacker(32);
     mSequencer = mCAP->unpacker(8);
-    mSmartPreview = mCAP->unpacker(1);
     mMirrorLockup = mCAP->unpacker(1);
-    mCAP->unpacker(1); // Unused
+    mCAP->unpacker(2); // Unused
     mCAP->flushPacket();
-    CA_ASSERT((mMode <= 2) && (mSmartPreview <= 1) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::unpack()");
 }
 
@@ -410,9 +406,8 @@ uint16_t CAPacketCamSettings::pack() {
     mCAP->packer(mPostDelaySeconds, 32);
     mCAP->packer(mPostDelayNanoseconds, 32);
     mCAP->packer(mSequencer, 8);
-    mCAP->packer(mSmartPreview, 1);
     mCAP->packer(mMirrorLockup, 1);
-    mCAP->packer(unused, 1);
+    mCAP->packer(unused, 2);
     mCAP->flushPacket();
     return packetSize;
 }
@@ -420,7 +415,7 @@ uint16_t CAPacketCamSettings::pack() {
 void CAPacketCamSettings::packetToString(String& str) {
     str = (String)PID_CAM_SETTINGS + '~' + mCamPortNumber + '~' + mMode + '~' + mDelaySeconds + '~' + 
             mDelayNanoseconds + '~' + mDurationSeconds + '~' + mDurationNanoseconds + '~' + mPostDelaySeconds + 
-            '~' + mPostDelayNanoseconds + '~' + mSequencer + '~' + mSmartPreview + '~' + mMirrorLockup + '~';
+            '~' + mPostDelayNanoseconds + '~' + mSequencer + '~' + mMirrorLockup + '~';
 }
 
 ///////////////////////////////////////////////////////////////////////////////
