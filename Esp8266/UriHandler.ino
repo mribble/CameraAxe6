@@ -28,6 +28,7 @@ void serviceUri() {
   }
   else if (uri.indexOf("PUT /updateAllCams") != -1) {
     String str = uri.substring(18, uri.length()-9);
+    saveStringToFlash("/d/cams", str);
     updateAllCams(str);
     putRequest = true;
   }
@@ -39,10 +40,22 @@ void serviceUri() {
     putRequest = true;
   }
   else if (uri.indexOf("GET /updateSaveStateInterval") != -1) {
-    sendFileToClient("/d/interval");
+    String str;
+    readFileToString("/d/interval", str);
+    if (str.length() > 0)
+    {
+      gClient.print(str);
+      gPh.writePacketIntervalometer(str);
+    }
   }
   else if (uri.indexOf("GET /updateSaveStateCams") != -1) {
-    sendFileToClient("/d/cams");
+    String str;
+    readFileToString("/d/cams", str);
+    if (str.length() > 0)
+    {
+      gClient.print(str);
+      updateAllCams(str);
+    }
   }
   else if (uri.indexOf("GET /updateDynamicSettings") != -1) {
     String name = uri.substring(26, uri.length()-9);
@@ -61,7 +74,7 @@ void serviceUri() {
     putRequest = true;
   }
   else {
-    CA_INFO("ERROR - Unknown URI - ", uri);
+    CA_INFO("ERROR - Unknown URI - ", uri.c_str());
   }
 
   if (putRequest) {
@@ -128,8 +141,6 @@ void updateDynamicMenu(String& name, String& packets) {
 void updateAllCams(String& packets) {
   int16_t startOffset = 0;
   String subStr;
-
-  saveStringToFlash("/d/cams", packets);
 
   while (startOffset != -1) {
     startOffset = getPacketSubstring(packets, subStr, startOffset);

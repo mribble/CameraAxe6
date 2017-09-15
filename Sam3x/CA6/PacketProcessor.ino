@@ -77,6 +77,8 @@ CAPacketElement* processIncomingPacket() {
                   unpack.getMode(), unpack.getDelaySeconds(), unpack.getDelayNanoseconds(), unpack.getDurationSeconds(),
                   unpack.getDurationNanoseconds(), unpack.getPostDelaySeconds(), unpack.getPostDelayNanoseconds(), unpack.getSequencer(),
                   unpack.getMirrorLockup());
+        g_ctx.camSettings[unpack.getCamPortNumber()] = unpack;
+        setupCamTiming();
         break;
       }
       case PID_INTERVALOMETER: {

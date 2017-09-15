@@ -176,25 +176,12 @@ void CATickTimer::stop()
     stop(m_num);
 }
 
-uint64_t CATickTimer::convertTimeToTicks(uint16_t hours, uint8_t minutes, uint8_t seconds, 
-                         uint16_t milliseconds, uint16_t microseconds, uint16_t nanoseconds)
+uint64_t CATickTimer::convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds)
 {
     uint64_t ret;
     uint64_t ticksPerMicroSec = 84; //Sam8 running at 84 mhz
 
-    CA_ASSERT(hours<=999, "Too many hours");
-    CA_ASSERT(minutes<=59, "Too many minutes");
-    CA_ASSERT(seconds<=59, "Too many seconds");
-    CA_ASSERT(milliseconds<=999, "Too many milliseconds");
-    CA_ASSERT(microseconds<=999, "Too many microseconds");
-    CA_ASSERT(nanoseconds<=999, "Too many nanoseconds");
-
-    ret = uint64_t(nanoseconds)   * ticksPerMicroSec / 1000;
-    ret += uint64_t(microseconds) * ticksPerMicroSec;
-    ret += uint64_t(milliseconds) * ticksPerMicroSec * 1000;
-    ret += uint64_t(seconds)      * ticksPerMicroSec * 1000 * 1000;
-    ret += uint64_t(minutes)      * ticksPerMicroSec * 1000 * 1000 * 60;
-    ret += uint64_t(hours)        * ticksPerMicroSec * 1000 * 1000 * 60 * 60;
+    ret = ((uint64_t)seconds*1000*1000*1000 + nanoseconds)* ticksPerMicroSec / 1000;
 
     return ret;
 }

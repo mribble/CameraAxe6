@@ -48,6 +48,8 @@ struct Context {
   CAPacketCamSettings camSettings[NUM_CAMERAS];
   CamPin camPins[NUM_CAMERAS];
   CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
+  uint8_t curCamElement = 0;
+  CATickTimer camTimer = CATickTimer(0);
   
 };
 

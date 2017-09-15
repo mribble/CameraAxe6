@@ -41,7 +41,7 @@ void caTestTickTimer()
 {
   uint64_t ticks;
   CATickTimer timer(0);
-  ticks = timer.convertTimeToTicks(0,0,0,100,0,0);
+  ticks = timer.convertTimeToTicks(0,100000000);
   timer.start(toggleCamPort0, ticks, true);
   delay(200);
   timer.stop();
