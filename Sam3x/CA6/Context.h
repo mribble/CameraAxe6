@@ -32,6 +32,7 @@ struct CamTimerElement {
   uint8_t camOffset;
   uint8_t focusSig;
   uint8_t shutterSig;
+  uint8_t sequencerVal;
 };
 
 struct Context {
@@ -50,7 +51,8 @@ struct Context {
   CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
   uint8_t curCamElement = 0;
   CATickTimer camTimer = CATickTimer(0);
-  
+  uint8_t sequencerMask = 0;
+  uint8_t curSequencerBit = 0x01;
 };
 
 #endif // CONTEXT_H
