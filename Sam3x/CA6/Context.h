@@ -46,6 +46,7 @@ struct Context {
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CAEsp8266 esp8266;
 
+  uint8_t camTriggerRunning;
   CAPacketCamSettings camSettings[NUM_CAMERAS];
   CamPin camPins[NUM_CAMERAS];
   CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
@@ -53,6 +54,12 @@ struct Context {
   CATickTimer camTimer = CATickTimer(0);
   uint8_t sequencerMask = 0;
   uint8_t curSequencerBit = 0x01;
+  uint8_t intervalometerEnable = 0;
+  uint64_t intervalometerStartTime = 0;
+  uint64_t intervalometerIntervalTime = 0;
+  uint16_t intervalometerRepeats = 0;
+  uint16_t intervalometerCurRepeats = 0;
+  
 };
 
 #endif // CONTEXT_H

@@ -86,6 +86,10 @@ CAPacketElement* processIncomingPacket() {
         unpack.unpack();
         CA_LOG("%d PID_INTERVALOMETER - %d %d %d %d %d %d\n", packetSize, unpack.getEnable(), unpack.getStartSeconds(),
                 unpack.getStartNanoseconds(), unpack.getIntervalSeconds(), unpack.getIntervalNanoseconds(), unpack.getRepeats());
+        g_ctx.intervalometerEnable = unpack.getEnable();
+        g_ctx.intervalometerStartTime = CATickTimer::convertTimeToTicks(unpack.getStartSeconds(), unpack.getStartNanoseconds());
+        g_ctx.intervalometerIntervalTime = CATickTimer::convertTimeToTicks(unpack.getIntervalSeconds(), unpack.getIntervalNanoseconds());
+        g_ctx.intervalometerRepeats = unpack.getRepeats();
         break;
       }
       case PID_CAM_TRIGGER: {

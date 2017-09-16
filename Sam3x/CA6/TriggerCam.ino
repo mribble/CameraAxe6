@@ -1,5 +1,25 @@
 void triggerCameras() {
+  if (camTriggerRunning()) {
+    return;
+  }
+  g_ctx.camTriggerRunning = true;
   handleMirrorLockup();
+
+  g_ctx.intervalometerCurRepeats = g_ctx.intervalometerRepeats;
+  
+  if (g_ctx.intervalometerEnable && (g_ctx.intervalometerStartTime!= 0)) {
+    g_ctx.camTimer.start(triggerCamerasPhase2, g_ctx.intervalometerStartTime, true);
+  }
+  else {
+    triggerCamerasPhase2();
+  }
+}
+
+bool camTriggerRunning() {
+  return g_ctx.camTriggerRunning;
+}
+
+void triggerCamerasPhase2() {
   g_ctx.curCamElement = 0;
 
   // Trigger anything in this sorted list with 0 time
@@ -13,7 +33,59 @@ void triggerCameras() {
       break;
     }
   }
-  g_ctx.camTimer.start(camTriggerISR, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
+  g_ctx.camTimer.start(triggerCamerasPhase3, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
+}
+
+void triggerCamerasPhase3() {
+  do {
+    CamTimerElement x = g_ctx.camTimerElements[g_ctx.curCamElement];
+    if (x.sequencerVal & g_ctx.curSequencerBit) {
+      CAU::digitalWrite(g_ctx.camPins[x.camOffset].focusPin, x.focusSig);
+      CAU::digitalWrite(g_ctx.camPins[x.camOffset].shutterPin, x.shutterSig);
+    }
+
+    if (++g_ctx.curCamElement == NUM_CAM_TIMER_ELEMENTS) {
+      triggerCamerasPhase4();
+      return;
+    }
+  } while(g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset == 0);
+  g_ctx.camTimer.start(triggerCamerasPhase3, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
+}
+
+void triggerCamerasPhase4() {
+  // Shift sequence bit one postion left with wrap around
+  if (g_ctx.sequencerMask) {
+    uint8_t b = g_ctx.curSequencerBit;
+    do {  // Shift the bit until we will trigger at least one camera/flash by checking sequencer mask
+      b = (b << 1) | (b >> 7); //Shift bit left with wrap around
+    } while ((b & g_ctx.sequencerMask) == 0);
+    g_ctx.curSequencerBit = b;
+  }
+
+  if (g_ctx.intervalometerEnable) {
+    bool repeat = false;
+  
+    if (g_ctx.intervalometerRepeats == 0) {
+      //repeat forever
+      repeat = true;
+    }
+    else if ((--g_ctx.intervalometerCurRepeats) > 0) {
+      // repeat until current repeats is zero
+      repeat = true;
+    }
+
+    if (repeat) {
+      if (g_ctx.intervalometerIntervalTime) {
+        g_ctx.camTimer.start(triggerCamerasPhase2, g_ctx.intervalometerIntervalTime, true);
+      }
+      else {
+        triggerCamerasPhase2();
+      }
+      return;
+    }
+  }
+  g_ctx.camTimer.stop();
+  g_ctx.camTriggerRunning = false;
 }
 
 void handleMirrorLockup() {
@@ -43,30 +115,6 @@ void handleMirrorLockup() {
     }
     delay(250);
   }
-}
-
-void camTriggerISR() {
-  do {
-    CamTimerElement x = g_ctx.camTimerElements[g_ctx.curCamElement];
-    if (x.sequencerVal & g_ctx.curSequencerBit) {
-      CAU::digitalWrite(g_ctx.camPins[x.camOffset].focusPin, x.focusSig);
-      CAU::digitalWrite(g_ctx.camPins[x.camOffset].shutterPin, x.shutterSig);
-    }
-
-    if (++g_ctx.curCamElement == NUM_CAM_TIMER_ELEMENTS) {
-      // End of trigger
-      g_ctx.camTimer.stop();
-      if (g_ctx.sequencerMask) {
-        uint8_t b = g_ctx.curSequencerBit;
-        do {  // Shift the bit until we will trigger at least one camera/flash by checking sequencer mask
-          b = (b << 1) | (b >> 7); //Shift bit left with wrap around
-        } while ((b & g_ctx.sequencerMask) == 0);
-        g_ctx.curSequencerBit = b;
-      }
-      return;
-    }
-  } while(g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset == 0);
-  g_ctx.camTimer.start(camTriggerISR, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
 }
 
 void initCameraPins() {
