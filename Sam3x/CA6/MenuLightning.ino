@@ -48,8 +48,8 @@ typedef struct {
 
 MenuLightningData gLightningData;
 
-void MenuLightning_Info() {
-  g_ctx.packetHelper.writePacketMenuList(3, 2, 0x1, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, 0, 0x0, "Lightning Menu");
+const char* MenuLightning_Name() {
+  return "Lightning Menu";
 }
 
 void MenuLightning_MenuInit() {
