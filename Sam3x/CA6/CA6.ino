@@ -13,51 +13,28 @@ Context g_ctx;
 void setup() {
   SerialIO.begin(9600);
   CAU::initializeAnalog();
-
-  hwPortPin rts = CAU::getModulePin(0,0);
-  hwPortPin cts = CAU::getModulePin(0,1);
-
   g_ctx.esp8266.init(74880);
-  g_ctx.packetHelper.init(g_ctx.esp8266.getSerial(), rts, cts);
+  g_ctx.packetHelper.init(g_ctx.esp8266.getSerial(), (HardwareSerial*)(&SerialIO));
 }
 
 void loop() {
   caRunTests();
   processTerminalCmds();
-  checkModulePorts();
 
   if (g_ctx.state == CA_STATE_MENU_MODE) {
-    g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
-    delay(100);
+    if (g_ctx.menuId == 0) {
+      // Menus normally process packets, but menuId is a null menu which means we need to handle the processing here
+      CAPacketElement *packet = processIncomingPacket();
+      if (packet) {
+        delete packet;
+      }
+    } else {
+      g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
+    }
   } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
     g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
   } else {
-    // Menus hanlde processing packets so only do this here if no menus are running
-    CAPacketElement *packet = processIncomingPacket();
-    if (packet) {
-      delete packet;
-    }
-  }
-}
-
-void checkModulePorts() {
-  for(uint8_t i=0; i<NUM_MODULES; ++i) {
-    uint8_t val = 0;
-    CAEeprom moduleEeprom(unioDevice(CA_MODULE0+i));
-    if (moduleEeprom.readModuleId(&val)) {
-      if (g_ctx.modules[i].modId != val) {
-        g_ctx.modules[i].modId = val;
-        // todo send update to host about changing modules
-        CA_INFO("Module detected", val);
-      }
-    }
-    else {
-      if (g_ctx.modules[i].modId != 0) {
-        // Module has been unplugged
-        g_ctx.modules[i].modId = 0;
-        // todo send update to host about changing modules
-      }
-    }
+    CA_ASSERT(0, "Unsupported CA_STATE mode");
   }
 }
 
@@ -88,7 +65,26 @@ void triggerCameras() {
 
 }
 
-
+/*void checkModulePorts() {
+  for(uint8_t i=0; i<NUM_MODULES; ++i) {
+    uint8_t val = 0;
+    CAEeprom moduleEeprom(unioDevice(CA_MODULE0+i));
+    if (moduleEeprom.readModuleId(&val)) {
+      if (g_ctx.modules[i].modId != val) {
+        g_ctx.modules[i].modId = val;
+        // todo send update to host about changing modules
+        CA_INFO("Module detected", val);
+      }
+    }
+    else {
+      if (g_ctx.modules[i].modId != 0) {
+        // Module has been unplugged
+        g_ctx.modules[i].modId = 0;
+        // todo send update to host about changing modules
+      }
+    }
+  }
+}*/
 
 /*
 //#define ENABLE_CUSTOM_UART
