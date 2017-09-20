@@ -1,0 +1,80 @@
+Cmp-Mod V01 Created by Cvpcb (2015-01-16 BZR 5376)-product   date = 5/5/2017 11:09:47 PM
+
+BeginCmp
+TimeStamp = /5401446B;
+Reference = C1;
+ValeurCmp = .1uF;
+IdModule  = CA6:c_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AABC31;
+Reference = C2;
+ValeurCmp = 10uF;
+IdModule  = CA6:c_1206;
+EndCmp
+
+BeginCmp
+TimeStamp = /5401301C;
+Reference = J1;
+ValeurCmp = JACK_RJ45;
+IdModule  = CA6:RJ45_pcbwing;
+EndCmp
+
+BeginCmp
+TimeStamp = /54012E4D;
+Reference = J2;
+ValeurCmp = JACK_STEREO;
+IdModule  = CA6:161-3334-E_Big_Pad;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AA12A2;
+Reference = Q1;
+ValeurCmp = TEPT4400;
+IdModule  = CA6:PhotoTrans_Conn_Pads_1x02_Pitch2.54mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /58FFB097;
+Reference = Q2;
+ValeurCmp = MMBT2907ALT1G;
+IdModule  = TO_SOT_Packages_SMD:SOT-23;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AA13F6;
+Reference = R1;
+ValeurCmp = 1K;
+IdModule  = CA6:SM0603_Resistor;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AA1792;
+Reference = R2;
+ValeurCmp = 174 1%;
+IdModule  = CA6:SM0603_Resistor;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AA118B;
+Reference = R3;
+ValeurCmp = 1K;
+IdModule  = CA6:SM0603_Resistor;
+EndCmp
+
+BeginCmp
+TimeStamp = /54AA14B9;
+Reference = RV1;
+ValeurCmp = 20K;
+IdModule  = Potentiometers:Potentiometer_Alps_RK09L_Single_Vertical;
+EndCmp
+
+BeginCmp
+TimeStamp = /54016425;
+Reference = U1;
+ValeurCmp = 11AA160;
+IdModule  = CA6:SOT-23_11AA160;
+EndCmp
+
+EndListe
