@@ -40,6 +40,7 @@
     (keepout "" (polygon F.Cu 0  38100 -38100  25400 -38100  25400 -25400  38100 -25400))
     (keepout "" (polygon F.Cu 0  76200 -38100  63500 -38100  63500 -25400  76200 -25400))
     (keepout "" (polygon F.Cu 0  76200 -76200  63500 -76200  63500 -63500  76200 -63500))
+    (keepout "" (polygon B.Cu 0  40640 -62230  36830 -62230  36830 -39370  40640 -39370))
     (via "Via[0-1]_600:400_um")
     (rule
       (width 250)
@@ -50,7 +51,7 @@
   )
   (placement
     (component CA6:RJ45_pcbwing
-      (place J2 33020 -50800 front 90 (PN JACK_RJ45))
+      (place J2 33020 -50800 front 270 (PN JACK_RJ45))
     )
     (component "CA6:161-3334-E_Big_Pad"
       (place J1 73660 -50800 front 180 (PN JACK_STEREO))
@@ -289,10 +290,16 @@
     )
   )
   (wiring
-    (wire (path F.Cu 250  71272.4 -47091.6  71272.4 -44983.4  71247 -44958)(net GND)(type protect))
+    (wire (path F.Cu 250  45847 -64770  45847 -64643)(net 3V3)(type protect))
+    (wire (path F.Cu 250  44130 -62230  46355 -62230)(net GND)(type protect))
+    (wire (path F.Cu 250  71272.4 -44983.4  71247 -44958)(net GND)(type protect))
+    (wire (path F.Cu 250  71272.4 -47091.6  71272.4 -44983.4)(net GND)(type protect))
     (wire (path F.Cu 250  43053 -64770  43053 -66802)(net GND)(type protect))
-    (wire (path F.Cu 250  45400 -42910  46593 -42910  46609 -42926)(net GND)(type protect))
+    (wire (path F.Cu 250  46593 -42910  46609 -42926)(net GND)(type protect))
+    (wire (path F.Cu 250  45400 -42910  46593 -42910)(net GND)(type protect))
+    (wire (path F.Cu 250  56705.5 -64770  55880 -64770)(net /D2)(type protect))
     (wire (path F.Cu 250  42230 -62230  41021 -62230)(net "Net-(J2-Pad8)")(type protect))
+    (via "Via[0-1]_600:400_um"  46355 -62230 (net GND)(type protect))
     (via "Via[0-1]_600:400_um"  71247 -44958 (net GND)(type protect))
     (via "Via[0-1]_600:400_um"  43053 -66802 (net GND)(type protect))
     (via "Via[0-1]_600:400_um"  46609 -42926 (net GND)(type protect))
