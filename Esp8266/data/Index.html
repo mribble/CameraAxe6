@@ -99,6 +99,7 @@
             var PID_CAM_TRIGGER     =  7;
 
 			// Global Variables
+            var gInfoString;
 			var gRequest0;               // Http requests
 			var gRequest1;
 			var gRequest2;
@@ -200,23 +201,31 @@
 
 			// Change between menu mode and photo mode on dynamic menus
 			function toggleMenuPhotoMode(forceMenuMode, dynamicScript, submitPacketFunc) {
-				var id = document.getElementById("MenuPhotoModeButton");
+				var menuModeButtonId = document.getElementById("MenuPhotoModeButton");
+                var testButtonId = document.getElementById("MenuModeTestTriggerButton");
+                var infoButtonId = document.getElementById("MenuInfoButton");
 
 				if (forceMenuMode) {
-					id.innerHTML = "Photo Mode";
+					menuModeButtonId.innerHTML = "Photo Mode";
+                    testButtonId.style.display = "initial";
+                    infoButtonId.style.display = "initial";
 					gMenuModeTable.style.display = "table";
 					gPhotoModeTable.style.display = "none";
 					gMode = 0;
 				}
 				else {  // Toggle mode
-					if (id.innerHTML == "Photo Mode") {
-						id.innerHTML = "Menu Mode";
+					if (menuModeButtonId.innerHTML == "Photo Mode") {
+						menuModeButtonId.innerHTML = "Menu Mode";
+                        testButtonId.style.display = "none";
+                        infoButtonId.style.display = "none";
 						gMenuModeTable.style.display = "none";
 						gPhotoModeTable.style.display = "table";
 						gMode = 1;
 					}
 					else {
-						id.innerHTML = "Photo Mode";
+						menuModeButtonId.innerHTML = "Photo Mode";
+                        testButtonId.style.display = "initial";
+                        infoButtonId.style.display = "initial";
 						gMenuModeTable.style.display = "table";
 						gPhotoModeTable.style.display = "none";
 						gMode = 0;
@@ -788,6 +797,11 @@
                 sendCamTriggerPacket();
             }
             
+            // Popup a screen with help info
+            function displayInfo() {
+                alert(gInfoString);
+            }
+
 			// Submit packets for camera flash to esp8266
 			function sendCamFlashPackets() {
 				camSettingsSave(gCamSelectVal);
@@ -909,14 +923,16 @@
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
 			<button class="button" onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
-			<button class="button" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
 			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, gMenuName, submitMenuModeFormPackets);">Photo Mode</button>
+			<button id="MenuModeTestTriggerButton" class="button" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
+            <button id="MenuInfoButton" class="button" onclick="displayInfo();">Info</button>
 			<h1 id="title"></h1>
 
 			<form id="menuModeForm" name="menuModeForm">
 			</form>
 
 			<script>
+                gInfoString = "Normally you would describe the module menu here.";
 				caStartMenuMode("Dummy Menu");
 				caTextStatic("Static text");
 				caTextDynamic("id0", "Dynamic text", "777");

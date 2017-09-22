@@ -1,3 +1,5 @@
+gInfoString = "Plug the sound module into port 1.";
+
 caStartMenuMode("Sound Menu");
 caSlider("id0", 1, 100, 1, "Sound Trigger Level");
 caTextDynamic("id1", "Current Sound Level (1-100)", "1");

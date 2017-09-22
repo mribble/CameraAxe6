@@ -1,3 +1,5 @@
+gInfoString = "Test menu info.";
+
 caStartMenuMode("Test Menu");
 caTextStatic("Static text");
 caTextDynamic("id0", "Dynamic text", "777");
