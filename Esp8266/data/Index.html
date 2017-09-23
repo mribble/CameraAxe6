@@ -465,6 +465,10 @@
 					}
 				}
 			}
+            
+            function caSetInfoString(str) {
+                gInfoString = str;
+            }
 
 			function caStartMenuMode(menuString) {
 				document.getElementById("title").innerHTML = menuString;
@@ -932,7 +936,7 @@
 			</form>
 
 			<script>
-                gInfoString = "Normally you would describe the module menu here.";
+                caSetInfoString("Normally you would describe the module menu here.");
 				caStartMenuMode("Dummy Menu");
 				caTextStatic("Static text");
 				caTextDynamic("id0", "Dynamic text", "777");

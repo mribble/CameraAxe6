@@ -1,4 +1,4 @@
-gInfoString = "Test menu info.";
+caSetInfoString("Test menu info.");
 
 caStartMenuMode("Test Menu");
 caTextStatic("Static text");
