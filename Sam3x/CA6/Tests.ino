@@ -2,13 +2,13 @@ void caRunTests()
 {
   //caTestSerialWritePerf();  // look into this
   //caTestTickTimer();
-  //caTestPackets();
   //caTestPerf();
-  //caTestModulePorts();
-  //caTestAuxAndCamPorts();
-  //caTestEeprom();
-  //caTestAnalog();
-  //delay(5000); // wait 5000 ms
+//  caTestPackets();
+//  caTestModulePorts();
+//  caTestAuxAndCamPorts();
+//  caTestEeprom();
+//  caTestAnalog();
+//  delay(5000); // wait 5000 ms
 }
 
 void caTestSerialWritePerf() {
@@ -538,7 +538,7 @@ void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
   CAU::digitalWrite(ppDig, HIGH);
   delayMicroseconds(20);  // I think this is needed due to capacitance in ribbon cable
   valHigh = CAU::analogRead(ppAn);
-  if (valLow >= 70 || valHigh <=4050)
+  if (valLow >= 70 || valHigh <=4020)
   {
     CA_LOG("  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
   }
