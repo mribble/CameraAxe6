@@ -1,3 +1,7 @@
+bool camTriggerRunning() {
+  return g_ctx.camTriggerRunning;
+}
+
 void triggerCameras() {
   if (camTriggerRunning()) {
     return;
@@ -15,25 +19,16 @@ void triggerCameras() {
   }
 }
 
-bool camTriggerRunning() {
-  return g_ctx.camTriggerRunning;
-}
-
 void triggerCamerasPhase2() {
   g_ctx.curCamElement = 0;
 
   // Trigger anything in this sorted list with 0 time
-  while(g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset == 0) {
-    CamTimerElement x = g_ctx.camTimerElements[g_ctx.curCamElement];
-    if (x.sequencerVal & g_ctx.curSequencerBit) {
-      CAU::digitalWrite(g_ctx.camPins[x.camOffset].focusPin, x.focusSig);
-      CAU::digitalWrite(g_ctx.camPins[x.camOffset].shutterPin, x.shutterSig);
-    }
-    if (++g_ctx.curCamElement == NUM_CAM_TIMER_ELEMENTS) {
-      break;
-    }
+  if (g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset == 0) {
+    triggerCamerasPhase3();
   }
-  g_ctx.camTimer.start(triggerCamerasPhase3, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
+  else {
+    g_ctx.camTimer.start(triggerCamerasPhase3, g_ctx.camTimerElements[g_ctx.curCamElement].timeOffset, true);
+  }
 }
 
 void triggerCamerasPhase3() {
