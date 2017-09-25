@@ -34,6 +34,10 @@ void serviceUri() {
       gClient.print(str);
       setAllCams(str);
     }
+    else {
+      gClient.print(gCamSettingDefaults);
+      setAllCams(gCamSettingDefaults);
+    }
   }
   else if (uri.indexOf("PUT /setAllCams ") != -1) {
     String str = uri.substring(16, uri.length()-9);
@@ -48,6 +52,9 @@ void serviceUri() {
     {
       gClient.print(str);
       gPh.writePacketIntervalometer(str);
+    } else {
+      gClient.print(gIntervalometerDefaults);
+      gPh.writePacketIntervalometer(gIntervalometerDefaults);
     }
   }
   else if (uri.indexOf("PUT /setDynamicMenu ") != -1) {  // This is the javascript to display the menu
@@ -59,8 +66,23 @@ void serviceUri() {
   }
   else if (uri.indexOf("GET /getDynamicMenuSettings ") != -1) {  // These are the settings stored in flash
     String name = uri.substring(28, uri.length()-9);
-    String str = String("/d/") + name;
+    String str = String("/data/") + name;
     sendFileToClient(str.c_str());
+  }
+  else if (uri.indexOf("PUT /setDefaults ") != -1) {
+    Dir dir = SPIFFS.openDir("/data");
+    while (dir.next()) {
+      SPIFFS.remove(dir.fileName());
+      CA_LOG("Delete - %s\n", dir.fileName().c_str());
+    }
+
+    // todo look into this more -- Seems to be a bug where the dir doesn't always list all files
+    //dir = SPIFFS.openDir("/data");
+    //while (dir.next()) {
+    //  SPIFFS.remove(dir.fileName());
+    //  CA_LOG("Delete - %s\n", dir.fileName().c_str());
+    //}
+    putRequest = true;
   }
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
@@ -127,7 +149,7 @@ void loadMainWebPage() {
 void setDynamicMenu(String& name, String& packets) {
   int16_t startOffset = 0;
   String subStr;
-  String name2 = "/d/"+name;
+  String name2 = "/data/"+name;
 
   while (startOffset != -1) {
     startOffset = getPacketSubstring(packets, subStr, startOffset);

@@ -113,10 +113,10 @@
 			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gMenuName = "null";     // The current top level menu name (examples: Home, MenuMode, ...)
             var gCamSelectVal = 0;      // The current camera/flash selected in the UI
-            var gCamSettingsArray = ["5~0~0~0~0~0~0~0~0~255~0~", "5~1~0~0~0~0~0~0~0~255~0~",
-									 "5~2~0~0~0~0~0~0~0~255~0~", "5~3~0~0~0~0~0~0~0~255~0~",
-									 "5~4~0~0~0~0~0~0~0~255~0~", "5~5~0~0~0~0~0~0~0~255~0~",
-									 "5~6~0~0~0~0~0~0~0~255~0~", "5~7~0~0~0~0~0~0~0~255~0~"];
+            var gCamSettingsArray = ["5~0~0~0~0~0~0~0~0~0~0~", "5~1~0~0~0~0~0~0~0~0~0~",
+									 "5~2~0~0~0~0~0~0~0~0~0~", "5~3~0~0~0~0~0~0~0~0~0~",
+									 "5~4~0~0~0~0~0~0~0~0~0~", "5~5~0~0~0~0~0~0~0~0~0~",
+									 "5~6~0~0~0~0~0~0~0~0~0~", "5~7~0~0~0~0~0~0~0~0~0~"];
 
 			window.onload = initPage;
 
@@ -303,7 +303,7 @@
 					var strArray = gRequest4.responseText.split("~");
 					strArray.pop(); // Last element is empty
 					var intervalForm = document.getElementById("intervalometerForm");
-					intervalForm.elements["inter_enable"].checked = strArray[1];
+					intervalForm.elements["inter_enable"].checked = (strArray[1]==0)? false : true;
 					intervalForm.elements["start_delay"].value = getTimeBoxString(strArray[2], strArray[3]);
 					intervalForm.elements["interval"].value = getTimeBoxString(strArray[4], strArray[5]);
 					intervalForm.elements["number_of_repeats"].value = strArray[6];
@@ -799,6 +799,23 @@
                 sendCamTriggerPacket();
             }
             
+            // Reset all the settings to defaults
+            function setDefaults() {
+                gRequest0 = new XMLHttpRequest();
+                gRequest0.open("PUT", "setDefaults", true);
+                gRequest0.send();
+                
+   				gRequest4 = new XMLHttpRequest();
+				gRequest4.onreadystatechange = getIntervalAjax;
+				gRequest4.open("GET", "getInterval", true);
+				gRequest4.send();
+				
+				gRequest5 = new XMLHttpRequest();
+				gRequest5.onreadystatechange = getAllCamsAjax;
+				gRequest5.open("GET", "getAllCams", true);
+				gRequest5.send();
+            }
+            
             // Popup a screen with help info
             function displayInfo() {
                 alert(gInfoString);
@@ -1021,7 +1038,6 @@
 			</form>
 			<br>
 			<button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
-			<button type="reset">Reset Defaults</button>
 		</div>
 <!--Camera Flash Page (End)-->
 <!--Intervalometer Page (Start)-->
@@ -1069,11 +1085,9 @@
 			<h1 class="topText">Advanced</h1>
 			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
+            <button onclick="setDefaults();">Set Defaults</button>
 			<p>
-				Add options to this page later.
-			</p>
-			<p>
-			Version: 2017.9.7
+			Version: 2017.9.25
 			</p>
 		</div>
 <!--Advanced Page (End)-->
