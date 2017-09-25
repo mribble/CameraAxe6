@@ -17,48 +17,48 @@ void serviceUri() {
   gClient.flush();
   uri.replace("%20", " "); // The uri code converts spaces to %20, this undoes that transformation
 
-  if (uri.indexOf("GET /updateDynamicState ") != -1) {
-    updateDynamicState();
+  if (uri.indexOf("GET /getMenuDynamicIds ") != -1) {
+    getMenuDynamicIds();
   }
-  else if (uri.indexOf("GET /updateMenuList ") != -1) {
-    updateMenuList();
+  else if (uri.indexOf("GET /getMenuList ") != -1) {
+    getMenuList();
   }
-  else if (uri.indexOf("GET /loadDynamicMenu") != -1){
-    loadDynamicMenu(uri);
+  else if (uri.indexOf("GET /getCurrentDynamicMenu ") != -1){
+    getCurrentDynamicMenu(uri);
   }
-  else if (uri.indexOf("PUT /updateAllCams") != -1) {
-    String str = uri.substring(18, uri.length()-9);
-    saveStringToFlash("/d/cams", str);
-    updateAllCams(str);
-    putRequest = true;
-  }
-  else if (uri.indexOf("PUT /updateDynamicMenu") != -1) {
-    uint16_t nameEnd = uri.indexOf("&");
-    String name = uri.substring(22, nameEnd);
-    String str = uri.substring(nameEnd+1, uri.length()-9);
-    updateDynamicMenu(name, str);
-    putRequest = true;
-  }
-  else if (uri.indexOf("GET /updateSaveStateInterval") != -1) {
+  else if (uri.indexOf("GET /getAllCams ") != -1) {
     String str;
-    readFileToString("/d/interval", str);
+    readFileToString(gCamSettingsFilename, str);
+    if (str.length() > 0)
+    {
+      gClient.print(str);
+      setAllCams(str);
+    }
+  }
+  else if (uri.indexOf("PUT /setAllCams ") != -1) {
+    String str = uri.substring(16, uri.length()-9);
+    setAllCams(str);
+    saveStringToFlash(gCamSettingsFilename, str);
+    putRequest = true;
+  }
+  else if (uri.indexOf("GET /getInterval ") != -1) {
+    String str;
+    readFileToString(gIntervalFilename, str);
     if (str.length() > 0)
     {
       gClient.print(str);
       gPh.writePacketIntervalometer(str);
     }
   }
-  else if (uri.indexOf("GET /updateSaveStateCams") != -1) {
-    String str;
-    readFileToString("/d/cams", str);
-    if (str.length() > 0)
-    {
-      gClient.print(str);
-      updateAllCams(str);
-    }
+  else if (uri.indexOf("PUT /setDynamicMenu ") != -1) {  // This is the javascript to display the menu
+    uint16_t nameEnd = uri.indexOf("&");
+    String name = uri.substring(20, nameEnd);
+    String str = uri.substring(nameEnd+1, uri.length()-9);
+    setDynamicMenu(name, str);
+    putRequest = true;
   }
-  else if (uri.indexOf("GET /updateDynamicSettings") != -1) {
-    String name = uri.substring(26, uri.length()-9);
+  else if (uri.indexOf("GET /getDynamicMenuSettings ") != -1) {  // These are the settings stored in flash
+    String name = uri.substring(28, uri.length()-9);
     String str = String("/d/") + name;
     sendFileToClient(str.c_str());
   }
@@ -88,7 +88,7 @@ void serviceUri() {
 // Below are a bunch of simple helper functions used by serviceUri() 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void updateDynamicState() {
+void getMenuDynamicIds() {
   String val;
 
   for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
@@ -101,7 +101,7 @@ void updateDynamicState() {
   gClient.print(val);
 }
 
-void updateMenuList() {
+void getMenuList() {
   Dir dir = SPIFFS.openDir("/menus/");
   String str;
   while (dir.next()) {
@@ -110,9 +110,9 @@ void updateMenuList() {
   gClient.print(str);
 }
 
-void loadDynamicMenu(String& uri) {
+void getCurrentDynamicMenu(String& uri) {
   String str;
-  uri.replace("GET /loadDynamicMenu", "");
+  uri.replace("GET /getCurrentDynamicMenu ", "");
   uri.replace(" HTTP/1.1", "");
   str = String("/menus/") + uri;
   sendFileToClient(str.c_str());  // Sends file with dynamic menu to javascript
@@ -121,14 +121,13 @@ void loadDynamicMenu(String& uri) {
 void loadMainWebPage() {
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
-  sendFileToClient("/Index.html");
+  sendFileToClient(gMainPageFilename);
 }
 
-void updateDynamicMenu(String& name, String& packets) {
+void setDynamicMenu(String& name, String& packets) {
   int16_t startOffset = 0;
   String subStr;
   String name2 = "/d/"+name;
-  saveStringToFlash(name2.c_str(), packets);
 
   while (startOffset != -1) {
     startOffset = getPacketSubstring(packets, subStr, startOffset);
@@ -136,9 +135,10 @@ void updateDynamicMenu(String& name, String& packets) {
       sendPacket(subStr);
     }
   }
+  saveStringToFlash(name2.c_str(), packets);
 }
 
-void updateAllCams(String& packets) {
+void setAllCams(String& packets) {
   int16_t startOffset = 0;
   String subStr;
 

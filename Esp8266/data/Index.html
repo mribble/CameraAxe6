@@ -125,22 +125,22 @@
 				loadPage("Home", null, null);
 
 				gRequest1 = new XMLHttpRequest();
-				gRequest1.onreadystatechange = updateMenuListAjax;
-				gRequest1.open("GET", "updateMenuList", true);
+				gRequest1.onreadystatechange = getMenuListAjax;
+				gRequest1.open("GET", "getMenuList", true);
 				gRequest1.send();
 
 				gRequest4 = new XMLHttpRequest();
-				gRequest4.onreadystatechange = updateSaveStateIntervalAjax;
-				gRequest4.open("GET", "updateSaveStateInterval", true);
+				gRequest4.onreadystatechange = getIntervalAjax;
+				gRequest4.open("GET", "getInterval", true);
 				gRequest4.send();
 				
 				gRequest5 = new XMLHttpRequest();
-				gRequest5.onreadystatechange = updateSaveStateCamsAjax;
-				gRequest5.open("GET", "updateSaveStateCams", true);
+				gRequest5.onreadystatechange = getAllCamsAjax;
+				gRequest5.open("GET", "getAllCams", true);
 				gRequest5.send();
 
 				LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
-				updateDynamicState();
+				getMenuDynamicIds();
 
 				// When the user clicks on <span> (x), close the time box modal
 				var gSpan = document.getElementsByClassName("close")[0];
@@ -174,27 +174,27 @@
 				if (dynamicScript != null) {
 					// Load the dynamic menu script
 					gRequest3 = new XMLHttpRequest();
-					gRequest3.onreadystatechange = loadDynamicMenuAjax;
-					gRequest3.open("GET", "loadDynamicMenu"+dynamicScript, true);
+					gRequest3.onreadystatechange = getCurrentDynamicMenuAjax;
+					gRequest3.open("GET", "getCurrentDynamicMenu "+dynamicScript, true);
 					gRequest3.send();
 					gMenuName = dynamicScript;
                     
                     gRequest6 = new XMLHttpRequest();
-					gRequest6.onreadystatechange = updateDynamicMenuSettingsAjax;
-					gRequest6.open("GET", "updateDynamicSettings"+gMenuName, true);
+					gRequest6.onreadystatechange = getDynamicMenuSettingsAjax;
+					gRequest6.open("GET", "getDynamicMenuSettings "+gMenuName, true);
 					gRequest6.send();
 				}
 			}
 
 			// Checks ever n ms for a packet update from the esp8266 server
-			function updateDynamicState() {
-				setTimeout(updateDynamicState, 5000);
+			function getMenuDynamicIds() {
+				setTimeout(getMenuDynamicIds, 5000);
 
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {
 					gRequest2 = new XMLHttpRequest();
-					gRequest2.onreadystatechange = updateDynamicStateAjax;
-					gRequest2.open("GET", "updateDynamicState", true);
+					gRequest2.onreadystatechange = getMenuDynamicIdsAjax;
+					gRequest2.open("GET", "getMenuDynamicIds", true);
 					gRequest2.send();
 				}
 			}
@@ -266,7 +266,7 @@
 			}
 
 			// Callback used when updating the dynamic menu name list
-			function updateMenuListAjax() {
+			function getMenuListAjax() {
 				if ((gRequest1.readyState == 4) && (gRequest1.status == 200)) {
 					var menuList = gRequest1.responseText.slice(0, -1).split("~");
 					LoadMenuList(menuList);
@@ -274,7 +274,7 @@
 			}
 
 			// Callback used when updated dynamic state is returned
-			function updateDynamicStateAjax() {
+			function getMenuDynamicIdsAjax() {
 				if ((gRequest2.readyState == 4) && (gRequest2.status == 200)) {
                     if (gRequest2.responseText == "null") {
                         return;
@@ -288,14 +288,14 @@
 			}
 
 			// Callback when updating a dynamic menu
-			function loadDynamicMenuAjax() {
+			function getCurrentDynamicMenuAjax() {
 				if ((gRequest3.readyState == 4) && (gRequest3.status == 200)) {
 					eval(gRequest3.responseText);
 				}
 			}
             
 			// Callback when getting the current intervalometer packet state (stored on esp8266 in flash)
-			function updateSaveStateIntervalAjax() {
+			function getIntervalAjax() {
 				if ((gRequest4.readyState == 4) && (gRequest4.status == 200)) {
 					if (gRequest4.responseText == "null") {
 						return;
@@ -311,7 +311,7 @@
 			}
 			
 			// Callback when getting the current camera/flash packets state (stored on esp8266 flash)
-			function updateSaveStateCamsAjax() {
+			function getAllCamsAjax() {
 				if ((gRequest5.readyState == 4) && (gRequest5.status == 200)) {
 					if (gRequest5.responseText == "null") {
 						return;
@@ -324,7 +324,7 @@
 			}
             
             // Callback when getting the current settings for the dynamic menu
-            function updateDynamicMenuSettingsAjax() {
+            function getDynamicMenuSettingsAjax() {
 				if ((gRequest6.readyState == 4) && (gRequest6.status == 200)) {
 					if (gRequest6.responseText == "null") {
 						return;
@@ -733,7 +733,7 @@
             // Submit packets for menu mode to esp8266
 			function submitMenuModeFormPackets() {
 				var menuModeForm = document.forms["menuModeForm"];
-                var packetStr = "updateDynamicMenu"+gMenuName+"&";
+                var packetStr = "setDynamicMenu "+gMenuName+"&";
 
 				for(i=0; i<menuModeForm.length; i++) {
 					var el = menuModeForm[i];
@@ -754,12 +754,10 @@
 					}
 				}
                 
-                if (packetStr != "updateDynamicMenu") {
-                    document.getElementById("debugText").innerHTML = packetStr;
-                    gRequest0 = new XMLHttpRequest();
-                    gRequest0.open("PUT", packetStr, true);
-                    gRequest0.send();
-				}
+                document.getElementById("debugText").innerHTML = packetStr;
+                gRequest0 = new XMLHttpRequest();
+                gRequest0.open("PUT", packetStr, true);
+                gRequest0.send();
 			}
             
             // Load dynamic menu packets into the current form for the dynamic menu UI
@@ -810,7 +808,7 @@
 			function sendCamFlashPackets() {
 				camSettingsSave(gCamSelectVal);
 
-				var str = "updateAllCams" + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" + 
+				var str = "setAllCams " + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" + 
 							gCamSettingsArray[2] + "&" + gCamSettingsArray[3] + "&" + gCamSettingsArray[4] + "&" +
 							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7] + "&";
 				document.getElementById("debugText").innerHTML = str;

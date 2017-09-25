@@ -29,13 +29,14 @@ void sendPacket(String &packetStr) {
       gPh.writePacketCamSettings(packetStr);
       break;
     case PID_INTERVALOMETER:
-      saveStringToFlash("/d/interval", packetStr);
       gPh.writePacketIntervalometer(packetStr);
+      saveStringToFlash(gIntervalFilename, packetStr);
       break;
     case PID_CAM_TRIGGER:
       gPh.writePacketCamTrigger(packetStr);
       break;
     default:
+      CA_LOG("%s\n", packetStr.c_str());
       CA_ASSERT(0, "Invalid type found");
       break;
   }
