@@ -49,21 +49,38 @@ DynamicMessages gDynamicMessages;   // Stores dynamic string packet updates from
 CALed gLed(G_LED, R_LED);           // Manages a red/green LED used to indicate connection status
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Defaults
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const char* gMainPageFilename = "/Index.html";
+const char* gCamSettingsFilename = "/data/cams";
+const char* gIntervalFilename = "/data/interval";
+const char* gStartLocation = "/data/startLocation";
+
+// Assumes PID_CAM_SETTINGS is 5
+String gCamSettingDefaults = "5~0~0~0~0~1~0~0~0~255~0~&5~1~0~0~0~1~0~0~0~255~0~&5~2~0~0~0~1~0~0~0~255~0~&5~3~0~0~0~1~0~0~0~255~0~&5~4~0~0~0~1~0~0~0~255~0~&5~5~0~0~0~1~0~0~0~255~0~&5~6~0~0~0~1~0~0~0~255~0~&5~7~0~0~0~1~0~0~0~255~0~&";
+
+// Assumes PID_INTERVALOMETER is 6
+String gIntervalometerDefaults = "6~0~0~0~1~0~4~";
+
+String gStartLocationDefaults = "Home Page (default)";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setup - Initialization code
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup (void) {
   gLed.set(CALed::RED_ON);          // Force solid red led until connection made
   Serial.begin(74880);              // Connection to SAM3X
   EEPROM.begin(128);                // allocates 128 bytes for wifiManager (required by the library)
-  setupWiFi();
   gPh.init((HardwareSerial*)(&SerialIO), NULL);
-
   if (!SPIFFS.begin()) {
     CA_INFO("Cannot open SPIFFS", "");
   }
   else {
     displaySpiffsInfo();  
   }
+  initStartPage();
+  setupWiFi();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,5 +114,36 @@ void displaySpiffsInfo() {
   //CA_LOG("Flash ide speed: %u\n", ESP.getFlashChipSpeed());
   //CA_LOG("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Starts to the selected mode if no webpage connects
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void initStartPage() {
+  String name;
+  String str;
+  readFileToString(gStartLocation, name);
+  if ((name.length() == 0) || (name == gStartLocationDefaults)) {
+    return; // Don't do anything if it's the default case since home screen will be available after after starting wifi
+  }
+  delay(100); // Plenty of time for sam3x to get ready to receive packets
+
+  // Send camera packets to sam3x
+  readFileToString(gCamSettingsFilename, str);
+  if (str.length() == 0) {
+    str = gCamSettingDefaults;
+  }
+  setAllCams(str);
+
+  // Send intervalometer packet to sam3x
+  readFileToString(gIntervalFilename, str);
+  if (str.length() == 0) {
+    str = gIntervalometerDefaults;
+  }
+  gPh.writePacketIntervalometer(str);
+
+  // Send packet to force photo mode on the selected packet
+  str = String(PID_MENU_SELECT) + "~1~" + name + "~";
+  gPh.writePacketMenuSelect(str);
 }
 

@@ -29,8 +29,7 @@ void serviceUri() {
   else if (uri.indexOf("GET /getAllCams ") != -1) {
     String str;
     readFileToString(gCamSettingsFilename, str);
-    if (str.length() > 0)
-    {
+    if (str.length() > 0) {
       gClient.print(str);
       setAllCams(str);
     }
@@ -48,8 +47,7 @@ void serviceUri() {
   else if (uri.indexOf("GET /getInterval ") != -1) {
     String str;
     readFileToString(gIntervalFilename, str);
-    if (str.length() > 0)
-    {
+    if (str.length() > 0) {
       gClient.print(str);
       gPh.writePacketIntervalometer(str);
     } else {
@@ -84,12 +82,27 @@ void serviceUri() {
     //}
     gClient.print("HTTP/1.1 200 OK");
   }
+  else if (uri.indexOf("GET /getStartLocation ") != -1) {
+    String str;
+    readFileToString(gStartLocation, str);
+    if (str.length() > 0) {
+      gClient.print(str);
+    }
+    else {
+      gClient.print(gStartLocationDefaults);
+    }
+  }
+  else if (uri.indexOf("PUT /setStartLocation ") != -1) {
+    String name = uri.substring(22, uri.length()-9);
+    saveStringToFlash(gStartLocation, name);
+    putRequest = true;
+  }
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
   }
-//  else if (uri.indexOf("GET /favicon.ico") != -1) {
-//    // Ignore this case
-//  }
+  //else if (uri.indexOf("GET /favicon.ico") != -1) {
+  //  // Ignore this case
+  //}
   else if (uri.indexOf("~") != -1) {    // This is the dynamic state case
     String packetStr = uri.substring(5, uri.length()-9);
     sendPacket(packetStr);

@@ -99,7 +99,7 @@
 			var PID_CAM_TRIGGER     =  7;
 
 			// Global Variables
-			var uiTestMode = false;
+			var uiTestMode = true;
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
 			var gMenuModeTable;         // MenuMode table element for dynamic menus
@@ -120,6 +120,7 @@
 				httpRequest(getMenuListAjax, "getMenuList");
 				httpRequest(getIntervalAjax, "getInterval");
 				httpRequest(getAllCamsAjax, "getAllCams");
+                httpRequest(getStartLocationAjax, "getStartLocation")
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -235,6 +236,24 @@
 					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
 				}
 				document.getElementById("listButtons").innerHTML = listItems;
+                
+                // Clear out the start location dropdown box and then fill it
+                var startLocationSelect = document.getElementById("start_location");
+                while(startLocationSelect.firstChild) {
+                    startLocationSelect.removeChild(startLocationSelect.firstChild)
+                }
+                
+                var z = document.createElement("option");
+                z.textContent = "Home Page (default)";
+                z.value = "Home Page (default)";
+                startLocationSelect.appendChild(z);
+
+                for(i=0; i<photoMenus.length; i++) {
+                    z = document.createElement("option");
+                    z.textContent = photoMenus[i];
+                    z.value = photoMenus[i];
+                    startLocationSelect.appendChild(z);
+                }
 			}
 
 			// General function used to validate a number is in required range
@@ -331,9 +350,19 @@
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
 					httpRequest(getIntervalAjax, "getInterval");
 					httpRequest(getAllCamsAjax, "getAllCams");
+                    httpRequest(getStartLocationAjax, "getStartLocation");
 				}
 			
 			}
+            
+            // Callback to get the start location
+            function getStartLocationAjax (xmlHttpRequest) {
+                if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+                    var name = xmlHttpRequest.responseText;
+                    var startLocationSelect = document.getElementById("start_location");
+                    startLocationSelect.value = name;
+                }
+            }
 
 			// Get the nanoseconds from a time box string
 			function getNanoseconds(time) {
@@ -787,6 +816,13 @@
 				sendCamTriggerPacket();
 			}
 			
+            // Set the start location (home page is default)
+            function setStartLocation() {
+                var startLocationSelect = document.getElementById("start_location");
+                var str = startLocationSelect.options[startLocationSelect.selectedIndex].text;
+                httpRequest(null, "setStartLocation "+str);
+            }
+            
 			// Reset all the settings to defaults
 			function setDefaults() {
 				httpRequest(setDefaultsAjax, "setDefaults");
@@ -1053,10 +1089,9 @@
 			<h1 class="topText">Advanced</h1>
 			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
-			<button onclick="setDefaults();">Set Defaults</button>
-			<p>
-			Version: 2017.9.25
-			</p>
+            <p>Start here on startup: <select id="start_location" onchange="setStartLocation();"></select></p>
+            <p><button onclick="setDefaults();">Set Defaults</button></p>
+            <p>Version: 2017.9.25</p>
 		</div>
 <!--Advanced Page (End)-->
 	<p id="debugText"></p>
