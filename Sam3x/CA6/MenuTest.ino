@@ -16,7 +16,8 @@ void MenuTest_MenuInit() {
 }
 
 void MenuTest_PhotoInit() {
-  // This menu has no IO to setup
+  hwPortPin ppPin = CAU::getModulePin(0, 0);
+  CAU::pinMode(ppPin, INPUT_PULLUP);
 }
 
 void MenuTest_MenuRun() {
@@ -52,11 +53,20 @@ void MenuTest_MenuRun() {
 }
 
 void MenuTest_PhotoRun() {
-  // Handle incoming packets
-  CAPacketElement *packet = processIncomingPacket();
-  incomingPacketFinish(packet);
+  hwPortPin ppPin = CAU::getModulePin(0, 0);
+  
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    uint8_t val = CAU::digitalRead(ppPin);
+  
+    // Handle incoming packets
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
 
-  // This menu does nothing
+    // Handle triggering
+    if (val == LOW) {
+      triggerCameras();
+    }
+  }
 }
 
 
