@@ -813,7 +813,7 @@
 				if (extraFunc != null) {
 					extraFunc();
 				}
-				sendCamTriggerPacket();
+				setTimeout(function() { sendCamTriggerPacket();}, 50);
 			}
 			
             // Set the start location (home page is default)

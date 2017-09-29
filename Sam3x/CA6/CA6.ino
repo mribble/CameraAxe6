@@ -32,6 +32,10 @@ void loop() {
     } else {
       g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
     }
+    if (!camTriggerRunning()) {
+      // This needs to get turned off for test trigger and there wasn't a better spot
+      endTriggerCameraState();
+    }
   } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
     g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
   } else {

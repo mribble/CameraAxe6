@@ -23,12 +23,8 @@ enum CAState {
   CA_STATE_PHOTO_MODE,
 };
 
-struct CamPin {
-  hwPortPin focusPin;
-  hwPortPin shutterPin;
-};
 
-struct CamTimerElement {
+struct CamElement0 {
   uint64_t timeOffset;
   uint8_t camOffset;
   uint8_t focusSig;
@@ -36,7 +32,7 @@ struct CamTimerElement {
   uint8_t sequencerVal;
 };
 
-struct CamTimerUnifiedElement {
+struct CamElement1 {
   uint64_t timeOffset;
   uint32_t setMasks[4];
   uint32_t clearMasks[4];
@@ -54,21 +50,17 @@ struct Context {
   CAEsp8266 esp8266;
 
   CAPacketCamSettings camSettings[NUM_CAMERAS];
-  CamPin camPins[NUM_CAMERAS];
-  CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
-  uint8_t numCamTimerElements;
-  uint8_t curCamElement = 0;
 
-  CamTimerUnifiedElement unifiedCamTimerElements[NUM_CAM_TIMER_ELEMENTS];
-  uint8_t numUnifiedCamTimerElements;
-  uint8_t curUnifiedCamElement = 0;
-  uint32_t unifiedSequencerMask[NUM_SEQUENCER_BITS][4];
-  uint8_t sequencerValue = 0;
+  CamElement1 camElements[NUM_CAM_TIMER_ELEMENTS];
+  uint8_t numCamElements;
+  uint8_t curCamElement;
+  uint32_t seqMask[NUM_SEQUENCER_BITS][4];
+  uint8_t sequencerValue;
   
   uint8_t camTriggerRunning;
   CATickTimer camTimer = CATickTimer(0);
-  uint8_t sequencerMask = 0;
-  uint8_t curSequencerBit = 0x01;
+  uint8_t curSeqMask = 0;
+  uint8_t curSeqBit = 0x01;
   uint8_t intervalometerEnable = 0;
   uint64_t intervalometerStartTime = 0;
   uint64_t intervalometerIntervalTime = 0;

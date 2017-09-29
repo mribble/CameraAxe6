@@ -42,7 +42,8 @@ CAPacketElement* processIncomingPacket() {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_MENU_SELECT - %d %s\n", packetSize, unpack.getMenuMode(), unpack.getMenuName());
-
+        endTriggerCameraState();
+        
         uint8_t index = 0;
         if (strcmp(unpack.getMenuName(), "null") == 0) {
           index = 0;
@@ -60,13 +61,15 @@ CAPacketElement* processIncomingPacket() {
 
         if (g_ctx.menuId == 0) {
           g_ctx.state = CA_STATE_MENU_MODE;
-        } else if (unpack.getMenuMode() == 0) {
+        } else if (unpack.getMenuMode() == 0) { 
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
           
         } else {
           g_ctx.procTable.funcPhotoInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_PHOTO_MODE;
+          handleMirrorLockup();
+          startTriggerCameraState();
         }
         break;
       }
@@ -98,6 +101,7 @@ CAPacketElement* processIncomingPacket() {
         CAPacketCamTrigger unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_CAM_TRIGGER - %d %d %d\n", packetSize, unpack.getMode(), unpack.getFocus(), unpack.getShutter());
+        startTriggerCameraState();
         triggerCameras();
         break;
       }

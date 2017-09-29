@@ -168,7 +168,6 @@ void CATickTimer::stop(uint8_t timerNum)
 {
     NVIC_DisableIRQ(m_irq[timerNum]);
     TC_Stop(m_tc[timerNum], m_tcChannel[timerNum]);
-    CA_ASSERT(m_isr[timerNum], "Don't unregister a null callback");
     m_isr[timerNum] = NULL;
 }
 
