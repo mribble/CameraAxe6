@@ -7,6 +7,7 @@
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 #define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*3)
+#define NUM_SEQUENCER_BITS 8
 
 struct CtxProcTable
 {
@@ -35,6 +36,12 @@ struct CamTimerElement {
   uint8_t sequencerVal;
 };
 
+struct CamTimerUnifiedElement {
+  uint64_t timeOffset;
+  uint32_t setMasks[4];
+  uint32_t clearMasks[4];
+};
+
 struct Context {
   // Constructor with initialization list
   Context(){}
@@ -46,11 +53,19 @@ struct Context {
   CAPacketHelper packetHelper;  // Handles serial communication and simplifies packet packing/unpacking
   CAEsp8266 esp8266;
 
-  uint8_t camTriggerRunning;
   CAPacketCamSettings camSettings[NUM_CAMERAS];
   CamPin camPins[NUM_CAMERAS];
   CamTimerElement camTimerElements[NUM_CAM_TIMER_ELEMENTS];
+  uint8_t numCamTimerElements;
   uint8_t curCamElement = 0;
+
+  CamTimerUnifiedElement unifiedCamTimerElements[NUM_CAM_TIMER_ELEMENTS];
+  uint8_t numUnifiedCamTimerElements;
+  uint8_t curUnifiedCamElement = 0;
+  uint32_t unifiedSequencerMask[NUM_SEQUENCER_BITS][4];
+  uint8_t sequencerValue = 0;
+  
+  uint8_t camTriggerRunning;
   CATickTimer camTimer = CATickTimer(0);
   uint8_t sequencerMask = 0;
   uint8_t curSequencerBit = 0x01;

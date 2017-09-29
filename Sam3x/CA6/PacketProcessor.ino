@@ -78,7 +78,9 @@ CAPacketElement* processIncomingPacket() {
                   unpack.getDurationNanoseconds(), unpack.getPostDelaySeconds(), unpack.getPostDelayNanoseconds(), unpack.getSequencer(),
                   unpack.getMirrorLockup());
         g_ctx.camSettings[unpack.getCamPortNumber()] = unpack;
-        setupCamTiming();
+        if (unpack.getCamPortNumber() == NUM_CAMERAS-1) { // Since all cameras are always sent we only need to setup camera timing on the last one (this is an expensive operation)
+          setupCamTiming();
+        }
         break;
       }
       case PID_INTERVALOMETER: {
