@@ -22,9 +22,7 @@
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
 #include <CALed.h>
-
-#define GREEN_PIN 4
-#define RED_PIN 5
+#include <ArduinoOTA.h>
 
 #define CA_AP_PASSWORD "ca6admin"
 #define G_LED 4
@@ -81,6 +79,7 @@ void setup (void) {
   }
   initStartPage();
   setupWiFi();
+  initOTA();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +90,7 @@ void loop (void) {
   receivePacket();
   serviceUri();
   pollWifiMode();
+  ArduinoOTA.handle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,5 +145,38 @@ void initStartPage() {
   // Send packet to force photo mode on the selected packet
   str = String(PID_MENU_SELECT) + "~1~" + name + "~";
   gPh.writePacketMenuSelect(str);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Starts the over the air (OTA) updates so you can update over wifi instead of an ftdi cable
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void initOTA() {
+  // Port defaults to 8266
+  // ArduinoOTA.setPort(8266);
+
+  // Hostname defaults to esp8266-[ChipID]
+  // ArduinoOTA.setHostname("myesp8266");
+
+  // No authentication by default
+  // ArduinoOTA.setPassword((const char *)"123");
+
+  ArduinoOTA.onStart([]() {
+    CA_LOG("Starting OTA\n");
+  });
+  ArduinoOTA.onEnd([]() {
+    CA_LOG("Ending OTA\n");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress OTA: %u%%\n", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    CA_LOG("OTA Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) CA_LOG("Auth Failed\n");
+    else if (error == OTA_BEGIN_ERROR) CA_LOG("Begin Failed\n");
+    else if (error == OTA_CONNECT_ERROR) CA_LOG("Connect Failed\n");
+    else if (error == OTA_RECEIVE_ERROR) CA_LOG("Receive Failed\n");
+    else if (error == OTA_END_ERROR) CA_LOG("End Failed\n");
+  });
+  ArduinoOTA.begin();
 }
 
