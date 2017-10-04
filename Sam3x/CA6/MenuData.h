@@ -9,19 +9,19 @@
 // needed to store the Menu*Data for each module there is union of all the Menu*Data to fine the worst case size.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Sound Menu
-extern const char* MenuSound_Name();
-extern void MenuSound_MenuInit();
-extern void MenuSound_PhotoInit();
-extern void MenuSound_MenuRun();
-extern void MenuSound_PhotoRun();
-
 // Test Menu
-extern const char* MenuTest_Name();
-extern void MenuTest_MenuInit();
-extern void MenuTest_PhotoInit();
-extern void MenuTest_MenuRun();
-extern void MenuTest_PhotoRun();
+extern const char* menuTest_Name();
+extern void menuTest_MenuInit();
+extern void menuTest_PhotoInit();
+extern void menuTest_MenuRun();
+extern void menuTest_PhotoRun();
+
+// Sound Menu
+extern const char* menuSound_Name();
+extern void menuSound_MenuInit();
+extern void menuSound_PhotoInit();
+extern void menuSound_MenuRun();
+extern void menuSound_PhotoRun();
 
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 

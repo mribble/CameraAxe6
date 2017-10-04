@@ -11,11 +11,11 @@
 
 struct CtxProcTable
 {
-  const char* (*funcName[NUM_MENUS])()   {NULL, MenuSound_Name, MenuTest_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, MenuSound_MenuInit, MenuTest_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, MenuSound_PhotoInit, MenuTest_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, MenuSound_MenuRun, MenuTest_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, MenuSound_PhotoRun, MenuTest_PhotoRun};
+  const char* (*funcName[NUM_MENUS])()   {NULL, menuSound_Name, menuTest_Name};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, menuSound_MenuInit, menuTest_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, menuSound_PhotoInit, menuTest_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, menuSound_MenuRun, menuTest_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, menuSound_PhotoRun, menuTest_PhotoRun};
 };
 
 enum CAState {
