@@ -1,3 +1,6 @@
+#ifndef TERMINAL_H
+#define TERMINAL_H
+
 void processTerminalCmds() {
   if (SerialUSB.available()) {
     uint8_t command = SerialUSB.read();
@@ -10,28 +13,6 @@ void processTerminalCmds() {
       g_ctx.esp8266.resetESP();
       g_ctx.packetHelper.flushGarbagePackets();
       break;
-    case 't': // Program a test module in module port 3
-    {
-      CAEeprom eeprom(CA_MODULE3);
-      const uint8_t testModuleId = 2;
-      uint8_t val = 0;
-
-      if (eeprom.writeModuleId(testModuleId)) {
-        SerialUSB.print("Success - Writing test module\n");
-        if (eeprom.readModuleId(&val)) {
-          if (val == testModuleId) {
-            SerialUSB.print("Success - Reading test module\n");
-          } else {
-            SerialUSB.print("Fail - Reading test module\n");
-          }
-        } else {
-          SerialUSB.print("Fail - Reading test module 2\n");
-        }
-      } else {
-        SerialUSB.print("Fail - Writing test module\n");
-      }
-      break;
-    }
     case 's': // Serial commands from wireless get passed through to USB Serial (useful for testing) 
     {
       bool done = false;
@@ -59,4 +40,5 @@ void processTerminalCmds() {
     }
   }
 }
+#endif //TERMINAL_H
 

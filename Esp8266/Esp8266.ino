@@ -12,7 +12,6 @@
 // 2017.9.6
 //    - Initial version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         // https://github.com/Rom3oDelta7/WiFiManager
@@ -23,6 +22,7 @@
 #include <CAPacketHelper.h>
 #include <CALed.h>
 #include <ArduinoOTA.h>
+
 
 #define CA_AP_PASSWORD "ca6admin"
 #define G_LED 4

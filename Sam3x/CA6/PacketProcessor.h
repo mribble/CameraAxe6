@@ -1,3 +1,8 @@
+#ifndef PACKET_PROCESSOR_H
+#define PACKET_PROCESSOR_H
+
+#include "TriggerCam.h"
+
 // processIncomingPacket() handles packets coming from the client (Android) to the host (sam3x).
 // Some packets always do the same thing so we handle those in this function and return null.
 // Other packets are menu specific and have to be handled outside this function.  In those cases we return
@@ -151,6 +156,6 @@ void incomingPacketFinish(CAPacketElement* base) {
     delete base;
   }
 }
-
+#endif //PACKET_PROCESSOR_H
 
 

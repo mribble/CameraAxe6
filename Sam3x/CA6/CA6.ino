@@ -1,11 +1,12 @@
-#include <CAUtility.h>
-#include <CAEeprom.h>
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
-#include <CATickTimer.h>
 #include <CAEsp8266.h>
-#include "MenuData.h"
 #include "Context.h"
+#include "Menus.h"
+#include "PacketProcessor.h"
+#include "Terminal.h"
+#include "Tests.h"
+#include "TriggerCam.h"
 
 // Initialize the context
 Context g_ctx;

@@ -1,3 +1,9 @@
+#ifndef MENUS_H
+#define MENUS_H
+
+#include "Context.h"
+#include "PacketProcessor.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test Menu - A menu that tests all the different UI features
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,5 +131,31 @@ void menuSound_PhotoRun() {
     }
   }
 }
+
+enum FilterMode {
+  DIGITAL,
+  ANALOG,
+};
+
+struct FilterData {
+  hwPortPin pin;            // Pin that is being filtered
+  FilterMode mode;          // Know if the reading of the pin should be analog or digital
+  uint8_t curValIndex;      // Current index for the rolling window
+  uint16_t vals[4];         // Rolling window of values
+  uint16_t visibleTime;     // Min time in milliseconds the value will be visible
+  uint32_t nextUpdateTime;  // The time in milliseconds when we update the curValIndex
+};
+
+uint16_t sensorFilter(FilterData *d) {
+  uint16_t val;
+  if (d->mode == DIGITAL) {
+    val = CAU::digitalRead(d->pin);
+  }
+  else {
+    val = CAU::analogRead(d->pin);
+  }
+  //todo
+}
+#endif //MENUS_H
 
 

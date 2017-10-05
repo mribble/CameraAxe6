@@ -2,6 +2,8 @@
 #define CONTEXT_H
 
 #include <CAPacket.h>
+#include <CATickTimer.h>
+#include "MenuData.h"
 
 #define NUM_MENUS   3  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
@@ -22,7 +24,6 @@ enum CAState {
   CA_STATE_MENU_MODE,
   CA_STATE_PHOTO_MODE,
 };
-
 
 struct CamElement0 {
   uint64_t timeOffset;
@@ -69,4 +70,5 @@ struct Context {
   
 };
 
+extern Context g_ctx;
 #endif // CONTEXT_H

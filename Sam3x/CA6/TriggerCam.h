@@ -1,3 +1,10 @@
+#ifndef TRIGGER_CAM_H
+#define TRIGGER_CAM_H
+
+extern void triggerCamerasPhase2();
+extern void triggerCamerasPhase3();
+extern void triggerCamerasPhase4();
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // camTriggerRunning() - Checks to see if we are currently in a trigger
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,6 +198,127 @@ void initCameraPins() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// sortCamTiming() - Sorts the list of element from smallest time to largest time
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void sortCamTiming(CamElement0* arry, int8_t sz) {
+  int8_t i = 1;
+
+  // Insertion Sort
+  while (i < sz) {
+    CamElement0 x = arry[i];
+    int8_t j = i-1;
+    while ((j >= 0) && (arry[j].timeOffset > x.timeOffset)) {
+      arry[j+1] = arry[j];
+      --j;
+    }
+    arry[j+1] = x;
+    ++i;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// sortCamTiming() - Converts timing from a relative to start of trigger to relative to previous element.
+//  By making it relative to the previous element it reduces compute time to set system timers during the triggering.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void biasCamTiming(CamElement0* arry, int8_t sz) {
+  // Loop through all camera events and find difference in offsets and store those rather than the absolute offset stored before this was called
+  // Note this must be called after sorting
+  uint64_t x0 = arry[0].timeOffset;
+  uint64_t x1;
+  for (int8_t i=1; i<sz; ++i) {
+    x1 = arry[i].timeOffset - arry[i-1].timeOffset;
+    if (x1 == 1) {
+      x1 = 0; // Because of the integer divide by clock we get some off by 1 results.  Any interrupt will take way more than 1 clock so skip this
+    }
+    arry[i-1].timeOffset = x0;
+    x0 = x1;
+  }
+  arry[sz-1].timeOffset = x0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// calcMasks() - Helper function that adds bits to the set/clear register masks based on current focus/shutter values
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void calcMasks(uint32_t *setMasks, uint32_t *clearMasks, uint8_t focusSig, uint8_t shutterSig, uint8_t cam) {
+  hwPortPin focus = CAU::getCameraPin(cam, FOCUS);
+  if (focusSig) {
+    setMasks[focus.port] |= (1<<focus.pin);
+  }
+  else {
+    clearMasks[focus.port] |= (1<<focus.pin);
+  }
+  
+  hwPortPin shutter = CAU::getCameraPin(cam, SHUTTER);
+  if (shutterSig) {
+    setMasks[shutter.port] |= (1<<shutter.pin);
+  }
+  else {
+    clearMasks[shutter.port] |= (1<<shutter.pin);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// generateUnifiedElements() - This combines all the camElement0 elements that have exact same time into a CamElement1.
+//  CamElement1 is just register set/clear masks and a time when to send them to send them to hw.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) {
+  uint8_t i, j;
+  CamElement1 *el = g_ctx.camElements;
+  int8_t curEl = -1;
+
+  memset(el, 0, sizeof(g_ctx.camElements));
+  
+  // Create a UnifiedElement with  each time generate an offsetTime, setMask (per port), clearMask (per port)
+  // This is done by or-ing all the clear bits and all the set bits together
+  // The basic idea here is we build masks for all the camera events happening at the same time and then set all those bits on the micro's ports in a single write instead of doing one bit at a time
+  for(i=0; i<numCamElements0; ++i) {
+    
+    if ((i==0) || (camElements0[i].timeOffset!=0)) {
+      // Increment the unified element in these cases because time has moved forward
+      curEl++;
+      el[curEl].timeOffset = camElements0[i].timeOffset;
+    }
+    calcMasks(el[curEl].setMasks, el[curEl].clearMasks, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].camOffset);
+  }
+
+  g_ctx.numCamElements = curEl+1;
+  g_ctx.curCamElement = 0;
+
+  //CA_LOG("Unified Camera List\n");
+  //for(uint8_t i=0; i<g_ctx.numUnifiedCamTimerElements; ++i) {
+  //  CA_LOG("%"PRId64" Set%#010x,%#010x,%#010x,%#010x Clear%#010x,%#010x,%#010x,%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
+  //    g_ctx.unifiedCamTimerElements[i].setMasks[0], g_ctx.unifiedCamTimerElements[i].setMasks[1], g_ctx.unifiedCamTimerElements[i].setMasks[2], g_ctx.unifiedCamTimerElements[i].setMasks[3],
+  //    g_ctx.unifiedCamTimerElements[i].clearMasks[0], g_ctx.unifiedCamTimerElements[i].clearMasks[1], g_ctx.unifiedCamTimerElements[i].clearMasks[2], g_ctx.unifiedCamTimerElements[i].clearMasks[3]);
+  //}
+
+  memset(g_ctx.seqMask, 0, sizeof(g_ctx.seqMask));
+
+  // Create a sequencer mask per sequencer bit (8 of them) which can be and-ed with the setMask/clearMask when trigger happens with the approriate sequencer value
+  // The sequencer mask is basically any possible bit that could be set or cleared, but specifically excludes bits not allowed due to the sequencer settings from a camera port
+  // This is done by walking through each each sequencer bit for each camera and or-ing its port bits into the sequencer mask for that sequencer bit
+  for (i=0; i<NUM_SEQUENCER_BITS; ++i) {
+    for(j=0; j<NUM_CAMERAS; ++j) {
+      
+      uint8_t seq = g_ctx.camSettings[j].getSequencer();
+      
+      // This check removes bits that shouldn't be in this sequencer mask
+      if (seq & (1<<i)) {
+        hwPortPin focus = CAU::getCameraPin(j, FOCUS);
+        g_ctx.seqMask[i][focus.port] |= (1<<focus.pin);
+
+        hwPortPin shutter = CAU::getCameraPin(j, SHUTTER);
+        g_ctx.seqMask[i][shutter.port] |= (1<<shutter.pin);
+      }
+    }
+  }
+
+  //CA_LOG("Unified Sequencer masks\n");
+  //for(uint8_t i=0; i<NUM_SEQUENCER_BITS; ++i) {
+  //  CA_LOG("%#010x,%#010x,%#010x,%#010x\n", g_ctx.seqMask[i][0], g_ctx.seqMask[i][1], g_ctx.seqMask[i][2], g_ctx.seqMask[i][3]);
+  //}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setupCamTiming() - This function is the main function that takes all camera timing values from the UI and converts
 //  them into an efficent data structure that can be processed fast and efficently.  This is a multiphase process.
 //  In the first phase we convert the UI data into an array of values that eliminates unneeded elements (cameras that are disabled)
@@ -274,125 +402,5 @@ void setupCamTiming() {
   //  CA_LOG("%d  %"PRId64"\n", g_ctx.camTimerElements[i].camOffset, g_ctx.camTimerElements[i].timeOffset);
   //}
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// sortCamTiming() - Sorts the list of element from smallest time to largest time
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void sortCamTiming(CamElement0* arry, int8_t sz) {
-  int8_t i = 1;
-
-  // Insertion Sort
-  while (i < sz) {
-    CamElement0 x = arry[i];
-    int8_t j = i-1;
-    while ((j >= 0) && (arry[j].timeOffset > x.timeOffset)) {
-      arry[j+1] = arry[j];
-      --j;
-    }
-    arry[j+1] = x;
-    ++i;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// sortCamTiming() - Converts timing from a relative to start of trigger to relative to previous element.
-//  By making it relative to the previous element it reduces compute time to set system timers during the triggering.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void biasCamTiming(CamElement0* arry, int8_t sz) {
-  // Loop through all camera events and find difference in offsets and store those rather than the absolute offset stored before this was called
-  // Note this must be called after sorting
-  uint64_t x0 = arry[0].timeOffset;
-  uint64_t x1;
-  for (int8_t i=1; i<sz; ++i) {
-    x1 = arry[i].timeOffset - arry[i-1].timeOffset;
-    if (x1 == 1) {
-      x1 = 0; // Because of the integer divide by clock we get some off by 1 results.  Any interrupt will take way more than 1 clock so skip this
-    }
-    arry[i-1].timeOffset = x0;
-    x0 = x1;
-  }
-  arry[sz-1].timeOffset = x0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// generateUnifiedElements() - This combines all the camElement0 elements that have exact same time into a CamElement1.
-//  CamElement1 is just register set/clear masks and a time when to send them to send them to hw.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) {
-  uint8_t i, j;
-  CamElement1 *el = g_ctx.camElements;
-  int8_t curEl = -1;
-
-  memset(el, 0, sizeof(g_ctx.camElements));
-  
-  // Create a UnifiedElement with  each time generate an offsetTime, setMask (per port), clearMask (per port)
-  // This is done by or-ing all the clear bits and all the set bits together
-  // The basic idea here is we build masks for all the camera events happening at the same time and then set all those bits on the micro's ports in a single write instead of doing one bit at a time
-  for(i=0; i<numCamElements0; ++i) {
-    
-    if ((i==0) || (camElements0[i].timeOffset!=0)) {
-      // Increment the unified element in these cases because time has moved forward
-      curEl++;
-      el[curEl].timeOffset = camElements0[i].timeOffset;
-    }
-    calcMasks(el[curEl].setMasks, el[curEl].clearMasks, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].camOffset);
-  }
-
-  g_ctx.numCamElements = curEl+1;
-  g_ctx.curCamElement = 0;
-
-  //CA_LOG("Unified Camera List\n");
-  //for(uint8_t i=0; i<g_ctx.numUnifiedCamTimerElements; ++i) {
-  //  CA_LOG("%"PRId64" Set%#010x,%#010x,%#010x,%#010x Clear%#010x,%#010x,%#010x,%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
-  //    g_ctx.unifiedCamTimerElements[i].setMasks[0], g_ctx.unifiedCamTimerElements[i].setMasks[1], g_ctx.unifiedCamTimerElements[i].setMasks[2], g_ctx.unifiedCamTimerElements[i].setMasks[3],
-  //    g_ctx.unifiedCamTimerElements[i].clearMasks[0], g_ctx.unifiedCamTimerElements[i].clearMasks[1], g_ctx.unifiedCamTimerElements[i].clearMasks[2], g_ctx.unifiedCamTimerElements[i].clearMasks[3]);
-  //}
-
-  memset(g_ctx.seqMask, 0, sizeof(g_ctx.seqMask));
-
-  // Create a sequencer mask per sequencer bit (8 of them) which can be and-ed with the setMask/clearMask when trigger happens with the approriate sequencer value
-  // The sequencer mask is basically any possible bit that could be set or cleared, but specifically excludes bits not allowed due to the sequencer settings from a camera port
-  // This is done by walking through each each sequencer bit for each camera and or-ing its port bits into the sequencer mask for that sequencer bit
-  for (i=0; i<NUM_SEQUENCER_BITS; ++i) {
-    for(j=0; j<NUM_CAMERAS; ++j) {
-      
-      uint8_t seq = g_ctx.camSettings[j].getSequencer();
-      
-      // This check removes bits that shouldn't be in this sequencer mask
-      if (seq & (1<<i)) {
-        hwPortPin focus = CAU::getCameraPin(j, FOCUS);
-        g_ctx.seqMask[i][focus.port] |= (1<<focus.pin);
-
-        hwPortPin shutter = CAU::getCameraPin(j, SHUTTER);
-        g_ctx.seqMask[i][shutter.port] |= (1<<shutter.pin);
-      }
-    }
-  }
-
-  //CA_LOG("Unified Sequencer masks\n");
-  //for(uint8_t i=0; i<NUM_SEQUENCER_BITS; ++i) {
-  //  CA_LOG("%#010x,%#010x,%#010x,%#010x\n", g_ctx.seqMask[i][0], g_ctx.seqMask[i][1], g_ctx.seqMask[i][2], g_ctx.seqMask[i][3]);
-  //}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// calcMasks() - Helper function that adds bits to the set/clear register masks based on current focus/shutter values
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void calcMasks(uint32_t *setMasks, uint32_t *clearMasks, uint8_t focusSig, uint8_t shutterSig, uint8_t cam) {
-  hwPortPin focus = CAU::getCameraPin(cam, FOCUS);
-  if (focusSig) {
-    setMasks[focus.port] |= (1<<focus.pin);
-  }
-  else {
-    clearMasks[focus.port] |= (1<<focus.pin);
-  }
-  
-  hwPortPin shutter = CAU::getCameraPin(cam, SHUTTER);
-  if (shutterSig) {
-    setMasks[shutter.port] |= (1<<shutter.pin);
-  }
-  else {
-    clearMasks[shutter.port] |= (1<<shutter.pin);
-  }
-}
+#endif //TRIGGER_CAM_H
 

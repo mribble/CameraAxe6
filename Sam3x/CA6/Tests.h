@@ -1,3 +1,13 @@
+#ifndef TESTS_H
+#define TESTS_H
+
+#include <CATickTimer.h>
+#include <CAEeprom.h>
+
+extern boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut);
+extern void caAllPortsLow();
+extern void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig);
+
 void caRunTests()
 {
   //caTestSerialWritePerf();  // look into this
@@ -37,15 +47,6 @@ void caTestSerialWritePerf() {
 // caTestTickTimer - Tests the CATickTimer class
 // returns  - NA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestTickTimer()
-{
-  uint64_t ticks;
-  CATickTimer timer(0);
-  ticks = timer.convertTimeToTicks(0,100000000);
-  timer.start(toggleCamPort0, ticks, true);
-  delay(200);
-  timer.stop();
-}
 void toggleCamPort0()
 {
   static uint8_t toggle = 1;
@@ -63,6 +64,16 @@ void toggleCamPort0()
     CAU::digitalWrite(cam0, LOW);
     toggle = 1;
   }
+}
+
+void caTestTickTimer()
+{
+  uint64_t ticks;
+  CATickTimer timer(0);
+  ticks = timer.convertTimeToTicks(0,100000000);
+  timer.start(toggleCamPort0, ticks, true);
+  delay(200);
+  timer.stop();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -524,6 +535,42 @@ void caTestAnalog()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test helper functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Set all the ports to output low
+void caAllPortsLow() {
+  hwPortPin pp0;
+  uint8_t i, j;
+
+  // Aux Port
+  for(i=0; i<48; ++i)
+  {
+    pp0 = CAU::getAuxPin(i);
+    CAU::pinMode(pp0, OUTPUT);
+    CAU::digitalWrite(pp0, LOW);
+  }
+  
+  // Module Ports
+  for(i=0; i<4; ++i)
+  {
+    for(j=0; j<6; ++j)
+    {
+      pp0 = CAU::getModulePin(i, j);
+      CAU::pinMode(pp0, OUTPUT);
+      CAU::digitalWrite(pp0, LOW);
+    }
+  }
+
+  // Camera Ports
+  for(i=0; i<8; ++i)
+  {
+    pp0 = CAU::getCameraPin(i, FOCUS);
+    CAU::pinMode(pp0, OUTPUT);
+    CAU::digitalWrite(pp0, LOW);
+    pp0 = CAU::getCameraPin(i, SHUTTER);
+    CAU::pinMode(pp0, OUTPUT);
+    CAU::digitalWrite(pp0, LOW);
+  }
+}
+
 void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
 {
   uint16_t valLow, valHigh;
@@ -563,41 +610,5 @@ boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut)
   
   return ret;
 }
-
-// Set all the ports to output low
-void caAllPortsLow()
-{
-  hwPortPin pp0;
-  uint8_t i, j;
-
-  // Aux Port
-  for(i=0; i<48; ++i)
-  {
-    pp0 = CAU::getAuxPin(i);
-    CAU::pinMode(pp0, OUTPUT);
-    CAU::digitalWrite(pp0, LOW);
-  }
-  
-  // Module Ports
-  for(i=0; i<4; ++i)
-  {
-    for(j=0; j<6; ++j)
-    {
-      pp0 = CAU::getModulePin(i, j);
-      CAU::pinMode(pp0, OUTPUT);
-      CAU::digitalWrite(pp0, LOW);
-    }
-  }
-
-  // Camera Ports
-  for(i=0; i<8; ++i)
-  {
-    pp0 = CAU::getCameraPin(i, FOCUS);
-    CAU::pinMode(pp0, OUTPUT);
-    CAU::digitalWrite(pp0, LOW);
-    pp0 = CAU::getCameraPin(i, SHUTTER);
-    CAU::pinMode(pp0, OUTPUT);
-    CAU::digitalWrite(pp0, LOW);
-  }
-}
+#endif //TESTS_H
 
