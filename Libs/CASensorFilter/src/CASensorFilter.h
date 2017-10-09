@@ -18,7 +18,7 @@
 class CASensorFilter
 {
 public:
-    enum FilterMode {DIGITAL_LOW, DIGITAL_HIGH, ANALOG_LOW, ANALOG_HIGH, ANALOG_THRESHOLD};
+    enum FilterMode {DIGITAL_MIN, DIGITAL_MAX, ANALOG_MIN, ANALOG_MAX, ANALOG_THRESHOLD};
     
     CASensorFilter() {};
     

@@ -17,12 +17,12 @@ void CASensorFilter::init(hwPortPin pin, FilterMode mode, uint16_t visibleTime) 
     mNextUpdateTime = millis() + (visibleTime/NUM_SEN_VALS);
 
     switch (mode) {
-        case DIGITAL_LOW:
-        case ANALOG_LOW:
+        case DIGITAL_MIN:
+        case ANALOG_MIN:
             mDefaultVal = 0xffff;
             break;
-        case DIGITAL_HIGH:
-        case ANALOG_HIGH:
+        case DIGITAL_MAX:
+        case ANALOG_MAX:
         case ANALOG_THRESHOLD:
             mDefaultVal = 0;
             break;
@@ -48,28 +48,28 @@ uint16_t CASensorFilter::getSensorData() {
     uint16_t val;
     
     switch (mMode) {
-        case DIGITAL_LOW:
+        case DIGITAL_MIN:
             val = CAU::digitalRead(mPin);
             mVals[mCurValIndex] = min(val, mVals[mCurValIndex]);
             for(i=0; i<NUM_SEN_VALS; ++i) {
                 val = min(val, mVals[i]);
             }
             break;
-        case DIGITAL_HIGH:
+        case DIGITAL_MAX:
             val = CAU::digitalRead(mPin);
             mVals[mCurValIndex] = max(val, mVals[mCurValIndex]);
             for(i=0; i<NUM_SEN_VALS; ++i) {
                 val = max(val, mVals[i]);
             }
             break;
-        case ANALOG_LOW:
+        case ANALOG_MIN:
             val = CAU::analogRead(mPin);
             mVals[mCurValIndex] = min(val, mVals[mCurValIndex]);
             for(i=0; i<NUM_SEN_VALS; ++i) {
                 val = min(val, mVals[i]);
             }
             break;
-        case ANALOG_HIGH:
+        case ANALOG_MAX:
             val = CAU::analogRead(mPin);
             mVals[mCurValIndex] = max(val, mVals[mCurValIndex]);
             for(i=0; i<NUM_SEN_VALS; ++i) {

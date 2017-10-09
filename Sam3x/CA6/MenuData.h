@@ -23,6 +23,13 @@ extern void menuSound_PhotoInit();
 extern void menuSound_MenuRun();
 extern void menuSound_PhotoRun();
 
+// Vibration Menu
+extern const char* menuVibration_Name();
+extern void menuVibration_MenuInit();
+extern void menuVibration_PhotoInit();
+extern void menuVibration_MenuRun();
+extern void menuVibration_PhotoRun();
+
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.
