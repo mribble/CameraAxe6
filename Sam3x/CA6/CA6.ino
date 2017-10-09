@@ -20,27 +20,29 @@ void setup() {
 }
 
 void loop() {
-  caRunTests();
-  processTerminalCmds();
-
-  if (g_ctx.state == CA_STATE_MENU_MODE) {
-    if (g_ctx.menuId == 0) {
-      // Menus normally process packets, but menuId is a null menu which means we need to handle the processing here
-      CAPacketElement *packet = processIncomingPacket();
-      if (packet) {
-        delete packet;
+  while(1) { // Existing loop causes 10 ms delay so we will stay in it forever to avoid that delay
+    caRunTests();
+    processTerminalCmds();
+  
+    if (g_ctx.state == CA_STATE_MENU_MODE) {
+      if (g_ctx.menuId == 0) {
+        // Menus normally process packets, but menuId is a null menu which means we need to handle the processing here
+        CAPacketElement *packet = processIncomingPacket();
+        if (packet) {
+          delete packet;
+        }
+      } else {
+        g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
       }
+      if (!camTriggerRunning()) {
+        // This needs to get turned off for test trigger and there wasn't a better spot
+        endTriggerCameraState();
+      }
+    } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
+      g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
     } else {
-      g_ctx.procTable.funcMenuRun[g_ctx.menuId]();
+      CA_ASSERT(0, "Unsupported CA_STATE mode");
     }
-    if (!camTriggerRunning()) {
-      // This needs to get turned off for test trigger and there wasn't a better spot
-      endTriggerCameraState();
-    }
-  } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
-    g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
-  } else {
-    CA_ASSERT(0, "Unsupported CA_STATE mode");
   }
 }
 

@@ -220,7 +220,7 @@
 
 			// Checks ever n ms for a packet update from the esp8266 server
 			function getMenuDynamicIds() {
-				setTimeout(getMenuDynamicIds, 5000);
+				setTimeout(getMenuDynamicIds, 500);
 
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {

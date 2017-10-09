@@ -12,6 +12,7 @@
 // 2017.9.6
 //    - Initial version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "lwip/tcp_impl.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         // https://github.com/Rom3oDelta7/WiFiManager
@@ -22,7 +23,6 @@
 #include <CAPacketHelper.h>
 #include <CALed.h>
 #include <ArduinoOTA.h>
-
 
 #define CA_AP_PASSWORD "ca6admin"
 #define G_LED 4
@@ -79,7 +79,7 @@ void setup (void) {
   }
   initStartPage();
   setupWiFi();
-  initOTA();
+  //initOTA();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,9 @@ void loop (void) {
   receivePacket();
   serviceUri();
   pollWifiMode();
-  ArduinoOTA.handle();
+  tcpCleanup();
+  //CA_LOG("memleft: %d\n", ESP.getFreeHeap()); delay(50);
+  //ArduinoOTA.handle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,4 +181,19 @@ void initOTA() {
   });
   ArduinoOTA.begin();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Each http requesst consumes 184 bytes.  It get added to a list and is freed after a few minutes.  But because of 
+//  ajax we make a lot of http request and consume all memory and cause an exception if we don't clean up this list
+//  frequently.  (I would expect this workaround eventually get added to esp8266 master.)
+//  https://github.com/esp8266/Arduino/issues/1923
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void tcpCleanup()
+{
+  while(tcp_tw_pcbs!=NULL)
+  {
+    tcp_abort(tcp_tw_pcbs);
+  }
+}
+
 
