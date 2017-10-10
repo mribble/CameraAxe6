@@ -120,7 +120,7 @@
 				httpRequest(getMenuListAjax, "getMenuList");
 				httpRequest(getIntervalAjax, "getInterval");
 				httpRequest(getAllCamsAjax, "getAllCams");
-                httpRequest(getStartLocationAjax, "getStartLocation")
+				httpRequest(getStartLocationAjax, "getStartLocation")
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -236,24 +236,24 @@
 					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
 				}
 				document.getElementById("listButtons").innerHTML = listItems;
-                
-                // Clear out the start location dropdown box and then fill it
-                var startLocationSelect = document.getElementById("start_location");
-                while(startLocationSelect.firstChild) {
-                    startLocationSelect.removeChild(startLocationSelect.firstChild)
-                }
-                
-                var z = document.createElement("option");
-                z.textContent = "Home Page (default)";
-                z.value = "Home Page (default)";
-                startLocationSelect.appendChild(z);
+				
+				// Clear out the start location dropdown box and then fill it
+				var startLocationSelect = document.getElementById("start_location");
+				while(startLocationSelect.firstChild) {
+					startLocationSelect.removeChild(startLocationSelect.firstChild)
+				}
+				
+				var z = document.createElement("option");
+				z.textContent = "Home Page (default)";
+				z.value = "Home Page (default)";
+				startLocationSelect.appendChild(z);
 
-                for(i=0; i<photoMenus.length; i++) {
-                    z = document.createElement("option");
-                    z.textContent = photoMenus[i];
-                    z.value = photoMenus[i];
-                    startLocationSelect.appendChild(z);
-                }
+				for(i=0; i<photoMenus.length; i++) {
+					z = document.createElement("option");
+					z.textContent = photoMenus[i];
+					z.value = photoMenus[i];
+					startLocationSelect.appendChild(z);
+				}
 			}
 
 			// General function used to validate a number is in required range
@@ -350,19 +350,19 @@
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
 					httpRequest(getIntervalAjax, "getInterval");
 					httpRequest(getAllCamsAjax, "getAllCams");
-                    httpRequest(getStartLocationAjax, "getStartLocation");
+					httpRequest(getStartLocationAjax, "getStartLocation");
 				}
 			
 			}
-            
-            // Callback to get the start location
-            function getStartLocationAjax (xmlHttpRequest) {
-                if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-                    var name = xmlHttpRequest.responseText;
-                    var startLocationSelect = document.getElementById("start_location");
-                    startLocationSelect.value = name;
-                }
-            }
+			
+			// Callback to get the start location
+			function getStartLocationAjax (xmlHttpRequest) {
+				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+					var name = xmlHttpRequest.responseText;
+					var startLocationSelect = document.getElementById("start_location");
+					startLocationSelect.value = name;
+				}
+			}
 
 			// Get the nanoseconds from a time box string
 			function getNanoseconds(time) {
@@ -602,25 +602,31 @@
 				cell1.classList.add("modeCell");
 			}
 
-			function caEditNumber(id, digitsBeforeDecimal, digitsAfterDecimal, minValue, maxValue, maxLength, value, text0) {
+			function caEditNumber(id, maxValue, value, text0) {
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
+				var maxLength = maxValue.toString().length;
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
 				var x = document.createElement('input');
 				x.type = "number";
 				x.caType = "editNumber";
 				x.id = id;
-				x.min=minValue;
-				x.max=maxValue;
+				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;"
 				x.oninput = function () {
-					if (this.value.length > maxLength) {
-						this.value = this.value.slice(0,maxLength);
+					if (x.value.length > maxLength) {
+						x.value = x.value.slice(0,maxLength);
 					}
-					if (this.value < 0) {
-						this.value = 0;
+					if (x.value.length > 1 && x.value[0]==0){
+						x.value = (x.value).replace("0","");
 					}
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+this.value+"~";
+					if (x.value < 0 || x.value=="") {
+						x.value = 0;
+					}
+					if (+x.value > +maxValue) {
+						x.value = maxValue;
+					}
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.value+"~";
 				}
 				x.value = value;
 				cell1.appendChild(x);
@@ -816,13 +822,13 @@
 				setTimeout(function() { sendCamTriggerPacket();}, 50);
 			}
 			
-            // Set the start location (home page is default)
-            function setStartLocation() {
-                var startLocationSelect = document.getElementById("start_location");
-                var str = startLocationSelect.options[startLocationSelect.selectedIndex].text;
-                httpRequest(null, "setStartLocation "+str);
-            }
-            
+			// Set the start location (home page is default)
+			function setStartLocation() {
+				var startLocationSelect = document.getElementById("start_location");
+				var str = startLocationSelect.options[startLocationSelect.selectedIndex].text;
+				httpRequest(null, "setStartLocation "+str);
+			}
+			
 			// Reset all the settings to defaults
 			function setDefaults() {
 				httpRequest(setDefaultsAjax, "setDefaults");
@@ -961,7 +967,7 @@
 					caButton("id1", "This is a button", "Button");
 					caCheckBox("id2", 0, "This is a checkbox");
 					caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
-					caEditNumber("id4", 4, 2, 0, 999999, 6, 2, "This is an edit number");
+					caEditNumber("id4", 999999, 2, "This is an edit number");
 					caTimeBox("id5", 89, 1, 59, 58, 800, 801, 801, "This is a timebox");
 					caSlider("id6", 0, 255, 10, "This is a slider");
 					caEndMenu();
@@ -1072,7 +1078,7 @@
 					<tr>
 						<td>Number of Repeats (0 = Inf)</td>
 						<td>
-							<input type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+							<input type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
 						</td>
 					</tr>
 					<tr>
@@ -1089,9 +1095,9 @@
 			<h1 class="topText">Advanced</h1>
 			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
-            <p>Start here on startup: <select id="start_location" onchange="setStartLocation();"></select></p>
-            <p><button onclick="setDefaults();">Set Defaults</button></p>
-            <p>Version: 2017.9.25</p>
+			<p>Start here on startup: <select id="start_location" onchange="setStartLocation();"></select></p>
+			<p><button onclick="setDefaults();">Set Defaults</button></p>
+			<p>Version: 2017.9.25</p>
 		</div>
 <!--Advanced Page (End)-->
 	<p id="debugText"></p>

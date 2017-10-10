@@ -1,0 +1,38 @@
+caSetInfoString("Plug the valve module into port 1. This menu applies additional offsets to camera and flashes.  Times are in ms.");
+
+caStartMenuMode("Valve Menu");
+caEditNumber("id0", 999, 600, "Cam shutter lag");
+caEditNumber("id1", 9999, 2000, "Flash delay");
+caTextStatic("Valve 1");
+caEditNumber("id2", 999, 50, "  Drop 1 delay");
+caEditNumber("id3", 99, 30, "  Drop 1 size");
+caEditNumber("id4", 999, 50, "  Drop 2 delay");
+caEditNumber("id5", 99, 30, "  Drop 2 size");
+caEditNumber("id6", 999, 50, "  Drop 3 delay");
+caEditNumber("id7", 99, 30, "  Drop 3 size");
+caTextStatic("Valve 2");
+caEditNumber("id8", 999, 50, "  Drop 1 delay");
+caEditNumber("id9", 99, 30, "  Drop 1 size");
+caEditNumber("id10", 999, 50, "  Drop 2 delay");
+caEditNumber("id11", 99, 30, "  Drop 2 size");
+caEditNumber("id12", 999, 50, "  Drop 3 delay");
+caEditNumber("id13", 99, 30, "  Drop 3 size");
+caTextStatic("Valve 3");
+caEditNumber("id14", 999, 50, "  Drop 1 delay");
+caEditNumber("id15", 99, 30, "  Drop 1 size");
+caEditNumber("id16", 999, 50, "  Drop 2 delay");
+caEditNumber("id17", 99, 30, "  Drop 2 size");
+caEditNumber("id18", 999, 50, "  Drop 3 delay");
+caEditNumber("id19", 99, 30, "  Drop 3 size");
+caTextStatic("Valve 4");
+caEditNumber("id20", 999, 50, "  Drop 1 delay");
+caEditNumber("id21", 99, 30, "  Drop 1 size");
+caEditNumber("id22", 999, 50, "  Drop 2 delay");
+caEditNumber("id23", 99, 30, "  Drop 2 size");
+caEditNumber("id24", 999, 50, "  Drop 3 delay");
+caEditNumber("id25", 99, 30, "  Drop 3 size");
+caEndMenu();
+
+caStartPhotoMode();
+caButton("id26", "Press to make drops", "Go!");
+caEndMenu();
