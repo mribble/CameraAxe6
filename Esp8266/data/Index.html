@@ -199,11 +199,12 @@
 						gMode = 0;
 					}
 				}
-				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
-				httpRequest(null, val);
 				if (submitPacketFunc != null) {
 					submitPacketFunc();
 				}
+   				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
+				httpRequest(null, val);
+
 			}
 
 			function httpRequest(ajaxFunc, value) {

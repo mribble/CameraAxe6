@@ -8,6 +8,15 @@ extern boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut);
 extern void caAllPortsLow();
 extern void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig);
 
+extern void caTestSerialWritePerf();
+extern void caTestTickTimer();
+extern void caTestPerf();
+extern void caTestPackets();
+extern void caTestModulePorts();
+extern void caTestAuxAndCamPorts();
+extern void caTestEeprom();
+extern void caTestAnalog();
+
 void caRunTests()
 {
   //caTestSerialWritePerf();  // look into this

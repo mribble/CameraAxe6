@@ -236,8 +236,8 @@ void valve_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 1, gValveData.flashDelay);
   for (uint8_t i=0; i<4; ++i) { //Valves (max is 4)
     for (uint8_t j=0; j<3; ++j) { //Drops (max is 3)
-      packet = incomingPacketCheckUint32(packet, 2+i*2+0, gValveData.dropDelay[i][j]);
-      packet = incomingPacketCheckUint32(packet, 2+i*2+1, gValveData.dropSize[i][j]);
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+0, gValveData.dropDelay[i][j]);
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+1, gValveData.dropSize[i][j]);
     }
   }
   incomingPacketFinish(packet);
@@ -253,22 +253,30 @@ void valve_PhotoRun() {
     incomingPacketFinish(packet);
 
     if (val) {
+      bool done[4] = {false,false,false,false};
       triggerCameras();
-      delay(10);
       uint32_t startTime = millis();
       uint32_t t[6];  // t[0] is end of delay drop 0 ;; t[1] is end of size drop 0 ;; continued for each drop
-      for(uint8_t i=0; i<4; ++i) {  // Valves
-        for(uint8_t j=0; j<3; ++j) { //Drops
-          t[j*2+0] = startTime+gValveData.dropDelay[i][j];
-          t[j*2+1] = t[j*2+0]+gValveData.dropSize[i][j];
+      while ((done[0] != true) && (done[1] != true) && (done[2] != true) && (done[3] != true))
+      {
+        uint32_t prevTime = startTime;
+        for(uint8_t i=0; i<4; ++i) {  // Valves
+          for(uint8_t j=0; j<3; ++j) { //Drops
+            prevTime = t[j*2+0] = prevTime+gValveData.dropDelay[i][j];
+            prevTime = t[j*2+1] = prevTime+gValveData.dropSize[i][j];
+          }
+          uint32_t curTime;
+          curTime = millis();
+          if (curTime >= t[5]) {
+            CAU::digitalWrite(gValveData.ppValve[i], LOW);
+            done[i] = true;
+          }
+          else if (curTime >= t[4]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[3]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[2]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[1]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[0]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
         }
-        uint32_t curTime = millis();
-        if (curTime >= t[5]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
-        else if (curTime >= t[4]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
-        else if (curTime >= t[3]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
-        else if (curTime >= t[2]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
-        else if (curTime >= t[1]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
-        else if (curTime >= t[0]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
       }
     }
   }
