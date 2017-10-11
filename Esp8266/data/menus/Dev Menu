@@ -1,7 +1,7 @@
-caSetInfoString("Test menu info.");
+caSetInfoString("Plug the sound module into port 1.");
 
-caStartMenuMode("Test Menu");
-caTextStatic("Static text");
+caStartMenuMode("Dev Menu");
+caTextStatic("This is a test menu");
 caTextDynamic("id0", "Dynamic text", "777");
 caButton("id1", "This is a button", "Button");
 caCheckBox("id2", 0, "This is a checkbox");

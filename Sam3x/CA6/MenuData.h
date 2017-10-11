@@ -10,11 +10,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Test Menu
-extern const char* test_Name();
-extern void test_MenuInit();
-extern void test_PhotoInit();
-extern void test_MenuRun();
-extern void test_PhotoRun();
+extern const char* dev_Name();
+extern void dev_MenuInit();
+extern void dev_PhotoInit();
+extern void dev_MenuRun();
+extern void dev_PhotoRun();
 
 // Sound Menu
 extern const char* sound_Name();

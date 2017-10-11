@@ -12,11 +12,11 @@
 #define NUM_SEQUENCER_BITS 8
 
 struct CtxProcTable {
-  const char* (*funcName[NUM_MENUS])()   {NULL, test_Name,      sound_Name,      vibration_Name,      valve_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, test_MenuInit,  sound_MenuInit,  vibration_MenuInit,  valve_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, test_PhotoInit, sound_PhotoInit, vibration_PhotoInit, valve_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, test_MenuRun,   sound_MenuRun,   vibration_MenuRun,   valve_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, test_PhotoRun,  sound_PhotoRun,  vibration_PhotoRun,  valve_PhotoRun};
+  const char* (*funcName[NUM_MENUS])()   {NULL, dev_Name,      sound_Name,      vibration_Name,      valve_Name};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, dev_MenuInit,  sound_MenuInit,  vibration_MenuInit,  valve_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, dev_PhotoInit, sound_PhotoInit, vibration_PhotoInit, valve_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, dev_MenuRun,   sound_MenuRun,   vibration_MenuRun,   valve_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, dev_PhotoRun,  sound_PhotoRun,  vibration_PhotoRun,  valve_PhotoRun};
 };
 
 enum CAState {

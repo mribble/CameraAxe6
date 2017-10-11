@@ -6,28 +6,28 @@
 #include "PacketProcessor.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Test Menu - A menu that tests all the different UI features
+// Dev Menu - A menu that demonstrates how to make a menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
   hwPortPin ppPin;
-} TestData;
+} DevData;
 
-TestData gTestData;
+DevData gDevData;
 
-const char* test_Name() {
-  return "Test Menu";
+const char* dev_Name() {
+  return "Dev Menu";
 }
 
-void test_MenuInit() {
+void dev_MenuInit() {
   // This menu has no IO to setup
 }
 
-void test_PhotoInit() {
-  gTestData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gTestData.ppPin, INPUT_PULLUP);
+void dev_PhotoInit() {
+  gDevData.ppPin = CAU::getModulePin(0, 2);
+  CAU::pinMode(gDevData.ppPin, INPUT_PULLUP);
 }
 
-void test_MenuRun() {
+void dev_MenuRun() {
   uint32_t updateFrequency = 1000;  // 1000 ms
   uint32_t curTime = millis();
   static uint32_t nextUpdate = millis();
@@ -51,10 +51,10 @@ void test_MenuRun() {
   incomingPacketFinish(packet);
 }
 
-void test_PhotoRun() {
+void dev_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Handle triggering
-    uint8_t val = CAU::digitalRead(gTestData.ppPin);
+    uint8_t val = CAU::digitalRead(gDevData.ppPin);
     if (val == LOW) {
       triggerCameras();
     }
