@@ -30,6 +30,13 @@ extern void menuVibration_PhotoInit();
 extern void menuVibration_MenuRun();
 extern void menuVibration_PhotoRun();
 
+// Lightning Menu
+extern const char* menuLightning_Name();
+extern void menuLightning_MenuInit();
+extern void menuLightning_PhotoInit();
+extern void menuLightning_MenuRun();
+extern void menuLightning_PhotoRun();
+
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.

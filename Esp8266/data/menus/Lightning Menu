@@ -1,0 +1,24 @@
+caSetInfoString("Plug Light Sensor into Module 0 port.");
+
+caStartMenuMode("Lightning Menu");
+caEditNumber("id0", 4, 0, 0, 4094, 6, 40, "Trigger Difference Threshold: ");
+caEditNumber("id1", 4, 0, 0, 9999, 6, 200, "Update Reference Period (ms): ");
+caTextDynamic("id2", "--Current Sensor Value is: ", "????");
+caEndMenu();
+
+caStartPhotoMode();
+caTextStatic("Lightning Photo Mode");
+caTextDynamic("id0", "Reference Base: ", "????");
+caTextDynamic("id1", "--Current Sensor Value is: ", "????");
+caTextDynamic("id2", "   Difference: ", "????");
+caTextDynamic("id3", "   Trigger Value: ", "????");
+caTextDynamic("id4", " Update Reference Period (ms)", "????");
+caTextDynamic("id5", " Trigger Count: ", "????");
+caTextStatic("---Details For Last 5 Strikes---");
+caTextStatic("Strike Ref- Peak Duration(ms)");
+caTextDynamic("id6", "L   ", "????");
+caTextDynamic("id7", "L-1 ", "????");
+caTextDynamic("id8", "L-2 ", "????");
+caTextDynamic("id9", "L-3 ", "????");
+caTextDynamic("id10", "L-4 ", "????");
+caEndMenu();

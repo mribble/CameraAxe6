@@ -5,7 +5,7 @@
 #include <CATickTimer.h>
 #include "MenuData.h"
 
-#define NUM_MENUS   4  /* Includes 1 for the null menu */
+#define NUM_MENUS   5  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 #define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*3)
@@ -13,11 +13,11 @@
 
 struct CtxProcTable
 {
-  const char* (*funcName[NUM_MENUS])()   {NULL, menuSound_Name, menuTest_Name, menuVibration_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, menuSound_MenuInit, menuTest_MenuInit, menuVibration_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, menuSound_PhotoInit, menuTest_PhotoInit, menuVibration_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, menuSound_MenuRun, menuTest_MenuRun, menuVibration_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, menuSound_PhotoRun, menuTest_PhotoRun, menuVibration_PhotoRun};
+  const char* (*funcName[NUM_MENUS])()   {NULL, menuSound_Name, menuTest_Name, menuVibration_Name, menuLightning_Name};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, menuSound_MenuInit, menuTest_MenuInit, menuVibration_MenuInit, menuLightning_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, menuSound_PhotoInit, menuTest_PhotoInit, menuVibration_PhotoInit, menuLightning_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, menuSound_MenuRun, menuTest_MenuRun, menuVibration_MenuRun, menuLightning_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, menuSound_PhotoRun, menuTest_PhotoRun, menuVibration_PhotoRun, menuLightning_PhotoRun};
 };
 
 enum CAState {
