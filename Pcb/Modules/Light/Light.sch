@@ -1,7 +1,7 @@
 EESchema Schematic File Version 2
 LIBS:CA6
-LIBS:74xgxx
 LIBS:74xx
+LIBS:74xgxx
 LIBS:ac-dc
 LIBS:actel
 LIBS:adc-dac
@@ -13,7 +13,6 @@ LIBS:atmel
 LIBS:audio
 LIBS:battery_management
 LIBS:bbd
-LIBS:bosch
 LIBS:brooktre
 LIBS:cmos_ieee
 LIBS:cmos4000
@@ -36,7 +35,6 @@ LIBS:intel
 LIBS:interface
 LIBS:ir
 LIBS:Lattice
-LIBS:leds
 LIBS:linear
 LIBS:logo
 LIBS:maxim
@@ -48,16 +46,13 @@ LIBS:microchip_pic10mcu
 LIBS:microchip_pic12mcu
 LIBS:microchip_pic16mcu
 LIBS:microchip_pic18mcu
-LIBS:microchip_pic24mcu
 LIBS:microchip_pic32mcu
 LIBS:microcontrollers
-LIBS:modules
 LIBS:motor_drivers
 LIBS:motorola
 LIBS:motors
 LIBS:msp430
 LIBS:nordicsemi
-LIBS:nxp
 LIBS:nxp_armmcu
 LIBS:onsemi
 LIBS:opto
@@ -81,7 +76,6 @@ LIBS:switches
 LIBS:texas
 LIBS:transf
 LIBS:transistors
-LIBS:triac_thyristor
 LIBS:ttl_ieee
 LIBS:valves
 LIBS:video
@@ -91,7 +85,7 @@ LIBS:Xicor
 LIBS:xilinx
 LIBS:zetex
 LIBS:Zilog
-LIBS:light-sensor-cache
+LIBS:Light-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -231,8 +225,8 @@ U 1 1 54AA14B9
 P 5750 3600
 F 0 "RV1" H 5900 3700 50  0000 C CNN
 F 1 "20K" V 5750 3600 50  0000 C CNN
-F 2 "Potentiometers:Potentiometer_Alps_RK09L_Single_Vertical" H 5750 3600 60  0001 C CNN
-F 3 "http://www.mouser.com/ProductDetail/ALPS/RK09L1120A2S/?qs=sGAEpiMZZMtC25l1F4XBUyOcKw5CnqLBtmCjw0rP5%252bQ%3d" H 5750 3600 60  0001 C CNN
+F 2 "Potentiometers:Potentiometer_Alps_RK09K_Vertical" H 5750 3600 591 0001 C CNN
+F 3 "http://www.mouser.com/ProductDetail/ALPS/RK09K1110AH8/?qs=sGAEpiMZZMtC25l1F4XBU3JeeCo7XMTlexI3BEsH1y4%3d" H 5750 3600 60  0001 C CNN
 	1    5750 3600
 	1    0    0    -1  
 $EndComp
@@ -378,48 +372,29 @@ Wire Wire Line
 	6550 4400 6550 4300
 Text Notes 5900 4100 0    39   ~ 0
 Choose R2 for MAX current of 20mA\n180 = 18.3 mA\n174 = 18.9 mA\n169 = 19.5 mA
+NoConn ~ 4650 3700
 $Comp
-L HOLE X4
-U 1 1 590FF942
-P 4000 3000
-F 0 "X4" H 4000 2900 60  0000 C CNN
-F 1 "HOLE" H 4000 3100 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2" H 4000 3000 60  0001 C CNN
-F 3 "" H 4000 3000 60  0000 C CNN
-	1    4000 3000
+L PWR_FLAG #FLG010
+U 1 1 59E23186
+P 4200 4350
+F 0 "#FLG010" H 4200 4425 50  0001 C CNN
+F 1 "PWR_FLAG" H 4200 4500 50  0000 C CNN
+F 2 "" H 4200 4350 50  0001 C CNN
+F 3 "" H 4200 4350 50  0001 C CNN
+	1    4200 4350
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X2
-U 1 1 590FF985
-P 3750 3000
-F 0 "X2" H 3750 2900 60  0000 C CNN
-F 1 "HOLE" H 3750 3100 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2" H 3750 3000 60  0001 C CNN
-F 3 "" H 3750 3000 60  0000 C CNN
-	1    3750 3000
+L GND #PWR011
+U 1 1 59E231B3
+P 4200 4450
+F 0 "#PWR011" H 4200 4450 30  0001 C CNN
+F 1 "GND" H 4200 4380 30  0001 C CNN
+F 2 "" H 4200 4450 60  0000 C CNN
+F 3 "" H 4200 4450 60  0000 C CNN
+	1    4200 4450
 	1    0    0    -1  
 $EndComp
-$Comp
-L HOLE X3
-U 1 1 590FF9D5
-P 4000 2650
-F 0 "X3" H 4000 2550 60  0000 C CNN
-F 1 "HOLE" H 4000 2750 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2" H 4000 2650 60  0001 C CNN
-F 3 "" H 4000 2650 60  0000 C CNN
-	1    4000 2650
-	1    0    0    -1  
-$EndComp
-$Comp
-L HOLE X1
-U 1 1 590FFA2B
-P 3750 2650
-F 0 "X1" H 3750 2550 60  0000 C CNN
-F 1 "HOLE" H 3750 2750 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2" H 3750 2650 60  0001 C CNN
-F 3 "" H 3750 2650 60  0000 C CNN
-	1    3750 2650
-	1    0    0    -1  
-$EndComp
+Wire Wire Line
+	4200 4350 4200 4450
 $EndSCHEMATC
