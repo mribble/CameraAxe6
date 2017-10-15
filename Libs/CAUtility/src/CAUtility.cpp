@@ -99,25 +99,19 @@ void pinMode(hwPortPin pp, uint8_t mode)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void digitalWrite(hwPortPin pp, uint8_t val)
 {
-    // ODSR = Output data status register
-    static uint32_t ports[4] = {0,0,0,0};
-    volatile RwReg *regsODSR[4] = {&REG_PIOA_ODSR, &REG_PIOB_ODSR, &REG_PIOC_ODSR, &REG_PIOD_ODSR};
+    // SODR = Set output data register
+    // CODR = Clear output data register
+    volatile RwReg *regs[8] = {&REG_PIOA_CODR, &REG_PIOB_CODR, &REG_PIOC_CODR, &REG_PIOD_CODR,
+                               &REG_PIOA_SODR, &REG_PIOB_SODR, &REG_PIOC_SODR, &REG_PIOD_SODR};
 
     CA_ASSERT(pp.port <= 3, "Error: Bad port size");
     CA_ASSERT(pp.pin <= 31, "Error: Bad pin size");
     CA_ASSERT(val == LOW || val == HIGH, "Error: bad val");
 
-    if(val == LOW)
-    {
-        bitClear(ports[pp.port], pp.pin);
-    }
-    else
-    {
-        bitSet(ports[pp.port], pp.pin);
-    }
-
-    *(regsODSR[pp.port]) = ports[pp.port];
+    // We could make this faster if needed by caching (math on index slow on sam3x)
+    *(regs[(val*4)+pp.port]) = 1<<pp.pin;  
 }
+
 
 //------------------------------------------------------------------
 //  initializeAnalog -- call once at the beginning to disable prior channels and set up registers

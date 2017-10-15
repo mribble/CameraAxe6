@@ -10,25 +10,32 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Test Menu
-extern const char* menuTest_Name();
-extern void menuTest_MenuInit();
-extern void menuTest_PhotoInit();
-extern void menuTest_MenuRun();
-extern void menuTest_PhotoRun();
+extern const char* dev_Name();
+extern void dev_MenuInit();
+extern void dev_PhotoInit();
+extern void dev_MenuRun();
+extern void dev_PhotoRun();
 
 // Sound Menu
-extern const char* menuSound_Name();
-extern void menuSound_MenuInit();
-extern void menuSound_PhotoInit();
-extern void menuSound_MenuRun();
-extern void menuSound_PhotoRun();
+extern const char* sound_Name();
+extern void sound_MenuInit();
+extern void sound_PhotoInit();
+extern void sound_MenuRun();
+extern void sound_PhotoRun();
 
 // Vibration Menu
-extern const char* menuVibration_Name();
-extern void menuVibration_MenuInit();
-extern void menuVibration_PhotoInit();
-extern void menuVibration_MenuRun();
-extern void menuVibration_PhotoRun();
+extern const char* vibration_Name();
+extern void vibration_MenuInit();
+extern void vibration_PhotoInit();
+extern void vibration_MenuRun();
+extern void vibration_PhotoRun();
+
+// Valve Menu
+extern const char* valve_Name();
+extern void valve_MenuInit();
+extern void valve_PhotoInit();
+extern void valve_MenuRun();
+extern void valve_PhotoRun();
 
 // Lightning Menu
 extern const char* menuLightning_Name();

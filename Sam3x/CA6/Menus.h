@@ -6,28 +6,28 @@
 #include "PacketProcessor.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Test Menu - A menu that tests all the different UI features
+// Dev Menu - A menu that demonstrates how to make a menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
   hwPortPin ppPin;
-} MenuTestData;
+} DevData;
 
-MenuTestData gMenuTestData;
+DevData gDevData;
 
-const char* menuTest_Name() {
-  return "Test Menu";
+const char* dev_Name() {
+  return "Dev Menu";
 }
 
-void menuTest_MenuInit() {
+void dev_MenuInit() {
   // This menu has no IO to setup
 }
 
-void menuTest_PhotoInit() {
-  gMenuTestData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gMenuTestData.ppPin, INPUT_PULLUP);
+void dev_PhotoInit() {
+  gDevData.ppPin = CAU::getModulePin(0, 2);
+  CAU::pinMode(gDevData.ppPin, INPUT_PULLUP);
 }
 
-void menuTest_MenuRun() {
+void dev_MenuRun() {
   uint32_t updateFrequency = 1000;  // 1000 ms
   uint32_t curTime = millis();
   static uint32_t nextUpdate = millis();
@@ -51,10 +51,10 @@ void menuTest_MenuRun() {
   incomingPacketFinish(packet);
 }
 
-void menuTest_PhotoRun() {
+void dev_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Handle triggering
-    uint8_t val = CAU::digitalRead(gMenuTestData.ppPin);
+    uint8_t val = CAU::digitalRead(gDevData.ppPin);
     if (val == LOW) {
       triggerCameras();
     }
@@ -74,31 +74,31 @@ typedef struct {
   hwPortPin ppPin;
   CASensorFilter sf;
   uint32_t triggerVal;
-} MenuSoundData;
+} SoundData;
 
-MenuSoundData gMenuSoundData;
+SoundData gSoundData;
 
-const char* menuSound_Name() {
+const char* sound_Name() {
   return "Sound Menu";
 }
 
-void menuSound_MenuInit() {
-  gMenuSoundData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gMenuSoundData.ppPin, ANALOG_INPUT);
-  gMenuSoundData.sf.init(gMenuSoundData.ppPin, CASensorFilter::ANALOG_THRESHOLD, 2000);  // Update display ever 2000 ms
-  gMenuSoundData.sf.setThreshold(2048);
+void sound_MenuInit() {
+  gSoundData.ppPin = CAU::getModulePin(0, 0);
+  CAU::pinMode(gSoundData.ppPin, ANALOG_INPUT);
+  gSoundData.sf.init(gSoundData.ppPin, CASensorFilter::ANALOG_THRESHOLD, 2000);  // Update display ever 2000 ms
+  gSoundData.sf.setThreshold(2048);
 }
 
-void menuSound_PhotoInit() {
-  gMenuSoundData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gMenuSoundData.ppPin, ANALOG_INPUT);
+void sound_PhotoInit() {
+  gSoundData.ppPin = CAU::getModulePin(0, 0);
+  CAU::pinMode(gSoundData.ppPin, ANALOG_INPUT);
 }
 
-void menuSound_MenuRun() {
+void sound_MenuRun() {
   uint32_t updateFrequency = 500;  // 500 ms
   uint32_t curTime = millis();
   static uint32_t nextUpdate = millis();
-  uint16_t val = gMenuSoundData.sf.getSensorData();
+  uint16_t val = gSoundData.sf.getSensorData();
 
   // Handle outgoing packets
   if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
@@ -108,16 +108,16 @@ void menuSound_MenuRun() {
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gMenuSoundData.triggerVal);
+  packet = incomingPacketCheckUint32(packet, 0, gSoundData.triggerVal);
   incomingPacketFinish(packet);
 }
 
-void menuSound_PhotoRun() {
+void sound_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Handle triggering
-    uint16_t val = CAU::analogRead(gMenuSoundData.ppPin);
+    uint16_t val = CAU::analogRead(gSoundData.ppPin);
     val = (val >= 2048) ? (val-2048) : (2048-val);
-    uint8_t trigger = (val >= gMenuSoundData.triggerVal) ? true : false;
+    uint8_t trigger = (val >= gSoundData.triggerVal) ? true : false;
 
     if (trigger) {
       triggerCameras();
@@ -136,30 +136,30 @@ typedef struct {
   hwPortPin ppPin;
   CASensorFilter sf;
   uint32_t triggerVal;
-} MenuVibrationData;
+} VibrationData;
 
-MenuVibrationData gMenuVibrationData;
+VibrationData gVibrationData;
 
-const char* menuVibration_Name() {
+const char* vibration_Name() {
   return "Vibration Menu";
 }
 
-void menuVibration_MenuInit() {
-  gMenuVibrationData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gMenuVibrationData.ppPin, ANALOG_INPUT);
-  gMenuVibrationData.sf.init(gMenuVibrationData.ppPin, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
+void vibration_MenuInit() {
+  gVibrationData.ppPin = CAU::getModulePin(0, 0);
+  CAU::pinMode(gVibrationData.ppPin, ANALOG_INPUT);
+  gVibrationData.sf.init(gVibrationData.ppPin, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
 }
 
-void menuVibration_PhotoInit() {
-  gMenuVibrationData.ppPin = CAU::getModulePin(0, 0);
-  CAU::pinMode(gMenuVibrationData.ppPin, ANALOG_INPUT);
+void vibration_PhotoInit() {
+  gVibrationData.ppPin = CAU::getModulePin(0, 0);
+  CAU::pinMode(gVibrationData.ppPin, ANALOG_INPUT);
 }
 
-void menuVibration_MenuRun() {
+void vibration_MenuRun() {
   uint32_t updateFrequency = 500;  // 500 ms
   uint32_t curTime = millis();
   static uint32_t nextUpdate = millis();
-  uint32_t val = gMenuVibrationData.sf.getSensorData();
+  uint32_t val = gVibrationData.sf.getSensorData();
 
   // Handle outgoing packets
   if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
@@ -174,16 +174,16 @@ void menuVibration_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 0, val);
   incomingPacketFinish(packet);
   if (val != 0) {
-     gMenuVibrationData.triggerVal = map(val, 1, 1000, 1, 4095); // Convert the values used on the webpage to values used on mirco
+     gVibrationData.triggerVal = map(val, 1, 1000, 1, 4095); // Convert the values used on the webpage to values used on mirco
   }
 }
 
-void menuVibration_PhotoRun() {
+void vibration_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Handle triggering
-    uint16_t val = CAU::analogRead(gMenuVibrationData.ppPin);
+    uint16_t val = CAU::analogRead(gVibrationData.ppPin);
 
-    if (val >=  gMenuVibrationData.triggerVal) {
+    if (val >=  gVibrationData.triggerVal) {
       triggerCameras();
     }
 
@@ -194,6 +194,7 @@ void menuVibration_PhotoRun() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 /* Lightning Menu Copyright 2017 Dan Lenardon
  This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) International License.
  To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0
@@ -527,5 +528,95 @@ void menuLightning_PhotoRun() {
 
 }
 
+=======
+// Valve Menu - Triggers Valve
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+  hwPortPin ppValve[4];
+  uint32_t shutterLag;
+  uint32_t flashDelay;
+  uint32_t dropDelay[4][3];
+  uint32_t dropSize[4][3];
+} ValveData;
+
+ValveData gValveData;
+
+const char* valve_Name() {
+  return "Valve Menu";
+}
+
+void valve_MenuInit() {
+}
+
+void valve_PhotoInit() {
+  gValveData.ppValve[0] = CAU::getModulePin(0, 0);
+  gValveData.ppValve[1] = CAU::getModulePin(0, 1);
+  gValveData.ppValve[2] = CAU::getModulePin(0, 2);
+  gValveData.ppValve[3] = CAU::getModulePin(0, 3);
+
+  CAU::pinMode(gValveData.ppValve[0], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[0], LOW);
+  CAU::pinMode(gValveData.ppValve[1], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[1], LOW);
+  CAU::pinMode(gValveData.ppValve[2], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[2], LOW);
+  CAU::pinMode(gValveData.ppValve[3], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[3], LOW);
+}
+
+void valve_MenuRun() {
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gValveData.shutterLag);
+  packet = incomingPacketCheckUint32(packet, 1, gValveData.flashDelay);
+  for (uint8_t i=0; i<4; ++i) { //Valves (max is 4)
+    for (uint8_t j=0; j<3; ++j) { //Drops (max is 3)
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+0, gValveData.dropDelay[i][j]);
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+1, gValveData.dropSize[i][j]);
+    }
+  }
+  incomingPacketFinish(packet);
+}
+
+void valve_PhotoRun() {
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+
+    // Handle incoming packets
+    uint32_t val = 0;
+    CAPacketElement *packet = processIncomingPacket();
+    packet = incomingPacketCheckUint32(packet, 26, val);
+    incomingPacketFinish(packet);
+
+    if (val) {
+      bool done[4] = {false,false,false,false};
+      triggerCameras();
+      uint32_t startTime = millis();
+      uint32_t t[6];  // t[0] is end of delay drop 0 ;; t[1] is end of size drop 0 ;; continued for each drop
+      while ((done[0] != true) && (done[1] != true) && (done[2] != true) && (done[3] != true))
+      {
+        uint32_t prevTime = startTime;
+        for(uint8_t i=0; i<4; ++i) {  // Valves
+          for(uint8_t j=0; j<3; ++j) { //Drops
+            prevTime = t[j*2+0] = prevTime+gValveData.dropDelay[i][j];
+            prevTime = t[j*2+1] = prevTime+gValveData.dropSize[i][j];
+          }
+          uint32_t curTime;
+          curTime = millis();
+          if (curTime >= t[5]) {
+            CAU::digitalWrite(gValveData.ppValve[i], LOW);
+            done[i] = true;
+          }
+          else if (curTime >= t[4]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[3]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[2]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[1]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[0]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+        }
+      }
+    }
+  }
+}
+
+>>>>>>> master
 #endif //MENUS_H
 
