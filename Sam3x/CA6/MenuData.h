@@ -38,11 +38,11 @@ extern void valve_MenuRun();
 extern void valve_PhotoRun();
 
 // Lightning Menu
-extern const char* menuLightning_Name();
-extern void menuLightning_MenuInit();
-extern void menuLightning_PhotoInit();
-extern void menuLightning_MenuRun();
-extern void menuLightning_PhotoRun();
+extern const char* lightning_Name();
+extern void lightning_MenuInit();
+extern void lightning_PhotoInit();
+extern void lightning_MenuRun();
+extern void lightning_PhotoRun();
 
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 

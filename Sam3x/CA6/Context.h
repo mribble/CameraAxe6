@@ -5,28 +5,18 @@
 #include <CATickTimer.h>
 #include "MenuData.h"
 
-#define NUM_MENUS   5  /* Includes 1 for the null menu */
+#define NUM_MENUS   6  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 #define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*3)
 #define NUM_SEQUENCER_BITS 8
 
-<<<<<<< HEAD
-struct CtxProcTable
-{
-  const char* (*funcName[NUM_MENUS])()   {NULL, menuSound_Name, menuTest_Name, menuVibration_Name, menuLightning_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, menuSound_MenuInit, menuTest_MenuInit, menuVibration_MenuInit, menuLightning_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, menuSound_PhotoInit, menuTest_PhotoInit, menuVibration_PhotoInit, menuLightning_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, menuSound_MenuRun, menuTest_MenuRun, menuVibration_MenuRun, menuLightning_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, menuSound_PhotoRun, menuTest_PhotoRun, menuVibration_PhotoRun, menuLightning_PhotoRun};
-=======
 struct CtxProcTable {
-  const char* (*funcName[NUM_MENUS])()   {NULL, dev_Name,      sound_Name,      vibration_Name,      valve_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, dev_MenuInit,  sound_MenuInit,  vibration_MenuInit,  valve_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, dev_PhotoInit, sound_PhotoInit, vibration_PhotoInit, valve_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, dev_MenuRun,   sound_MenuRun,   vibration_MenuRun,   valve_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, dev_PhotoRun,  sound_PhotoRun,  vibration_PhotoRun,  valve_PhotoRun};
->>>>>>> master
+  const char* (*funcName[NUM_MENUS])()   {NULL, dev_Name,      sound_Name,      vibration_Name,      valve_Name,			lightning_Name};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, dev_MenuInit,  sound_MenuInit,  vibration_MenuInit,  valve_MenuInit,		lightning_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, dev_PhotoInit, sound_PhotoInit, vibration_PhotoInit, valve_PhotoInit,	lightning_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, dev_MenuRun,   sound_MenuRun,   vibration_MenuRun,   valve_MenuRun,		lightning_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, dev_PhotoRun,  sound_PhotoRun,  vibration_PhotoRun,  valve_PhotoRun,		lightning_PhotoRun};
 };
 
 enum CAState {
