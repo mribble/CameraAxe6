@@ -47,14 +47,8 @@ void setupWiFi() {
     // try to connect (saved credentials or manual entry if not) and default to AP mode if this fails
     WiFiManager wifiManager;
     CA_INFO("Network scan count", netCount);
-//#ifdef CA_DEBUG_INFO
-#if 0
-    wifiManager.setDebugOutput(true);
-#else
     wifiManager.setDebugOutput(false);
-#endif
-    wifiManager.setBreakAfterConfig(true);              // undocumented function to return if config unsuccessful
-    wifiManager.setSaveCredentialsInEEPROM(true);       // [Local mod] forces credentials to be saved in EEPROM also
+    wifiManager.setBreakAfterConfig(true);              // Return if config unsuccessful
     wifiManager.setExitButtonLabel("Standalone Mode");  // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
 
     //wifiManager.setAPStaticIPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));    // use native WiFi class call below instead
@@ -73,7 +67,7 @@ void setupWiFi() {
       CA_INFO(F("Local IP as SSID"), ssid);
       WiFi.softAP(ssid.c_str());
       WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));
-      //WiFi.reconnect();  // supposedly required, but does not work if this is called
+      WiFi.reconnect();  // supposedly required, but does not work if this is called
     }
     else {
       // We get here if the credentials on the setup page are incorrect, blank, or the "Exit" button was used
