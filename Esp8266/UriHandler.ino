@@ -151,6 +151,12 @@ void getCurrentDynamicMenu(String& uri) {
 }
 
 void loadMainWebPage() {
+  if (WiFi.getMode() == WIFI_AP_STA) {
+    // If both access point and station mode are active that means we are using station mode.
+    // The access point mode is just used to display the IP address, but once the user connects
+    // we can turn off the access point to save power.
+    WiFi.mode(WIFI_STA);
+  }
   gClient.println("HTTP/1.1 200 OK");
   gClient.println("Content-Type: text/html\r\n");
   sendFileToClient(gMainPageFilename);
