@@ -183,21 +183,22 @@ void loop() {
 See example for a more complex version. [OnDemandConfigPortal](https://github.com/tzapu/WiFiManager/tree/master/examples/OnDemandConfigPortal)
 
 #### Exiting from the Configuration Portal
-Normally, once entered, the configuration portal will continue to loop until WiFi credentials have been successfully entered.
-If you'd prefer to exit without joining a WiFi network, say becuase you're going to put the ESP into AP mode, then press the "Exit" button
-on the main webpage.
-If you're using ```autoConnect``` then it will return ```false```.
-Alternatively, if you are using ```startConfigPortal``` it will return the ```WiFi.status()``` value.
+Normally, once entered, the configuration portal will continue to loop until WiFi credentials have been successfully entered.  
+If you'd prefer to exit without joining a WiFi network, say because you're going to put the ESP into AP mode, then press the "Exit" 
+button on the main webpage. If you're using autoConnect then it will return false. Alternatively, if you are using startConfigPortal 
+it will return the WiFi.status() value.
 
 #### Set Exit Button Label
 This function can be used to change the label on the configuration portal "Exit" button to the string of your choice.
-Depending on your application, this may help to clarify the setup process for the end user.
-For example, if your application uses the ESP8266's AP (Access Point) Mode if the ```autoConnect``` function returns false,
-then you can set the Exit button label to
-```cpp
-wifiManager.setExitButtonLabel("Use Access Point Mode");
-```
-which informs the user that AP Mode will be used in place of STA (Station) Mode if they exit from the configuration portal page.
+Depending on your application, this may help to clarify the setup process for the end user. For example, if your
+application uses the ESP8266's AP (Access Point) Mode if the autoConnect function returns false, then you can set the
+Exit button label to:
+
+wifiManager.setExitButtonLabel("Use Access Point Mode"); 
+
+which informs the user that AP Mode will be used in place of STA (Station) Mode if they exit from the configuration
+portal page.
+
 #### Custom Parameters
 You can use WiFiManager to collect more parameters than just SSID and password.
 This could be helpful for configuring stuff like MQTT host and port, [blynk](http://www.blynk.cc) or [emoncms](http://emoncms.org) tokens, just to name a few.

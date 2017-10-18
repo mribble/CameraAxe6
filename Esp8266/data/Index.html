@@ -202,7 +202,7 @@
 				if (submitPacketFunc != null) {
 					submitPacketFunc();
 				}
-   				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
+				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
 				httpRequest(null, val);
 
 			}
@@ -355,7 +355,7 @@
 				}
 			
 			}
-			
+
 			// Callback to get the start location
 			function getStartLocationAjax (xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
@@ -835,6 +835,11 @@
 				httpRequest(setDefaultsAjax, "setDefaults");
 			}
 			
+			// 
+			function clearWifiNetworks() {
+				httpRequest(null, "clearWifiNetworks");
+			}
+			
 			// Popup a screen with help info
 			function displayInfo() {
 				alert(gInfoString);
@@ -1097,8 +1102,9 @@
 			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
 			<p>Start here on startup: <select id="start_location" onchange="setStartLocation();"></select></p>
-			<p><button onclick="setDefaults();">Set Defaults</button></p>
-			<p>Version: 2017.9.25</p>
+			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
+			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
+			<p>Version: 2017.10.18</p>
 		</div>
 <!--Advanced Page (End)-->
 	<p id="debugText"></p>
