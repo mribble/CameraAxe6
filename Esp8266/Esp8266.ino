@@ -18,7 +18,6 @@
 #include <WiFiManager.h>         // https://github.com/Rom3oDelta7/WiFiManager
 #include <FS.h>
 #include <CAStd.h>
-#include <EEPROM.h>
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
 #include <CALed.h>
@@ -69,7 +68,6 @@ String gStartLocationDefaults = "Home Page (default)";
 void setup (void) {
   gLed.set(CALed::RED_ON);          // Force solid red led until connection made
   Serial.begin(74880);              // Connection to SAM3X
-  EEPROM.begin(128);                // allocates 128 bytes for wifiManager (required by the library)
   gPh.init((HardwareSerial*)(&SerialIO), NULL);
   if (!SPIFFS.begin()) {
     CA_INFO("Cannot open SPIFFS", "");

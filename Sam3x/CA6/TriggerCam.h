@@ -198,6 +198,26 @@ void initCameraPins() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// initCameraPins() - If mirror lockup is enabled this sets shutter and focus pins for a brief time when first
+//  entering photo mode
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void blinkCameraPins() {
+  for(uint8_t j=0; j<3; ++j) {
+    for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      CAU::digitalWrite(shutterPin, HIGH);
+    }
+    delay(100);
+    for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      CAU::digitalWrite(shutterPin, LOW);
+    }
+    delay(100);
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // sortCamTiming() - Sorts the list of element from smallest time to largest time
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sortCamTiming(CamElement0* arry, int8_t sz) {

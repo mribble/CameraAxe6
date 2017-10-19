@@ -23,7 +23,7 @@ void dev_MenuInit() {
 }
 
 void dev_PhotoInit() {
-  gDevData.ppPin = CAU::getModulePin(0, 2);
+  gDevData.ppPin = CAU::getModulePin(0, 5);
   CAU::pinMode(gDevData.ppPin, INPUT_PULLUP);
 }
 
