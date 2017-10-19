@@ -43,16 +43,19 @@ First attempt at a library. Lots more changes and fixes to do. Contributions are
 ![ESP8266 WiFi Captive Portal Homepage](http://i.imgur.com/YPvW9eql.png) ![ESP8266 WiFi Captive Portal Configuration](http://i.imgur.com/oicWJ4gl.png)
 
 ## Wishlist
-- ~~remove dependency on EEPROM library~~
-- ~~move HTML Strings to PROGMEM~~
-- ~~cleanup and streamline code~~ (although this is ongoing)
-- if timeout is set, extend it when a page is fetched in AP mode
-- ~~add ability to configure more parameters than ssid/password~~
-- ~~maybe allow setting ip of ESP after reboot~~
-- ~~add to Arduino Library Manager~~
-- ~~add to PlatformIO~~
-- add multiple sets of network credentials
-- ~~allow users to customize CSS~~
+- [x] remove dependency on EEPROM library
+- [x] move HTML Strings to PROGMEM
+- [x] cleanup and streamline code (although this is ongoing)
+- [x] if timeout is set, extend it when a page is fetched in AP mode
+- [x] add ability to configure more parameters than ssid/password
+- [x] maybe allow setting ip of ESP after reboot
+- [x] add to Arduino Library Manager
+- [x] add to PlatformIO
+- [ ] add multiple sets of network credentials
+- [x] allow users to customize CSS
+- [ ] ESP32 support or instructions
+- [ ] rewrite documentation for simplicity, based on scenarios/goals
+- [ ] rely on the SDK's built in auto connect more than forcing a connect
 
 ## Quick Start
 
@@ -180,21 +183,21 @@ void loop() {
 See example for a more complex version. [OnDemandConfigPortal](https://github.com/tzapu/WiFiManager/tree/master/examples/OnDemandConfigPortal)
 
 #### Exiting from the Configuration Portal
-Normally, once entered, the configuration portal will continue to loop until WiFi credentials have been successfully entered.
-If you'd prefer to exit without joining a WiFi network, say becuase you're going to put the ESP into AP mode, then press the "Exit" button
-on the main webpage.
-If you're using ```autoConnect``` then it will return ```false```.
-Alternatively, if you are using ```startConfigPortal``` it will return the ```WiFi.status()``` value.
+Normally, once entered, the configuration portal will continue to loop until WiFi credentials have been successfully entered.  
+If you'd prefer to exit without joining a WiFi network, say because you're going to put the ESP into AP mode, then press the "Exit" 
+button on the main webpage. If you're using autoConnect then it will return false. Alternatively, if you are using startConfigPortal 
+it will return the WiFi.status() value.
 
 #### Set Exit Button Label
 This function can be used to change the label on the configuration portal "Exit" button to the string of your choice.
-Depending on your application, this may help to clarify the setup process for the end user.
-For example, if your application uses the ESP8266's AP (Access Point) Mode if the ```autoConnect``` function returns false,
-then you can set the Exit button label to
-```cpp
-wifiManager.setExitButtonLabel("Use Access Point Mode");
-```
-which informs the user that AP Mode will be used in place of STA (Station) Mode if they exit from the configuration portal page.
+Depending on your application, this may help to clarify the setup process for the end user. For example, if your
+application uses the ESP8266's AP (Access Point) Mode if the autoConnect function returns false, then you can set the
+Exit button label to:
+
+wifiManager.setExitButtonLabel("Use Access Point Mode"); 
+
+which informs the user that AP Mode will be used in place of STA (Station) Mode if they exit from the configuration
+portal page.
 
 #### Custom Parameters
 You can use WiFiManager to collect more parameters than just SSID and password.
@@ -237,18 +240,6 @@ This will make use the specified IP configuration instead of using DHCP in stati
 wifiManager.setSTAStaticIPConfig(IPAddress(192,168,0,99), IPAddress(192,168,0,1), IPAddress(255,255,255,0));
 ```
 There are a couple of examples in the examples folder that show you how to set a static IP and even how to configure it through the web configuration portal.
-
-##### Saved Credentials Workaround
-The function ```setSaveCredentialsInEEPROM``` can be called to separately save the credentials in EEPROM and
-restore them when signing in to a known WiFi network.
-This creates a shadow copy of the credentials in case they are erased or lost.
-The function takes 2 arguments: a Boolean flag (```true``` or ```false```) and the base address in EEPROM to save the credentials
-(optional. If not supplied defaults to ```0```.)
-For example:
-```cpp
-wifiManager.setSaveCredentialsInEEPROM(true, 256);
-```
-Note that the EEPROM address range of the supplied base address plus 127 bytes __must be reserved for this purpose__.
 
 #### Custom HTML, CSS, Javascript
 There are various ways in which you can inject custom HTML, CSS or Javascript into the configuration portal.

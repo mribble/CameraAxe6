@@ -5,13 +5,12 @@
    inspired by:
    http://www.esp8266.com/viewtopic.php?f=29&t=2520
    https://github.com/chriscook8/esp-arduino-apboot
-   https://github.com/esp8266/Arduino/tree/esp8266/hardware/esp8266com/esp8266/libraries/DNSServer/examples/CaptivePortalAdvanced
+   https://github.com/esp8266/Arduino/tree/master/libraries/DNSServer/examples/CaptivePortalAdvanced
    Built by AlexT https://github.com/tzapu
    Licensed under MIT license
  **************************************************************/
 
 #include "WiFiManager.h"
-#include "EEPROM.h"
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -255,72 +254,21 @@ int WiFiManager::connectWifi(String ssid, String pass) {
   //check if we have ssid and pass and force those, if not, try with last saved values
   if (ssid != "") {
     WiFi.begin(ssid.c_str(), pass.c_str());
-	 if ( _EEPROMCredentials ) {
-		// save credentials in EEPROM as well as a "shadow copy" in the event the SDK EEPROM credentials are erased/lost
-		union { 
-			struct  station_config conf;
-			uint8_t data[sizeof(struct station_config)];
-		} credentials;
-	 
-	   /*
-		 WiFi.begin calls wifi_station_set_config to store the parameters
-		 save it in EEPROM as a backup
-		*/
-		if ( wifi_station_get_config(&credentials.conf) ) {
-			DEBUG_WM(F("Saving credentials in EEPROM"));
-			uint8_t *p = &credentials.data[0];
-			EEPROM.write(_baseEEPROMAddress, EEPROM_KEY);
-			for ( int i=0, base=_baseEEPROMAddress+1; i < sizeof(credentials); i++ ) {
-				EEPROM.write(base++, (byte)*p++);
-			}
-			EEPROM.commit();
-			if ( EEPROM.read(_baseEEPROMAddress) != EEPROM_KEY ) {
-				DEBUG_WM(F("EEPROM key not saved!"));
-			}
-		} else {
-			 DEBUG_WM(F("Failed to retrieve credentials"));
-		}
-	 } 
   } else {
     if (WiFi.SSID()) {
       DEBUG_WM("Using last saved values, should be faster");
-		DEBUG_WM(WiFi.SSID());
-		
-		//trying to fix connection in progress hanging
+      //trying to fix connection in progress hanging
       ETS_UART_INTR_DISABLE();
       wifi_station_disconnect();
       ETS_UART_INTR_ENABLE();
 
-		if ( _EEPROMCredentials ) {
-			union { 
-				struct  station_config conf;
-				uint8_t data[sizeof(struct station_config)];
-			} credentials;
-				 
-			if ( EEPROM.read(_baseEEPROMAddress) == EEPROM_KEY ) {
-				DEBUG_WM(F("restoring credentials from EEPROM"));
-				uint8_t *p = &credentials.data[0];
-				for ( int i=0, base=_baseEEPROMAddress+1; i < sizeof(credentials); i++ ) {
-					*p++ = EEPROM.read(base++);
-				}
-				DEBUG_WM((char *)credentials.conf.ssid);
-				DEBUG_WM((char *)credentials.conf.password);
-				WiFi.begin(reinterpret_cast<char *>(credentials.conf.ssid), reinterpret_cast<char *>(credentials.conf.password));
-			} else {
-				// this will happen if the credentials have not been saved yet, so not necessarily an error
-				DEBUG_WM(F("invalid EEPROM key"));
-				WiFi.begin();
-			}
-	   } else {
-		  WiFi.begin();
-	   }
+      WiFi.begin();
     } else {
       DEBUG_WM("No saved credentials");
     }
   }
-  
-  int connRes = waitForConnectResult();
 
+  int connRes = waitForConnectResult();
   DEBUG_WM ("Connection result: ");
   DEBUG_WM ( connRes );
   //not connected, WPS enabled, no pass - first attempt
@@ -430,10 +378,10 @@ void WiFiManager::setBreakAfterConfig(boolean shouldBreak) {
 /** Handle root or redirect to captive portal */
 void WiFiManager::handleRoot() {
   DEBUG_WM(F("Handle root"));
-  if (captivePortal()) { // If captive portal redirect instead of displaying the page.
+  if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
     return;
   }
-  
+
   String page = FPSTR(HTTP_HEAD);
   page.replace("{v}", "Options");
   page += FPSTR(HTTP_SCRIPT);
@@ -446,9 +394,9 @@ void WiFiManager::handleRoot() {
   page += F("<h3>WiFiManager</h3>");
   page += FPSTR(HTTP_PORTAL_OPTIONS);
   page.replace("{x}", _exitButtonLabel);
-
   page += FPSTR(HTTP_END);
 
+  server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
 }
@@ -539,7 +487,7 @@ void WiFiManager::handleWifi(boolean scan) {
   }
 
   page += FPSTR(HTTP_FORM_START);
-  char parLength[2];
+  char parLength[5];
   // add the extra parameters to the form
   for (int i = 0; i < _paramsCount; i++) {
     if (_params[i] == NULL) {
@@ -551,7 +499,7 @@ void WiFiManager::handleWifi(boolean scan) {
       pitem.replace("{i}", _params[i]->getID());
       pitem.replace("{n}", _params[i]->getID());
       pitem.replace("{p}", _params[i]->getPlaceholder());
-      snprintf(parLength, 2, "%d", _params[i]->getValueLength());
+      snprintf(parLength, 5, "%d", _params[i]->getValueLength());
       pitem.replace("{l}", parLength);
       pitem.replace("{v}", _params[i]->getValue());
       pitem.replace("{c}", _params[i]->getCustomHTML());
@@ -602,6 +550,7 @@ void WiFiManager::handleWifi(boolean scan) {
 
   page += FPSTR(HTTP_END);
 
+  server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
 
@@ -615,10 +564,6 @@ void WiFiManager::handleWifiSave() {
   //SAVE/connect here
   _ssid = server->arg("s").c_str();
   _pass = server->arg("p").c_str();
-  DEBUG_WM(F("SSID:"));
-  DEBUG_WM(_ssid);
-  DEBUG_WM(F("Password:"));
-  DEBUG_WM(_pass);
 
   //parameters
   for (int i = 0; i < _paramsCount; i++) {
@@ -663,6 +608,7 @@ void WiFiManager::handleWifiSave() {
   page += FPSTR(HTTP_SAVED);
   page += FPSTR(HTTP_END);
 
+  server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
   DEBUG_WM(F("Sent wifi save page"));
@@ -705,6 +651,7 @@ void WiFiManager::handleInfo() {
   page += F("</dl>");
   page += FPSTR(HTTP_END);
 
+  server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
   DEBUG_WM(F("Sent info page"));
@@ -742,6 +689,8 @@ void WiFiManager::handleReset() {
   page += FPSTR(HTTP_HEAD_END);
   page += F("Module will reset in a few seconds.");
   page += FPSTR(HTTP_END);
+
+  server->sendHeader("Content-Length", String(page.length()));
   server->send(200, "text/html", page);
 
   DEBUG_WM(F("Sent reset page"));
@@ -749,17 +698,6 @@ void WiFiManager::handleReset() {
   ESP.reset();
   delay(2000);
 }
-
-
-
-//removed as mentioned here https://github.com/tzapu/WiFiManager/issues/114
-/*void WiFiManager::handle204() {
-  DEBUG_WM(F("204 No Response"));
-  server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server->sendHeader("Pragma", "no-cache");
-  server->sendHeader("Expires", "-1");
-  server->send ( 204, "text/plain", "");
-}*/
 
 void WiFiManager::handleNotFound() {
   if (captivePortal()) { // If captive portal redirect instead of displaying the error page.
@@ -780,6 +718,7 @@ void WiFiManager::handleNotFound() {
   server->sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server->sendHeader("Pragma", "no-cache");
   server->sendHeader("Expires", "-1");
+  server->sendHeader("Content-Length", String(message.length()));
   server->send ( 404, "text/plain", message );
 }
 
@@ -817,29 +756,11 @@ void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
 }
 
 /*
- This workaround is for a problem noted on some ESP-12F modules (others?) where the ESP SDK function wifi_station_set_config(),
- which is called by WiFi.begin(), does not save the credentials properly. Thus, when we go to connect using the saved credentials,
- after power cycling, they are blank. This kludgy workaround explicitly saves the credentials elsewhere in EEPROM.
- For this to work, the following criteria must be met:
- 
- - EEPROM.begin() must have already been called
- - the EEPROM size must be at least 128
- - the EEPROM range of baseAddress:baseAddress+127 must be otherwise unused
- 
- Reconfigure the EEPROM defines if necessary.
-*/
-void  WiFiManager::setSaveCredentialsInEEPROM(const bool saveFlag, const int baseAddress) {
-	_EEPROMCredentials = saveFlag;
-	_baseEEPROMAddress = baseAddress;
-}
-
-/*
  Set the label to be used on the WiFi portal for the Exit button
  */
 void WiFiManager::setExitButtonLabel (const char *label) {
 	_exitButtonLabel = String(label);
 }
-
 
 
 template <typename Generic>

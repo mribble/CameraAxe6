@@ -1,5 +1,5 @@
 
-(rules PCB light-sensor
+(rules PCB Light
   (snap_angle 
     fortyfive_degree
   )
@@ -11,18 +11,18 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 193)
+    (start_pass_no 280)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 4.4)
+      (against_preferred_direction_trace_costs 3.5)
     )
     (layer_rule B.Cu
       (active on)
       (preferred_direction vertical)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 1.3)
+      (against_preferred_direction_trace_costs 1.4)
     )
   )
   (rule
@@ -63,8 +63,8 @@
     )
   )
   (class "kicad_default"
-    GND /AN1 /D1 /ID 3V3 /D2 "Net-(J2-Pad1)" "Net-(J2-Pad2)"
-    "Net-(Q1-Pad1)" "Net-(Q2-Pad1)" "Net-(R2-Pad1)" /D3 /D4
+    GND /AN1 /D1 3V3 "Net-(J2-Pad2)" "Net-(Q1-Pad1)" "Net-(Q2-Pad1)" "Net-(R2-Pad1)"
+    /ID /D3 /D2 /D4 "Net-(J2-Pad1)"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
