@@ -9,18 +9,80 @@
 		<style>
 			body{
 				font-family: "arial";
-				background-color: white;
+                font-size: 32px;
+				background-color: #F5F5F5;
+                color: #424242;
 			}
-			button{
-				padding: 12px;
-				text-align: left;
-				font-size: 20px;
+            button {
+                margin: 5px;
+				padding: 20px;
+                color: #ffffff;
+                font-size: 48px;
+                border: 0px;
+                border-radius: 20px;
+                background: #0D47A1;
+            }
+            button:hover {
+                background: #1976D2;
+            }
+            .button1 {
+                width: 80%;
+                text-align: left;
+            }
+			.input1{
+				background-color: #BBDEFB;
+				color: #424242;
+				border-radius: 15px;
+				border: 2px solid #0D47A1;
+				padding: 20px;
+				margin: 5px;
+				font-size: 48px;
+			}
+			.select1{
+				background-color: #BBDEFB;
+				color: #424242;
+				border-radius: 15px;
+				border: 2px solid #0D47A1;
+				padding: 20px;
+				margin: 5px;
+				font-size: 48px;
+			}
+			.select1 option {
+				background: #BDBDBD;
+			}
+            .colorbox{
+                border-radius: 20px;
+                background-color: #BDBDBD;
+            }
+            .text1{
+                margin: 12px;
+                font-size: 40px;
+                color: #ffffff;
+            }
+			.big-checkbox {
+				-webkit-appearance: none;
+				background-color: #BBDEFB;
+				padding: 27px;
+				border-radius: 15px;
+				display: inline-block;
+				border: 2px solid #0D47A1;
+				position: relative;
+				color: #FFFFFF;
+			}
+			.big-checkbox:checked {
+				background-color: #0D47A1;
+			}
+			.big-checkbox:checked:after {
+				content: '\2714';
+				font-size: 40px;
+				left: 9px;
+				position: absolute;
+				top: 0px;
 			}
 			.mainBox{
-				width: 450px;
-				height: 650px;
-				padding: 12px;
-				border: 1px solid #000;
+				min-width: 600px;
+                max-width: 1000px;
+				padding: 16px;
 				display: none;
 			}
 			.topText{
@@ -31,13 +93,13 @@
 				margin-top:12px;
 			}
 			.modal {
-				display: none; /* Hidden by default */
-				position: fixed; /* Stay in place */
+				display: none;
+				position: fixed;
 				z-index: 1; /* Sit on top */
-				padding-top: 100px; /* Location of the box */
+				padding-top: 20px;
 				left: 0;
 				top: 0;
-				width: 450px; /* Full width */
+				width: 100%; /* Full width */
 				height: 100%; /* Full height */
 				overflow: auto; /* Enable scroll if needed */
 			}
@@ -46,7 +108,7 @@
 				margin: auto;
 				padding: 20px;
 				border: 1px solid #888;
-				width: 80%;
+				width: 800px;
 			}
 			.close {
 				color: #aaaaaa;
@@ -66,18 +128,42 @@
 			#listButtons{
 				padding: 12px;
 				text-align: left;
-				font-size: 20px;
 			}
 			.modeTable {
 				border-collapse: collapse;
-				border: 1px solid black;
+				width: ;
 			}
 			.modeCell {
-				border: 1px solid black;
+				text-align: left;
+				padding: 8px;
 			}
 			.slider {
-			   width: 90px;
-			   height: 30px;
+				-webkit-appearance: none;
+				width: 75%;
+				height: 24px;
+				margin: 20px;
+				border-radius: 5px;
+				background: #BBDEFB;
+				outline: none;
+			}
+			.slider:hover {
+				background: #90CAF9
+			}
+			.slider::-webkit-slider-thumb {
+				-webkit-appearance: none;
+				appearance: none;
+				width: 48px;
+				height: 48px;
+				border-radius: 50%;
+				background: #0D47A1;
+				cursor: pointer;
+			}
+			.slider::-moz-range-thumb {
+				width: 48px;
+				height: 48px;
+				border-radius: 50%;
+				background: #0D47A1;
+				cursor: pointer;
 			}
 			ul {
 				list-style: none;
@@ -254,7 +340,7 @@
 					z.textContent = photoMenus[i];
 					z.value = photoMenus[i];
 					startLocationSelect.appendChild(z);
-				}
+									}
 			}
 
 			// General function used to validate a number is in required range
@@ -568,6 +654,7 @@
 				x.caType = "checkbox";
 				x.id = id;
 				x.checked = value;
+				x.classList.add("big-checkbox");
 				x.onchange = function(){
 					var val = PID_UINT32+"~"+id.substring(2)+"~"+(this.checked ? 1 : 0)+"~";
 				}
@@ -594,6 +681,8 @@
 					option.textContent = a[i];
 					x.appendChild(option);
 				}
+				
+				x.classList.add("select1");
 
 				x.onchange = function(){
 					var val = PID_UINT32+"~"+id.substring(2)+"~"+this.selectedIndex+"~";
@@ -614,6 +703,7 @@
 				x.caType = "editNumber";
 				x.id = id;
 				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;"
+				x.classList.add("input1");
 				x.oninput = function () {
 					if (x.value.length > maxLength) {
 						x.value = x.value.slice(0,maxLength);
@@ -646,6 +736,7 @@
 				x.id = id;
 				x.name = "timebox";
 				x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
+				x.classList.add("input1");
 				x.sendTimeBoxPacket = function(){
 					var seconds = getSeconds(x.value);
 					var nanoseconds = getNanoseconds(x.value);
@@ -665,7 +756,7 @@
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
 				var x = document.createElement('input');
-				x.class = "slider";
+				x.classList.add("slider");
 				x.type = "range";
 				x.caType = "slider";
 				x.id = id;
@@ -676,6 +767,9 @@
 				x.onchange = function(){
 					document.getElementById(id+'b').innerHTML = this.value;
 					var val = PID_UINT32+"~"+id.substring(2)+"~"+this.value+"~";
+				}
+				x.oninput = function() {
+					document.getElementById(id+'b').innerHTML = this.value;
 				}
 				cell1.appendChild(x);
 				var x1 = document.createElement('span');
@@ -692,15 +786,15 @@
 
 			// Handle pressing the number camera buttons.  (Change colors and save/restor settings)
 			function camSelectButton(val) {
-				document.getElementById("camSel0").style.background='#D3D3D3';
-				document.getElementById("camSel1").style.background='#D3D3D3';
-				document.getElementById("camSel2").style.background='#D3D3D3';
-				document.getElementById("camSel3").style.background='#D3D3D3';
-				document.getElementById("camSel4").style.background='#D3D3D3';
-				document.getElementById("camSel5").style.background='#D3D3D3';
-				document.getElementById("camSel6").style.background='#D3D3D3';
-				document.getElementById("camSel7").style.background='#D3D3D3';
-				document.getElementById("camSel"+val).style.background='#2196F3';
+				document.getElementById("camSel0").style.background='#9E9E9E';
+				document.getElementById("camSel1").style.background='#9E9E9E';
+				document.getElementById("camSel2").style.background='#9E9E9E';
+				document.getElementById("camSel3").style.background='#9E9E9E';
+				document.getElementById("camSel4").style.background='#9E9E9E';
+				document.getElementById("camSel5").style.background='#9E9E9E';
+				document.getElementById("camSel6").style.background='#9E9E9E';
+				document.getElementById("camSel7").style.background='#9E9E9E';
+				document.getElementById("camSel"+val).style.background='#0D47A1';
 				
 				camSettingsSave(gCamSelectVal);
 				camSettingsLoad(val);
@@ -888,43 +982,43 @@
 						<tr style="display:none;" id="days">
 							<td style="width:50%;">Days (0-99)</td>
 							<td style="width:50%;">
-								<input type="number" name="days" min="0" max="99" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="days" min="0" max="99" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="hours">
 							<td >Hours (0-23)</td>
 							<td >
-								<input type="number" name="hours" min="0" max="23" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="hours" min="0" max="23" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="minutes">
 							<td>Minutes (0-59)</td>
 							<td>
-								<input type="number" name="minutes" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="minutes" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="seconds">
 							<td>Seconds (0-59)</td>
 							<td>
-								<input type="number" name="seconds" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="seconds" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="milliseconds">
 							<td>Milliseconds (0-999)</td>
 							<td>
-								<input type="number" name="milliseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="milliseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="microseconds">
 							<td>Microseconds (0-999)</td>
 							<td>
-								<input type="number" name="microseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="microseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="nanoseconds">
 							<td>Nanoseconds (0-999)</td>
 							<td>
-								<input type="number" name="nanoseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="nanoseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr>
@@ -943,22 +1037,24 @@
 			<h1 class="topText">Camera Axe Home</h1>
 
 			<div style="clear:both;"></div>
-			<h2>Menus</h2>
-			<div id="listButtons"></div>
+			<div class="colorbox">
+                <span class="text1">Menus</span>
+                <div id="listButtons"></div>
+            </div>
 			<br>
-			<button onclick="loadPage('CameraFlash', null, null);">Camera/Flash Settings</button>
-			<br><br>
-			<button onclick="loadPage('Intervalometer', null, null);">Intervalometer Settings</button>
-			<br><br>
-			<button onclick="loadPage('Advanced', null, null);">Advanced</button>
+			<button class="button1" onclick="loadPage('CameraFlash', null, null);">Camera/Flash Settings</button>
+			<br>
+			<button class="button1" onclick="loadPage('Intervalometer', null, null);">Intervalometer Settings</button>
+			<br>
+			<button class="button1" onclick="loadPage('Advanced', null, null);">Advanced</button>
 		</div>
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
-			<button class="button" onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
-			<button id="MenuPhotoModeButton" class="button" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPackets);">Photo Mode</button>
-			<button id="MenuModeTestTriggerButton" class="button" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
-			<button id="MenuInfoButton" class="button" onclick="displayInfo();">Info</button>
+			<button onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
+			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPackets);">Photo Mode</button>
+			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
+			<button id="MenuInfoButton" onclick="displayInfo();">Info</button>
 			<h1 id="title"></h1>
 
 			<form id="menuModeForm" name="menuModeForm">
@@ -1005,7 +1101,7 @@
 					<tr>
 						<td style="width:50%;">Mode</td>
 						<td style="width:50%;">
-							<select name="mode">
+							<select class="select1" name="mode">
 								<option value="0">Camera</option>
 								<option value="1">Camera Prefocus</option>
 								<option value="2">Camera Prefocus Smart</option>
@@ -1016,38 +1112,38 @@
 					<tr>
 						<td>Delay</td>
 						<td>
-							<input type="text" name="delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="input1" type="text" name="delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Duration (bulb)</td>
 						<td>
-							<input type="text" name="duration_bulb" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="input1" type="text" name="duration_bulb" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Post Trigger Delay</td>
 						<td>
-							<input type="text" name="post_trigger_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="input1" type="text" name="post_trigger_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2">
 							Sequencer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<input type="checkbox" checked name="sequencer1" value="1" />1
-							<input type="checkbox" checked name="sequencer2" value="2" />2
-							<input type="checkbox" checked name="sequencer3" value="4" />3
-							<input type="checkbox" checked name="sequencer4" value="8" />4
-							<input type="checkbox" checked name="sequencer5" value="16" />5
-							<input type="checkbox" checked name="sequencer6" value="32" />6
-							<input type="checkbox" checked name="sequencer7" value="64" />7
-							<input type="checkbox" checked name="sequencer8" value="128" />8
+							<input type="checkbox" class="big-checkbox" checked name="sequencer1" value="1" />1
+							<input type="checkbox" class="big-checkbox" checked name="sequencer2" value="2" />2
+							<input type="checkbox" class="big-checkbox" checked name="sequencer3" value="4" />3
+							<input type="checkbox" class="big-checkbox" checked name="sequencer4" value="8" />4
+							<input type="checkbox" class="big-checkbox" checked name="sequencer5" value="16" />5
+							<input type="checkbox" class="big-checkbox" checked name="sequencer6" value="32" />6
+							<input type="checkbox" class="big-checkbox" checked name="sequencer7" value="64" />7
+							<input type="checkbox" class="big-checkbox" checked name="sequencer8" value="128" />8
 						</td>
 					</tr>
 					<tr>
 						<td>Enable Mirror Lockup</td>
 						<td>
-							<input type="checkbox" name="mirror_lockup" />
+							<input type="checkbox" class="big-checkbox" name="mirror_lockup"/>
 						</td>
 					</tr>
 				</table>
@@ -1066,25 +1162,25 @@
 					<tr>
 						<td style="width:50%;">Enable</td>
 						<td style="width:50%;">
-							<input type="checkbox" id="inter_enable" name="inter_enable" />
+							<input type="checkbox" class="big-checkbox" id="inter_enable" name="inter_enable" />
 						</td>
 					</tr>
 					<tr>
 						<td>Start Delay</td>
 						<td>
-							<input type="text" id="start_delay" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="input1" type="text" id="start_delay" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Interval</td>
 						<td>
-							<input type="text" id="interval" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="input1" type="text" id="interval" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Number of Repeats (0 = Inf)</td>
 						<td>
-							<input type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
+							<input class="input1" type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
 						</td>
 					</tr>
 					<tr>
@@ -1101,7 +1197,7 @@
 			<h1 class="topText">Advanced</h1>
 			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
 			<div style="clear:both;"></div>
-			<p>Start here on startup: <select id="start_location" onchange="setStartLocation();"></select></p>
+			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
 			<p>Version: 2017.10.18</p>
