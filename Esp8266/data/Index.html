@@ -59,25 +59,28 @@
 				font-size: 40px;
 				color: #ffffff;
 			}
-			.big-checkbox {
-				-webkit-appearance: none;
-				background-color: #BBDEFB;
-				padding: 27px;
-				border-radius: 15px;
-				display: inline-block;
-				border: 2px solid #0D47A1;
+			label.checkbox input[type="checkbox"] {display:none; -webkit-appearance: none;}
+			label.checkbox span {
+				display:inline-block;
+				border:2px solid #0D47A1;
+				border-radius:15px;
+				width:50px;
+				height:50px;
+				background:#BBDEFB;
+				vertical-align:middle;
+				margin:2px;
 				position: relative;
-				color: #FFFFFF;
 			}
-			.big-checkbox:checked {
+			label.checkbox :checked + span {
 				background-color: #0D47A1;
 			}
-			.big-checkbox:checked:after {
+			label.checkbox :checked + span:after {
 				content: '\2714';
 				font-size: 40px;
-				left: 9px;
+				top: -4px;
+				left: 10px;
 				position: absolute;
-				top: 0px;
+				color: #FFFFFF;
 			}
 			.mainBox{
 				min-width: 600px;
@@ -648,24 +651,30 @@
 				cell1.classList.add("modeCell");
 			}
 
+			// <label class="checkbox"><input type="checkbox" name="sequencer1" value="1"/>1<span></span></label>
 			function caCheckBox(id, value, text0) {
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement("input");
-				x.type = "checkbox";
-				x.caType = "checkbox";
-				x.id = id;
-				x.checked = value;
-				x.classList.add("big-checkbox");
-				x.onchange = function(){
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+(x.checked ? 1 : 0)+"~";
+				var x = document.createElement("label");
+				var y = document.createElement("input");
+				var z = document.createElement("span");
+				x.classList.add("checkbox");
+
+				y.type = "checkbox";
+				y.caType = "checkbox";
+				y.id = id;
+				y.checked = value;
+				y.onchange = function(){
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+(y.checked ? 1 : 0)+"~";
 				};
+
+				x.appendChild(y);
+				x.appendChild(z);
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
-
 			}
 
 			function caDropSelect(id, value, text0, text1) {
@@ -1132,20 +1141,20 @@
 					<tr>
 						<td colspan="2">
 							Sequencer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<input type="checkbox" class="big-checkbox" checked name="sequencer1" value="1" />1
-							<input type="checkbox" class="big-checkbox" checked name="sequencer2" value="2" />2
-							<input type="checkbox" class="big-checkbox" checked name="sequencer3" value="4" />3
-							<input type="checkbox" class="big-checkbox" checked name="sequencer4" value="8" />4
-							<input type="checkbox" class="big-checkbox" checked name="sequencer5" value="16" />5
-							<input type="checkbox" class="big-checkbox" checked name="sequencer6" value="32" />6
-							<input type="checkbox" class="big-checkbox" checked name="sequencer7" value="64" />7
-							<input type="checkbox" class="big-checkbox" checked name="sequencer8" value="128" />8
+							<label class="checkbox"><input type="checkbox" name="sequencer1" value="1"/>1<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer2" value="2"/>2<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer3" value="4"/>3<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer4" value="8"/>4<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer5" value="16"/>5<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer6" value="32"/>6<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer7" value="64"/>7<span></span></label>
+							<label class="checkbox"><input type="checkbox" name="sequencer8" value="128"/>8<span></span></label>
 						</td>
 					</tr>
 					<tr>
 						<td>Enable Mirror Lockup</td>
 						<td>
-							<input type="checkbox" class="big-checkbox" name="mirror_lockup"/>
+							<label class="checkbox"><input type="checkbox" name="mirror_lockup"/><span></span></label>
 						</td>
 					</tr>
 				</table>
@@ -1164,7 +1173,7 @@
 					<tr>
 						<td style="width:50%;">Enable</td>
 						<td style="width:50%;">
-							<input type="checkbox" class="big-checkbox" id="inter_enable" name="inter_enable" />
+							<label class="checkbox"><input type="checkbox" name="inter_enable" id="inter_enable"/><span></span></label>
 						</td>
 					</tr>
 					<tr>
