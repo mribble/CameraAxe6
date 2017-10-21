@@ -3,32 +3,32 @@
 	<head>
 		<meta charset="UTF-8">
 		<!-- Suppress browser request for favicon.ico -->
-		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 		<title>Camera Axe 6</title>
 
 		<style>
 			body{
 				font-family: "arial";
-                font-size: 32px;
+				font-size: 32px;
 				background-color: #F5F5F5;
-                color: #424242;
+				color: #424242;
 			}
-            button {
-                margin: 5px;
+			button {
+				margin: 5px;
 				padding: 20px;
-                color: #ffffff;
-                font-size: 48px;
-                border: 0px;
-                border-radius: 20px;
-                background: #0D47A1;
-            }
-            button:hover {
-                background: #1976D2;
-            }
-            .button1 {
-                width: 80%;
-                text-align: left;
-            }
+				color: #ffffff;
+				font-size: 48px;
+				border: 0px;
+				border-radius: 20px;
+				background: #0D47A1;
+			}
+			button:hover {
+				background: #1976D2;
+			}
+			.button1 {
+				width: 80%;
+				text-align: left;
+			}
 			.input1{
 				background-color: #BBDEFB;
 				color: #424242;
@@ -50,15 +50,15 @@
 			.select1 option {
 				background: #BDBDBD;
 			}
-            .colorbox{
-                border-radius: 20px;
-                background-color: #BDBDBD;
-            }
-            .text1{
-                margin: 12px;
-                font-size: 40px;
-                color: #ffffff;
-            }
+			.colorbox{
+				border-radius: 20px;
+				background-color: #BDBDBD;
+			}
+			.text1{
+				margin: 12px;
+				font-size: 40px;
+				color: #ffffff;
+			}
 			.big-checkbox {
 				-webkit-appearance: none;
 				background-color: #BBDEFB;
@@ -81,7 +81,7 @@
 			}
 			.mainBox{
 				min-width: 600px;
-                max-width: 1000px;
+				max-width: 1000px;
 				padding: 16px;
 				display: none;
 			}
@@ -176,13 +176,16 @@
 		</style>
 
 		<script>
-			var PID_STRING          =  1;
-			var PID_UINT32          =  2;
-			var PID_TIME_BOX        =  3;
-			var PID_MENU_SELECT     =  4;
-			var PID_CAM_SETTINGS    =  5;
-			var PID_INTERVALOMETER  =  6;
-			var PID_CAM_TRIGGER     =  7;
+			/*jslint browser: true*/
+			/*global window*/
+
+			var PID_STRING = 1;
+			var PID_UINT32 = 2;
+			var PID_TIME_BOX = 3;
+			var PID_MENU_SELECT = 4;
+			var PID_CAM_SETTINGS = 5;
+			var PID_INTERVALOMETER = 6;
+			var PID_CAM_TRIGGER = 7;
 
 			// Global Variables
 			var uiTestMode = true;
@@ -193,20 +196,22 @@
 			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gDynamicMenuName;       // The current dynamic menu name
 			var gCamSelectVal = 0;      // The current camera/flash selected in the UI
-			var gCamSettingsArray = ["5~0~0~0~0~0~0~0~0~0~0~", "5~1~0~0~0~0~0~0~0~0~0~",
-									 "5~2~0~0~0~0~0~0~0~0~0~", "5~3~0~0~0~0~0~0~0~0~0~",
-									 "5~4~0~0~0~0~0~0~0~0~0~", "5~5~0~0~0~0~0~0~0~0~0~",
-									 "5~6~0~0~0~0~0~0~0~0~0~", "5~7~0~0~0~0~0~0~0~0~0~"];
-
-			window.onload = initPage;
+			var gCamSettingsArray = [
+				"5~0~0~0~0~0~0~0~0~0~0~", "5~1~0~0~0~0~0~0~0~0~0~",
+				"5~2~0~0~0~0~0~0~0~0~0~", "5~3~0~0~0~0~0~0~0~0~0~",
+				"5~4~0~0~0~0~0~0~0~0~0~", "5~5~0~0~0~0~0~0~0~0~0~",
+				"5~6~0~0~0~0~0~0~0~0~0~", "5~7~0~0~0~0~0~0~0~0~0~"
+			];
 
 			// Load in the default values and initialize the UI
+			window.onload = initPage;
+
 			function initPage() {
 				loadPage("Home", null, null);
 				httpRequest(getMenuListAjax, "getMenuList");
 				httpRequest(getIntervalAjax, "getInterval");
 				httpRequest(getAllCamsAjax, "getAllCams");
-				httpRequest(getStartLocationAjax, "getStartLocation")
+				httpRequest(getStartLocationAjax, "getStartLocation");
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -216,21 +221,21 @@
 				// When the user clicks on <span> (x), close the time box modal
 				var span = document.getElementsByClassName("close")[0];
 				span.onclick = function() {
-					var modal = document.getElementById('timeboxModal');
+					var modal = document.getElementById("timeboxModal");
 					modal.style.display = "none";
-				}
+				};
 
 				// When the user clicks anywhere outside of the time box modal, close it
 				window.onclick = function(event) {
-					var modal = document.getElementById('timeboxModal');
+					var modal = document.getElementById("timeboxModal");
 
 					if (event.target == modal) {
 						modal.style.display = "none";
 					}
-				}
+				};
 				camSelectButton(0);
 			}
-			
+
 			// Called to make one of the top level pages visible
 			function loadPage(page, dynamicScript, submitPacketFunc) {
 				//document.getElementById("debugText").innerHTML = "init;
@@ -319,28 +324,28 @@
 			// Loads the names of all the different dynamic menus
 			function LoadMenuList(photoMenus) {
 				var listItems = "";
-				for(i=0; i<photoMenus.length; i++){
-					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+photoMenus[i]+"');\">"+photoMenus[i]+"</button>";
-				}
+				photoMenus.forEach(function(item) {
+					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+item+"');\">"+item+"</button>";
+				});
 				document.getElementById("listButtons").innerHTML = listItems;
-				
+
 				// Clear out the start location dropdown box and then fill it
 				var startLocationSelect = document.getElementById("start_location");
 				while(startLocationSelect.firstChild) {
-					startLocationSelect.removeChild(startLocationSelect.firstChild)
+					startLocationSelect.removeChild(startLocationSelect.firstChild);
 				}
-				
+
 				var z = document.createElement("option");
 				z.textContent = "Home Page (default)";
 				z.value = "Home Page (default)";
 				startLocationSelect.appendChild(z);
 
-				for(i=0; i<photoMenus.length; i++) {
+				photoMenus.forEach(function(item) {
 					z = document.createElement("option");
-					z.textContent = photoMenus[i];
-					z.value = photoMenus[i];
+					z.textContent = item;
+					z.value = item;
 					startLocationSelect.appendChild(z);
-									}
+				});
 			}
 
 			// General function used to validate a number is in required range
@@ -373,9 +378,9 @@
 					if (xmlHttpRequest.responseText == "null") {
 						return;
 					}
-					
+
 					var stateList = xmlHttpRequest.responseText.slice(0, -1).split("~");
-					for(var i=0; i<stateList.length; i+=2) {
+					for(i=0; i<stateList.length; i+=2) {
 						document.getElementById(stateList[i]).innerHTML = stateList[i+1];
 					}
 				}
@@ -388,7 +393,7 @@
 					httpRequest(getDynamicMenuSettingsAjax, "getDynamicMenuSettings "+gDynamicMenuName);
 				}
 			}
-			
+
 			// Callback when getting the current intervalometer packet state (stored on esp8266 in flash)
 			function getIntervalAjax(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
@@ -398,13 +403,13 @@
 					var strArray = xmlHttpRequest.responseText.split("~");
 					strArray.pop(); // Last element is empty
 					var intervalForm = document.getElementById("intervalometerForm");
-					intervalForm.elements["inter_enable"].checked = (strArray[1]==0)? false : true;
-					intervalForm.elements["start_delay"].value = getTimeBoxString(strArray[2], strArray[3]);
-					intervalForm.elements["interval"].value = getTimeBoxString(strArray[4], strArray[5]);
-					intervalForm.elements["number_of_repeats"].value = strArray[6];
+					intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
+					intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
+					intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
+					intervalForm.elements.number_of_repeats.value = strArray[6];
 				}
 			}
-			
+
 			// Callback when getting the current camera/flash packets state (stored on esp8266 flash)
 			function getAllCamsAjax(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
@@ -417,7 +422,7 @@
 					camSettingsLoad(0);
 				}
 			}
-			
+
 			// Callback when getting the current settings for the dynamic menu
 			function getDynamicMenuSettingsAjax(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
@@ -431,7 +436,7 @@
 					document.getElementById("MenuMode").style.display = "block";  // Make this visible now
 				}
 			}
-			
+
 			// Callback when setting defaults
 			function setDefaultsAjax(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
@@ -439,7 +444,6 @@
 					httpRequest(getAllCamsAjax, "getAllCams");
 					httpRequest(getStartLocationAjax, "getStartLocation");
 				}
-			
 			}
 
 			// Callback to get the start location
@@ -532,15 +536,15 @@
 				document.getElementById("boxName").value = box.name;
 
 				timeBoxLoadValues(box,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds);
-				var modal = document.getElementById('timeboxModal');
+				var modal = document.getElementById("timeboxModal");
 				modal.style.display = "block";
 			}
 
 			// When the user clicks on OK button, update the box value
 			function timeBoxSaveValues(){
-				var timeboxForm = document.forms["timeboxForm"];
+				var timeboxForm = document.forms.timeboxForm;
 				var boxValue = "";
-				for(i=0; i<timeboxForm.length; i++)
+				for(i=0; i<timeboxForm.length; i+=1)
 				{
 					if(timeboxForm[i].type=="number"){// && document.getElementById(timeboxForm[i].name).style.display!="none"){
 						if(i>0 && boxValue!=""){
@@ -554,7 +558,7 @@
 				if (el.sendTimeBoxPacket != null) {
 					el.sendTimeBoxPacket();
 				}
-				var modal = document.getElementById('timeboxModal');
+				var modal = document.getElementById("timeboxModal");
 				modal.style.display = "none";
 			}
 
@@ -567,13 +571,13 @@
 					"seconds" : true,//seconds,
 					"milliseconds" : true,//milliseconds,
 					"microseconds" : true,//microseconds,
-					"nanoseconds" : true,//nanoseconds
+					"nanoseconds" : true //nanoseconds
 				};
 				var j=0;
 				var i=0;
 				var inputFieldValue = inputField.value;
 				var splitInputField = inputFieldValue.split(/[.]/);
-				for(var key in timeArray){
+				for(key in timeArray){
 					if(timeArray[key])
 					{
 						document.getElementsByName(key)[0].value = splitInputField[j];
@@ -581,7 +585,7 @@
 					}
 				}
 			}
-			
+
 			function caSetInfoString(str) {
 				gInfoString = str;
 			}
@@ -591,7 +595,7 @@
 				if (gMenuModeTable != null) {
 					gMenuModeTable.remove();
 				}
-				gMenuModeTable = document.createElement('table');
+				gMenuModeTable = document.createElement("table");
 				gCurTable = gMenuModeTable;
 				gCurTable.classList.add("modeTable");
 			}
@@ -600,7 +604,7 @@
 				if (gPhotoModeTable != null) {
 				gPhotoModeTable.remove();
 				}
-				gPhotoModeTable = document.createElement('table');
+				gPhotoModeTable = document.createElement("table");
 				gPhotoModeTable.style.display = "none";
 				gCurTable = gPhotoModeTable;
 				gCurTable.classList.add("modeTable");
@@ -638,7 +642,7 @@
 				x.onclick = function(){
 					var val = PID_UINT32+"~"+id.substring(2)+"~1~";
 					httpRequest(null, val);
-				}
+				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -649,15 +653,15 @@
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement('input');
+				var x = document.createElement("input");
 				x.type = "checkbox";
 				x.caType = "checkbox";
 				x.id = id;
 				x.checked = value;
 				x.classList.add("big-checkbox");
 				x.onchange = function(){
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+(this.checked ? 1 : 0)+"~";
-				}
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+(x.checked ? 1 : 0)+"~";
+				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -669,24 +673,24 @@
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement('select');
+				var x = document.createElement("select");
 				x.id = id;
 				x.caType = "dropSelect";
 				var a = text1.split("~");
 				var i;
 
-				for(i=0; i<a.length; i++) {
-					var option = document.createElement('option');
-					option.value = a[i];
-					option.textContent = a[i];
+				a.forEach(function(item) {
+					var option = document.createElement("option");
+					option.value = item;
+					option.textContent = item;
 					x.appendChild(option);
-				}
-				
+				});
+
 				x.classList.add("select1");
 
 				x.onchange = function(){
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+this.selectedIndex+"~";
-				}
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.selectedIndex+"~";
+				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -698,11 +702,11 @@
 				var maxLength = maxValue.toString().length;
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement('input');
+				var x = document.createElement("input");
 				x.type = "number";
 				x.caType = "editNumber";
 				x.id = id;
-				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;"
+				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
 				x.classList.add("input1");
 				x.oninput = function () {
 					if (x.value.length > maxLength) {
@@ -718,7 +722,7 @@
 						x.value = maxValue;
 					}
 					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.value+"~";
-				}
+				};
 				x.value = value;
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
@@ -730,7 +734,7 @@
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement('input');
+				var x = document.createElement("input");
 				x.type = "text";
 				x.caType = "timeBox";
 				x.id = id;
@@ -738,9 +742,9 @@
 				x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
 				x.classList.add("input1");
 				x.sendTimeBoxPacket = function(){
-					var seconds = getSeconds(x.value);
-					var nanoseconds = getNanoseconds(x.value);
-					var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+seconds+"~"+nanoseconds+"~";
+					var s = getSeconds(x.value);
+					var ns = getNanoseconds(x.value);
+					var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+s+"~"+ns+"~";
 				};
 				x.onclick = function(){
 					openTimeBox(x,true,true,true,true,true,true,true);
@@ -755,7 +759,7 @@
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
-				var x = document.createElement('input');
+				var x = document.createElement("input");
 				x.classList.add("slider");
 				x.type = "range";
 				x.caType = "slider";
@@ -765,14 +769,14 @@
 				x.value=value;
 				x.step="1";
 				x.onchange = function(){
-					document.getElementById(id+'b').innerHTML = this.value;
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+this.value+"~";
+					document.getElementById(id+"b").innerHTML = x.value;
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.value+"~";
 				}
 				x.oninput = function() {
-					document.getElementById(id+'b').innerHTML = this.value;
-				}
+					document.getElementById(id+"b").innerHTML = x.value;
+				};
 				cell1.appendChild(x);
-				var x1 = document.createElement('span');
+				var x1 = document.createElement("span");
 				x1.id = id+"b";
 				x1.innerHTML = value;
 				cell1.appendChild(x1);
@@ -786,16 +790,15 @@
 
 			// Handle pressing the number camera buttons.  (Change colors and save/restor settings)
 			function camSelectButton(val) {
-				document.getElementById("camSel0").style.background='#9E9E9E';
-				document.getElementById("camSel1").style.background='#9E9E9E';
-				document.getElementById("camSel2").style.background='#9E9E9E';
-				document.getElementById("camSel3").style.background='#9E9E9E';
-				document.getElementById("camSel4").style.background='#9E9E9E';
-				document.getElementById("camSel5").style.background='#9E9E9E';
-				document.getElementById("camSel6").style.background='#9E9E9E';
-				document.getElementById("camSel7").style.background='#9E9E9E';
-				document.getElementById("camSel"+val).style.background='#0D47A1';
-				
+				document.getElementById("camSel0").style.background="#9E9E9E";
+				document.getElementById("camSel1").style.background="#9E9E9E";
+				document.getElementById("camSel2").style.background="#9E9E9E";
+				document.getElementById("camSel3").style.background="#9E9E9E";
+				document.getElementById("camSel4").style.background="#9E9E9E";
+				document.getElementById("camSel5").style.background="#9E9E9E";
+				document.getElementById("camSel6").style.background="#9E9E9E";
+				document.getElementById("camSel7").style.background="#9E9E9E";
+				document.getElementById("camSel"+val).style.background="#0D47A1";
 				camSettingsSave(gCamSelectVal);
 				camSettingsLoad(val);
 				gCamSelectVal = val;
@@ -805,13 +808,13 @@
 			function camSettingsLoad(index) {
 				var strArray = gCamSettingsArray[index].split("~");
 				strArray.pop(); // Last element is empty
-				var cameraFlashSetupForm = document.forms["cameraFlashSetupForm"];
-				cameraFlashSetupForm.elements["mode"].value = strArray[2];
-				cameraFlashSetupForm.elements["delay"].value = getTimeBoxString(strArray[3], strArray[4]);
-				cameraFlashSetupForm.elements["duration_bulb"].value = getTimeBoxString(strArray[5], strArray[6]);
-				cameraFlashSetupForm.elements["post_trigger_delay"].value = getTimeBoxString(strArray[7], strArray[8]);
+				var cameraFlashSetupForm = document.forms.cameraFlashSetupForm;
+				cameraFlashSetupForm.elements.mode.value = strArray[2];
+				cameraFlashSetupForm.elements.delay.value = getTimeBoxString(strArray[3], strArray[4]);
+				cameraFlashSetupForm.elements.duration_bulb.value = getTimeBoxString(strArray[5], strArray[6]);
+				cameraFlashSetupForm.elements.post_trigger_delay.value = getTimeBoxString(strArray[7], strArray[8]);
 				var seq = +strArray[9];
-				for(var i=1; i<=8; i++) {
+				for(i=1; i<=8; i++) {
 					var value = cameraFlashSetupForm.elements["sequencer"+i].value;
 					if (seq & value) {
 						cameraFlashSetupForm.elements["sequencer"+i].checked = true;
@@ -822,7 +825,7 @@
 				}
 				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[10] == 0) ? false : true;
 			}
-			
+
 			// Save current camera settings to a string
 			function camSettingsSave(index) {
 				var cameraFlashSetupForm = document.forms["cameraFlashSetupForm"];
@@ -850,7 +853,7 @@
 				}
 				gCamSettingsArray[index] = str;
 			}
-			
+
 			// Submit packets for menu mode to esp8266
 			function submitMenuModeFormPackets() {
 				var menuModeForm = document.forms["menuModeForm"];
@@ -874,15 +877,14 @@
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+el.value+"~&";
 					}
 				}
-				
 				httpRequest(null, packetStr);
 			}
-			
+
 			// Load dynamic menu packets into the current form for the dynamic menu UI
 			function loadMenuModeFromPackets(packetArray) {
 				var menuModeForm = document.forms["menuModeForm"];
 				var j = 0;  // packetArray index doesn't match form since button not sent in submitMenuModeFormPackets()
-				
+
 				for(i=0; i<menuModeForm.length; i++) {
 					var el = menuModeForm[i];
 					if (el.caType == "button") {
@@ -903,12 +905,12 @@
 					} else if (el.caType == "slider") {
 						var packet = packetArray[j].split("~");
 						el.value = packet[2];
-						document.getElementById('id'+packet[1]+'b').innerHTML = packet[2];
+						document.getElementById("id"+packet[1]+"b").innerHTML = packet[2];
 					}
 					j++;
 				}
 			}
-			
+
 			// Run test trigger function
 			function testTrigger(extraFunc) {
 				if (extraFunc != null) {
@@ -916,24 +918,24 @@
 				}
 				setTimeout(function() { sendCamTriggerPacket();}, 50);
 			}
-			
+
 			// Set the start location (home page is default)
 			function setStartLocation() {
 				var startLocationSelect = document.getElementById("start_location");
 				var str = startLocationSelect.options[startLocationSelect.selectedIndex].text;
 				httpRequest(null, "setStartLocation "+str);
 			}
-			
+
 			// Reset all the settings to defaults
 			function setDefaults() {
 				httpRequest(setDefaultsAjax, "setDefaults");
 			}
-			
-			// 
+
+			// Clear wifi network settins from wifi class
 			function clearWifiNetworks() {
 				httpRequest(null, "clearWifiNetworks");
 			}
-			
+
 			// Popup a screen with help info
 			function displayInfo() {
 				alert(gInfoString);
@@ -943,7 +945,7 @@
 			function sendCamFlashPackets() {
 				camSettingsSave(gCamSelectVal);
 
-				var str = "setAllCams " + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" + 
+				var str = "setAllCams " + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" +
 							gCamSettingsArray[2] + "&" + gCamSettingsArray[3] + "&" + gCamSettingsArray[4] + "&" +
 							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7] + "&";
 				httpRequest(null, str);
@@ -969,7 +971,7 @@
 				var str = PID_CAM_TRIGGER+"~0~0~0~";  // Set mode, focus, and shutter to 0
 				httpRequest(null, str);
 			}
-		</script>
+	</script>
 	</head>
 	<body>
 <!--Timebox Popup (Start)-->
@@ -1038,9 +1040,9 @@
 
 			<div style="clear:both;"></div>
 			<div class="colorbox">
-                <span class="text1">Menus</span>
-                <div id="listButtons"></div>
-            </div>
+				<span class="text1">Menus</span>
+				<div id="listButtons"></div>
+			</div>
 			<br>
 			<button class="button1" onclick="loadPage('CameraFlash', null, null);">Camera/Flash Settings</button>
 			<br>
@@ -1055,7 +1057,7 @@
 			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPackets);">Photo Mode</button>
 			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
 			<button id="MenuInfoButton" onclick="displayInfo();">Info</button>
-			<h1 id="title"></h1>
+			<h1 id="title">null</h1>
 
 			<form id="menuModeForm" name="menuModeForm">
 			</form>
