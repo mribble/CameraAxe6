@@ -18,6 +18,7 @@
 				padding: 20px;
 				color: #ffffff;
 				font-size: 48px;
+                line-height: 1em;
 				border: 0px;
 				border-radius: 20px;
 				background: #0D47A1;
@@ -54,6 +55,12 @@
 				border-radius: 20px;
 				background-color: #BDBDBD;
 			}
+            h1{
+                margin: 12px;
+                color: #0D47A1;
+                font-size: 48;
+                font-weight: 800;
+            }
 			.text1{
 				margin: 12px;
 				font-size: 40px;
@@ -75,7 +82,7 @@
 				background-color: #0D47A1;
 			}
 			label.checkbox :checked + span:after {
-				content: "\2713\fe0e"; //2714 is a thicker check, but edge bug prevents ignore emoji code and 2713 works around issue there.
+				content: "\2714\fe0e"; //2714 is check mark and fe0e is don't render as emoji
 				font-size: 40px;
 				top: -4px;
 				left: 10px;
@@ -87,13 +94,6 @@
 				max-width: 1000px;
 				padding: 16px;
 				display: none;
-			}
-			.topText{
-				float: left;
-			}
-			.topButton{
-				float: right;
-				margin-top:12px;
 			}
 			.modal {
 				display: none;
@@ -134,7 +134,7 @@
 			}
 			.modeTable {
 				border-collapse: collapse;
-				width: ;
+				width:100%;
 			}
 			.modeCell {
 				text-align: left;
@@ -1045,10 +1045,8 @@
 <!--Timebox Popup (End)-->
 <!--Home Page (Start)-->
 		<div id="Home" class="mainBox">
-			<h1 class="topText">Camera Axe Home</h1>
-
-			<div style="clear:both;"></div>
-			<div class="colorbox">
+			<h1>Camera Axe Home</h1>
+            <div class="colorbox">
 				<span class="text1">Menus</span>
 				<div id="listButtons"></div>
 			</div>
@@ -1062,14 +1060,13 @@
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
-			<button onclick="loadPage('Home', null, submitMenuModeFormPackets);">Home</button>
+			<button onclick="loadPage('Home', null, submitMenuModeFormPackets);">&#x1F3E0&#xfe0e</button>
 			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPackets);">Photo Mode</button>
 			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
-			<button id="MenuInfoButton" onclick="displayInfo();">Info</button>
+			<button id="MenuInfoButton" onclick="displayInfo();">&#x2139&#xfe0e</button>
 			<h1 id="title">null</h1>
 
-			<form id="menuModeForm" name="menuModeForm">
-			</form>
+			<form id="menuModeForm" name="menuModeForm"> </form>
 
 			<script>
 				if (uiTestMode) {
@@ -1093,10 +1090,9 @@
 <!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
 		<div id="CameraFlash" class="mainBox">
-
-			<h1 class="topText">Camera Flash</h1>
-			<button class="topButton" onclick="loadPage('Home', null, sendCamFlashPackets);">Home</button>
-			<div style="clear:both;"></div>
+			<button onclick="loadPage('Home', null, sendCamFlashPackets);">&#x1F3E0&#xfe0e</button>
+            <button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
+			<h1>Camera Flash</h1>
 
 			<button onclick="camSelectButton(0);" id="camSel0">1</button>
 			<button onclick="camSelectButton(1);" id="camSel1">2</button>
@@ -1159,15 +1155,14 @@
 					</tr>
 				</table>
 			</form>
-			<br>
-			<button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
 		</div>
 <!--Camera Flash Page (End)-->
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
-			<h1 class="topText">Intervalometer</h1>
-			<button class="topButton" onclick="loadPage('Home', null, sendIntervalometerPacket);">Home</button>
-			<div style="clear:both;"></div>
+  			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0&#xfe0e</button>
+            <button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
+			<h1>Intervalometer</h1>
+			
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
 					<tr>
@@ -1194,20 +1189,15 @@
 							<input class="input1" type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
 						</td>
 					</tr>
-					<tr>
-						<td style="text-align:center;" colspan="2"><br><br><br><br>
-							<button onclick="testTrigger(sendIntervalometerPacket);" type="button">Test Trigger</button>
-						</td>
-					</tr>
 				</table>
 			</form>
 		</div>
 <!--Intervalometer Page (End)-->
 <!--Advanced Page (Start)-->
 		<div id="Advanced" class="mainBox">
-			<h1 class="topText">Advanced</h1>
-			<button class="topButton" onclick="loadPage('Home', null, null);">Home</button>
-			<div style="clear:both;"></div>
+			<button onclick="loadPage('Home', null, null);">&#x1F3E0&#xfe0e</button>
+			<h1>Advanced</h1>
+
 			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
