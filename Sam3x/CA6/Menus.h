@@ -219,7 +219,6 @@ typedef struct {
 //  hwPortPin ppCamShutter[8];  // for now assume this is handled by general function
 //  hwPortPin ppCamFocus[8];    // also device cycles??? proably not
   uint16_t sensorVal = 0;
-  uint32_t timeToDisplayMS;
   uint32_t updateRefPeriodMS = 200;
   uint32_t referenceUpdateTimeMS;
   uint16_t referenceSensorVal = 0;
@@ -249,7 +248,6 @@ const char* lightning_Name() {
 void lightning_MenuInit() {
   gLightningData.ppLight = CAU::getModulePin(0, 0);
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
-  gLightningData.timeToDisplayMS = millis();
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
@@ -259,13 +257,13 @@ void lightning_PhotoInit() {
   gLightningData.ppLight = CAU::getModulePin(0, 0);
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
 
-  gLightningData.timeToDisplayMS = millis();
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
 
 void lightning_MenuRun() {
   uint32_t curTimeMS = millis();
+  uint32_t timeToDisplayMS = curTimeMS;
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
@@ -274,10 +272,10 @@ void lightning_MenuRun() {
   incomingPacketFinish(packet);
 
   // Handle outgoing packets
-  if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+  if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
     gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
     g_ctx.packetHelper.writePacketString(2, String(gLightningData.sensorVal).c_str());
-    gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+    timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
   }
 
 // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
@@ -289,17 +287,17 @@ void LTGDisplayPhotoMode() {
     all values obtained from gLightningData
     */
     // Handle outgoing packets
-  g_ctx.packetHelper.writePacketString(0, String(gLightningData.referenceSensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(1, String(gLightningData.sensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(2, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(3, String(gLightningData.triggerDiffThreshold).c_str());
-  g_ctx.packetHelper.writePacketString(4, String(gLightningData.updateRefPeriodMS).c_str());
-  g_ctx.packetHelper.writePacketString(5, String(gLightningData.triggerCount).c_str());
-  g_ctx.packetHelper.writePacketString(6, gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex]);
-  g_ctx.packetHelper.writePacketString(7, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 1 + 5) % 5]);
-  g_ctx.packetHelper.writePacketString(8, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 2 + 5) % 5]);
-  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 3 + 5) % 5]);
-  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 4 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(3, String(gLightningData.referenceSensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(4, String(gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(5, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(6, String(gLightningData.triggerDiffThreshold).c_str());
+  g_ctx.packetHelper.writePacketString(7, String(gLightningData.updateRefPeriodMS).c_str());
+  g_ctx.packetHelper.writePacketString(8, String(gLightningData.triggerCount).c_str());
+  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex]);
+  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 1 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 2 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 3 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 4 + 5) % 5]);
 
 
 	// Handle incoming packets
@@ -312,7 +310,8 @@ void LTGDisplayPhotoMode() {
 
 
 void lightning_PhotoRun() {
-  uint32_t curTimeMS;
+  uint32_t curTimeMS = millis();
+  uint32_t timeToDisplayMS = curTimeMS;
   int16_t currentDif = 0;
 	uint32_t strikeDurUS = 0;
 	uint32_t strikeDurMS = 0;
@@ -320,9 +319,8 @@ void lightning_PhotoRun() {
 
   gLightningData.triggerCount = 0;
   gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
-  curTimeMS = millis();  // initialize the current time to start Reference and Display timers
   gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS;  // initialize the update timer
-  gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
+  timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
 
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Loop checking for a strike (curval - ref > trigger)
@@ -370,9 +368,9 @@ void lightning_PhotoRun() {
       }
 
       //Is it time to display current values?
-      if ((curTimeMS >= gLightningData.timeToDisplayMS) && (curTimeMS - gLightningData.timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+      if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
         LTGDisplayPhotoMode();
-        gLightningData.timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+        timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
       }
 
     }  // End of loop looking for start of a strike
