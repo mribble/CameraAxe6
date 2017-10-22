@@ -38,6 +38,17 @@
 				padding: 20px;
 				margin: 5px;
 				font-size: 48px;
+                width: 200px;
+			}
+			.inputTimebox{
+				background-color: #BBDEFB;
+				color: #424242;
+				border-radius: 15px;
+				border: 2px solid #0D47A1;
+				padding: 20px;
+				margin: 5px;
+				font-size: 48px;
+                width: 420px;
 			}
 			.select1{
 				background-color: #BBDEFB;
@@ -134,7 +145,6 @@
 			}
 			.modeTable {
 				border-collapse: collapse;
-				width:100%;
 			}
 			.modeCell {
 				text-align: left;
@@ -142,7 +152,7 @@
 			}
 			.slider {
 				-webkit-appearance: none;
-				width: 75%;
+                width: 350px;
 				height: 24px;
 				margin: 20px;
 				border-radius: 5px;
@@ -459,15 +469,16 @@
 			}
 
 			// Get the nanoseconds from a time box string
+            // This could be updated to support nanoseconds just by putting them in array slot [6]
 			function getNanoseconds(time) {
-				var timeArray = time.split("."); // index 0 is days and index 6 is nanoseconds
-				var x = +timeArray[6] + timeArray[5]*1000 + timeArray[4]*1000000;
+				var timeArray = time.split(new RegExp("[.:]", "g")); // index 0 is days and index 5 is microseconds
+				var x = +timeArray[5]*1000 + timeArray[4]*1000000;
 				return x;
 			}
 
 			// Get the seconds from a time box string
 			function getSeconds(time) {
-				var timeArray = time.split("."); // index 0 is days and index 6 is nanoseconds
+				var timeArray = time.split(new RegExp("[.:]", "g")); // index 0 is days and index 5 is microseconds
 				var x = +timeArray[3] + timeArray[2]*60 + timeArray[1]*60*60 + timeArray[0]*60*60*24;
 				return x;
 			}
@@ -480,13 +491,13 @@
 				var seconds = inSec - days*60*60*24 - hours*60*60 - minutes*60;
 				var ms = Math.floor(inNano/(1000*1000));
 				var us = Math.floor(inNano/1000 - ms*1000);
-				var ns = inNano - ms*1000*1000 - us*1000;
-				var str = days+"."+hours+"."+minutes+"."+seconds+"."+ms+"."+us+"."+ns;
+				//var ns = inNano - ms*1000*1000 - us*1000;
+				var str = days + "." + hours + ":" + minutes + ":" + seconds + "." + ms + "." + us;
 				return str;
 			}
 
 			// When the user clicks the input, open the timebox modal
-			function openTimeBox(box,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds) {
+			function openTimeBox(box, days, hours, minutes, seconds, milliseconds, microseconds) {
 				if(days){
 					document.getElementById("days").style.display = "";
 					document.getElementsByName("days")[0].value=0;
@@ -529,29 +540,30 @@
 					document.getElementById("microseconds").style.display = "none";
 				}
 
-				if(nanoseconds){
-					document.getElementById("nanoseconds").style.display = "";
-					document.getElementsByName("nanoseconds")[0].value=0;
-				}else{
-					document.getElementById("nanoseconds").style.display = "none";
-				}
-
 				document.getElementById("boxName").value = box.name;
 
-				timeBoxLoadValues(box,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds);
+				timeBoxLoadValues(box, days, hours, minutes, seconds, milliseconds, microseconds);
 				var modal = document.getElementById("timeboxModal");
 				modal.style.display = "block";
 			}
 
 			// When the user clicks on OK button, update the box value
+            // Format is dd.hh:mm:ss.mmm.uuu
 			function timeBoxSaveValues(){
 				var timeboxForm = document.forms.timeboxForm;
 				var boxValue = "";
-				for(i=0; i<timeboxForm.length; i+=1)
-				{
-					if(timeboxForm[i].type=="number"){// && document.getElementById(timeboxForm[i].name).style.display!="none"){
-						if(i>0 && boxValue!=""){
-							boxValue += ".";
+				for(i=0; i<timeboxForm.length; i+=1) {
+					if(timeboxForm[i].type=="number") {
+						if(i>0 && boxValue != "") {
+                            if (i < 2) {
+                                boxValue += ".";
+                            }
+                            else if (i < 4) {
+                                boxValue += ":";
+                            }
+                            else {
+                                boxValue += ".";
+                            }
 						}
 						boxValue += timeboxForm[i].value;
 					}
@@ -566,7 +578,7 @@
 			}
 
 			// When the user clicks on input field, loads the current field value in timebox against each input fields
-			function timeBoxLoadValues(inputField,days,hours,minutes,seconds,milliseconds,microseconds,nanoseconds){
+			function timeBoxLoadValues(inputField, days, hours, minutes, seconds, milliseconds, microseconds){
 				var timeArray = {
 					"days" : true,//days,
 					"hours" : true,//hours,
@@ -574,12 +586,11 @@
 					"seconds" : true,//seconds,
 					"milliseconds" : true,//milliseconds,
 					"microseconds" : true,//microseconds,
-					"nanoseconds" : true //nanoseconds
 				};
 				var j=0;
 				var i=0;
 				var inputFieldValue = inputField.value;
-				var splitInputField = inputFieldValue.split(/[.]/);
+				var splitInputField = inputFieldValue.split(new RegExp("[.:]", "g"));
 				for(key in timeArray){
 					if(timeArray[key])
 					{
@@ -738,7 +749,7 @@
 				cell1.classList.add("modeCell");
 			}
 
-			function caTimeBox(id, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, text0) {
+			function caTimeBox(id, days, hours, minutes, seconds, milliseconds, microseconds, text0) {
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
@@ -748,15 +759,15 @@
 				x.caType = "timeBox";
 				x.id = id;
 				x.name = "timebox";
-				x.value = days+"."+hours+"."+minutes+"."+seconds+"."+milliseconds+"."+microseconds+"."+nanoseconds;
-				x.classList.add("input1");
+				x.value = days + "." + hours + ":" + minutes + ":" + seconds + "." + milliseconds + "." + microseconds;
+				x.classList.add("inputTimebox");
 				x.sendTimeBoxPacket = function(){
 					var s = getSeconds(x.value);
 					var ns = getNanoseconds(x.value);
 					var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+s+"~"+ns+"~";
 				};
 				x.onclick = function(){
-					openTimeBox(x,true,true,true,true,true,true,true);
+					openTimeBox(x, true, true, true, true, true, true);
 				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
@@ -1026,12 +1037,6 @@
 								<input class="input1" type="number" name="microseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
-						<tr style="display:none;" id="nanoseconds">
-							<td>Nanoseconds (0-999)</td>
-							<td>
-								<input class="input1" type="number" name="nanoseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
-							</td>
-						</tr>
 						<tr>
 							<td style="text-align:center;" colspan="2"><br><br><br><br>
 								<input type="hidden" id="boxName" name="boxName" value="">
@@ -1119,19 +1124,19 @@
 					<tr>
 						<td>Delay</td>
 						<td>
-							<input class="input1" type="text" name="delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="inputTimebox" type="text" name="delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0:0:0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Duration (bulb)</td>
 						<td>
-							<input class="input1" type="text" name="duration_bulb" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="inputTimebox" type="text" name="duration_bulb" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0:0:0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Post Trigger Delay</td>
 						<td>
-							<input class="input1" type="text" name="post_trigger_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="inputTimebox" type="text" name="post_trigger_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0:0:0.0.0" />
 						</td>
 					</tr>
 					<tr>
@@ -1174,13 +1179,13 @@
 					<tr>
 						<td>Start Delay</td>
 						<td>
-							<input class="input1" type="text" id="start_delay" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="inputTimebox" type="text" id="start_delay" name="start_delay" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0:0:0.0.0" />
 						</td>
 					</tr>
 					<tr>
 						<td>Interval</td>
 						<td>
-							<input class="input1" type="text" id="interval" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0.0.0.0.0.0" />
+							<input class="inputTimebox" type="text" id="interval" name="interval" onclick="openTimeBox(this,true,true,true,true,true,true,true);" value="0.0:0:0.0.0" />
 						</td>
 					</tr>
 					<tr>
