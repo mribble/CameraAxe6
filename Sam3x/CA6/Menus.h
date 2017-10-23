@@ -60,10 +60,8 @@ void dev_PhotoRun() {
     }
 
     // Handle incoming packets
-    if (SerialIO.available()) {
-      CAPacketElement *packet = processIncomingPacket();
-      incomingPacketFinish(packet);
-    }
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
   }
 }
 
