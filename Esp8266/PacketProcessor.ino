@@ -47,9 +47,8 @@ void sendPacket(String &packetStr) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void receivePacket() {
   CAPacket &mUnpacker = gPh.getUnpacker();
-  uint8_t *mData = gPh.getData();
 
-  if (gPh.readOnePacket(mData)) {
+  if (gPh.readOnePacket()) {
     bool packetGuard = mUnpacker.unpackGuard();
     mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();

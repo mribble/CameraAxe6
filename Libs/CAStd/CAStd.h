@@ -9,6 +9,7 @@
     #define CA_DEBUG_INFO
     #define CA_DEBUG_ERROR
     #define SerialIO SerialUSB
+    #define CHECK_SERIAL SerialIO.dtr()
 #elif defined (ESP8266)
     #include <Arduino.h>
     #define CA_DEBUG_LOG
@@ -16,7 +17,7 @@
     #define CA_DEBUG_INFO
     #define CA_DEBUG_ERROR
     #define SerialIO Serial
-    //#define SerialIO Serial1               // UART on GPIO2 - use a pullup 
+    #define CHECK_SERIAL 1
 #else
     #error Need a supported microchip
 #endif
@@ -44,14 +45,16 @@
 void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
 inline void CALog(const char* fmt, ...) {
-    char buf[128]; // resulting string limited to 128 chars
-    va_list args;
-    va_start (args, fmt );
-    vsnprintf(buf, 128, fmt, args);
-    va_end (args);
-    SerialIO.print(buf);
-   // On atmega we might want to use something like this if we are using F() to save ram
-   //vsnprintf_P(buf, maxSize, fmt, args);
+    if (CHECK_SERIAL) {
+        char buf[128]; // resulting string limited to 128 chars
+        va_list args;
+        va_start (args, fmt );
+        vsnprintf(buf, 128, fmt, args);
+        va_end (args);
+        SerialIO.print(buf);
+       // On atmega we might want to use something like this if we are using F() to save ram
+       //vsnprintf_P(buf, maxSize, fmt, args);
+    }
 }
 
 // For the CA_LOG function, you *must* use the PSTR() macro for the format string
@@ -61,17 +64,19 @@ inline void CALog(const char* fmt, ...) {
 #endif // CA_DEBUG_LOG
 
 #ifdef CA_DEBUG_ASSERT
-   #define CA_ASSERT(cond, str)            \
-   {                                       \
-      if(!(cond)) {                        \
-         SerialIO.print(__FILE__);         \
-         SerialIO.print(" line(");         \
-         SerialIO.print(__LINE__);         \
-         SerialIO.print(" -- cond=(");     \
-         SerialIO.print(#cond);            \
-         SerialIO.print(" -- ");           \
-         SerialIO.println(str);            \
-      }                                    \
+   #define CA_ASSERT(cond, str)                 \
+   {                                            \
+        if(!(cond)) {                           \
+            if (CHECK_SERIAL) {                 \
+                SerialIO.print(__FILE__);       \
+                SerialIO.print(" line(");       \
+                SerialIO.print(__LINE__);       \
+                SerialIO.print(" -- cond=(");   \
+                SerialIO.print(#cond);          \
+                SerialIO.print(" -- ");         \
+                SerialIO.println(str);          \
+            }                                   \
+        }                                       \
    }
 #else
    #define CA_ASSERT(...)
@@ -79,13 +84,16 @@ inline void CALog(const char* fmt, ...) {
 
 #if defined(CA_DEBUG_INFO) || defined(CA_DEBUG_ERROR)
 // This should not be called directly (only call through macros below)
-#define _CA_MSG(header, msg, value)    \
-   {                                   \
-      SerialIO.print(header);          \
-      SerialIO.print(msg);             \
-      SerialIO.print(F(": "));         \
-      SerialIO.println(value);         \
-   } 
+#define _CA_MSG(header, msg, value) \
+{                                   \
+    if (CHECK_SERIAL)               \
+    {                               \
+        SerialIO.print(header);     \
+        SerialIO.print(msg);        \
+        SerialIO.print(F(": "));    \
+        SerialIO.println(value);    \
+    }                               \
+} 
 #endif
    
 // Functions for simple messages using Serial.print. Use the F() macro for strings

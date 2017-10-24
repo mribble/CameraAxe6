@@ -15,10 +15,9 @@ public:
     {};
     
     CAPacket& getUnpacker() {return mUnpacker;};
-    uint8_t* getData() {return mData;};
     
     void init(HardwareSerial *serial, HardwareSerial *debugSerial);
-    boolean readOnePacket(uint8_t *data);
+    boolean readOnePacket();
     void writeOnePacket(uint8_t *data);
     void flushGarbagePackets();
 

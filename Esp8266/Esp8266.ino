@@ -66,8 +66,9 @@ String gStartLocationDefaults = "Home Page (default)";
 // setup - Initialization code
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup (void) {
-  gLed.set(CALed::RED_ON);          // Force solid red led until connection made
-  Serial.begin(74880);              // Connection to SAM3X
+  gLed.set(CALed::RED_ON); // Force solid red led until connection made
+  SerialIO.begin(74880); // Connection to SAM3X
+  delay(10); // Wait for serial connection to sam3x
   gPh.init((HardwareSerial*)(&SerialIO), NULL);
   if (!SPIFFS.begin()) {
     CA_INFO("Cannot open SPIFFS", "");
@@ -126,7 +127,6 @@ void initStartPage() {
   if ((name.length() == 0) || (name == gStartLocationDefaults)) {
     return; // Don't do anything if it's the default case since home screen will be available after after starting wifi
   }
-  delay(100); // Plenty of time for sam3x to get ready to receive packets
 
   // Send camera packets to sam3x
   readFileToString(gCamSettingsFilename, str);

@@ -6,7 +6,7 @@ void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
     flushGarbagePackets();
 }
 
-boolean CAPacketHelper::readOnePacket(uint8_t *data) {
+boolean CAPacketHelper::readOnePacket() {
     boolean ret = false;
     uint16_t avaliableBytes = mSerial->available();
 
@@ -20,7 +20,7 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
                 mGuardFound = true;
                 break;
             } else {
-                if (mDebugSerial) {
+                if (mDebugSerial && CHECK_SERIAL) {
                     mDebugSerial->print((char)(buf[0]));
                 }
             }
@@ -41,10 +41,10 @@ boolean CAPacketHelper::readOnePacket(uint8_t *data) {
         }
 
         if (avaliableBytes >= mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ)) {
-            data[0] = GUARD_PACKET;
-            data[1] = getPacketSize(mSize, 0);
-            data[2] = getPacketSize(mSize, 1);
-            mSerial->readBytes(data+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
+            mData[0] = GUARD_PACKET;
+            mData[1] = getPacketSize(mSize, 0);
+            mData[2] = getPacketSize(mSize, 1);
+            mSerial->readBytes(mData+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
             mSize = 0;
             mGuardFound = false;
             ret = true;

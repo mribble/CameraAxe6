@@ -11,10 +11,9 @@
 CAPacketElement* processIncomingPacket() {
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
-  uint8_t *mData = ph.getData();
   CAPacketElement *ret = NULL;
 
-  if (ph.readOnePacket(mData)) {
+  if (ph.readOnePacket()) {
     bool packetGuard = mUnpacker.unpackGuard();
     uint8_t packetSize = mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();
