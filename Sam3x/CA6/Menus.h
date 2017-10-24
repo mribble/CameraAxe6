@@ -192,6 +192,239 @@ void vibration_PhotoRun() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Lightning Menu Copyright 2017 Dan Lenardon
+ This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) International License.
+ To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0
+   Release Notes
+   First version for CA6
+*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////
+// Function: LightningMenu - A specific threshold algorithm for Lightning.
+// Uses a light sensor module in Module 0 and triggers all enabled Camera Ports
+// Parameters:
+//   None
+// Returns:
+//   None
+////////////////////////////////////////
+
+#define DISPLAYFREQMS 1000  // Update the display variables every DISPLAYFREQMS milliseconds
+#define DURATIONOFFSET 3 // Microseconds to add as 1/2 the estimated time between AnalogReads in strike detection loop
+
+typedef struct {
+  uint32_t triggerDiffThreshold;
+  hwPortPin ppLight;
+  uint16_t sensorVal = 0;
+  uint32_t updateRefPeriodMS = 200;
+  uint32_t referenceUpdateTimeMS;
+  uint16_t referenceSensorVal = 0;
+  uint16_t triggerCount = 0;
+  boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
+  boolean TriggerTooHigh = false; // or Sensitivity too high
+
+// variables for the Advanced Photo Display - last 5 strike details  
+  char strikeDetailsBuf[5][24]; // circular buffer of the details for the last 5 strikes
+  int16_t lastStrikeIndex = 0; // index into strikeDetailsBuf of the last strike
+  int16_t peakOfStrike = 0;
+  uint16_t refAtStrike = 0;
+  uint32_t strikeStartTimeUS;  // used for strike duration display
+  uint32_t strikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
+
+  const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
+
+} LightningData;
+
+LightningData gLightningData;
+
+const char* lightning_Name() {
+  return "Lightning Menu";
+}
+
+void lightning_MenuInit() {
+  gLightningData.ppLight = CAU::getModulePin(0, 0);
+  CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
+  gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+  gLightningData.referenceSensorVal = gLightningData.sensorVal;
+}
+
+void lightning_PhotoInit() {
+  /* ?? shouldn't have to do these twice, we already did them in Menu_Init ?? */
+  gLightningData.ppLight = CAU::getModulePin(0, 0);
+  CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
+  gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+  gLightningData.referenceSensorVal = gLightningData.sensorVal;
+}
+
+void lightning_MenuRun() {
+  uint32_t curTimeMS = millis();
+  uint32_t timeToDisplayMS = curTimeMS;
+
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gLightningData.triggerDiffThreshold);
+  packet = incomingPacketCheckUint32(packet, 1, gLightningData.updateRefPeriodMS);
+  incomingPacketFinish(packet);
+
+  // Handle outgoing packets
+  if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+    gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+    g_ctx.packetHelper.writePacketString(2, String(gLightningData.sensorVal).c_str());
+    timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+  }
+
+// Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
+
+}
+
+void LTGDisplayPhotoMode() {
+/* LTGDisplayPhotoMode Send photo-mode data back to mobile display
+    all values obtained from gLightningData
+    */
+    // Handle outgoing packets
+  g_ctx.packetHelper.writePacketString(3, String(gLightningData.referenceSensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(4, String(gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(5, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(6, String(gLightningData.triggerDiffThreshold).c_str());
+  g_ctx.packetHelper.writePacketString(7, String(gLightningData.updateRefPeriodMS).c_str());
+  g_ctx.packetHelper.writePacketString(8, String(gLightningData.triggerCount).c_str());
+  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex]);
+  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 1 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 2 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 3 + 5) % 5]);
+  g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 4 + 5) % 5]);
+
+	// Handle incoming packets
+		CAPacketElement *packet = processIncomingPacket();
+		incomingPacketFinish(packet);
+}
+
+
+void lightning_PhotoRun() {
+  uint32_t curTimeMS = millis();
+  uint32_t timeToDisplayMS = curTimeMS;
+  int16_t currentDif = 0;
+	uint32_t strikeDurUS = 0;
+	uint32_t strikeDurMS = 0;
+	uint32_t decimalUS = 0;
+
+  gLightningData.triggerCount = 0;
+  gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
+  CA_LOG("Ref value starting Photo mode=%u\n", gLightningData.referenceSensorVal);
+  gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS;  // initialize the update timer
+  timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
+
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    // Loop checking for a strike (curval - ref > trigger)
+    while (!gLightningData.inStrikeCycle && g_ctx.state == CA_STATE_PHOTO_MODE) {
+      curTimeMS = millis();  // capture the current time
+      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+      currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
+      if (currentDif > (int16_t) gLightningData.triggerDiffThreshold) {
+        CA_LOG("Begin strike\n");
+        // Begin a new strike -- strike lasts until sensor1 goes back below threshold or 2 seconds (bail out)
+        gLightningData.inStrikeCycle = true;
+        //Trigger Cameras
+        triggerCameras();
+        gLightningData.triggerCount = gLightningData.triggerCount + 1;
+        gLightningData.peakOfStrike = gLightningData.sensorVal; // initialize the peak reading for this strike
+        gLightningData.strikeStartTimeUS = micros();  // initialize the strike start for duration measure
+        gLightningData.strikeStartTimeMS = curTimeMS;  // start clock for 2-second max check        
+        gLightningData.refAtStrike = gLightningData.referenceSensorVal;  // save reference value at beginning of strike
+        break;
+      }
+
+      // Not yet in a strike event
+      // Is it time to update the Reference Value?
+      if (curTimeMS >= gLightningData.referenceUpdateTimeMS) {
+        gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+        CA_LOG("Update Ref to %u\n", gLightningData.referenceSensorVal);
+        gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS;  // Update Timer 
+        if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal)
+          // At top of Sensor range - trigVal too high - can't trigger
+          gLightningData.TriggerTooHigh = true;  // Display a warning warning, but update ReferenceValue anyway, else continual trigger
+        else
+          gLightningData.TriggerTooHigh = false;
+      }
+
+      //Is it time to display current values?
+      if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+        CA_LOG("Display\n");
+        LTGDisplayPhotoMode();
+        timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
+      }
+
+    }  // End of loop looking for start of a strike
+
+       // Begin loop looking for end of strike and handling DeviceCycles
+    while (gLightningData.inStrikeCycle && g_ctx.state == CA_STATE_PHOTO_MODE) {
+      CA_LOG("Look for end of strike\n");
+      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+      gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
+      currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
+      // Strike is done if current value is back below threshold or 2 seconds max to prevent lockups
+      if (currentDif <= (int16_t) gLightningData.triggerDiffThreshold) {
+        // Lightning may often have multiple short flashes/pulses, so this might just be the end of the first pulse
+        gLightningData.inStrikeCycle = false;
+        break;
+      }
+      curTimeMS = millis();
+      if (curTimeMS > (gLightningData.strikeStartTimeMS + 2000)) {
+        CA_LOG("Strike longer than 2 sec\n");
+        // Sensor value has been above threshold for >2 seconds - must be an ambient or sensor sensitivity change
+        // Just end the strike and reset the Reference level
+        gLightningData.inStrikeCycle = false;
+        gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+        CA_LOG("Update Ref to %u\n", gLightningData.referenceSensorVal);
+        gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS; // reset the Ref Update clock
+        break;
+      }
+    }
+
+    // Strike cycle just finished
+    // bump lastStrikeIndex and store values in character buffer for display
+    CA_LOG("End of strike-log details\n");
+    strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
+    strikeDurMS = strikeDurUS / 1000;
+    decimalUS = strikeDurUS % 1000;
+    (++gLightningData.lastStrikeIndex) % 5; // circular index of 5 strings of details
+    sprintf(gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
+
+    // Loop until DeviceCycles (Bulb TImer) is completed for both devices
+    while ( camTriggerRunning() ) {
+      CA_LOG("camTriggerRunning=true\n");
+      curTimeMS = millis();  // capture the current time
+      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Just to keep the current value up to date 
+      currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
+      // Check if light value has gone back up over threshold -- secondary pulses/flashes
+      if (currentDif > (int16_t) gLightningData.triggerDiffThreshold) {
+				strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
+				strikeDurMS = strikeDurUS / 1000;
+				decimalUS = strikeDurUS % 1000;
+				gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
+				sprintf(gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
+      }
+      delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
+    }
+    // Recheck if current value is below threshold and if so reset Reference
+    gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+    currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
+    if (currentDif < (int16_t) gLightningData.triggerDiffThreshold)
+    {
+      gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+      CA_LOG("Update Ref to %u\n", gLightningData.referenceSensorVal);
+      gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS; // reset the Ref Update clock
+    }
+    // If still above threshold, keep old Reference to allow a retrigger to capture more secondary flashes / pulses
+
+  }
+  // Out of PHOTO mode
+  // clear camera/flash back to default (especially reset camera prefocus)
+	initCameraPins();
+	gLightningData.peakOfStrike = 0;  // zero out the peak before going back to MENU
+	// Now back to MENU mode
+}
+// End of Lightning Menu /////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Valve Menu - Triggers Valve
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
