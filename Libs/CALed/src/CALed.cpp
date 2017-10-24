@@ -9,8 +9,10 @@ CALed::CALed(uint8_t greenPin, uint8_t redPin) {
     mGreenPin = greenPin;
     mRedPin = redPin;
     mState = ALL_OFF;
-    mOnTime = 100;
-    mOffTime = 900;
+    mOnTime = 1000;
+    mOffTime = 1000;
+    mNextTime = 0;
+    mWriteVal = LOW;
     
     pinMode(mGreenPin, OUTPUT);
     digitalWrite(mGreenPin, LOW);
@@ -20,8 +22,6 @@ CALed::CALed(uint8_t greenPin, uint8_t redPin) {
 
 void CALed::set(State state) {
     mState = state;
-    mNextTime = 0;
-    mWriteVal = LOW;
     pollLeds();
 }
 

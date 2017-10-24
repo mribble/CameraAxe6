@@ -93,24 +93,28 @@ void setupWiFi() {
 }
 
 void pollWifiMode() {
+  bool statusSet = false;
   if (WiFi.getMode() == WIFI_AP_STA) {
     if (WiFi.status() == WL_CONNECTED) {
       gLed.set(CALed::GREEN_BLINK);
+      statusSet = true;
     }
-    else {
+  }
+  else if (WiFi.getMode() == WIFI_STA) {
+    if (WiFi.status() == WL_CONNECTED) {
       gLed.set(CALed::GREEN_ON);
+      statusSet = true;
     }
   }
   else if (WiFi.getMode() == WIFI_AP) {
     if (WiFi.getMode() == WL_CONNECTED) {
-      gLed.set(CALed::ORANGE_BLINK);
-    } else {
       gLed.set(CALed::ORANGE_ON);
+      statusSet = true;
     }
   }
-  else {
+  
+  if (statusSet == false) {
     gLed.set(CALed::RED_ON);
   }
-
 }
 

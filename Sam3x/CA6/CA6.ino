@@ -13,10 +13,12 @@ Context g_ctx;
 
 void setup() {
   SerialIO.begin(9600);
+  while(!SerialIO); // Wait until connection is established
   CAU::initializeAnalog();
   g_ctx.esp8266.init(74880);
   g_ctx.packetHelper.init(g_ctx.esp8266.getSerial(), (HardwareSerial*)(&SerialIO));
   initCameraPins();
+  esp8266ProgramMode();
 }
 
 void loop() {
@@ -46,4 +48,15 @@ void loop() {
   }
 }
 
+// Put esp8266 into programming mode if dev module on port 4 button pressed during boot
+void esp8266ProgramMode() {
+  hwPortPin ppPin;
+  ppPin = CAU::getModulePin(3, 5);
+  CAU::pinMode(gDevData.ppPin, INPUT_PULLUP);
+  if (CAU::digitalRead(ppPin) == LOW) {
+    blinkCameraPins();
+    g_ctx.esp8266.reprogramESP();
+  }
+  CAU::pinMode(gDevData.ppPin, INPUT);
+}
 
