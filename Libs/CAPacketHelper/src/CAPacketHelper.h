@@ -10,6 +10,7 @@ public:
     CAPacketHelper() :
     mGuardFound(false),
     mSize(0),
+    mTransferredBytes(0),
     mPacker(STATE_PACKER, mData, MAX_PACKET_SIZE),
     mUnpacker(STATE_UNPACKER, mData, MAX_PACKET_SIZE)
     {};
@@ -44,6 +45,7 @@ private:
     HardwareSerial *mDebugSerial;
     bool mGuardFound;
     uint16_t mSize;
+    uint16_t mTransferredBytes;
     CAPacket mPacker;
     CAPacket mUnpacker;
     uint8_t mData[MAX_PACKET_SIZE];

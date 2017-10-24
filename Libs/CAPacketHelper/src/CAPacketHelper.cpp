@@ -29,28 +29,33 @@ boolean CAPacketHelper::readOnePacket() {
 
     // To read one packet you need to know the first byte is the guard.  The next two bytes in a packet is the size.  
     // This code assumes that.  The third byte is always the packet type, but this code doesn't need to know that.
-
     avaliableBytes = mSerial->available();
-    if (mGuardFound && (avaliableBytes >= PACK_SIZE_SZ)) {
-        if (mSize == 0) {
-            uint8_t buf[PACK_SIZE_SZ];
-            mSerial->readBytes(buf, PACK_SIZE_SZ);
-            avaliableBytes -= PACK_SIZE_SZ;
-            mSize = genPacketSize(buf[0], buf[1]);
-            CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
-        }
-
-        if (avaliableBytes >= mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ)) {
-            mData[0] = GUARD_PACKET;
-            mData[1] = getPacketSize(mSize, 0);
-            mData[2] = getPacketSize(mSize, 1);
-            mSerial->readBytes(mData+(PACK_GUARD_SZ+PACK_SIZE_SZ), mSize-(PACK_GUARD_SZ+PACK_SIZE_SZ));
-            mSize = 0;
-            mGuardFound = false;
-            ret = true;
-        }
+    if(mGuardFound && (mSize == 0) && (avaliableBytes >= PACK_SIZE_SZ)) {
+        uint8_t buf[PACK_SIZE_SZ];
+        mSerial->readBytes(buf, PACK_SIZE_SZ);
+        avaliableBytes -= PACK_SIZE_SZ;
+        mSize = genPacketSize(buf[0], buf[1]);
+        mData[0] = GUARD_PACKET;
+        mData[1] = getPacketSize(mSize, 0);
+        mData[2] = getPacketSize(mSize, 1);
+        mTransferredBytes = PACK_GUARD_SZ+PACK_SIZE_SZ;
+        CA_ASSERT(mSize<MAX_PACKET_SIZE, "Invalid packet size");
     }
-     return ret;
+
+    if (mSize && (mTransferredBytes < mSize) && avaliableBytes) {
+        uint16_t transferBytes = min(avaliableBytes, mSize-mTransferredBytes);
+        mSerial->readBytes(mData+mTransferredBytes, transferBytes);
+        mTransferredBytes += transferBytes;
+    }
+
+    if (mSize && (mTransferredBytes == mSize)) {
+        mSize = 0;
+        mTransferredBytes = 0;
+        mGuardFound = false;
+        ret = true;
+    }
+    
+    return ret;
 }
 
 void CAPacketHelper::writeOnePacket(uint8_t *data) {
