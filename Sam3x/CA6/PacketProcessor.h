@@ -72,8 +72,8 @@ CAPacketElement* processIncomingPacket() {
         } else {
           g_ctx.procTable.funcPhotoInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_PHOTO_MODE;
-          handleMirrorLockup();
           startTriggerCameraState();
+          handleMirrorLockup();
         }
         break;
       }

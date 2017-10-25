@@ -13,7 +13,7 @@ bool camTriggerRunning() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// triggerCameras() - This is the first of a 4 phase triggering process.  This function handles mirror lockup and the
+// triggerCameras() - This is the first of a 4 phase triggering process.  This function handles the
 //  intervalometer start delay if it exists.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void triggerCameras() {
@@ -119,8 +119,32 @@ void triggerCamerasPhase4() {
 // handleMirrorLockup() - If mirror lockup is enabled this sets shutter and focus pins for a brief time when first
 //  entering photo mode
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void handleMirrorLockupPhase3() {
+  g_ctx.camTriggerRunning = false;
+  g_ctx.camTimer.stop();
+}
+
+void handleMirrorLockupPhase2() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    uint8_t mode = g_ctx.camSettings[i].getMode();
+    uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
+    uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
+  
+    if (mirrorLockup) {
+      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      CAU::digitalWrite(focusPin, focusVal);
+      CAU::digitalWrite(shutterPin, LOW);
+    }
+  }
+  uint64_t t = CATickTimer::convertTimeToTicks(0, 250000000);
+  g_ctx.camTimer.start(handleMirrorLockupPhase3, t, true);
+}
+
 void handleMirrorLockup() {
   bool anyMirrorLockup = false;
+
+  CA_ASSERT((g_ctx.camTriggerRunning == false), "Should never be running camera here");
   
   for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
     uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
@@ -135,20 +159,10 @@ void handleMirrorLockup() {
   }
 
   if (anyMirrorLockup) {
-    delay(250);
-    for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
-      uint8_t mode = g_ctx.camSettings[i].getMode();
-      uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
-      uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
-    
-      if (mirrorLockup) {
-        hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
-        hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-        CAU::digitalWrite(focusPin, focusVal);
-        CAU::digitalWrite(shutterPin, LOW);
-      }
-    }
-    delay(250);
+    uint64_t t = CATickTimer::convertTimeToTicks(0, 250000000);
+    g_ctx.camTimer.stop();
+    g_ctx.camTimer.start(handleMirrorLockupPhase2, t, true);
+    g_ctx.camTriggerRunning = true;
   }
 }
 
