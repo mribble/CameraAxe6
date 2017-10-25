@@ -111,7 +111,10 @@ void CATickTimer::start(callbackFunc isr, uint64_t ticks, uint8_t repeat)
     uint8_t clockFlag;
     uint8_t clockDivisor;
     
-    CA_ASSERT(ticks, "Don't call with zero time")
+    if (ticks == 0) {
+        return;
+    }
+    
     CA_ASSERT(m_irq[m_num], "Callback registration conflict");
     m_isr[m_num] = isr;
     m_repeat[m_num] = repeat;

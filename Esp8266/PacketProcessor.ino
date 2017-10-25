@@ -84,6 +84,7 @@ void receivePacket() {
     }
     else {
       CA_ASSERT(0, "Unknown packet");
+      CA_LOG("packetType=%d\n", packetType);
     }
     mUnpacker.resetBuffer();
   }

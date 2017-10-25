@@ -191,21 +191,104 @@ void vibration_PhotoRun() {
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Valve Menu - Triggers Valve
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Lightning Menu Copyright 2017 Dan Lenardon
- This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) International License.
- To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0
-   Release Notes
-   First version for CA6
-*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+  hwPortPin ppValve[4];
+  uint32_t shutterLag;
+  uint32_t flashDelay;
+  uint32_t dropDelay[4][3];
+  uint32_t dropSize[4][3];
+} ValveData;
+
+ValveData gValveData;
+
+const char* valve_Name() {
+  return "Valve Menu";
+}
+
+void valve_MenuInit() {
+}
+
+void valve_PhotoInit() {
+  gValveData.ppValve[0] = CAU::getModulePin(0, 0);
+  gValveData.ppValve[1] = CAU::getModulePin(0, 1);
+  gValveData.ppValve[2] = CAU::getModulePin(0, 2);
+  gValveData.ppValve[3] = CAU::getModulePin(0, 3);
+
+  CAU::pinMode(gValveData.ppValve[0], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[0], LOW);
+  CAU::pinMode(gValveData.ppValve[1], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[1], LOW);
+  CAU::pinMode(gValveData.ppValve[2], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[2], LOW);
+  CAU::pinMode(gValveData.ppValve[3], OUTPUT);
+  CAU::digitalWrite(gValveData.ppValve[3], LOW);
+}
+
+void valve_MenuRun() {
+  // Handle incoming packets
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gValveData.shutterLag);
+  packet = incomingPacketCheckUint32(packet, 1, gValveData.flashDelay);
+  for (uint8_t i=0; i<4; ++i) { //Valves (max is 4)
+    for (uint8_t j=0; j<3; ++j) { //Drops (max is 3)
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+0, gValveData.dropDelay[i][j]);
+      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+1, gValveData.dropSize[i][j]);
+    }
+  }
+  incomingPacketFinish(packet);
+}
+
+void valve_PhotoRun() {
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+
+    // Handle incoming packets
+    uint32_t val = 0;
+    CAPacketElement *packet = processIncomingPacket();
+    packet = incomingPacketCheckUint32(packet, 26, val);
+    incomingPacketFinish(packet);
+
+    if (val) {
+      bool done[4] = {false,false,false,false};
+      triggerCameras();
+      uint32_t startTime = millis();
+      uint32_t t[6];  // t[0] is end of delay drop 0 ;; t[1] is end of size drop 0 ;; continued for each drop
+      while ((done[0] != true) && (done[1] != true) && (done[2] != true) && (done[3] != true))
+      {
+        uint32_t prevTime = startTime;
+        for(uint8_t i=0; i<4; ++i) {  // Valves
+          for(uint8_t j=0; j<3; ++j) { //Drops
+            prevTime = t[j*2+0] = prevTime+gValveData.dropDelay[i][j];
+            prevTime = t[j*2+1] = prevTime+gValveData.dropSize[i][j];
+          }
+          uint32_t curTime;
+          curTime = millis();
+          if (curTime >= t[5]) {
+            CAU::digitalWrite(gValveData.ppValve[i], LOW);
+            done[i] = true;
+          }
+          else if (curTime >= t[4]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[3]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[2]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+          else if (curTime >= t[1]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
+          else if (curTime >= t[0]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
+        }
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Lightning Menu (Contributed by Dan Lenardon)
+//  Release Notes
+//  * First version for CA6
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////
-// Function: LightningMenu - A specific threshold algorithm for Lightning.
-// Uses a light sensor module in Module 0 and triggers all enabled Camera Ports
-// Parameters:
-//   None
-// Returns:
-//   None
+// A specific threshold algorithm for Lightning.
+// Uses a light module in Module 0 and triggers all enabled camera ports
 ////////////////////////////////////////
 
 #define DISPLAYFREQMS 1000  // Update the display variables every DISPLAYFREQMS milliseconds
@@ -248,7 +331,6 @@ void lightning_MenuInit() {
 }
 
 void lightning_PhotoInit() {
-  /* ?? shouldn't have to do these twice, we already did them in Menu_Init ?? */
   gLightningData.ppLight = CAU::getModulePin(0, 0);
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
@@ -257,7 +339,7 @@ void lightning_PhotoInit() {
 
 void lightning_MenuRun() {
   uint32_t curTimeMS = millis();
-  uint32_t timeToDisplayMS = curTimeMS;
+  static uint32_t timeToDisplayMS = curTimeMS;
 
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
@@ -272,15 +354,12 @@ void lightning_MenuRun() {
     timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
   }
 
-// Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
-
+  // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
 }
 
+  //LTGDisplayPhotoMode Send photo-mode data back to mobile display all values obtained from gLightningData
 void LTGDisplayPhotoMode() {
-/* LTGDisplayPhotoMode Send photo-mode data back to mobile display
-    all values obtained from gLightningData
-    */
-    // Handle outgoing packets
+  // Handle outgoing packets
   g_ctx.packetHelper.writePacketString(3, String(gLightningData.referenceSensorVal).c_str());
   g_ctx.packetHelper.writePacketString(4, String(gLightningData.sensorVal).c_str());
   g_ctx.packetHelper.writePacketString(5, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
@@ -293,19 +372,18 @@ void LTGDisplayPhotoMode() {
   g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 3 + 5) % 5]);
   g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.lastStrikeIndex - 4 + 5) % 5]);
 
-	// Handle incoming packets
-		CAPacketElement *packet = processIncomingPacket();
-		incomingPacketFinish(packet);
+  // Handle incoming packets
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
 }
-
 
 void lightning_PhotoRun() {
   uint32_t curTimeMS = millis();
-  uint32_t timeToDisplayMS = curTimeMS;
+  static uint32_t timeToDisplayMS = curTimeMS;
   int16_t currentDif = 0;
-	uint32_t strikeDurUS = 0;
-	uint32_t strikeDurMS = 0;
-	uint32_t decimalUS = 0;
+  uint32_t strikeDurUS = 0;
+  uint32_t strikeDurMS = 0;
+  uint32_t decimalUS = 0;
 
   gLightningData.triggerCount = 0;
   gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
@@ -397,11 +475,11 @@ void lightning_PhotoRun() {
       currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
       // Check if light value has gone back up over threshold -- secondary pulses/flashes
       if (currentDif > (int16_t) gLightningData.triggerDiffThreshold) {
-				strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
-				strikeDurMS = strikeDurUS / 1000;
-				decimalUS = strikeDurUS % 1000;
-				gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
-				sprintf(gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
+        strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
+        strikeDurMS = strikeDurUS / 1000;
+        decimalUS = strikeDurUS % 1000;
+        gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
+        sprintf(gLightningData.strikeDetailsBuf[gLightningData.lastStrikeIndex], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
       }
       delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
     }
@@ -419,98 +497,9 @@ void lightning_PhotoRun() {
   }
   // Out of PHOTO mode
   // clear camera/flash back to default (especially reset camera prefocus)
-	initCameraPins();
-	gLightningData.peakOfStrike = 0;  // zero out the peak before going back to MENU
-	// Now back to MENU mode
-}
-// End of Lightning Menu /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Valve Menu - Triggers Valve
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-typedef struct {
-  hwPortPin ppValve[4];
-  uint32_t shutterLag;
-  uint32_t flashDelay;
-  uint32_t dropDelay[4][3];
-  uint32_t dropSize[4][3];
-} ValveData;
-
-ValveData gValveData;
-
-const char* valve_Name() {
-  return "Valve Menu";
-}
-
-void valve_MenuInit() {
-}
-
-void valve_PhotoInit() {
-  gValveData.ppValve[0] = CAU::getModulePin(0, 0);
-  gValveData.ppValve[1] = CAU::getModulePin(0, 1);
-  gValveData.ppValve[2] = CAU::getModulePin(0, 2);
-  gValveData.ppValve[3] = CAU::getModulePin(0, 3);
-
-  CAU::pinMode(gValveData.ppValve[0], OUTPUT);
-  CAU::digitalWrite(gValveData.ppValve[0], LOW);
-  CAU::pinMode(gValveData.ppValve[1], OUTPUT);
-  CAU::digitalWrite(gValveData.ppValve[1], LOW);
-  CAU::pinMode(gValveData.ppValve[2], OUTPUT);
-  CAU::digitalWrite(gValveData.ppValve[2], LOW);
-  CAU::pinMode(gValveData.ppValve[3], OUTPUT);
-  CAU::digitalWrite(gValveData.ppValve[3], LOW);
-}
-
-void valve_MenuRun() {
-  // Handle incoming packets
-  CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gValveData.shutterLag);
-  packet = incomingPacketCheckUint32(packet, 1, gValveData.flashDelay);
-  for (uint8_t i=0; i<4; ++i) { //Valves (max is 4)
-    for (uint8_t j=0; j<3; ++j) { //Drops (max is 3)
-      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+0, gValveData.dropDelay[i][j]);
-      packet = incomingPacketCheckUint32(packet, 2+i*3*2+j*2+1, gValveData.dropSize[i][j]);
-    }
-  }
-  incomingPacketFinish(packet);
-}
-
-void valve_PhotoRun() {
-  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
-
-    // Handle incoming packets
-    uint32_t val = 0;
-    CAPacketElement *packet = processIncomingPacket();
-    packet = incomingPacketCheckUint32(packet, 26, val);
-    incomingPacketFinish(packet);
-
-    if (val) {
-      bool done[4] = {false,false,false,false};
-      triggerCameras();
-      uint32_t startTime = millis();
-      uint32_t t[6];  // t[0] is end of delay drop 0 ;; t[1] is end of size drop 0 ;; continued for each drop
-      while ((done[0] != true) && (done[1] != true) && (done[2] != true) && (done[3] != true))
-      {
-        uint32_t prevTime = startTime;
-        for(uint8_t i=0; i<4; ++i) {  // Valves
-          for(uint8_t j=0; j<3; ++j) { //Drops
-            prevTime = t[j*2+0] = prevTime+gValveData.dropDelay[i][j];
-            prevTime = t[j*2+1] = prevTime+gValveData.dropSize[i][j];
-          }
-          uint32_t curTime;
-          curTime = millis();
-          if (curTime >= t[5]) {
-            CAU::digitalWrite(gValveData.ppValve[i], LOW);
-            done[i] = true;
-          }
-          else if (curTime >= t[4]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
-          else if (curTime >= t[3]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
-          else if (curTime >= t[2]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
-          else if (curTime >= t[1]) { CAU::digitalWrite(gValveData.ppValve[i], LOW); }
-          else if (curTime >= t[0]) { CAU::digitalWrite(gValveData.ppValve[i], HIGH); }
-        }
-      }
-    }
-  }
+  initCameraPins();
+  gLightningData.peakOfStrike = 0;  // zero out the peak before going back to MENU
+  // Now back to MENU mode
 }
 
 #endif //MENUS_H

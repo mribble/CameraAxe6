@@ -1,4 +1,4 @@
-caSetInfoString("Plug Light Sensor into Module 0 port.");
+caSetInfoString("Plug the light module into port 1.");
 
 caStartMenuMode("Lightning Menu");
 caEditNumber("id0", 4094, 40, "  Trigger Difference Threshold: ");
