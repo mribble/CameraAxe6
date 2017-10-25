@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Sound/Sound.sch)
-    (date "10/11/2017 5:20:13 PM")
+    (date "10/25/2017 10:34:49 AM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
