@@ -5,6 +5,22 @@
 #include "Context.h"
 #include "PacketProcessor.h"
 
+//////////////////////////////
+// executeLimitAt - Helper function to limit how often code executes
+//////////////////////////////
+
+bool executeLimitAt(uint32_t updateFrequency) {
+  uint32_t curTime = millis();
+  static uint32_t nextUpdate = millis();
+  bool ret = false;
+  
+  if ((curTime >= nextUpdate) || (curTime-nextUpdate < updateFrequency*1024)) { // Handles wraparounds
+    ret = true;
+    nextUpdate = curTime + updateFrequency;
+  }
+  return ret;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dev Menu - A menu that demonstrates how to make a menu
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,15 +44,10 @@ void dev_PhotoInit() {
 }
 
 void dev_MenuRun() {
-  uint32_t updateFrequency = 1000;  // 1000 ms
-  uint32_t curTime = millis();
-  static uint32_t nextUpdate = millis();
   static uint32_t count = 0;
 
-  // Handle outgoing packets
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*256)) { // Handles wraparounds
+  if (executeLimitAt(1000)) {
     g_ctx.packetHelper.writePacketString(0, String(count++).c_str());
-    nextUpdate = curTime + updateFrequency;
   }
 
   // Handle incoming packets
@@ -69,9 +80,9 @@ void dev_PhotoRun() {
 // Sound Menu - Detects sound
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
-  hwPortPin ppPin;
-  CASensorFilter sf;
-  uint32_t triggerVal;
+  hwPortPin ppPin;      // This is the port and in where the analog sound value comes from
+  CASensorFilter sf;    // This helps filter incoming values for a cleaner display
+  uint32_t triggerVal;  // This stores the amount of sound change required to trigger the CA6
 } SoundData;
 
 SoundData gSoundData;
@@ -81,32 +92,29 @@ const char* sound_Name() {
 }
 
 void sound_MenuInit() {
-  gSoundData.ppPin = CAU::getModulePin(0, 0);
+  gSoundData.ppPin = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog sound values are
   CAU::pinMode(gSoundData.ppPin, ANALOG_INPUT);
   gSoundData.sf.init(gSoundData.ppPin, CASensorFilter::ANALOG_THRESHOLD, 2000);  // Update display ever 2000 ms
-  gSoundData.sf.setThreshold(2048);
+  gSoundData.sf.setThreshold(2048);  // Analog sound can range from 0 to 4095.  No sound is at a 2048 value
 }
 
 void sound_PhotoInit() {
-  gSoundData.ppPin = CAU::getModulePin(0, 0);
+  gSoundData.ppPin = CAU::getModulePin(0, 0);  // Same settings as menu init since it's possible to skip right to photo mode and skip menu mode
   CAU::pinMode(gSoundData.ppPin, ANALOG_INPUT);
 }
 
 void sound_MenuRun() {
-  uint32_t updateFrequency = 500;  // 500 ms
-  uint32_t curTime = millis();
-  static uint32_t nextUpdate = millis();
   uint16_t val = gSoundData.sf.getSensorData();
 
   // Handle outgoing packets
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
+  if (executeLimitAt(500)) {
+    // Every 500 ms send a packet to the webserver so it can display the filtered current value
     g_ctx.packetHelper.writePacketString(1, String(val).c_str());
-    nextUpdate = curTime + updateFrequency;
   }
 
-  // Handle incoming packets
+  // Handle incoming packets from webserver
   CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gSoundData.triggerVal);
+  packet = incomingPacketCheckUint32(packet, 0, gSoundData.triggerVal); // Store the trigger value user set on webpage here
   incomingPacketFinish(packet);
 }
 
@@ -114,14 +122,14 @@ void sound_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Handle triggering
     uint16_t val = CAU::analogRead(gSoundData.ppPin);
-    val = (val >= 2048) ? (val-2048) : (2048-val);
-    uint8_t trigger = (val >= gSoundData.triggerVal) ? true : false;
+    val = (val >= 2048) ? (val-2048) : (2048-val);  // Bias value to have a center at 2048 (no sound for this sensor)
 
+    bool trigger = (val >= gSoundData.triggerVal) ? true : false;
     if (trigger) {
       triggerCameras();
     }
 
-    // Handle incoming packets
+    // Handle incoming packets (needed so user can exit photo mode)
     CAPacketElement *packet = processIncomingPacket();
     incomingPacketFinish(packet);
   }
@@ -154,16 +162,12 @@ void vibration_PhotoInit() {
 }
 
 void vibration_MenuRun() {
-  uint32_t updateFrequency = 500;  // 500 ms
-  uint32_t curTime = millis();
-  static uint32_t nextUpdate = millis();
   uint32_t val = gVibrationData.sf.getSensorData();
 
   // Handle outgoing packets
-  if ((curTime >= nextUpdate) && (curTime-nextUpdate < updateFrequency*1000)) { // Handles wraparounds
+  if (executeLimitAt(1000)) {
     val = map(val, 1, 4095, 1, 1000);  // Convert the values used on the micro to values on webpage
     g_ctx.packetHelper.writePacketString(1, String(val).c_str());
-    nextUpdate = curTime + updateFrequency;
   }
 
   // Handle incoming packets
@@ -338,9 +342,6 @@ void lightning_PhotoInit() {
 }
 
 void lightning_MenuRun() {
-  uint32_t curTimeMS = millis();
-  static uint32_t timeToDisplayMS = curTimeMS;
-
   // Handle incoming packets
   CAPacketElement *packet = processIncomingPacket();
   packet = incomingPacketCheckUint32(packet, 0, gLightningData.triggerDiffThreshold);
@@ -348,10 +349,9 @@ void lightning_MenuRun() {
   incomingPacketFinish(packet);
 
   // Handle outgoing packets
-  if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+  if (executeLimitAt(DISPLAYFREQMS)) {
     gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
     g_ctx.packetHelper.writePacketString(2, String(gLightningData.sensorVal).c_str());
-    timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
   }
 
   // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
@@ -379,7 +379,6 @@ void LTGDisplayPhotoMode() {
 
 void lightning_PhotoRun() {
   uint32_t curTimeMS = millis();
-  static uint32_t timeToDisplayMS = curTimeMS;
   int16_t currentDif = 0;
   uint32_t strikeDurUS = 0;
   uint32_t strikeDurMS = 0;
@@ -389,7 +388,6 @@ void lightning_PhotoRun() {
   gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
   CA_LOG("Ref value starting Photo mode=%u\n", gLightningData.referenceSensorVal);
   gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS;  // initialize the update timer
-  timeToDisplayMS = curTimeMS + DISPLAYFREQMS; // Update the display only once per second because it takes ~50-70 ms to do
 
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
     // Loop checking for a strike (curval - ref > trigger)
@@ -425,10 +423,9 @@ void lightning_PhotoRun() {
       }
 
       //Is it time to display current values?
-      if ((curTimeMS >= timeToDisplayMS) && (curTimeMS - timeToDisplayMS < DISPLAYFREQMS * 1000)) { // Handles wraparounds
+      if (executeLimitAt(DISPLAYFREQMS)) {
         CA_LOG("Display\n");
         LTGDisplayPhotoMode();
-        timeToDisplayMS = curTimeMS + DISPLAYFREQMS;
       }
 
     }  // End of loop looking for start of a strike

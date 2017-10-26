@@ -9,8 +9,8 @@ CALed::CALed(uint8_t greenPin, uint8_t redPin) {
     mGreenPin = greenPin;
     mRedPin = redPin;
     mState = ALL_OFF;
-    mOnTime = 1000;
-    mOffTime = 1000;
+    mOnTime = 100;
+    mOffTime = 100;
     mNextTime = 0;
     mWriteVal = LOW;
     

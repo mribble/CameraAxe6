@@ -3,6 +3,7 @@
 #include <CAEsp8266.h>
 #include "Context.h"
 #include "Menus.h"
+#include "NewMenu.h"
 #include "PacketProcessor.h"
 #include "Terminal.h"
 #include "Tests.h"
