@@ -1,4 +1,4 @@
-update=3/26/2017 8:00:35 PM
+update=10/28/2017 7:20:13 AM
 last_client=kicad
 [general]
 version=1
@@ -34,3 +34,5 @@ LibDir=../pcb
 LibName1=CA6
 LibName2=C:/Program Files/KiCad/share/kicad/library/device
 LibName3=C:/Program Files/KiCad/share/kicad/library/conn
+LibName4=C:/Program Files/KiCad/share/kicad/library/interface
+LibName5=C:/Program Files/KiCad/share/kicad/library/74xx
