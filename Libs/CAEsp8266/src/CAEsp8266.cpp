@@ -23,8 +23,11 @@ void CAEsp8266::init(uint32_t baud) {
     getSerial()->begin(baud);
 }
 
+void CAEsp8266::end() {
+    getSerial()->end();
+}
+
 void CAEsp8266::reprogramESP() {
-    uint8_t input;
     CAU::digitalWrite(mEspReset, LOW);
     delay(20);
     CAU::digitalWrite(mEspGpio0, LOW);
@@ -32,31 +35,11 @@ void CAEsp8266::reprogramESP() {
     CAU::digitalWrite(mEspReset, HIGH);
     delay(50);
     CAU::digitalWrite(mEspGpio0, HIGH);
-    CA_LOG("ESP8266 is in Flash Programing mode, Upload the ESP8266 sketch now\n");
-    CA_LOG(" - wait until upload has completed and ESP8266 has connected, then type y\n");
-    CA_LOG(" - if the ESP8266 does not connect to a network, type y then repeat the programming\n");
-    // Need to wait here until reprogramming is done to avoid packet errors and disruption of reprogram data stream
-    input = ' ';
-    while (input != 'y') {
-        while (!SerialIO.available());
-        input = SerialIO.read();
-    }
-
-    SerialIO.print("ESP8266 Programing complete, back to data mode\n");
 }
 
 void CAEsp8266::resetESP() {
-    uint8_t input;
-    CA_LOG("ESP8266 will be reset - When complete, type y\n");
     CAU::digitalWrite(mEspReset, LOW);
     delay(10);
     CAU::digitalWrite(mEspReset, HIGH);
     delay(10);
-    input = ' ';
-    while (input != 'y') {
-        while (!SerialIO.available());
-        input = SerialIO.read();
-    }
-    
-    CA_LOG("ESP8266 Reset complete, back to data mode\n");
 }
