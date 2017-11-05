@@ -1,0 +1,11 @@
+Reference Type, Quantity, Reference, Value, Footprint, Datasheet
+"C","2","C1,C2,","C_Small","Resistors_SMD:R_0603",""
+"D","1","D1,","LD274","LEDs:LED_D5.0mm",""
+"J","1","J1,","Conn_01x02","Pin_Headers:Pin_Header_Angled_1x02_Pitch1.00mm",""
+"J","1","J2,","Conn_01x04","Pin_Headers:Pin_Header_Angled_1x04_Pitch1.00mm",""
+"Q","1","Q1,","BC817","TO_SOT_Packages_SMD:SOT-23",""
+"R","5","R2,R4,R1,R3,R5,","R","Resistors_SMD:R_0603",""
+"RV","1","RV1,","POT","Potentiometers:Potentiometer_Trimmer-EVM3E",""
+"U","1","U2,","LM358","Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm",""
+"U","1","U1,","LMC555xM","Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm",""
+"U","1","U3,","TSOP585xx","Opto-Devices:IRReceiver_Vishay_MINICAST-3pin",""
