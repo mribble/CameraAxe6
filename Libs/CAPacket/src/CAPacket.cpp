@@ -318,7 +318,7 @@ void CAPacketMenuSelect::packetToString(String& str) {
 ///////////////////////////////////////////////////////////////////////////////
 CAPacketCamSettings::CAPacketCamSettings() {
     mCamPortNumber = 0;
-    mMode = 0;
+    mMode = CA_MODE_CAMERA;
     mDelaySeconds = 0;
     mDelayNanoseconds = 0;
     mDurationSeconds = 0;
@@ -349,7 +349,7 @@ void CAPacketCamSettings::set(uint8_t camPortNumber, uint8_t mode, uint32_t dela
     mPostDelayNanoseconds = postDelayNanoseconds;
     mSequencer = sequencer;
     mMirrorLockup = mirrorLockup;
-    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= CA_MODE_FLASH) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
 }
 
@@ -368,7 +368,7 @@ void CAPacketCamSettings::set(const String& str) {
     mPostDelayNanoseconds = getUint32FromString(index, str);
     mSequencer = getUint32FromString(index, str);
     mMirrorLockup = getUint32FromString(index, str);
-    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= CA_MODE_FLASH) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::set()");
     CA_ASSERT(index==str.length(), str.c_str());
     CA_ASSERT(id==PID_CAM_SETTINGS, "Wrong PID ID");
@@ -376,7 +376,7 @@ void CAPacketCamSettings::set(const String& str) {
 
 void CAPacketCamSettings::unpack() {
     mCamPortNumber = mCAP->unpacker(3);
-    mMode = mCAP->unpacker(2);
+    mMode = mCAP->unpacker(3);
     mDelaySeconds = mCAP->unpacker(32);
     mDelayNanoseconds = mCAP->unpacker(32);
     mDurationSeconds = mCAP->unpacker(32);
@@ -385,9 +385,9 @@ void CAPacketCamSettings::unpack() {
     mPostDelayNanoseconds = mCAP->unpacker(32);
     mSequencer = mCAP->unpacker(8);
     mMirrorLockup = mCAP->unpacker(1);
-    mCAP->unpacker(2); // Unused
+    mCAP->unpacker(1); // Unused
     mCAP->flushPacket();
-    CA_ASSERT((mMode <= 3) && (mMirrorLockup <= 1),
+    CA_ASSERT((mMode <= CA_MODE_FLASH) && (mMirrorLockup <= 1),
                 "Error in CAPacketCamSettings::unpack()");
 }
 
@@ -398,7 +398,7 @@ uint16_t CAPacketCamSettings::pack() {
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_CAM_SETTINGS, 8);
     mCAP->packer(mCamPortNumber, 3);
-    mCAP->packer(mMode, 2);
+    mCAP->packer(mMode, 3);
     mCAP->packer(mDelaySeconds, 32);
     mCAP->packer(mDelayNanoseconds, 32);
     mCAP->packer(mDurationSeconds, 32);
@@ -407,7 +407,7 @@ uint16_t CAPacketCamSettings::pack() {
     mCAP->packer(mPostDelayNanoseconds, 32);
     mCAP->packer(mSequencer, 8);
     mCAP->packer(mMirrorLockup, 1);
-    mCAP->packer(unused, 2);
+    mCAP->packer(unused, 1);
     mCAP->flushPacket();
     return packetSize;
 }

@@ -182,10 +182,11 @@ enum CAM_SETTINGS_SEQ {
     CA_SEQ7    = 0x80
 };
 enum CAM_SETTINGS_MODE {
-    CA_MODE_CAMERA         = 0,
-    CA_MODE_PREFOCUS       = 1,
-    CA_MODE_SMART_PREFOCUS = 2,
-    CA_MODE_FLASH          = 3,
+    CA_MODE_NONE           = 0,
+    CA_MODE_CAMERA         = 1,
+    CA_MODE_PREFOCUS       = 2,
+    CA_MODE_SMART_PREFOCUS = 3,
+    CA_MODE_FLASH          = 4,
 };
 
 class CAPacketCamSettings : public CAPacketElement  {

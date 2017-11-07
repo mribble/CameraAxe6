@@ -12,6 +12,10 @@
 // 2017.9.6
 //    - Initial version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Loading you must use a recent version of esptool (https://github.com/espressif/esptool) with the following command line:
+// esptool.py --port COM3 --before no_reset --after no_reset write_flash 0x0 C:\Users\xyz\AppData\Local\Temp\arduino_build_440408/Esp8266.ino.bin 0x300000 C:\Users\xyz\AppData\Local\Temp\arduino_build_440408/Esp8266.spiffs.bin
+
 #include "lwip/tcp_impl.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -55,7 +59,7 @@ const char* gIntervalFilename = "/data/interval";
 const char* gStartLocation = "/data/startLocation";
 
 // Assumes PID_CAM_SETTINGS is 5
-String gCamSettingDefaults = "5~0~0~0~0~0~200000000~0~0~255~0~&5~1~0~0~0~0~200000000~0~0~255~0~&5~2~0~0~0~0~200000000~0~0~255~0~&5~3~0~0~0~0~200000000~0~0~255~0~&5~4~0~0~0~0~200000000~0~0~255~0~&5~5~0~0~0~0~200000000~0~0~255~0~&5~6~0~0~0~0~200000000~0~0~255~0~&5~7~0~0~0~0~200000000~0~0~255~0~&";
+String gCamSettingDefaults = "5~0~1~0~0~0~200000000~0~0~255~0~&5~1~1~0~0~0~200000000~0~0~255~0~&5~2~1~0~0~0~200000000~0~0~255~0~&5~3~1~0~0~0~200000000~0~0~255~0~&5~4~1~0~0~0~200000000~0~0~255~0~&5~5~1~0~0~0~200000000~0~0~255~0~&5~6~1~0~0~0~200000000~0~0~255~0~&5~7~1~0~0~0~200000000~0~0~255~0~&";
 
 // Assumes PID_INTERVALOMETER is 6
 String gIntervalometerDefaults = "6~0~0~0~1~0~4~";

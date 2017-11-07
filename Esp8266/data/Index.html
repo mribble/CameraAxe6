@@ -210,10 +210,10 @@
 			var gDynamicMenuName;       // The current dynamic menu name
 			var gCamSelectVal = 0;      // The current camera/flash selected in the UI
 			var gCamSettingsArray = [
-				"5~0~0~0~0~0~0~0~0~0~0~", "5~1~0~0~0~0~0~0~0~0~0~",
-				"5~2~0~0~0~0~0~0~0~0~0~", "5~3~0~0~0~0~0~0~0~0~0~",
-				"5~4~0~0~0~0~0~0~0~0~0~", "5~5~0~0~0~0~0~0~0~0~0~",
-				"5~6~0~0~0~0~0~0~0~0~0~", "5~7~0~0~0~0~0~0~0~0~0~"
+				"5~0~1~0~0~0~0~0~0~0~0~", "5~1~1~0~0~0~0~0~0~0~0~",
+				"5~2~1~0~0~0~0~0~0~0~0~", "5~3~1~0~0~0~0~0~0~0~0~",
+				"5~4~1~0~0~0~0~0~0~0~0~", "5~5~1~0~0~0~0~0~0~0~0~",
+				"5~6~1~0~0~0~0~0~0~0~0~", "5~7~1~0~0~0~0~0~0~0~0~"
 			];
 
 			// Load in the default values and initialize the UI
@@ -1115,10 +1115,11 @@
 						<td style="width:50%;">Mode</td>
 						<td style="width:50%;">
 							<select class="select1" name="mode">
-								<option value="0">Camera</option>
-								<option value="1">Camera Prefocus</option>
-								<option value="2">Camera Prefocus Smart</option>
-								<option value="3">Flash</option>
+                                <option value="0">None</option>
+								<option value="1">Camera</option>
+								<option value="2">Camera Prefocus</option>
+								<option value="3">Camera Prefocus Smart</option>
+								<option value="4">Flash</option>
 							</select>
 						</td>
 					</tr>

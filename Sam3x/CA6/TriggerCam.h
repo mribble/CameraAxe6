@@ -130,7 +130,7 @@ void handleMirrorLockupPhase2() {
     uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
     uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
   
-    if (mirrorLockup) {
+    if (mirrorLockup && (mode != CA_MODE_NONE)) {
       hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
       hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
       CAU::digitalWrite(focusPin, focusVal);
@@ -147,14 +147,18 @@ void handleMirrorLockup() {
   CA_ASSERT((g_ctx.camTriggerRunning == false), "Should never be running camera here");
   
   for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
-    uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
+    uint8_t mode = g_ctx.camSettings[i].getMode();
 
-    if (mirrorLockup) {
-      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
-      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-      CAU::digitalWrite(focusPin, HIGH);
-      CAU::digitalWrite(shutterPin, HIGH);
-      anyMirrorLockup = true;
+    if (mode != CA_MODE_NONE) {
+      uint8_t mirrorLockup = g_ctx.camSettings[i].getMirrorLockup();
+  
+      if (mirrorLockup) {
+        hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+        hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+        CAU::digitalWrite(focusPin, HIGH);
+        CAU::digitalWrite(shutterPin, HIGH);
+        anyMirrorLockup = true;
+      }
     }
   }
 
@@ -175,11 +179,13 @@ void startTriggerCameraState() {
     
   for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
     uint8_t mode = g_ctx.camSettings[i].getMode();
-    uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
-    hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
-    hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-    CAU::digitalWrite(focusPin, focusVal);
-    CAU::digitalWrite(shutterPin, LOW);
+    if (mode != CA_MODE_NONE) {
+      uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
+      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      CAU::digitalWrite(focusPin, focusVal);
+      CAU::digitalWrite(shutterPin, LOW);
+    }
   }  
 }
 
@@ -380,13 +386,14 @@ void setupCamTiming() {
     uint8_t focusAfterDuration = (mode == CA_MODE_PREFOCUS) ? HIGH : LOW;
     uint8_t sequencerVal = g_ctx.camSettings[i].getSequencer();
 
-    sequencerMask |= sequencerVal;
     t = t0+t1+t2;
-    maxTotalTime = max(t, maxTotalTime);
 
-    // Don't add to list if all times are zero or if the sequencerVal is 0 since in both those cases nothing is happening
-    if ((t!=0) && (sequencerVal!=0)) {
-
+    // Don't add to list if all times are zero OR the sequencerVal is 0 OR mode set to none
+    //  in all these cases the camera port is disabled
+    if ((t==0) || (sequencerVal==0) || (mode==CA_MODE_NONE)) {
+      processCam[i] = false;
+    }
+    else {
       // Set focus/shutter pins right after delay time
       camElements0[j].timeOffset = t0;
       camElements0[j].camOffset = i;
@@ -401,6 +408,8 @@ void setupCamTiming() {
       camElements0[j].shutterSig = LOW;
       camElements0[j++].sequencerVal = sequencerVal;
 
+      sequencerMask |= sequencerVal;
+      maxTotalTime = max(t, maxTotalTime);
       processCam[i] = true;
     }
   }
