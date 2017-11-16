@@ -255,17 +255,34 @@ void valve_PhotoRun() {
     incomingPacketFinish(packet);
 
     if (val) {
+      if (gValveData.shutterLag <= gValveData.flashDelay) {
+        // This is the normal path
+        uint64_t camDelayMs = gValveData.flashDelay - gValveData.shutterLag;
+        uint64_t flashDelayMs = gValveData.flashDelay;
+        setupCamTiming(camDelayMs*1000000, flashDelayMs*1000000);
+        triggerCameras();
+      }
+      else {
+        // In this case shuter lag is so long we need to introduce an
+        // extra delay to give the shutter time to open
+        uint64_t valveDelayMs = gValveData.shutterLag - gValveData.flashDelay;
+        uint64_t camDelayMs = 0;
+        uint64_t flashDelayMs = gValveData.flashDelay + valveDelayMs;
+        setupCamTiming(camDelayMs*1000000, flashDelayMs*1000000);
+        triggerCameras();
+        delay(valveDelayMs);
+      }
+  
       bool done[4] = {false,false,false,false};
-      triggerCameras();
       uint32_t startTime = millis();
       uint32_t t[6];  // t[0] is end of delay drop 0 ;; t[1] is end of size drop 0 ;; continued for each drop
-      while ((done[0] != true) && (done[1] != true) && (done[2] != true) && (done[3] != true))
+      while ((done[0] == false) || (done[1] == false) || (done[2] == false) || (done[3] == false))
       {
         for(uint8_t i=0; i<4; ++i) {  // Valves
           uint32_t prevTime = startTime;
           for(uint8_t j=0; j<3; ++j) { //Drops
-            prevTime = t[j*2+0] = prevTime+gValveData.dropDelay[i][j];
-            prevTime = t[j*2+1] = prevTime+gValveData.dropSize[i][j];
+            prevTime = (t[j*2+0] = prevTime+gValveData.dropDelay[i][j]);
+            prevTime = (t[j*2+1] = prevTime+gValveData.dropSize[i][j]);
           }
           uint32_t curTime;
           curTime = millis();
@@ -282,6 +299,7 @@ void valve_PhotoRun() {
       }
     }
   }
+  setupCamTiming(); // Restore the camera/flash timings back to the correct values
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

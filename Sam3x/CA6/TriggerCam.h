@@ -366,7 +366,7 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
 //  we use these optimized data structures to run fast.
 //  Requires a list of elements to be sorted and for time to be a relative offset from the previous element.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void setupCamTiming() {
+void setupCamTiming(uint64_t extraCamDelayNs=0, uint64_t extraFlashDelayNs=0) {
   uint8_t i;
   uint8_t j = 0;
   uint64_t maxTotalTime = 0;
@@ -377,11 +377,12 @@ void setupCamTiming() {
 
   // Phase 1 (converting camera data into CamElement0 elements and throwing out unneeded elements.
   for(i=0; i<NUM_CAMERAS; ++i) {
-    uint64_t t0 = CATickTimer::convertTimeToTicks(g_ctx.camSettings[i].getDelaySeconds(), g_ctx.camSettings[i].getDelayNanoseconds());
+    uint8_t mode = g_ctx.camSettings[i].getMode();
+    uint64_t extraDelayTimeNs = (mode == CA_MODE_FLASH) ? extraFlashDelayNs : extraCamDelayNs;
+    uint64_t t0 = CATickTimer::convertTimeToTicks(g_ctx.camSettings[i].getDelaySeconds(), g_ctx.camSettings[i].getDelayNanoseconds(), extraDelayTimeNs);
     uint64_t t1 = CATickTimer::convertTimeToTicks(g_ctx.camSettings[i].getDurationSeconds(), g_ctx.camSettings[i].getDurationNanoseconds());
     uint64_t t2 = CATickTimer::convertTimeToTicks(g_ctx.camSettings[i].getPostDelaySeconds(), g_ctx.camSettings[i].getPostDelayNanoseconds());
     uint64_t t;
-    uint8_t mode = g_ctx.camSettings[i].getMode();
     uint8_t focusAfterDelay = (mode == CA_MODE_FLASH) ? LOW : HIGH;
     uint8_t focusAfterDuration = (mode == CA_MODE_PREFOCUS) ? HIGH : LOW;
     uint8_t sequencerVal = g_ctx.camSettings[i].getSequencer();
@@ -413,7 +414,12 @@ void setupCamTiming() {
       processCam[i] = true;
     }
   }
+
+  //for(i=0; i<NUM_CAM_TIMER_ELEMENTS; ++i) {
+  //  CA_LOG("%"PRId64" %d %d %d %d\n", camElements0[i].timeOffset, camElements0[i].camOffset, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].sequencerVal);
+  //}
   g_ctx.curSeqMask = sequencerMask;
+
   sortCamTiming(camElements0, j);
   // Don't need to sort the following because they are all inserted at the end with max time
 
@@ -438,7 +444,7 @@ void setupCamTiming() {
   // Phase 2
   generateUnifiedElements(camElements0, numCamElements0);
 
-  //CA_LOG("Sorted Camera List\n");
+  //CA_LOG("Unified Element List\n");
   //for(uint8_t i=0; i<g_ctx.numCamTimerElements; ++i) {
   //  CA_LOG("%d  %"PRId64"\n", g_ctx.camTimerElements[i].camOffset, g_ctx.camTimerElements[i].timeOffset);
   //}

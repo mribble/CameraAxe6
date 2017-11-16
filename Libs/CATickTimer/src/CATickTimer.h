@@ -20,7 +20,7 @@ public:
     void start(callbackFunc isr, uint64_t ticks, uint8_t repeat);
     static void stop(uint8_t timerNum);
     void stop();
-    static uint64_t convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds);
+    static uint64_t convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds, uint64_t extraNanoseconds=0);
     static void isrHandler(uint8_t timerNum);
 
 private:

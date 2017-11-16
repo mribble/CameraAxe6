@@ -179,12 +179,13 @@ void CATickTimer::stop()
     stop(m_num);
 }
 
-uint64_t CATickTimer::convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds)
+// extraNanoseconds defaults to 0
+uint64_t CATickTimer::convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds, uint64_t extraNanoseconds)
 {
     uint64_t ret;
     uint64_t ticksPerMicroSec = 84; //Sam8 running at 84 mhz
 
-    ret = ((uint64_t)seconds*1000*1000*1000 + nanoseconds)* ticksPerMicroSec / 1000;
+    ret = ((uint64_t)seconds*1000*1000*1000 + nanoseconds + extraNanoseconds)* ticksPerMicroSec / 1000;
 
     return ret;
 }
