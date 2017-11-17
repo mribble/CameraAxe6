@@ -23,6 +23,13 @@ extern void sound_PhotoInit();
 extern void sound_MenuRun();
 extern void sound_PhotoRun();
 
+// Light Menu
+extern const char* light_Name();
+extern void light_MenuInit();
+extern void light_PhotoInit();
+extern void light_MenuRun();
+extern void light_PhotoRun();
+
 // Vibration Menu
 extern const char* vibration_Name();
 extern void vibration_MenuInit();

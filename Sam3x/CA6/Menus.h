@@ -136,6 +136,82 @@ void sound_PhotoRun() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Light Menu - Detects light
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+  hwPortPin ppPin;            // This is the port and in where the analog light value comes from
+  CASensorFilter sf;          // This helps filter incoming values for a cleaner display
+  uint32_t triggerVal;        // This stores the amount of light change required to trigger the CA6
+  uint32_t triggerMode=0;     // This stores the mode (min/max/threshold) used to trigger the CA6
+} LightData;
+
+LightData gLightData;
+
+const char* light_Name() {
+  return "Light Menu";
+}
+
+void light_MenuInit() {
+  gLightData.ppPin = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog light values are
+  CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
+  gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+}
+
+void light_PhotoInit() {
+  gLightData.ppPin = CAU::getModulePin(0, 0);  // Same settings as menu init since it's possible to skip right to photo mode and skip menu mode
+  CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
+}
+
+void light_MenuRun() {
+  uint16_t val = gLightData.sf.getSensorData();
+  uint32_t prevTriggerMode = gLightData.triggerMode;
+
+  // Handle outgoing packets
+  if (executeLimitAt(500)) {
+    // Every 500 ms send a packet to the webserver so it can display the filtered current value
+    g_ctx.packetHelper.writePacketString(2, String(val).c_str());
+  }
+
+  // Handle incoming packets from webserver
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 1, gLightData.triggerVal); // Store the trigger value user set on webpage here
+  incomingPacketFinish(packet);
+
+  // Update the display based on current mode
+  if (prevTriggerMode != gLightData.triggerMode) {
+    if (gLightData.triggerMode == 0) {  // Min Mode
+      gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+    }
+    else { // Max Mode
+      gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
+    }
+  }
+}
+
+void light_PhotoRun() {
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    // Handle triggering
+    bool trigger;
+    uint16_t val = CAU::analogRead(gLightData.ppPin);
+    if (gLightData.triggerMode == 0) {  // Min Mode
+      trigger = (val < gLightData.triggerVal) ? true : false;
+    }
+    else { // Max Mode
+      trigger = (val > gLightData.triggerVal) ? true : false;
+    }
+    
+    if (trigger) {
+      triggerCameras();
+    }
+
+    // Handle incoming packets (needed so user can exit photo mode)
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Vibration Menu - Detects vibration
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {

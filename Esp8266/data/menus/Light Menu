@@ -1,0 +1,11 @@
+caSetInfoString("Plug the light module into port 1.");
+
+caStartMenuMode("Light Menu");
+caDropSelect("id0", 0, "Trigger Mode:", "Min~Max");
+caEditNumber("id1", 4095, 200, "Light Trigger Level: ");
+caTextDynamic("id2", "Current Light Level (0-4095)", "?");
+caEndMenu();
+
+caStartPhotoMode();
+caTextStatic("Ready to take your photo!");
+caEndMenu();
