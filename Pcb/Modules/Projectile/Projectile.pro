@@ -1,4 +1,4 @@
-update=11/4/2017 8:29:08 PM
+update=11/18/2017 7:19:07 AM
 version=1
 last_client=eeschema
 [pcbnew]
@@ -25,16 +25,6 @@ version=1
 NetIExt=net
 [general]
 version=1
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-LabSize=60
 [eeschema]
 version=1
 LibDir=../../../Pcb
@@ -73,3 +63,13 @@ LibName31=atmel
 LibName32=contrib
 LibName33=valves
 LibName34=D:/_my/git/CameraAxe6/Pcb/CA6
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=C:/Users/oe/Desktop/
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60

@@ -1,0 +1,12 @@
+caSetInfoString("Plug the projectile module into port 3.");
+
+caStartMenuMode("Projectile Menu");
+caEditNumber("id0", 4095, 200, "Light1 Trigger Level: ");
+caTextDynamic("id1", "Current Light1 Level (0-4095)", "?");
+caEditNumber("id2", 4095, 200, "Light2 Trigger Level: ");
+caTextDynamic("id3", "Current Light2 Level (0-4095)", "?");
+caEndMenu();
+
+caStartPhotoMode();
+caTextStatic("Ready to take your photo!");
+caEndMenu();

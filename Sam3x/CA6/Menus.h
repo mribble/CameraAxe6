@@ -580,5 +580,92 @@ void lightning_PhotoRun() {
   // Now back to MENU mode
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Projectile Menu - Detects projectiles
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+  hwPortPin ppDetect0;        // This is the port where the analog value comes from
+  hwPortPin ppDetect1;        // This is the port where the analog value comes from
+  hwPortPin ppEmit;           // This is the port to enable an IR LED
+  CASensorFilter sf0;         // This helps filter incoming values for a cleaner display
+  CASensorFilter sf1;         // This helps filter incoming values for a cleaner display
+  uint32_t triggerVal0;       // This stores the amount of change required to trigger the CA6
+  uint32_t triggerVal1;       // This stores the amount of change required to trigger the CA6
+} ProjectileData;
+
+ProjectileData gProjectileData;
+
+const char* projectile_Name() {
+  return "Projectile Menu";
+}
+
+void projectile_MenuInit() {
+  gProjectileData.ppDetect0 = CAU::getModulePin(2, 0);    // Module 0 pin 0 is where the analog values are
+  CAU::pinMode(gProjectileData.ppDetect0, ANALOG_INPUT);
+  gProjectileData.ppDetect1 = CAU::getModulePin(2, 1);    // Module 0 pin 1 is where the analog values are
+  CAU::pinMode(gProjectileData.ppDetect1, ANALOG_INPUT);
+
+  gProjectileData.ppEmit = CAU::getModulePin(2, 2);
+  CAU::pinMode(gProjectileData.ppEmit, OUTPUT);
+  CAU::digitalWrite(gProjectileData.ppEmit, HIGH);
+  
+  gProjectileData.sf0.init(gProjectileData.ppDetect0, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
+  gProjectileData.sf1.init(gProjectileData.ppDetect1, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
+}
+
+void projectile_PhotoInit() {
+  gProjectileData.ppDetect0 = CAU::getModulePin(2, 0);    // Module 0 pin 0 is where the analog values are
+  CAU::pinMode(gProjectileData.ppDetect0, ANALOG_INPUT);
+  gProjectileData.ppDetect1 = CAU::getModulePin(2, 1);    // Module 0 pin 1 is where the analog values are
+  CAU::pinMode(gProjectileData.ppDetect1, ANALOG_INPUT);
+
+  gProjectileData.ppEmit = CAU::getModulePin(2, 2);
+  CAU::pinMode(gProjectileData.ppEmit, OUTPUT);
+  CAU::digitalWrite(gProjectileData.ppEmit, HIGH);
+  
+  gProjectileData.sf0.init(gProjectileData.ppDetect0, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+  gProjectileData.sf1.init(gProjectileData.ppDetect1, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+}
+
+void projectile_MenuRun() {
+  uint16_t val0 = gProjectileData.sf0.getSensorData();
+  uint16_t val1 = gProjectileData.sf1.getSensorData();
+
+  // Handle outgoing packets
+  if (executeLimitAt(500)) {
+    // Every 500 ms send a packet to the webserver so it can display the filtered current value
+    g_ctx.packetHelper.writePacketString(1, String(val0).c_str());
+    g_ctx.packetHelper.writePacketString(3, String(val1).c_str());
+  }
+
+  // Handle incoming packets from webserver
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gProjectileData.triggerVal0); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 2, gProjectileData.triggerVal1); // Store the trigger value user set on webpage here
+  incomingPacketFinish(packet);
+}
+
+void projectile_PhotoRun() {
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+/*    // Handle triggering
+    bool trigger;
+    uint16_t val = CAU::analogRead(gLightData.ppPin);
+    if (gLightData.triggerMode == 0) {  // Min Mode
+      trigger = (val < gLightData.triggerVal) ? true : false;
+    }
+    else { // Max Mode
+      trigger = (val > gLightData.triggerVal) ? true : false;
+    }
+    
+    if (trigger) {
+      triggerCameras();
+    }
+*/
+    // Handle incoming packets (needed so user can exit photo mode)
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
+  }
+}
+
 #endif //MENUS_H
 

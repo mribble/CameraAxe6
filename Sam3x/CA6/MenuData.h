@@ -51,6 +51,14 @@ extern void lightning_PhotoInit();
 extern void lightning_MenuRun();
 extern void lightning_PhotoRun();
 
+// Projectile Menu
+extern const char* projectile_Name();
+extern void projectile_MenuInit();
+extern void projectile_PhotoInit();
+extern void projectile_MenuRun();
+extern void projectile_PhotoRun();
+
+
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
 //         declaration magic on header files.
