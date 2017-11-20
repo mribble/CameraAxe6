@@ -5,6 +5,13 @@
 #include <CATickTimer.h>
 #include "MenuData.h"
 
+// Registers
+#define REG_DWT_CTRL ((volatile uint32_t*)0xE0001000)     // Data Watchpoint and Trace Control Register
+#define REG_DWT_CYCCNT ((volatile uint32_t*)0xE0001004)   // Data Watchpoint and Trace Cycle Count Register
+#define REG_SCB_DEMCR ((volatile uint32_t*)0xE000EDFC)    // debug exception and monitor control
+#define CLOCK_TICKS (*REG_DWT_CYCCNT)
+#define TICKS_PER_MICROSECOND 84
+
 #define NUM_MENUS   8  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8

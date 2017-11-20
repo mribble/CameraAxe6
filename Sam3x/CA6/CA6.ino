@@ -13,6 +13,11 @@
 Context g_ctx;
 
 void setup() {
+  // Set up clock ticks
+  *REG_SCB_DEMCR |= 0x01000000;
+  *REG_DWT_CTRL |= (uint32_t)1;
+  *REG_DWT_CYCCNT = (uint32_t)0;
+
   initCameraPins();
   SerialIO.begin(12345); // Speed doesn't matter here
   CAU::initializeAnalog();

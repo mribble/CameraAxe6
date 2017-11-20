@@ -5,6 +5,8 @@
 #include "Context.h"
 #include "PacketProcessor.h"
 
+#define FAST_CHECK_FOR_PACKETS (Serial2.available())
+
 //////////////////////////////
 // executeLimitAt - Helper function to limit how often code executes
 //////////////////////////////
@@ -70,9 +72,11 @@ void dev_PhotoRun() {
       triggerCameras();
     }
 
-    // Handle incoming packets
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
   }
 }
 
@@ -129,9 +133,11 @@ void sound_PhotoRun() {
       triggerCameras();
     }
 
-    // Handle incoming packets (needed so user can exit photo mode)
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets (needed so user can exit photo mode)
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
   }
 }
 
@@ -205,9 +211,11 @@ void light_PhotoRun() {
       triggerCameras();
     }
 
-    // Handle incoming packets (needed so user can exit photo mode)
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets (needed so user can exit photo mode)
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
   }
 }
 
@@ -265,9 +273,11 @@ void vibration_PhotoRun() {
       triggerCameras();
     }
 
-    // Handle incoming packets
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
   }
 }
 
@@ -326,9 +336,11 @@ void valve_PhotoRun() {
 
     // Handle incoming packets
     uint32_t val = 0;
-    CAPacketElement *packet = processIncomingPacket();
-    packet = incomingPacketCheckUint32(packet, 26, val);
-    incomingPacketFinish(packet);
+    if (FAST_CHECK_FOR_PACKETS) {
+      CAPacketElement *packet = processIncomingPacket();
+      packet = incomingPacketCheckUint32(packet, 26, val);
+      incomingPacketFinish(packet);
+    }
 
     if (val) {
       if (gValveData.shutterLag <= gValveData.flashDelay) {
@@ -459,9 +471,11 @@ void LTGDisplayPhotoMode() {
   g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
   g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
 
-  // Handle incoming packets
+  if (FAST_CHECK_FOR_PACKETS) {
+    // Handle incoming packets
     CAPacketElement *packet = processIncomingPacket();
     incomingPacketFinish(packet);
+  }
 }
 
 void lightning_PhotoRun() {
@@ -591,6 +605,8 @@ typedef struct {
   CASensorFilter sf1;         // This helps filter incoming values for a cleaner display
   uint32_t triggerVal0;       // This stores the amount of change required to trigger the CA6
   uint32_t triggerVal1;       // This stores the amount of change required to trigger the CA6
+  uint32_t distToTarget;      // The distance to the target in hundredths of inches
+  uint32_t extraTime;         // Extra time offset in microseconds
 } ProjectileData;
 
 ProjectileData gProjectileData;
@@ -623,8 +639,8 @@ void projectile_PhotoInit() {
   CAU::pinMode(gProjectileData.ppEmit, OUTPUT);
   CAU::digitalWrite(gProjectileData.ppEmit, HIGH);
   
-  gProjectileData.sf0.init(gProjectileData.ppDetect0, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
-  gProjectileData.sf1.init(gProjectileData.ppDetect1, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+  gProjectileData.sf0.init(gProjectileData.ppDetect0, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
+  gProjectileData.sf1.init(gProjectileData.ppDetect1, CASensorFilter::ANALOG_MAX, 2000);  // Update display ever 2000 ms
 }
 
 void projectile_MenuRun() {
@@ -640,30 +656,68 @@ void projectile_MenuRun() {
 
   // Handle incoming packets from webserver
   CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gProjectileData.triggerVal0); // Store the trigger value user set on webpage here
-  packet = incomingPacketCheckUint32(packet, 2, gProjectileData.triggerVal1); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 0, gProjectileData.triggerVal0);   // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 2, gProjectileData.triggerVal1);   // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 4, gProjectileData.distToTarget);  // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 5, gProjectileData.extraTime);     // Store the trigger value user set on webpage here
   incomingPacketFinish(packet);
 }
 
 void projectile_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
-/*    // Handle triggering
-    bool trigger;
-    uint16_t val = CAU::analogRead(gLightData.ppPin);
-    if (gLightData.triggerMode == 0) {  // Min Mode
-      trigger = (val < gLightData.triggerVal) ? true : false;
+    uint32_t startTime=0;
+    uint32_t endTime=0;
+    bool firstSensor = false;
+    bool secondSensor = false;
+
+    // Loop to check for sensor values
+    while (1) {
+      if (!firstSensor) {
+        if (CAU::analogRead(gProjectileData.ppDetect0) >= gProjectileData.triggerVal0) {
+          startTime = CLOCK_TICKS;
+          firstSensor = true;
+        }
+      }
+      else {
+        if (CAU::analogRead(gProjectileData.ppDetect1) >= gProjectileData.triggerVal1) {
+          endTime = CLOCK_TICKS;
+          secondSensor = true;
+          break;
+        }
+        if ((CLOCK_TICKS-startTime) > (1000*1000*TICKS_PER_MICROSECOND)) {
+          // Took 1 second which is too long so we need to timeout
+          break;
+        }
+      }
+  
+      if (FAST_CHECK_FOR_PACKETS) {
+        break;
+      }
     }
-    else { // Max Mode
-      trigger = (val > gLightData.triggerVal) ? true : false;
-    }
-    
-    if (trigger) {
+
+    if (firstSensor && secondSensor) {
+      const uint32_t distanceBetweenSensors = 4;
+      uint32_t elapsedTicks = endTime-startTime;
+      uint32_t inchPerSec = distanceBetweenSensors*TICKS_PER_MICROSECOND*1000000/elapsedTicks;
+      uint32_t ticksDelay = gProjectileData.distToTarget*10000*TICKS_PER_MICROSECOND/inchPerSec; // distToTarget/inchesPerSec (then adjust for 100ths of inches in distance and convert sec to ticks)
+      ticksDelay += gProjectileData.extraTime*TICKS_PER_MICROSECOND;
+      
+      while(CLOCK_TICKS-endTime < ticksDelay) ; //Delay in loop until it's time to trigger camera
       triggerCameras();
+  
+      g_ctx.packetHelper.writePacketString(6, String(inchPerSec/12).c_str());  // Feet/sec
+      g_ctx.packetHelper.writePacketString(7, String(inchPerSec*254/100/100).c_str());  // Meters/sec
     }
-*/
-    // Handle incoming packets (needed so user can exit photo mode)
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
+    else if (firstSensor && !secondSensor) {
+      g_ctx.packetHelper.writePacketString(6, "Second sensor");  // Feet/sec
+      g_ctx.packetHelper.writePacketString(7, "not triggered");  // Meters/sec
+    }
+  
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets (needed so user can exit photo mode)
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
   }
 }
 
