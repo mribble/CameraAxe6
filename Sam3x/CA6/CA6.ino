@@ -43,7 +43,7 @@ void loop() {
       }
       if (!camTriggerRunning()) {
         // This needs to get turned off for test trigger and there wasn't a better spot
-        endTriggerCameraState();
+        resetCameraPorts();
       }
     } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
       g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();
@@ -64,4 +64,5 @@ void esp8266ProgramMode() {
   }
   CAU::pinMode(ppPin, INPUT);
 }
+
 

@@ -46,7 +46,10 @@ CAPacketElement* processIncomingPacket() {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_MENU_SELECT - %d %s\n", packetSize, unpack.getMenuMode(), unpack.getMenuName());
-        endTriggerCameraState();
+
+        // This is where we do all the code to set pins back to defaults when changing menus or exiting/entering photo mode
+        resetCameraPorts();
+        resetModulePorts();
         
         uint8_t index = 0;
         if (strcmp(unpack.getMenuName(), "null") == 0) {

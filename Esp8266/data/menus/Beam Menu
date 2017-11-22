@@ -1,0 +1,10 @@
+caSetInfoString("Plug the beam module into port 1.");
+
+caStartMenuMode("Beam Menu");
+caDropSelect("id0", 0, "Trigger On:", "Low~High");
+caTextDynamic("id1", "Current Beam Signal", "?");
+caEndMenu();
+
+caStartPhotoMode();
+caTextStatic("Ready to take your photo!");
+caEndMenu();

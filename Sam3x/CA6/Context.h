@@ -12,18 +12,23 @@
 #define CLOCK_TICKS (*REG_DWT_CYCCNT)
 #define TICKS_PER_MICROSECOND 84
 
-#define NUM_MENUS   8  /* Includes 1 for the null menu */
+#define NUM_MENUS   9  /* Includes 1 for the null menu */
 #define NUM_MODULES 4
 #define NUM_CAMERAS 8
 #define NUM_CAM_TIMER_ELEMENTS (NUM_CAMERAS*3)
 #define NUM_SEQUENCER_BITS 8
 
 struct CtxProcTable {
-  const char* (*funcName[NUM_MENUS])()   {NULL, dev_Name,      sound_Name,      light_Name,      vibration_Name,      valve_Name,      lightning_Name,      projectile_Name};
-  void (*funcMenuInit[NUM_MENUS])()      {NULL, dev_MenuInit,  sound_MenuInit,  light_MenuInit,  vibration_MenuInit,  valve_MenuInit,  lightning_MenuInit,  projectile_MenuInit};
-  void (*funcPhotoInit[NUM_MENUS])()     {NULL, dev_PhotoInit, sound_PhotoInit, light_PhotoInit, vibration_PhotoInit, valve_PhotoInit, lightning_PhotoInit, projectile_PhotoInit};
-  void (*funcMenuRun[NUM_MENUS])()       {NULL, dev_MenuRun,   sound_MenuRun,   light_MenuRun,   vibration_MenuRun,   valve_MenuRun,   lightning_MenuRun,   projectile_MenuRun};
-  void (*funcPhotoRun[NUM_MENUS])()      {NULL, dev_PhotoRun,  sound_PhotoRun,  light_PhotoRun,   vibration_PhotoRun,  valve_PhotoRun, lightning_PhotoRun,  projectile_PhotoRun};
+  const char* (*funcName[NUM_MENUS])()   {NULL, dev_Name, sound_Name, light_Name, vibration_Name, valve_Name,
+                                                lightning_Name, projectile_Name, beam_Name};
+  void (*funcMenuInit[NUM_MENUS])()      {NULL, dev_MenuInit, sound_MenuInit, light_MenuInit, vibration_MenuInit, valve_MenuInit,
+                                                lightning_MenuInit, projectile_MenuInit, beam_MenuInit};
+  void (*funcPhotoInit[NUM_MENUS])()     {NULL, dev_PhotoInit, sound_PhotoInit, light_PhotoInit, vibration_PhotoInit, valve_PhotoInit,
+                                                lightning_PhotoInit, projectile_PhotoInit, beam_PhotoInit};
+  void (*funcMenuRun[NUM_MENUS])()       {NULL, dev_MenuRun, sound_MenuRun, light_MenuRun, vibration_MenuRun, valve_MenuRun,
+                                                lightning_MenuRun, projectile_MenuRun, beam_MenuRun};
+  void (*funcPhotoRun[NUM_MENUS])()      {NULL, dev_PhotoRun, sound_PhotoRun, light_PhotoRun, vibration_PhotoRun, valve_PhotoRun,
+                                                lightning_PhotoRun, projectile_PhotoRun, beam_PhotoRun};
 };
 
 enum CAState {
@@ -73,6 +78,8 @@ struct Context {
   uint64_t intervalometerIntervalTime = 0;
   uint16_t intervalometerRepeats = 0;
   uint16_t intervalometerCurRepeats = 0;
+
+ CATickTimer menuTimer = CATickTimer(1);
   
 };
 

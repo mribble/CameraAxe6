@@ -172,7 +172,7 @@ void setLightSensitivity() {
   if (gLightData.sensitivity == 0) { // Low Sensitivity
     CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
     CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
-    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high immedance
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high impedance
   }
   else if (gLightData.sensitivity == 1) { // Medium Sensitivity
     CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
@@ -180,7 +180,7 @@ void setLightSensitivity() {
   }
   else { // High Sensitivity
     CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
-    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high immedance
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high impedance
   }
 }
 
@@ -760,6 +760,89 @@ void projectile_PhotoRun() {
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Beam Menu - Detects IR Beam light
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+  hwPortPin ppDetect;   // This is the pin used to detect light
+  hwPortPin ppEmit;     // This is the pin used to enable the IR LED
+  CASensorFilter sf;    // This helps filter incoming values for a cleaner display
+  uint32_t triggerVal;  // This stores value to detect light 0=low, 1=high
+} BeamData;
+
+BeamData gBeamData;
+
+const char* beam_Name() {
+  return "Beam Menu";
+}
+
+void isrGenerateSquareWave() {
+  static uint8_t curVal = HIGH;
+  curVal = (curVal==HIGH) ? LOW : HIGH; // Toggle value every time this is called
+  CAU::digitalWrite(gBeamData.ppEmit, curVal);
+}
+
+void beam_MenuInit() {
+  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog values are
+  CAU::pinMode(gBeamData.ppDetect, INPUT);
+  gBeamData.ppEmit = CAU::getModulePin(0, 1);      // Module 0 pin 1 turns on the IR LED
+  CAU::pinMode(gBeamData.ppEmit, OUTPUT);
+  CAU::digitalWrite(gBeamData.ppEmit, LOW);
+  g_ctx.menuTimer.stop();
+  uint64_t ticks = CATickTimer::convertTimeToTicks(0, 13000); // 38Khz with 50% duty cycle
+  g_ctx.menuTimer.start(isrGenerateSquareWave, ticks, true);
+}
+
+void beam_PhotoInit() {
+  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog values are
+  CAU::pinMode(gBeamData.ppDetect, INPUT);
+  gBeamData.ppEmit = CAU::getModulePin(0, 1);      // Module 0 pin 1 turns on the IR LED
+  CAU::pinMode(gBeamData.ppEmit, OUTPUT);
+  CAU::digitalWrite(gBeamData.ppEmit, LOW);
+  g_ctx.menuTimer.stop();
+  uint64_t ticks = CATickTimer::convertTimeToTicks(0, 13000); // 38Khz with 50% duty cycle
+  g_ctx.menuTimer.start(isrGenerateSquareWave, ticks, true);
+}
+
+void beam_MenuRun() {
+  // Handle outgoing packets
+  if (executeLimitAt(250)) {
+    // Every 250 ms send a packet to the webserver so it can display the current value
+    uint8_t val = CAU::digitalRead(gBeamData.ppDetect);
+    if (val == LOW) {
+      g_ctx.packetHelper.writePacketString(1, "LOW");      
+      CA_LOG("low\n");
+    }
+    else {
+      g_ctx.packetHelper.writePacketString(1, "HIGH");
+      CA_LOG("high\n");
+    }
+  }
+
+  // Handle incoming packets from webserver
+  CAPacketElement *packet = processIncomingPacket();
+  packet = incomingPacketCheckUint32(packet, 0, gBeamData.triggerVal); // Store the trigger value user set on webpage here
+  incomingPacketFinish(packet);
+}
+
+void beam_PhotoRun() {
+  while (g_ctx.state == CA_STATE_PHOTO_MODE) {
+    // Handle triggering
+    uint16_t val = CAU::digitalRead(gBeamData.ppDetect);
+
+    if (val == gBeamData.triggerVal) {
+      triggerCameras();
+    }
+    
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets (needed so user can exit photo mode)
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
+    }
+  }
+}
+
 
 #endif //MENUS_H
 

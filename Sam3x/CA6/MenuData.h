@@ -58,6 +58,12 @@ extern void projectile_PhotoInit();
 extern void projectile_MenuRun();
 extern void projectile_PhotoRun();
 
+// Beam Menu
+extern const char* beam_Name();
+extern void beam_MenuInit();
+extern void beam_PhotoInit();
+extern void beam_MenuRun();
+extern void beam_PhotoRun();
 
 // Add your new function declarations above 
 //  Note - These declarations are needed because these go in the proc table and the Arduino IDE doesn't do it's 
