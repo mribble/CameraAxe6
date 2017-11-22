@@ -715,6 +715,11 @@
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
 			}
+			
+			function caDropSelectImmediate(id, value, text0, text1) {
+				//todo also send packet immediately
+				caDropSelect(id, value, text0, text1);
+			}
 
 			function caEditNumber(id, maxValue, value, text0) {
 				var row = gCurTable.insertRow();

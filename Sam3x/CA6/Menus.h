@@ -59,8 +59,9 @@ void dev_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 2, val);
   packet = incomingPacketCheckUint32(packet, 3, val);
   packet = incomingPacketCheckUint32(packet, 4, val);
-  packet = incomingPacketCheckTimeBox(packet, 5, sec, nano);
-  packet = incomingPacketCheckUint32(packet, 6, val);
+  packet = incomingPacketCheckUint32(packet, 5, val);
+  packet = incomingPacketCheckTimeBox(packet, 6, sec, nano);
+  packet = incomingPacketCheckUint32(packet, 7, val);
   incomingPacketFinish(packet);
 }
 
@@ -146,9 +147,12 @@ void sound_PhotoRun() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
   hwPortPin ppPin;            // This is the port and in where the analog light value comes from
+  hwPortPin ppSensitivity0;   // This is a sensitivity control pin
+  hwPortPin ppSensitivity1;   // This is a sensitivity control pin
   CASensorFilter sf;          // This helps filter incoming values for a cleaner display
   uint32_t triggerVal;        // This stores the amount of light change required to trigger the CA6
   uint32_t triggerMode=0;     // This stores the mode (min/max/threshold) used to trigger the CA6
+  uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium, 2=high
 } LightData;
 
 LightData gLightData;
@@ -157,32 +161,68 @@ const char* light_Name() {
   return "Light Menu";
 }
 
+void setLightSensitivity() {
+  CAU::pinMode(gLightData.ppSensitivity0, OUTPUT);
+  CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
+  
+  // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
+  // ppSensitivity0 is the mosfet/buffer
+  // ppSensitivity1 is connected directly to sam3x io pin
+  
+  if (gLightData.sensitivity == 0) { // Low Sensitivity
+    CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
+    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high immedance
+  }
+  else if (gLightData.sensitivity == 1) { // Medium Sensitivity
+    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
+    CAU::digitalWrite(gLightData.ppSensitivity1, LOW);
+  }
+  else { // High Sensitivity
+    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high immedance
+  }
+}
+
 void light_MenuInit() {
-  gLightData.ppPin = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog light values are
+  gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
+  gLightData.ppSensitivity0 = CAU::getModulePin(0, 1);  // Module 0 pin 1 is where sensitivity control 0 is
+  gLightData.ppSensitivity1 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
+  setLightSensitivity();
   gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
 }
 
 void light_PhotoInit() {
-  gLightData.ppPin = CAU::getModulePin(0, 0);  // Same settings as menu init since it's possible to skip right to photo mode and skip menu mode
+  gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
+  gLightData.ppSensitivity0 = CAU::getModulePin(0, 1);  // Module 0 pin 1 is where sensitivity control 0 is
+  gLightData.ppSensitivity1 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
+  setLightSensitivity();
 }
 
 void light_MenuRun() {
   uint16_t val = gLightData.sf.getSensorData();
   uint32_t prevTriggerMode = gLightData.triggerMode;
+  uint32_t prevSensitivity = gLightData.sensitivity;
 
   // Handle outgoing packets
   if (executeLimitAt(500)) {
     // Every 500 ms send a packet to the webserver so it can display the filtered current value
-    g_ctx.packetHelper.writePacketString(2, String(val).c_str());
+    g_ctx.packetHelper.writePacketString(3, String(val).c_str());
   }
 
   // Handle incoming packets from webserver
   CAPacketElement *packet = processIncomingPacket();
   packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger value user set on webpage here
-  packet = incomingPacketCheckUint32(packet, 1, gLightData.triggerVal); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 1, gLightData.sensitivity); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 2, gLightData.triggerVal); // Store the sensitivity level user set on webpage here
   incomingPacketFinish(packet);
+
+  // Update the sensitivity if it has changed
+  if (prevSensitivity != gLightData.sensitivity) {
+    setLightSensitivity();
+  }
 
   // Update the display based on current mode
   if (prevTriggerMode != gLightData.triggerMode) {

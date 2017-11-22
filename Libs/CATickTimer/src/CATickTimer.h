@@ -21,6 +21,7 @@ public:
     static void stop(uint8_t timerNum);
     void stop();
     static uint64_t convertTimeToTicks(uint32_t seconds, uint32_t nanoseconds, uint64_t extraNanoseconds=0);
+    static uint64_t convertTicksToTime(uint64_t ticks);
     static void isrHandler(uint8_t timerNum);
 
 private:

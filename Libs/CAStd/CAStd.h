@@ -5,7 +5,7 @@
 #if defined(__SAM3X8E__)
     #include <Arduino.h>
     #define CA_DEBUG_LOG
-    #define CA_DEBUG_ASSERT
+    //#define CA_DEBUG_ASSERT
     #define CA_DEBUG_INFO
     #define CA_DEBUG_ERROR
     #define SerialIO SerialUSB
