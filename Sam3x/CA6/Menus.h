@@ -163,31 +163,30 @@ const char* light_Name() {
 
 void setLightSensitivity() {
   CAU::pinMode(gLightData.ppSensitivity0, OUTPUT);
-  CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
   
   // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
   // ppSensitivity0 is the mosfet/buffer
   // ppSensitivity1 is connected directly to sam3x io pin
   
   if (gLightData.sensitivity == 0) { // Low Sensitivity
-    CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
     CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
-    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high impedance
+    CAU::pinMode(gLightData.ppSensitivity1, INPUT);  // Set high impedance
   }
   else if (gLightData.sensitivity == 1) { // Medium Sensitivity
     CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
     CAU::digitalWrite(gLightData.ppSensitivity1, LOW);
   }
   else { // High Sensitivity
     CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
-    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);  // Set high impedance
+    CAU::pinMode(gLightData.ppSensitivity1, INPUT);  // Set high impedance
   }
 }
 
 void light_MenuInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
-  gLightData.ppSensitivity0 = CAU::getModulePin(0, 1);  // Module 0 pin 1 is where sensitivity control 0 is
-  gLightData.ppSensitivity1 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 1 is
+  gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
+  gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity();
   gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
@@ -195,8 +194,8 @@ void light_MenuInit() {
 
 void light_PhotoInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
-  gLightData.ppSensitivity0 = CAU::getModulePin(0, 1);  // Module 0 pin 1 is where sensitivity control 0 is
-  gLightData.ppSensitivity1 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 1 is
+  gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 1 is where sensitivity control 0 is
+  gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 2 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity();
 }
@@ -214,14 +213,15 @@ void light_MenuRun() {
 
   // Handle incoming packets from webserver
   CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger value user set on webpage here
-  packet = incomingPacketCheckUint32(packet, 1, gLightData.sensitivity); // Store the trigger value user set on webpage here
-  packet = incomingPacketCheckUint32(packet, 2, gLightData.triggerVal); // Store the sensitivity level user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger node user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 1, gLightData.sensitivity); // Store the sensitivity level  user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 2, gLightData.triggerVal); // Store the trigger value user set on webpage here
   incomingPacketFinish(packet);
 
   // Update the sensitivity if it has changed
   if (prevSensitivity != gLightData.sensitivity) {
     setLightSensitivity();
+    prevSensitivity = gLightData.sensitivity;
   }
 
   // Update the display based on current mode
