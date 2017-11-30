@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source D:\_my\git\CameraAxe6\Pcb\Modules\Light\Light.sch)
-    (date "10/15/2017 7:54:23 PM")
+    (source D:/_my/git/CameraAxe6/Pcb/Modules/Light/Light.sch)
+    (date "11/29/2017 3:08:13 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -71,7 +71,25 @@
       (footprint TO_SOT_Packages_SMD:SOT-23)
       (libsource (lib device) (part Q_NMOS_GSD))
       (sheetpath (names /) (tstamps /))
-      (tstamp 59E3F4ED)))
+      (tstamp 59E3F4ED))
+    (comp (ref MK1)
+      (value Mounting_Hole)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib mechanical) (part Mounting_Hole))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A1F1815))
+    (comp (ref MK2)
+      (value Mounting_Hole)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib mechanical) (part Mounting_Hole))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A1F1870))
+    (comp (ref MK3)
+      (value Mounting_Hole)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib mechanical) (part Mounting_Hole))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A1F18E3)))
   (libparts
     (libpart (lib CA6) (part C)
       (footprints
@@ -109,6 +127,14 @@
         (pin (num 1) (name Ring) (type passive))
         (pin (num 2) (name Tip) (type passive))
         (pin (num 3) (name Com) (type passive))))
+    (libpart (lib mechanical) (part Mounting_Hole)
+      (description "Mounting Hole without connection")
+      (footprints
+        (fp Mounting?Hole*)
+        (fp Hole*))
+      (fields
+        (field (name Reference) MK)
+        (field (name Value) Mounting_Hole)))
     (libpart (lib CA6) (part OPTO_NPN)
       (fields
         (field (name Reference) Q)
@@ -147,7 +173,9 @@
     (library (logical CA6)
       (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib))
     (library (logical device)
-      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib")))
+      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
+    (library (logical mechanical)
+      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\mechanical.lib")))
   (nets
     (net (code 1) (name "Net-(R2-Pad1)")
       (node (ref RV1) (pin 2))
