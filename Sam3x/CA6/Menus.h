@@ -243,7 +243,7 @@ void light_MenuRun() {
 // *** PhotoRun modified to trigger flash and then capture values from both light sensor designs - output to console for external plotting
 void light_PhotoRun() {
 
-#define TOT_SAMPLES 1000
+#define TOT_SAMPLES 500
   uint16_t sensorvalOrig[TOT_SAMPLES];
   uint16_t sensorvalNew[TOT_SAMPLES];
   uint8_t incomingByte;
@@ -267,6 +267,7 @@ void light_PhotoRun() {
     
     setLightSensitivity();
     triggerCameras(); // Trigger flash
+    delayMicroseconds(30); // Delay start of data gather dependant on flash delay
     
 // collect light value samples quickly
     for (idx = 0; idx < TOT_SAMPLES; idx++) {
