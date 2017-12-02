@@ -164,23 +164,23 @@ const char* light_Name() {
 
 void setLightSensitivity() {
   CAU::pinMode(gLightData.ppSensitivity0, OUTPUT);
-  CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
   
   // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
-  // ppSensitivity0 is the mosfet/buffer -- LOW to sink to ground for lowest sensitivity
+  // ppSensitivity0 is the mosfet/buffer -- HIGH turns on the MOSFET to sink to ground for lowest sensitivity
   // ppSensitivity1 is connected directly to sam3x io pin -- pull LOW to set medium sensitivity otherwise high impedance
   
   if (gLightData.sensitivity == 0) { // Low Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
-    CAU::digitalWrite(gLightData.ppSensitivity1, HIGH);
+    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
+    CAU::pinMode(gLightData.ppSensitivity1, INPUT);  // Set high impedance
   }
   else if (gLightData.sensitivity == 1) { // Medium Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
+    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
+    CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
     CAU::digitalWrite(gLightData.ppSensitivity1, LOW);
   }
   else { // High Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
-    CAU::digitalWrite(gLightData.ppSensitivity1, HIGH);
+    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
+    CAU::pinMode(gLightData.ppSensitivity1, INPUT);  // Set high impedance
   }
 }
 
