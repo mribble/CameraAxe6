@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Beam/Beam.sch)
-    (date "12/1/2017 5:50:12 PM")
+    (date "12/2/2017 11:03:27 AM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -44,7 +44,31 @@
       (footprint CA6:c_elec_6.3x5.7)
       (libsource (lib CA6) (part CAP_ELEC))
       (sheetpath (names /) (tstamps /))
-      (tstamp 5A21DD7D)))
+      (tstamp 5A21DD7D))
+    (comp (ref X1)
+      (value HOLE)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib CA6) (part HOLE))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A22D009))
+    (comp (ref X2)
+      (value HOLE)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib CA6) (part HOLE))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A22D141))
+    (comp (ref X3)
+      (value HOLE)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib CA6) (part HOLE))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A22D16C))
+    (comp (ref X4)
+      (value HOLE)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib CA6) (part HOLE))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A22D1A0)))
   (libparts
     (libpart (lib CA6) (part CAP_ELEC)
       (footprints
@@ -69,6 +93,15 @@
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
+    (libpart (lib CA6) (part HOLE)
+      (footprints
+        (fp HOLE_2.5mm)
+        (fp HOLE_3.0mm)
+        (fp HOLE_4.0mm)
+        (fp HOLE_5.0mm))
+      (fields
+        (field (name Reference) X)
+        (field (name Value) HOLE)))
     (libpart (lib CA6) (part JACK_RJ45)
       (footprints
         (fp RJ45_RJHSE-5080))
