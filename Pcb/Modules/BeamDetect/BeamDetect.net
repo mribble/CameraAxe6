@@ -1,7 +1,7 @@
 (export (version D)
   (design
-    (source D:/_my/git/CameraAxe6/Pcb/Modules/Beam/Beam.sch)
-    (date "12/2/2017 11:03:27 AM")
+    (source D:/_my/git/CameraAxe6/Pcb/Modules/BeamDetect/BeamDetect.sch)
+    (date "12/3/2017 1:25:33 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -9,7 +9,7 @@
         (company)
         (rev)
         (date)
-        (source Beam.sch)
+        (source BeamDetect.sch)
         (comment (number 1) (value ""))
         (comment (number 2) (value ""))
         (comment (number 3) (value ""))
@@ -18,7 +18,7 @@
     (comp (ref U3)
       (value TSOP585xx)
       (footprint Opto-Devices:IRReceiver_Vishay_MINICAST-3pin)
-      (libsource (lib Beam-cache) (part TSOP585xx))
+      (libsource (lib BeamDetect-cache) (part TSOP585xx))
       (sheetpath (names /) (tstamps /))
       (tstamp 59CD457D))
     (comp (ref C2)
@@ -128,7 +128,7 @@
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
-    (libpart (lib Beam-cache) (part TSOP581xx)
+    (libpart (lib BeamDetect-cache) (part TSOP581xx)
       (aliases
         (alias TSOP583xx)
         (alias TSOP585xx)
@@ -153,8 +153,8 @@
   (libraries
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
-    (library (logical Beam-cache)
-      (uri D:\_my\git\CameraAxe6\Pcb\Modules\Beam\Beam-cache.lib))
+    (library (logical BeamDetect-cache)
+      (uri D:\_my\git\CameraAxe6\Pcb\Modules\BeamDetect\BeamDetect-cache.lib))
     (library (logical CA6)
       (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib)))
   (nets
