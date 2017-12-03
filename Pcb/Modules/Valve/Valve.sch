@@ -89,17 +89,6 @@ F 3 "" H 1925 3950 60  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Ferrite_Bead L1
-U 1 1 59C16933
-P 1400 3450
-F 0 "L1" V 1250 3475 50  0000 C CNN
-F 1 "Ferrite_Bead" V 1550 3450 50  0001 C CNN
-F 2 "Resistors_SMD:R_0805" V 1330 3450 50  0001 C CNN
-F 3 "" H 1400 3450 50  0000 C CNN
-	1    1400 3450
-	0    1    1    0   
-$EndComp
-$Comp
 L CONN_01X03 Servo1
 U 1 1 59C16AB4
 P 1200 1150
@@ -162,9 +151,9 @@ F 3 "" H 3500 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1600 3500 1600 3450
+	1600 3450 1600 3500
 Wire Wire Line
-	1600 3450 1550 3450
+	1100 3450 1600 3450
 Wire Wire Line
 	2200 3500 2200 3250
 Wire Wire Line
@@ -409,8 +398,6 @@ F 3 "" H 5150 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1250 3450 1100 3450
-Wire Wire Line
 	1400 1250 1450 1250
 Wire Wire Line
 	1450 1250 1450 1400
@@ -599,7 +586,7 @@ U 1 1 59DEEB5B
 P 6450 1150
 F 0 "X1" H 6450 1050 60  0000 C CNN
 F 1 "HOLE" H 6450 1250 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2_ISO14580_Pad" H 6450 1150 60  0001 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 6450 1150 60  0001 C CNN
 F 3 "" H 6450 1150 60  0000 C CNN
 	1    6450 1150
 	1    0    0    -1  
@@ -610,7 +597,7 @@ U 1 1 59DEEE16
 P 6450 1500
 F 0 "X2" H 6450 1400 60  0000 C CNN
 F 1 "HOLE" H 6450 1600 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2_ISO14580_Pad" H 6450 1500 60  0001 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 6450 1500 60  0001 C CNN
 F 3 "" H 6450 1500 60  0000 C CNN
 	1    6450 1500
 	1    0    0    -1  
@@ -621,7 +608,7 @@ U 1 1 59DEEE7F
 P 6450 1850
 F 0 "X3" H 6450 1750 60  0000 C CNN
 F 1 "HOLE" H 6450 1950 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2_ISO14580_Pad" H 6450 1850 60  0001 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 6450 1850 60  0001 C CNN
 F 3 "" H 6450 1850 60  0000 C CNN
 	1    6450 1850
 	1    0    0    -1  
@@ -632,7 +619,7 @@ U 1 1 59DEEEE1
 P 6450 2200
 F 0 "X4" H 6450 2100 60  0000 C CNN
 F 1 "HOLE" H 6450 2300 60  0000 C CNN
-F 2 "Mounting_Holes:MountingHole_2.2mm_M2_ISO14580_Pad" H 6450 2200 60  0001 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 6450 2200 60  0001 C CNN
 F 3 "" H 6450 2200 60  0000 C CNN
 	1    6450 2200
 	1    0    0    -1  

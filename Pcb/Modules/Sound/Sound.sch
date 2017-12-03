@@ -89,17 +89,6 @@ F 3 "" H 2050 2800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Ferrite_Bead L2
-U 1 1 59BF0A07
-P 3550 4400
-F 0 "L2" V 3400 4425 50  0000 C CNN
-F 1 "Ferrite_Bead" V 3700 4400 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805" V 3480 4400 50  0001 C CNN
-F 3 "" H 3550 4400 50  0000 C CNN
-	1    3550 4400
-	0    1    1    0   
-$EndComp
-$Comp
 L JACK_RJ45 J1
 U 1 1 59BF1311
 P 2850 5000
@@ -256,17 +245,6 @@ $EndComp
 Text Label 4550 1850 0    60   ~ 0
 AN_VAL
 $Comp
-L Ferrite_Bead L1
-U 1 1 59C00684
-P 2150 4400
-F 0 "L1" V 2000 4425 50  0000 C CNN
-F 1 "Ferrite_Bead" V 2300 4400 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805" V 2080 4400 50  0001 C CNN
-F 3 "" H 2150 4400 50  0000 C CNN
-	1    2150 4400
-	0    1    1    0   
-$EndComp
-$Comp
 L GND #PWR07
 U 1 1 59C00872
 P 1850 4600
@@ -362,19 +340,15 @@ Wire Wire Line
 Connection ~ 3900 2550
 Connection ~ 4200 1850
 Wire Wire Line
-	3400 4400 3200 4400
+	3200 4400 3850 4400
 Wire Wire Line
 	3200 4400 3200 4550
 Wire Wire Line
-	2500 4550 2500 4400
+	2500 4400 2500 4550
 Wire Wire Line
-	2500 4400 2300 4400
-Wire Wire Line
-	2000 4400 1850 4400
+	1850 4400 2500 4400
 Wire Wire Line
 	1850 4400 1850 4600
-Wire Wire Line
-	3700 4400 3850 4400
 Wire Wire Line
 	3100 4550 3100 4250
 Wire Wire Line

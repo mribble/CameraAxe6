@@ -85,6 +85,7 @@ LIBS:Xicor
 LIBS:xilinx
 LIBS:zetex
 LIBS:Zilog
+LIBS:Light-cache
 EELAYER 25 0
 EELAYER END
 $Descr USLetter 11000 8500
@@ -394,6 +395,39 @@ F 1 "Q_NMOS_GSD" H 6650 4550 50  0001 L CNN
 F 2 "TO_SOT_Packages_SMD:SOT-23" H 6650 4700 50  0001 C CNN
 F 3 "" H 6450 4600 50  0000 C CNN
 	1    6450 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK1
+U 1 1 5A1F1815
+P 3200 3100
+F 0 "MK1" H 3200 3300 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3225 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 3100 60  0001 C CNN
+F 3 "" H 3200 3100 60  0001 C CNN
+	1    3200 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK2
+U 1 1 5A1F1870
+P 3200 3450
+F 0 "MK2" H 3200 3650 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3575 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 3450 60  0001 C CNN
+F 3 "" H 3200 3450 60  0001 C CNN
+	1    3200 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK3
+U 1 1 5A1F18E3
+P 3200 3800
+F 0 "MK3" H 3200 4000 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3925 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 3800 60  0001 C CNN
+F 3 "" H 3200 3800 60  0001 C CNN
+	1    3200 3800
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC

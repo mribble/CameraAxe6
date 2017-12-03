@@ -105,6 +105,22 @@ X Com 3 350 -150 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
+# Mounting_Hole
+#
+DEF Mounting_Hole MK 0 40 Y Y 1 F N
+F0 "MK" 0 200 50 H V C CNN
+F1 "Mounting_Hole" 0 125 50 H V C CNN
+F2 "" 0 0 60 H I C CNN
+F3 "" 0 0 60 H I C CNN
+$FPLIST
+ Mounting?Hole*
+ Hole*
+$ENDFPLIST
+DRAW
+C 0 0 50 0 1 50 N
+ENDDRAW
+ENDDEF
+#
 # OPTO_NPN
 #
 DEF OPTO_NPN Q 0 0 Y Y 1 F N
