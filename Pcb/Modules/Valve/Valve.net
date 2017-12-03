@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Valve/Valve.sch)
-    (date "12/3/2017 12:13:27 PM")
+    (date "12/3/2017 1:52:05 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block

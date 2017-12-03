@@ -486,7 +486,7 @@
   (gr_line (start 32.004 45.72) (end 25.4 45.72) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 25.4 31.75) (end 25.4 39.37) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 76.2 31.75) (end 76.2 39.37) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Dev Module\n2017-10-11" (at 60.706 27.94) (layer F.SilkS)
+  (gr_text "Dev Module\n2017-10-11" (at 63.246 27.94) (layer F.SilkS)
     (effects (font (size 1.27 1.27) (thickness 0.254)) (justify left))
   )
   (gr_text M_5 (at 57.15 27.305) (layer F.SilkS)

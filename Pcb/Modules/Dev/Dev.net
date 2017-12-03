@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Dev/Dev.sch)
-    (date "12/2/2017 7:10:28 PM")
+    (date "12/3/2017 1:38:31 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block

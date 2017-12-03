@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Projectile/Projectile.sch)
-    (date "12/2/2017 8:08:48 PM")
+    (date "12/3/2017 1:49:18 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block

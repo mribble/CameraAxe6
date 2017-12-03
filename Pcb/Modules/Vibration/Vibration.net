@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Vibration/Vibration.sch)
-    (date "12/2/2017 6:19:06 AM")
+    (date "12/3/2017 1:52:58 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block

@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/BeamDetect/BeamDetect.sch)
-    (date "12/3/2017 1:25:33 PM")
+    (date "12/3/2017 1:29:48 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -153,10 +153,10 @@
   (libraries
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
-    (library (logical BeamDetect-cache)
-      (uri D:\_my\git\CameraAxe6\Pcb\Modules\BeamDetect\BeamDetect-cache.lib))
     (library (logical CA6)
-      (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib)))
+      (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib))
+    (library (logical BeamDetect-cache)
+      (uri D:\_my\git\CameraAxe6\Pcb\Modules\BeamDetect\BeamDetect-cache.lib)))
   (nets
     (net (code 1) (name "Net-(J1-Pad5)")
       (node (ref J1) (pin 5)))
