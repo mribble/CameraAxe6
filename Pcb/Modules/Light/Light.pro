@@ -1,4 +1,4 @@
-update=9/20/2017 8:09:31 PM
+update=12/4/2017 3:16:31 PM
 version=1
 last_client=kicad
 [general]
@@ -46,19 +46,6 @@ version=1
 NetIExt=net
 [cvpcb/libraries]
 EquName1=devcms
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-RptD_X=0
-RptD_Y=100
-RptLab=1
-LabSize=60
 [eeschema]
 version=1
 LibDir=../../../Pcb
@@ -149,3 +136,13 @@ LibName83=C:/Program Files/KiCad/share/kicad/library/Xicor
 LibName84=C:/Program Files/KiCad/share/kicad/library/xilinx
 LibName85=C:/Program Files/KiCad/share/kicad/library/zetex
 LibName86=C:/Program Files/KiCad/share/kicad/library/Zilog
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=Pcbnew
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
