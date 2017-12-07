@@ -143,13 +143,12 @@ void sound_PhotoRun() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Light Menu - Detects light *** Modified to test two versions of light sensor with a flash pulse *** temp mod ***
+// Light Menu - Detects light
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct {
-  hwPortPin ppPin;            // This is the port for analog light values from the sensor with resistor ladder and MOSFET / buffer Mod-0
+  hwPortPin ppPin;            // This is the port for analog light values
   hwPortPin ppSensitivity0;   // This is a sensitivity control pin
   hwPortPin ppSensitivity1;   // This is a sensitivity control pin
-  hwPortPin ppPin2;           // This is the port for analog light values from the sensor with pot Mod-1
   CASensorFilter sf;          // This helps filter incoming values for a cleaner display
   uint32_t triggerVal;        // This stores the amount of light change required to trigger the CA6
   uint32_t triggerMode=0;     // This stores the mode (min/max/threshold) used to trigger the CA6
@@ -167,7 +166,7 @@ void setLightSensitivity() {
   CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
   
   // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
-  // ppSensitivity0 is the mosfet/buffer -- LOW to sink to ground for lowest sensitivity
+  // ppSensitivity0 is the buffer -- LOW to sink to ground for lowest sensitivity
   // ppSensitivity1 is connected directly to sam3x io pin -- pull LOW to set medium sensitivity otherwise high impedance
   
   if (gLightData.sensitivity == 0) { // Low Sensitivity
@@ -185,12 +184,10 @@ void setLightSensitivity() {
 }
 
 void light_MenuInit() {
-  gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are for new design
+  gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
-  gLightData.ppPin2 = CAU::getModulePin(1, 0);           // Module 1 pin 0 is where the analog light values are for original pot design
-  CAU::pinMode(gLightData.ppPin2, ANALOG_INPUT);
   setLightSensitivity();
   gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
 }
@@ -200,8 +197,6 @@ void light_PhotoInit() {
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
-  gLightData.ppPin2 = CAU::getModulePin(1, 0);           // Module 1 pin 0 is where the analog light values are for original pot design
-  CAU::pinMode(gLightData.ppPin2, ANALOG_INPUT);
   setLightSensitivity();
 }
 
@@ -218,7 +213,7 @@ void light_MenuRun() {
 
   // Handle incoming packets from webserver
   CAPacketElement *packet = processIncomingPacket();
-  packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger node user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger mode user set on webpage here
   packet = incomingPacketCheckUint32(packet, 1, gLightData.sensitivity); // Store the sensitivity level  user set on webpage here
   packet = incomingPacketCheckUint32(packet, 2, gLightData.triggerVal); // Store the trigger value user set on webpage here
   incomingPacketFinish(packet);
@@ -226,7 +221,6 @@ void light_MenuRun() {
   // Update the sensitivity if it has changed
   if (prevSensitivity != gLightData.sensitivity) {
     setLightSensitivity();
-    prevSensitivity = gLightData.sensitivity;
   }
 
   // Update the display based on current mode
@@ -240,49 +234,28 @@ void light_MenuRun() {
   }
 }
 
-// *** PhotoRun modified to trigger flash and then capture values from both light sensor designs - output to console for external plotting
 void light_PhotoRun() {
-
-#define TOT_SAMPLES 500
-  uint16_t sensorvalOrig[TOT_SAMPLES];
-  uint16_t sensorvalNew[TOT_SAMPLES];
-  uint8_t incomingByte;
-  uint16_t idx = 0;
-  
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
-    
-    CA_LOG("Type any character to continue");
-    while( SerialUSB.available() <= 0) { // delay until I type something
-      if (FAST_CHECK_FOR_PACKETS) {
-        // Handle incoming packets (needed so user can exit photo mode)
-        CAPacketElement *packet = processIncomingPacket();
-        incomingPacketFinish(packet);
-      }
-      if(g_ctx.state != CA_STATE_PHOTO_MODE) break;
+    // Handle triggering
+    bool trigger;
+    uint16_t val = CAU::analogRead(gLightData.ppPin);
+    if (gLightData.triggerMode == 0) {  // Min Mode
+      trigger = (val < gLightData.triggerVal) ? true : false;
+    }
+    else { // Max Mode
+      trigger = (val > gLightData.triggerVal) ? true : false;
     }
 
-    while( SerialUSB.available() > 0 ) {
-      incomingByte = SerialUSB.read();   // read the incoming byte
-    }
-    
-    setLightSensitivity();
-    triggerCameras(); // Trigger flash
-    delayMicroseconds(30); // Delay start of data gather dependant on flash delay
-    
-// collect light value samples quickly
-    for (idx = 0; idx < TOT_SAMPLES; idx++) {
-      sensorvalOrig[idx] = CAU::analogRead(gLightData.ppPin2);
-      sensorvalNew[idx] = CAU::analogRead(gLightData.ppPin);
+    if (trigger) {
+      triggerCameras();
     }
 
-    // Dump data to serial console for external plotting
-    CA_LOG("Original\tNew-%d\n", gLightData.sensitivity);
-    for (idx = 0; idx < TOT_SAMPLES; idx++) {
-      CA_LOG("%d\t%d\n", sensorvalOrig[idx], sensorvalNew[idx]);
+    if (FAST_CHECK_FOR_PACKETS) {
+      // Handle incoming packets (needed so user can exit photo mode)
+      CAPacketElement *packet = processIncomingPacket();
+      incomingPacketFinish(packet);
     }
-    
   }
-    
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
