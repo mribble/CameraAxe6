@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Light/Light.sch)
-    (date "12/6/2017 6:33:02 PM")
+    (date "12/6/2017 7:08:34 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -48,8 +48,7 @@
       (tstamp 54AA13F6))
     (comp (ref R3)
       (value "160 1%")
-      (footprint CA6:SM0603_Resistor)
-      (datasheet http://www.mouser.com/ds/2/315/AOA0000C283-1093288.pdf)
+      (footprint Resistors_SMD:R_1206)
       (libsource (lib CA6) (part R))
       (sheetpath (names /) (tstamps /))
       (tstamp 54AA1792))
