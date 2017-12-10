@@ -4939,4 +4939,6 @@ Wire Wire Line
 	17750 14650 18250 14650
 Text Label 18250 14650 2    60   ~ 0
 ESP_3V3
+Connection ~ 22200 13100
+Connection ~ 22200 12700
 $EndSCHEMATC
