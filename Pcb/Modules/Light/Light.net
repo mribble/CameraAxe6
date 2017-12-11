@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Light/Light.sch)
-    (date "12/6/2017 7:08:34 PM")
+    (date "12/11/2017 2:31:01 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -121,7 +121,19 @@
       (footprint CA6:c_elec_6.3x5.7)
       (libsource (lib CA6) (part CAP_ELEC))
       (sheetpath (names /) (tstamps /))
-      (tstamp 5A287922)))
+      (tstamp 5A287922))
+    (comp (ref MK4)
+      (value Mounting_Hole)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib mechanical) (part Mounting_Hole))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A2EE04A))
+    (comp (ref MK5)
+      (value Mounting_Hole)
+      (footprint Mounting_Holes:MountingHole_2.5mm_Pad)
+      (libsource (lib mechanical) (part Mounting_Hole))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A2EE142)))
   (libparts
     (libpart (lib CA6) (part 74LVC1G07)
       (aliases

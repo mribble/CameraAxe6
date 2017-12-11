@@ -583,4 +583,26 @@ Wire Wire Line
 	6300 4300 6300 4250
 Wire Wire Line
 	5900 4250 5900 4300
+$Comp
+L Mounting_Hole MK4
+U 1 1 5A2EE04A
+P 3200 4150
+F 0 "MK4" H 3200 4350 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 4275 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 4150 60  0001 C CNN
+F 3 "" H 3200 4150 60  0001 C CNN
+	1    3200 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK5
+U 1 1 5A2EE142
+P 3200 4500
+F 0 "MK5" H 3200 4700 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 4625 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 4500 60  0001 C CNN
+F 3 "" H 3200 4500 60  0001 C CNN
+	1    3200 4500
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
