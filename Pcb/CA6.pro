@@ -1,4 +1,4 @@
-update=10/28/2017 7:20:13 AM
+update=12/11/2017 8:47:29 AM
 last_client=kicad
 [general]
 version=1
@@ -36,3 +36,13 @@ LibName2=C:/Program Files/KiCad/share/kicad/library/device
 LibName3=C:/Program Files/KiCad/share/kicad/library/conn
 LibName4=C:/Program Files/KiCad/share/kicad/library/interface
 LibName5=C:/Program Files/KiCad/share/kicad/library/74xx
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60

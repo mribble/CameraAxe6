@@ -3618,17 +3618,17 @@ ESP_3V3
 Text Label 19550 11800 2    60   ~ 0
 ESP_RESET
 Text Label 19550 11900 2    60   ~ 0
-ESP_RTS
+ESP_CTS
 Text Label 19550 12000 2    60   ~ 0
-ESP_RX
+ESP_TX
 Text Label 19550 12100 2    60   ~ 0
 ESP_EXT1
 Text Label 16350 11800 0    60   ~ 0
 ESP_PROG
 Text Label 16350 11900 0    60   ~ 0
-ESP_CTS
+ESP_RTS
 Text Label 16350 12000 0    60   ~ 0
-ESP_TX
+CC_TX
 Text Label 16350 12100 0    60   ~ 0
 ESP_EXT0
 Text Label 21950 13400 2    60   ~ 0
@@ -3638,9 +3638,9 @@ ESP_RESET
 Text Label 21950 13300 2    60   ~ 0
 ESP_EXT0
 Text Label 21950 13200 2    60   ~ 0
-ESP_RTS
+ESP_CTS
 Text Label 17600 13600 0    60   ~ 0
-ESP_TX
+CC_TX
 Wire Wire Line
 	18000 13600 17600 13600
 Wire Wire Line
@@ -4780,7 +4780,7 @@ Connection ~ 15150 6650
 Connection ~ 16700 6150
 Connection ~ 16700 6550
 Text Label 19100 13900 0    60   ~ 0
-ESP_RX
+ESP_TX
 Wire Wire Line
 	17500 13500 17500 13300
 Wire Wire Line
@@ -4821,7 +4821,7 @@ Wire Wire Line
 Wire Wire Line
 	19400 12800 18750 12800
 Text Label 18750 12800 0    60   ~ 0
-ESP_CTS
+ESP_RTS
 Wire Wire Line
 	18450 13200 18750 13200
 Wire Wire Line
@@ -4941,4 +4941,8 @@ Text Label 18250 14650 2    60   ~ 0
 ESP_3V3
 Connection ~ 22200 13100
 Connection ~ 22200 12700
+Text Label 19150 13700 0    60   ~ 0
+ESP_RX
+Text Label 17600 13800 0    60   ~ 0
+FTDI_TX
 $EndSCHEMATC
