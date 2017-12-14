@@ -149,8 +149,10 @@ typedef struct {
   hwPortPin ppPin;            // This is the port for analog light values
   hwPortPin ppSensitivity0;   // This is a sensitivity control pin
   hwPortPin ppSensitivity1;   // This is a sensitivity control pin
+  hwPortPin ppLaser;          // This port enables/disables the laser
   CASensorFilter sf;          // This helps filter incoming values for a cleaner display
   uint32_t triggerVal;        // This stores the amount of light change required to trigger the CA6
+  uint32_t laserVal;          // Thi stores if the laser is off or on
   uint32_t triggerMode=0;     // This stores the mode (min/max/threshold) used to trigger the CA6
   uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium, 2=high
 } LightData;
@@ -187,17 +189,23 @@ void light_MenuInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity();
   gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
+  CAU::pinMode(gLightData.ppLaser, OUTPUT);
+  CAU::digitalWrite(gLightData.ppLaser, LOW);
 }
 
 void light_PhotoInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity();
+  CAU::pinMode(gLightData.ppLaser, OUTPUT);
+   CAU::digitalWrite(gLightData.ppLaser, LOW);
 }
 
 void light_MenuRun() {
@@ -216,6 +224,8 @@ void light_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 0, gLightData.triggerMode); // Store the trigger mode user set on webpage here
   packet = incomingPacketCheckUint32(packet, 1, gLightData.sensitivity); // Store the sensitivity level  user set on webpage here
   packet = incomingPacketCheckUint32(packet, 2, gLightData.triggerVal); // Store the trigger value user set on webpage here
+  packet = incomingPacketCheckUint32(packet, 4, gLightData.laserVal); // Store the laser value user set on webpage here
+  
   incomingPacketFinish(packet);
 
   // Update the sensitivity if it has changed
@@ -239,6 +249,14 @@ void light_PhotoRun() {
     // Handle triggering
     bool trigger;
     uint16_t val = CAU::analogRead(gLightData.ppPin);
+
+    if (!camTriggerRunning() && gLightData.laserVal) {
+       CAU::digitalWrite(gLightData.ppLaser, HIGH);
+    } 
+    else {
+       CAU::digitalWrite(gLightData.ppLaser, LOW);
+    }
+
     if (gLightData.triggerMode == 0) {  // Min Mode
       trigger = (val < gLightData.triggerVal) ? true : false;
     }
