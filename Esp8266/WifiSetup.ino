@@ -107,8 +107,8 @@ void pollWifiMode() {
     }
   }
   else if (WiFi.getMode() == WIFI_AP) {
-    if (WiFi.getMode() == WL_CONNECTED) {
-      gLed.set(CALed::ORANGE_ON);
+    if (WiFi.status() == WL_DISCONNECTED) {  // WL_DISCONNECTED means not connected in STA mode (odd, but it's what the docs say -- probably this way to be compatible with Arduino wifi library)
+      gLed.set(CALed::GREEN_RED_BLINK);
       statusSet = true;
     }
   }

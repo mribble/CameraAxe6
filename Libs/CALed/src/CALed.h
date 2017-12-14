@@ -19,7 +19,7 @@
 class CALed
 {
 public:
-    enum State { ALL_OFF, GREEN_ON, GREEN_BLINK, RED_ON, RED_BLINK, ORANGE_ON, ORANGE_BLINK};
+    enum State { ALL_OFF, GREEN_ON, GREEN_BLINK, RED_ON, RED_BLINK, ORANGE_ON, ORANGE_BLINK, GREEN_RED_BLINK};
     
     CALed(uint8_t greenPin, uint8_t redPin);
     void set(State state);
