@@ -772,7 +772,27 @@ void projectile_PhotoRun() {
   
     if (FAST_CHECK_FOR_PACKETS) {
       // Handle incoming packets (needed so user can exit photo mode)
+      uint32_t forceCam7On = 0;
+      uint32_t forceCam7Off = 0;
       CAPacketElement *packet = processIncomingPacket();
+      packet = incomingPacketCheckUint32(packet, 8, forceCam7On);
+      packet = incomingPacketCheckUint32(packet, 9, forceCam7Off);
+
+      if (forceCam7On) {
+        hwPortPin focusPin = CAU::getCameraPin(7, FOCUS);
+        hwPortPin shutterPin = CAU::getCameraPin(7, SHUTTER);
+        CAU::digitalWrite(focusPin, HIGH);
+        CAU::digitalWrite(shutterPin, HIGH);
+      }
+      if (forceCam7Off) {
+        hwPortPin focusPin = CAU::getCameraPin(7, FOCUS);
+        hwPortPin shutterPin = CAU::getCameraPin(7, SHUTTER);
+        uint8_t mode = g_ctx.camSettings[7].getMode();
+        uint8_t focusVal = ((mode == CA_MODE_PREFOCUS) || (mode == CA_MODE_SMART_PREFOCUS)) ? HIGH : LOW;
+        CAU::digitalWrite(focusPin, focusVal);
+        CAU::digitalWrite(shutterPin, LOW);
+      }
+
       incomingPacketFinish(packet);
     }
   }
