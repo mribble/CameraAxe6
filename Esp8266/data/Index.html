@@ -18,7 +18,7 @@
 				padding: 20px;
 				color: #ffffff;
 				font-size: 48px;
-                line-height: 1em;
+				line-height: 1em;
 				border: 0px;
 				border-radius: 20px;
 				background: #0D47A1;
@@ -38,7 +38,7 @@
 				padding: 20px;
 				margin: 5px;
 				font-size: 48px;
-                width: 200px;
+				width: 200px;
 			}
 			.inputTimebox{
 				background-color: #BBDEFB;
@@ -48,7 +48,7 @@
 				padding: 20px;
 				margin: 5px;
 				font-size: 48px;
-                width: 420px;
+				width: 420px;
 			}
 			.select1{
 				background-color: #BBDEFB;
@@ -66,12 +66,12 @@
 				border-radius: 20px;
 				background-color: #BDBDBD;
 			}
-            h1{
-                margin: 12px;
-                color: #0D47A1;
-                font-size: 48;
-                font-weight: 800;
-            }
+			h1{
+				margin: 12px;
+				color: #0D47A1;
+				font-size: 48;
+				font-weight: 800;
+			}
 			.text1{
 				margin: 12px;
 				font-size: 40px;
@@ -152,7 +152,7 @@
 			}
 			.slider {
 				-webkit-appearance: none;
-                width: 350px;
+				width: 350px;
 				height: 24px;
 				margin: 20px;
 				border-radius: 5px;
@@ -469,7 +469,7 @@
 			}
 
 			// Get the nanoseconds from a time box string
-            // This could be updated to support nanoseconds just by putting them in array slot [6]
+			// This could be updated to support nanoseconds just by putting them in array slot [6]
 			function getNanoseconds(time) {
 				var timeArray = time.split(new RegExp("[.:]", "g")); // index 0 is days and index 5 is microseconds
 				var x = +timeArray[5]*1000 + timeArray[4]*1000000;
@@ -548,22 +548,22 @@
 			}
 
 			// When the user clicks on OK button, update the box value
-            // Format is dd.hh:mm:ss.mmm.uuu
+			// Format is dd.hh:mm:ss.mmm.uuu
 			function timeBoxSaveValues(){
 				var timeboxForm = document.forms.timeboxForm;
 				var boxValue = "";
 				for(i=0; i<timeboxForm.length; i+=1) {
 					if(timeboxForm[i].type=="number") {
 						if(i>0 && boxValue != "") {
-                            if (i < 2) {
-                                boxValue += ".";
-                            }
-                            else if (i < 4) {
-                                boxValue += ":";
-                            }
-                            else {
-                                boxValue += ".";
-                            }
+							if (i < 2) {
+								boxValue += ".";
+							}
+							else if (i < 4) {
+								boxValue += ":";
+							}
+							else {
+								boxValue += ".";
+							}
 						}
 						boxValue += timeboxForm[i].value;
 					}
@@ -715,10 +715,34 @@
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
 			}
-			
+
 			function caDropSelectImmediate(id, value, text0, text1) {
-				//todo also send packet immediately
-				caDropSelect(id, value, text0, text1);
+				var row = gCurTable.insertRow();
+				var cell0 = row.insertCell();
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x = document.createElement("select");
+				x.id = id;
+				x.caType = "dropSelect";
+				var a = text1.split("~");
+				var i;
+
+				a.forEach(function(item) {
+					var option = document.createElement("option");
+					option.value = item;
+					option.textContent = item;
+					x.appendChild(option);
+				});
+
+				x.classList.add("select1");
+
+				x.onchange = function(){
+					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.selectedIndex+"~";
+					httpRequest(null, val);
+				};
+				cell1.appendChild(x);
+				cell0.classList.add("modeCell");
+				cell1.classList.add("modeCell");
 			}
 
 			function caEditNumber(id, maxValue, value, text0) {
@@ -941,7 +965,7 @@
 				if (extraFunc != null) {
 					extraFunc();
 				}
-                //sendCamTriggerPacket();
+				//sendCamTriggerPacket();
 				setTimeout(function() { sendCamTriggerPacket();}, 50);
 			}
 
@@ -1057,7 +1081,7 @@
 <!--Home Page (Start)-->
 		<div id="Home" class="mainBox">
 			<h1>Camera Axe Home</h1>
-            <div class="colorbox">
+			<div class="colorbox">
 				<span class="text1">Menus</span>
 				<div id="listButtons"></div>
 			</div>
@@ -1102,7 +1126,7 @@
 <!--Camera Flash Page (Start)-->
 		<div id="CameraFlash" class="mainBox">
 			<button onclick="loadPage('Home', null, sendCamFlashPackets);">&#x1F3E0&#xfe0e</button>
-            <button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
+			<button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
 			<h1>Camera Flash</h1>
 
 			<button onclick="camSelectButton(0);" id="camSel0">1</button>
@@ -1120,7 +1144,7 @@
 						<td style="width:50%;">Mode</td>
 						<td style="width:50%;">
 							<select class="select1" name="mode">
-                                <option value="0">None</option>
+								<option value="0">None</option>
 								<option value="1">Camera</option>
 								<option value="2">Camera Prefocus</option>
 								<option value="3">Camera Prefocus Smart</option>
@@ -1171,10 +1195,10 @@
 <!--Camera Flash Page (End)-->
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
-  			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0&#xfe0e</button>
-            <button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
+			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0&#xfe0e</button>
+			<button onclick="testTrigger(sendCamFlashPackets);" type="button">Test Trigger</button>
 			<h1>Intervalometer</h1>
-			
+
 			<form id="intervalometerForm" name="intervalometerForm">
 				<table style="width:100%;">
 					<tr>
