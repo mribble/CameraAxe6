@@ -188,3 +188,19 @@ void CAPacketHelper::writePacketCamTrigger(const String& str) {
     writeOnePacket(mData);
     mPacker.resetBuffer();
 }
+
+void CAPacketHelper::writePacketPeriodicData(uint16_t voltage) {
+    CAPacketPeriodicData pack0(mPacker);
+    pack0.set(voltage);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}
+
+void CAPacketHelper::writePacketPeriodicData(const String& str) {
+    CAPacketPeriodicData pack0(mPacker);
+    pack0.set(str);
+    pack0.pack();
+    writeOnePacket(mData);
+    mPacker.resetBuffer();
+}

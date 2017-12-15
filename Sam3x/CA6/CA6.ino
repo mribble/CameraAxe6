@@ -24,9 +24,12 @@ void setup() {
   g_ctx.esp8266.init(74880);
   g_ctx.packetHelper.init(g_ctx.esp8266.getSerial(), (HardwareSerial*)(&SerialIO));
   esp8266ProgramMode();
+  hwPortPin ppVoltage = CAU::getOnboardDevicePin(LV_DETECT_PIN);
+  CAU::pinMode(ppVoltage, ANALOG_INPUT);
 }
 
 void loop() {
+  uint32_t periodDataTime = 0;
   while(1) { // Existing loop causes 10 ms delay so we will stay in it forever to avoid that delay
     caRunTests();
     processTerminalCmds();
@@ -44,6 +47,15 @@ void loop() {
       if (!camTriggerRunning()) {
         // This needs to get turned off for test trigger and there wasn't a better spot
         resetCameraPorts();
+      }
+      if ((millis() - periodDataTime) >= 10000) {  // Send periodic data every 10 seconds
+        hwPortPin ppVoltage = CAU::getOnboardDevicePin(LV_DETECT_PIN);
+        uint32_t voltage = CAU::analogRead(ppVoltage);
+        // Convert to hundredths of volts by multiplying by max max voltage (4096 is from 12 bit ADC on sam3x)
+        // (3.3 * 4 * 100)=1320 [3.3 is voltage; 4x voltage divider circuit; 100 is to make hundredths of volts]
+        voltage = voltage * 1320 / 4096;
+        g_ctx.packetHelper.writePacketPeriodicData(voltage);
+        periodDataTime = millis();
       }
     } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {
       g_ctx.procTable.funcPhotoRun[g_ctx.menuId]();

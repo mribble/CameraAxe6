@@ -308,10 +308,9 @@ hwPortPin getAuxPin(uint8_t pin)
 hwPortPin getOnboardDevicePin(hwDevice device)
 {
     hwPortPin ret;
-    
+
     switch(device)
     {
-        case EEPROM_PIN:    ret.port=PORT_A; ret.pin=21;   ret.analogInputChannel=NO_PIN;   break;
         case LV_DETECT_PIN: ret.port=PORT_A; ret.pin=6;    ret.analogInputChannel=3;        break;
         case CC_PROG:       ret.port=PORT_C; ret.pin=5;    ret.analogInputChannel=NO_PIN;   break;
         case CC_RESET:      ret.port=PORT_C; ret.pin=3;    ret.analogInputChannel=NO_PIN;   break;

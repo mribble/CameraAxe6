@@ -94,6 +94,10 @@ void serviceUri() {
     saveStringToFlash(gStartLocation, name);
     putRequest = true;
   }
+  else if (uri.indexOf("GET /getVoltage ") != -1) {
+    String str = String(gVoltage/100) + "." + String(gVoltage%100/10) + String(gVoltage%10);
+    gClient.print(str);
+  }
   else if ((uri.indexOf("GET / HTTP/1.1") != -1) || (uri.indexOf("GET /index.html") != -1) ) {
     loadMainWebPage();
   }
