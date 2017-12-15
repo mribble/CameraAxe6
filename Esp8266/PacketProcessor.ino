@@ -82,6 +82,11 @@ void receivePacket() {
         }
       }
     }
+    else if (packetType == PID_PERIODIC_DATA) {
+      CAPacketPeriodicData unpack(mUnpacker);
+      unpack.unpack();
+      gVoltage = unpack.getVoltage();
+    }
     else {
       CA_ASSERT(0, "Unknown packet");
       CA_LOG("packetType=%d\n", packetType);

@@ -11,7 +11,8 @@ enum packetId  {PID_START_SENTINEL      =  0,  // Must be first
                 PID_CAM_SETTINGS        =  5,
                 PID_INTERVALOMETER      =  6,
                 PID_CAM_TRIGGER         =  7,
-                PID_END_SENTINEL        =  8, // Must be last
+                PID_PERIODIC_DATA       =  8,
+                PID_END_SENTINEL        =  9, // Must be last
                };
 
 enum packetState { STATE_PACKER=1, STATE_UNPACKER=2 };
@@ -268,6 +269,21 @@ private:
     uint8_t mMode;
     uint8_t mFocus;
     uint8_t mShutter;
+};
+
+class CAPacketPeriodicData : public CAPacketElement {
+public:
+    CAPacketPeriodicData(CAPacket& caPacket);
+    uint8_t getPacketType() {return PID_PERIODIC_DATA;};
+    uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
+    uint16_t getVoltage() {return mVoltage;};
+    void set(uint16_t voltage);
+    void set(const String& str);
+    void unpack();
+    uint16_t pack();
+    void packetToString(String& str);
+private:
+    uint16_t mVoltage;
 };
 
 #endif // __CAPACKET_H__

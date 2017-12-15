@@ -540,3 +540,45 @@ uint16_t CAPacketCamTrigger::pack() {
 void CAPacketCamTrigger::packetToString(String& str) {
     str = (String)PID_CAM_TRIGGER + '~' + mMode + '~' + mFocus + '~' + mShutter + '~';
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// PeriodicData Packet Class
+///////////////////////////////////////////////////////////////////////////////
+CAPacketPeriodicData::CAPacketPeriodicData(CAPacket& caPacket) {
+    mVoltage = 0;
+    mCAP = &caPacket;
+}
+
+void CAPacketPeriodicData::set(uint16_t voltage) {
+    mVoltage = voltage;
+}
+
+void CAPacketPeriodicData::set(const String& str) {
+    uint16_t index = 0;
+    uint8_t id; 
+
+    id = getUint32FromString(index, str);
+    mVoltage = getUint32FromString(index, str);
+    CA_ASSERT(index==str.length(), "Failed end check");
+    CA_ASSERT(id==PID_PERIODIC_DATA, "Wrong PID ID");
+}
+
+void CAPacketPeriodicData::unpack() {
+    mVoltage = mCAP->unpacker(16);
+    mCAP->flushPacket();
+}
+
+uint16_t CAPacketPeriodicData::pack() {
+    uint16_t packetSize = PACK_TOTAL_SZ + 2;
+    mCAP->packer(GUARD_PACKET, 8);
+    mCAP->packer(packetSize, 16);
+    mCAP->packer(PID_PERIODIC_DATA, 8);
+    mCAP->packer(mVoltage, 16);
+    mCAP->flushPacket();
+    return packetSize;
+}
+
+void CAPacketPeriodicData::packetToString(String& str) {
+    str = (String)PID_PERIODIC_DATA + '~' + mVoltage + '~';
+}
+

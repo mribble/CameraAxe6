@@ -467,6 +467,15 @@
 					startLocationSelect.value = name;
 				}
 			}
+            
+            // Callback to get the voltage
+            function getVoltageAjax (xmlHttpRequest) {
+				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+					var name = xmlHttpRequest.responseText;
+					var voltage = document.getElementById("current_voltage");
+					voltage.innerHTML = name;
+				}
+            }
 
 			// Get the nanoseconds from a time box string
 			// This could be updated to support nanoseconds just by putting them in array slot [6]
@@ -981,10 +990,16 @@
 				httpRequest(setDefaultsAjax, "setDefaults");
 			}
 
-			// Clear wifi network settins from wifi class
+			// Clear wifi network settings from wifi class
 			function clearWifiNetworks() {
 				httpRequest(null, "clearWifiNetworks");
 			}
+
+            // Get voltage of CA6
+            function sendVoltagePacketFunc() {
+                httpRequest(getVoltageAjax, "getVoltage");
+            }
+
 
 			// Popup a screen with help info
 			function displayInfo() {
@@ -1090,7 +1105,7 @@
 			<br>
 			<button class="button1" onclick="loadPage('Intervalometer', null, null);">Intervalometer Settings</button>
 			<br>
-			<button class="button1" onclick="loadPage('Advanced', null, null);">Advanced</button>
+			<button class="button1" onclick="loadPage('Advanced', null, sendVoltagePacketFunc);">Advanced</button>
 		</div>
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
@@ -1237,6 +1252,7 @@
 			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
+            <p>Current voltage: <span id="current_voltage">?</span>
 			<p>Version: 2017.10.18</p>
 		</div>
 <!--Advanced Page (End)-->
