@@ -233,6 +233,13 @@ void light_MenuRun() {
     setLightSensitivity();
   }
 
+  if (gLightData.laserVal == 0) {
+    CAU::digitalWrite(gLightData.ppLaser, LOW);
+  }
+  else {
+    CAU::digitalWrite(gLightData.ppLaser, HIGH);
+  }
+
   // Update the display based on current mode
   if (prevTriggerMode != gLightData.triggerMode) {
     if (gLightData.triggerMode == 0) {  // Min Mode
