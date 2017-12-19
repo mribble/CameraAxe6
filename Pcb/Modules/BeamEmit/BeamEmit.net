@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/BeamEmit/BeamEmit.sch)
-    (date "12/8/2017 4:07:04 PM")
+    (date "12/18/2017 4:45:54 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
