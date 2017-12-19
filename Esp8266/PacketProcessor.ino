@@ -24,6 +24,7 @@ void sendPacket(String &packetStr) {
     case PID_MENU_SELECT:
       gPh.writePacketMenuSelect(packetStr);
       gDynamicMessages.numMessages = 0;
+      gDynamicUint32s.remove(0);
       break;
     case PID_CAM_SETTINGS:
       gPh.writePacketCamSettings(packetStr);
@@ -80,6 +81,18 @@ void receivePacket() {
         else {
           CA_INFO("Exceeded max dynamic messages", MAX_DYNAMIC_MESSAGES);
         }
+      }
+    }
+    else if (packetType == PID_UINT32) {
+      CAPacketUint32 unpack(mUnpacker);
+      unpack.unpack();
+      uint8_t curId = unpack.getClientHostId();
+      uint32_t val = unpack.getValue();
+      if (gDynamicUint32s.length() < 200) {
+        gDynamicUint32s += "id" + String(curId) + "~" + String(val) + "~";
+      }
+      else {
+        CA_INFO("Exceeded max uint32 values", 0);  // If you hit this you are sending uint32s too frequently or forgetting to fetch the values from JS
       }
     }
     else if (packetType == PID_PERIODIC_DATA) {

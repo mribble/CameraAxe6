@@ -17,8 +17,11 @@ void serviceUri() {
   gClient.flush();
   uri.replace("%20", " "); // The uri code converts spaces to %20, this undoes that transformation
 
-  if (uri.indexOf("GET /getMenuDynamicIds ") != -1) {
-    getMenuDynamicIds();
+  if (uri.indexOf("GET /getMenuDynamicStringIds ") != -1) {
+    getMenuDynamicStringIds();
+  }
+  else if (uri.indexOf("GET /getMenuDynamicUint32Ids ") != -1) {
+    getMenuDynamicUint32Ids();
   }
   else if (uri.indexOf("GET /getMenuList ") != -1) {
     getMenuList();
@@ -124,7 +127,7 @@ void serviceUri() {
 // Below are a bunch of simple helper functions used by serviceUri() 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void getMenuDynamicIds() {
+void getMenuDynamicStringIds() {
   String val;
 
   for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
@@ -135,6 +138,14 @@ void getMenuDynamicIds() {
     val = "null";
   }
   gClient.print(val);
+}
+
+void getMenuDynamicUint32Ids() {
+  if (gDynamicUint32s.length() == 0) {
+    gDynamicUint32s = "null";
+  }
+  gClient.print(gDynamicUint32s);
+  gDynamicUint32s.remove(0);
 }
 
 void getMenuList() {

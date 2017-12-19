@@ -47,6 +47,7 @@ WiFiServer gServer(80);             // TCP/IP Server
 WiFiClient gClient;                 // Client that connects to a specific IP address and port
 CAPacketHelper gPh;                 // Helps assemble binary packets going to the sam3x
 DynamicMessages gDynamicMessages;   // Stores dynamic string packet updates from sam3x headed to JS on next refresh
+String gDynamicUint32s;             // Stores uint32 packet updates from sam32 headed to JS on next refresh
 CALed gLed(G_LED, R_LED);           // Manages a red/green LED used to indicate connection status
 uint32_t gVoltage = 0;              // Current voltage being read by sam3x
 
