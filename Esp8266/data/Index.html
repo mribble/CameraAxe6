@@ -330,7 +330,8 @@
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {
 					// Only send the request if the dynamic menu is visible
-					httpRequest(getMenuDynamicIdsAjax, "getMenuDynamicIds");
+					httpRequest(getMenuDynamicStringIdsAjax, "getMenuDynamicStringIds");
+                    httpRequest(getMenuDynamicUint32IdsAjax, "getMenuDynamicUint32Ids");
 				}
 			}
 
@@ -385,8 +386,8 @@
 				}
 			}
 
-			// Callback used when updated dynamic state is returned
-			function getMenuDynamicIdsAjax(xmlHttpRequest) {
+			// Callback used when updated dynamic strings is returned
+			function getMenuDynamicStringIdsAjax(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
 					if (xmlHttpRequest.responseText == "null") {
 						return;
@@ -398,6 +399,20 @@
 					}
 				}
 			}
+            
+            // Callback used when updated dynamic uint32 is returned
+            function getMenuDynamicUint32IdsAjax(xmlHttpRequest) {
+				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+					if (xmlHttpRequest.responseText == "null") {
+						return;
+					}
+
+					var stateList = xmlHttpRequest.responseText.slice(0, -1).split("~");
+					for(i=0; i<stateList.length; i+=2) {
+						document.getElementById(stateList[i]).value = stateList[i+1];
+					}
+				}
+            }
 
 			// Callback when updating a dynamic menu
 			function getCurrentDynamicMenuAjax(xmlHttpRequest) {

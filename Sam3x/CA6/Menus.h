@@ -407,6 +407,8 @@ void valve_PhotoRun() {
     }
 
     if (val) {
+      g_ctx.packetHelper.writePacketUint32(1, 123);
+      
       if (gValveData.shutterLag <= gValveData.flashDelay) {
         // This is the normal path
         uint64_t camDelayMs = gValveData.flashDelay - gValveData.shutterLag;
