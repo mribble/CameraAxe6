@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/Pcb/Modules/Projectile/Projectile.sch)
-    (date "12/18/2017 4:52:19 PM")
+    (date "12/19/2017 2:36:53 PM")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -190,7 +190,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 5A0037D5))
     (comp (ref R14)
-      (value 100K)
+      (value 10K)
       (footprint Resistors_SMD:R_0603)
       (libsource (lib device) (part R))
       (sheetpath (names /) (tstamps /))
@@ -232,7 +232,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 5A36E782))
     (comp (ref R15)
-      (value 100K)
+      (value 10K)
       (footprint Resistors_SMD:R_0603)
       (libsource (lib device) (part R))
       (sheetpath (names /) (tstamps /))
