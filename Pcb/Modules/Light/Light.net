@@ -1,8 +1,8 @@
 (export (version D)
   (design
-    (source F:/CameraAxe6/Pcb/Modules/Light/Light.sch)
-    (date "12/19/2017 8:50:31 AM")
-    (tool "Eeschema 4.0.6")
+    (source D:/_my/git/CameraAxe6/Pcb/Modules/Light/Light.sch)
+    (date "12/19/2017 2:59:40 PM")
+    (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
         (title "CA6 version of New Light Sensor Module with Extensible Snoot")
@@ -249,7 +249,7 @@
         (pin (num 2) (name ~) (type passive)))))
   (libraries
     (library (logical CA6)
-      (uri F:\CameraAxe6\Pcb\CA6.lib))
+      (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib))
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib"))
     (library (logical mechanical)
