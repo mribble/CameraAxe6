@@ -354,6 +354,7 @@ typedef struct {
   uint32_t flashDelay;
   uint32_t dropDelay[4][3];
   uint32_t dropSize[4][3];
+  uint8_t autoState = 0;
 } ValveData;
 
 ValveData gValveData;
@@ -379,6 +380,9 @@ void valve_PhotoInit() {
   CAU::digitalWrite(gValveData.ppValve[2], LOW);
   CAU::pinMode(gValveData.ppValve[3], OUTPUT);
   CAU::digitalWrite(gValveData.ppValve[3], LOW);
+  g_ctx.packetHelper.writePacketString(27, String(gValveData.flashDelay).c_str());
+  g_ctx.packetHelper.writePacketString(30, String(gValveData.dropDelay[0][1]).c_str());
+  g_ctx.packetHelper.writePacketString(34, "Not Active");
 }
 
 void valve_MenuRun() {
@@ -399,16 +403,86 @@ void valve_PhotoRun() {
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
 
     // Handle incoming packets
-    uint32_t val = 0;
+    uint32_t dropButton = 0;
+
     if (FAST_CHECK_FOR_PACKETS) {
+      uint32_t incFlashButton = 0;
+      uint32_t decFlashButton = 0;
+      uint32_t incValveButton = 0;
+      uint32_t decValveButton = 0;
+      uint32_t autoButton = 0;
+      
       CAPacketElement *packet = processIncomingPacket();
-      packet = incomingPacketCheckUint32(packet, 26, val);
+      packet = incomingPacketCheckUint32(packet, 26, dropButton);
+      packet = incomingPacketCheckUint32(packet, 28, incFlashButton);
+      packet = incomingPacketCheckUint32(packet, 29, decFlashButton);
+      packet = incomingPacketCheckUint32(packet, 31, incValveButton);
+      packet = incomingPacketCheckUint32(packet, 32, decValveButton);
+      packet = incomingPacketCheckUint32(packet, 33, autoButton);
       incomingPacketFinish(packet);
+
+      if (incFlashButton) {
+        gValveData.flashDelay = min((gValveData.flashDelay+5)/5*5, 9999);
+        g_ctx.packetHelper.writePacketUint32(1, gValveData.flashDelay);
+        g_ctx.packetHelper.writePacketString(27, String(gValveData.flashDelay).c_str());
+      }
+      if (decFlashButton) {
+        gValveData.flashDelay = (gValveData.flashDelay <= 5) ? 0 : ((gValveData.flashDelay-1)/5*5);
+        g_ctx.packetHelper.writePacketUint32(1, gValveData.flashDelay);
+        g_ctx.packetHelper.writePacketString(27, String(gValveData.flashDelay).c_str());
+      }
+      if (incValveButton) {
+        gValveData.dropDelay[0][1] = min((gValveData.dropDelay[0][1]+5)/5*5, 999);
+        g_ctx.packetHelper.writePacketUint32(4, gValveData.dropDelay[0][1]);
+        g_ctx.packetHelper.writePacketString(30, String(gValveData.dropDelay[0][1]).c_str());
+      }
+      if (decValveButton) {
+        gValveData.dropDelay[0][1] = (gValveData.dropDelay[0][1] == 0) ? 0 : ((gValveData.dropDelay[0][1]-1)/5*5);
+        g_ctx.packetHelper.writePacketUint32(4, gValveData.dropDelay[0][1]);
+        g_ctx.packetHelper.writePacketString(30, String(gValveData.dropDelay[0][1]).c_str());
+      }
+      if (autoButton) {
+        switch(gValveData.autoState) {
+          case 0:
+            gValveData.autoState = 1;
+            g_ctx.packetHelper.writePacketString(34, "Press Auto at max splash height");
+            gValveData.flashDelay = 250;
+            g_ctx.packetHelper.writePacketUint32(1, 250);
+            g_ctx.packetHelper.writePacketString(27, "250");
+            gValveData.dropDelay[0][1] = 150;
+            g_ctx.packetHelper.writePacketUint32(4, 150);
+            g_ctx.packetHelper.writePacketString(30, "150");
+            break;
+          case 1:
+            gValveData.autoState = 2;
+            g_ctx.packetHelper.writePacketString(34, "Press Auto at nice collision");
+            break;
+         default:
+            gValveData.autoState = 0;
+            g_ctx.packetHelper.writePacketString(34, "Not Active");
+            break;
+        }
+        
+      }
     }
 
-    if (val) {
-      g_ctx.packetHelper.writePacketUint32(1, 123);
-      
+    if(gValveData.autoState && !camTriggerRunning()) {
+      switch (gValveData.autoState) {
+        case 1:
+          gValveData.flashDelay = min((gValveData.flashDelay+10), 450);
+          g_ctx.packetHelper.writePacketUint32(1, gValveData.flashDelay);
+          g_ctx.packetHelper.writePacketString(27, String(gValveData.flashDelay).c_str());
+          break;
+        case 2:
+          gValveData.dropDelay[0][1] = (gValveData.dropDelay[0][1] == 0) ? 0 : ((gValveData.dropDelay[0][1]-10));
+          g_ctx.packetHelper.writePacketUint32(4, gValveData.dropDelay[0][1]);
+          g_ctx.packetHelper.writePacketString(30, String(gValveData.dropDelay[0][1]).c_str());
+          break;
+      }
+      dropButton = 1; // Forces the valve to run
+    }
+
+    if (dropButton && !camTriggerRunning()) {
       if (gValveData.shutterLag <= gValveData.flashDelay) {
         // This is the normal path
         uint64_t camDelayMs = gValveData.flashDelay - gValveData.shutterLag;
