@@ -3,7 +3,7 @@
   (general
     (links 35)
     (no_connects 0)
-    (area 25.349999 25.349999 88.950001 51.866001)
+    (area 22.840038 23.9698 91.459963 55.342131)
     (thickness 1.6)
     (drawings 16)
     (tracks 151)
@@ -756,7 +756,7 @@
   (gr_line (start 25.4 25.4) (end 88.9 25.4) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 25.4 31.496) (end 25.4 25.4) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 88.9 31.496) (end 88.9 51.816) (angle 90) (layer Edge.Cuts) (width 0.1))
-  (gr_text "Light Module\n2017-12-19" (at 72.644 27.432) (layer F.SilkS)
+  (gr_text "Light Module\n2017.12.23" (at 72.644 27.432) (layer F.SilkS)
     (effects (font (size 1.016 1.016) (thickness 0.1524)))
   )
   (gr_line (start 75.438 36.576) (end 25.654 36.576) (angle 90) (layer F.SilkS) (width 0.2))

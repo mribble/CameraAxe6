@@ -3,7 +3,7 @@
   (general
     (links 26)
     (no_connects 0)
-    (area 25.324999 25.324999 76.275001 45.795001)
+    (area 22.381869 24.0968 82.345401 47.1232)
     (thickness 1.6)
     (drawings 13)
     (tracks 63)
@@ -704,7 +704,7 @@
   (gr_line (start 76.2 31.75) (end 76.2 39.37) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 69.85 45.72) (end 31.75 45.72) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 31.75 25.4) (end 69.85 25.4) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Sound Module\n2017-12-03" (at 63.5 27.94) (layer F.SilkS)
+  (gr_text "Sound Module\n2017.12.23" (at 63.5 27.94) (layer F.SilkS)
     (effects (font (size 1.143 1.143) (thickness 0.2286)) (justify left))
   )
 
