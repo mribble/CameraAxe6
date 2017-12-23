@@ -3,7 +3,7 @@
   (general
     (links 10)
     (no_connects 0)
-    (area 35.510399 35.484999 86.460401 55.955001)
+    (area 31.983069 34.206 89.500001 57.334)
     (thickness 1.6)
     (drawings 13)
     (tracks 25)
@@ -400,7 +400,7 @@
   (gr_line (start 42.1894 55.88) (end 35.5854 55.88) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 35.5854 41.91) (end 35.5854 49.53) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 86.3854 41.91) (end 86.3854 49.53) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Beam Detect Module\n2017-12-02" (at 50.292 45.466) (layer F.SilkS)
+  (gr_text "Beam Detect Module\n2017.12.23" (at 50.292 45.466) (layer F.SilkS)
     (effects (font (size 1.016 1.016) (thickness 0.2032)) (justify left))
   )
   (gr_line (start 80.0354 55.88) (end 41.9354 55.88) (angle 90) (layer Edge.Cuts) (width 0.15))

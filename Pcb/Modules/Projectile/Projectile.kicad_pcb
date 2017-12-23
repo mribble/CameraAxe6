@@ -3,7 +3,7 @@
   (general
     (links 64)
     (no_connects 0)
-    (area 29.134999 24.054999 137.997001 69.925001)
+    (area 25.683869 23.4618 137.997001 70.6182)
     (thickness 1.6)
     (drawings 5)
     (tracks 220)
@@ -1512,7 +1512,7 @@
   (gr_line (start 29.21 24.13) (end 29.21 69.85) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 137.922 24.13) (end 29.21 24.13) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 29.21 69.85) (end 137.922 69.85) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Projectile Module\n2017-12-17" (at 64.516 26.67) (layer F.SilkS)
+  (gr_text "Projectile Module\n2017.12.23" (at 64.516 26.67) (layer F.SilkS)
     (effects (font (size 1.27 1.27) (thickness 0.254)) (justify left))
   )
 
