@@ -252,6 +252,11 @@ private:
     uint16_t mRepeats;
 };
 
+enum CAM_TRIGGER_MODE {
+    CA_MODE_STANDARD       = 0,
+    CA_MODE_TOGGLE         = 1,
+};
+
 class CAPacketCamTrigger : public CAPacketElement {
 public:
     CAPacketCamTrigger(CAPacket& caPacket);

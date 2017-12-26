@@ -521,7 +521,7 @@ void CAPacketCamTrigger::unpack() {
     mFocus = mCAP->unpacker(8);
     mShutter = mCAP->unpacker(8);
     mCAP->flushPacket();
-    CA_ASSERT((mMode == 0) && (mFocus==0) && (mShutter==0), "Error in CAPacketCamTrigger::unpack()");
+    CA_ASSERT((mFocus==0) && (mShutter==0), "Error in CAPacketCamTrigger::unpack()");
 }
 
 uint16_t CAPacketCamTrigger::pack() {

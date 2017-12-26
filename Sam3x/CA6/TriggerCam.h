@@ -113,6 +113,7 @@ void triggerCamerasPhase4() {
   }
   g_ctx.camTimer.stop();
   g_ctx.camTriggerRunning = false;
+  g_ctx.prevToggleCamVal = LOW;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,7 +177,8 @@ void handleMirrorLockup() {
 void startTriggerCameraState() {
   g_ctx.camTimer.stop();
   g_ctx.camTriggerRunning = false;
-    
+  g_ctx.prevToggleCamVal = LOW;
+  
   for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
     uint8_t mode = g_ctx.camSettings[i].getMode();
     if (mode != CA_MODE_NONE) {
@@ -187,6 +189,27 @@ void startTriggerCameraState() {
       CAU::digitalWrite(shutterPin, LOW);
     }
   }  
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// toggleCamerasInPhotoMode() - Toggle camera ports when in photo mode
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void toggleCamerasInPhotoMode() {
+  if (camTriggerRunning() || g_ctx.state != CA_STATE_PHOTO_MODE) {
+    return;
+  }
+
+  g_ctx.prevToggleCamVal = (g_ctx.prevToggleCamVal==LOW) ? HIGH : LOW;
+
+  for (uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    CAPacketCamSettings &cs = g_ctx.camSettings[i];
+    if ((cs.getMode()==CA_MODE_CAMERA) || (cs.getMode()==CA_MODE_PREFOCUS) || (cs.getMode()==CA_MODE_SMART_PREFOCUS)) {
+      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      CAU::digitalWrite(focusPin, g_ctx.prevToggleCamVal);
+      CAU::digitalWrite(shutterPin, g_ctx.prevToggleCamVal);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

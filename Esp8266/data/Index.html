@@ -274,11 +274,13 @@
 				var menuModeButtonId = document.getElementById("MenuPhotoModeButton");
 				var testButtonId = document.getElementById("MenuModeTestTriggerButton");
 				var infoButtonId = document.getElementById("MenuInfoButton");
+                var triggerCamsId = document.getElementById("MenuModeTriggerCamsButton")
 
 				if (forceMenuMode) {
 					menuModeButtonId.innerHTML = "Photo Mode";
 					testButtonId.style.display = "initial";
 					infoButtonId.style.display = "initial";
+                    triggerCamsId.style.display = "none";
 					if (gMenuModeTable && gPhotoModeTable) {
 						gMenuModeTable.style.display = "table";
 						gPhotoModeTable.style.display = "none";
@@ -290,6 +292,7 @@
 						menuModeButtonId.innerHTML = "Menu Mode";
 						testButtonId.style.display = "none";
 						infoButtonId.style.display = "none";
+                        triggerCamsId.style.display = "initial";
 						gMenuModeTable.style.display = "none";
 						gPhotoModeTable.style.display = "table";
 						gMode = 1;
@@ -298,6 +301,7 @@
 						menuModeButtonId.innerHTML = "Photo Mode";
 						testButtonId.style.display = "initial";
 						infoButtonId.style.display = "initial";
+                        triggerCamsId.style.display = "none";
 						gMenuModeTable.style.display = "table";
 						gPhotoModeTable.style.display = "none";
 						gMode = 0;
@@ -992,6 +996,12 @@
 				//sendCamTriggerPacket();
 				setTimeout(function() { sendCamTriggerPacket();}, 50);
 			}
+            
+            // Run function to trigger cams
+            function toggleCams() {
+                var str = PID_CAM_TRIGGER+"~1~0~0~";  // Set mode to 1, focus/shutter to 0
+				httpRequest(null, str);
+            }
 
 			// Set the start location (home page is default)
 			function setStartLocation() {
@@ -1128,6 +1138,7 @@
 			<button onclick="loadPage('Home', null, submitMenuModeFormPackets);">&#x1F3E0&#xfe0e</button>
 			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPackets);">Photo Mode</button>
 			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPackets);">Test Trigger</button>
+            <button id="MenuModeTriggerCamsButton" onclick="toggleCams();">Trigger Cams</button>
 			<button id="MenuInfoButton" onclick="displayInfo();">&#x2139&#xfe0e</button>
 			<h1 id="title">null</h1>
 
