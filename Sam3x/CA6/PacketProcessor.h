@@ -108,8 +108,12 @@ CAPacketElement* processIncomingPacket() {
         CAPacketCamTrigger unpack(mUnpacker);
         unpack.unpack();
         CA_LOG("%d PID_CAM_TRIGGER - %d %d %d\n", packetSize, unpack.getMode(), unpack.getFocus(), unpack.getShutter());
-        startTriggerCameraState();
-        triggerCameras();
+        if (unpack.getMode() == CA_MODE_STANDARD) {
+          startTriggerCameraState();
+          triggerCameras(); }
+        else if (unpack.getMode() == CA_MODE_TOGGLE) {
+          toggleCamerasInPhotoMode();
+        }
         break;
       }
       default: {

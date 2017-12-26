@@ -80,6 +80,7 @@ struct Context {
   uint16_t intervalometerCurRepeats = 0;
 
  CATickTimer menuTimer = CATickTimer(1);
+ uint8_t prevToggleCamVal = LOW;
   
 };
 
