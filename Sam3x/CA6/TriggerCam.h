@@ -201,12 +201,37 @@ void toggleCamerasInPhotoMode() {
 
   g_ctx.prevToggleCamVal = (g_ctx.prevToggleCamVal==LOW) ? HIGH : LOW;
 
+  // Trigger flash while turning off camera (basically only in the double tap case
+  if (g_ctx.prevToggleCamVal == LOW) {
+    for (uint8_t i=0; i<NUM_CAMERAS; ++i) {
+      CAPacketCamSettings &cs = g_ctx.camSettings[i];
+      if (cs.getMode()==CA_MODE_FLASH) {
+        hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+        CAU::digitalWrite(shutterPin, HIGH);
+      }
+    }
+    delayMicroseconds(20);
+    for (uint8_t i=0; i<NUM_CAMERAS; ++i) {
+      CAPacketCamSettings &cs = g_ctx.camSettings[i];
+      if (cs.getMode()==CA_MODE_FLASH) {
+        hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+        CAU::digitalWrite(shutterPin, LOW);
+      }
+    }
+  }
+
+  // Trigger cameras
   for (uint8_t i=0; i<NUM_CAMERAS; ++i) {
     CAPacketCamSettings &cs = g_ctx.camSettings[i];
     if ((cs.getMode()==CA_MODE_CAMERA) || (cs.getMode()==CA_MODE_PREFOCUS) || (cs.getMode()==CA_MODE_SMART_PREFOCUS)) {
+      uint8_t focusVal = g_ctx.prevToggleCamVal;
+      if ((cs.getMode()==CA_MODE_PREFOCUS) || (cs.getMode()==CA_MODE_SMART_PREFOCUS)) {
+        focusVal = HIGH;
+      }
+      
       hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
       hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-      CAU::digitalWrite(focusPin, g_ctx.prevToggleCamVal);
+      CAU::digitalWrite(focusPin, focusVal);
       CAU::digitalWrite(shutterPin, g_ctx.prevToggleCamVal);
     }
   }
