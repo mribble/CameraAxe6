@@ -149,12 +149,13 @@ typedef struct {
   hwPortPin ppPin;            // This is the port for analog light values
   hwPortPin ppSensitivity0;   // This is a sensitivity control pin
   hwPortPin ppSensitivity1;   // This is a sensitivity control pin
+  hwPortPin ppSensitivity2;   // This is a sensitivity control pin
   hwPortPin ppLaser;          // This port enables/disables the laser
   CASensorFilter sf;          // This helps filter incoming values for a cleaner display
   uint32_t triggerVal;        // This stores the amount of light change required to trigger the CA6
   uint32_t laserVal;          // Thi stores if the laser is off or on
   uint32_t triggerMode=0;     // This stores the mode (min/max/threshold) used to trigger the CA6
-  uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium, 2=high
+  uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
 } LightData;
 
 LightData gLightData;
@@ -163,25 +164,34 @@ const char* light_Name() {
   return "Light Menu";
 }
 
-void setLightSensitivity() {
-  CAU::pinMode(gLightData.ppSensitivity0, OUTPUT);
-  CAU::pinMode(gLightData.ppSensitivity1, OUTPUT);
+void setLightSensitivity(uint32_t sensitivity, hwPortPin ppSensitivity0, hwPortPin ppSensitivity1, hwPortPin ppSensitivity2) {
+  CAU::pinMode(ppSensitivity0, OUTPUT);
+  CAU::pinMode(ppSensitivity1, OUTPUT);
+  CAU::pinMode(ppSensitivity2, OUTPUT);
   
   // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
   // ppSensitivity0 is the buffer -- LOW to sink to ground for lowest sensitivity
   // ppSensitivity1 is connected directly to sam3x io pin -- pull LOW to set medium sensitivity otherwise high impedance
   
-  if (gLightData.sensitivity == 0) { // Low Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, LOW);
-    CAU::digitalWrite(gLightData.ppSensitivity1, HIGH);
+  if (sensitivity == 0) { // Low Sensitivity
+    CAU::digitalWrite(ppSensitivity0, LOW);
+    CAU::digitalWrite(ppSensitivity1, HIGH);
+    CAU::digitalWrite(ppSensitivity2, HIGH);
   }
-  else if (gLightData.sensitivity == 1) { // Medium Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
-    CAU::digitalWrite(gLightData.ppSensitivity1, LOW);
+  else if (sensitivity == 1) { // Medium-Low Sensitivity
+    CAU::digitalWrite(ppSensitivity0, HIGH);
+    CAU::digitalWrite(ppSensitivity1, LOW);
+    CAU::digitalWrite(ppSensitivity2, HIGH);
+  }
+  else if (sensitivity == 2) { // Medium-High Sensitivity
+    CAU::digitalWrite(ppSensitivity0, HIGH);
+    CAU::digitalWrite(ppSensitivity1, HIGH);
+    CAU::digitalWrite(ppSensitivity2, LOW);
   }
   else { // High Sensitivity
-    CAU::digitalWrite(gLightData.ppSensitivity0, HIGH);
-    CAU::digitalWrite(gLightData.ppSensitivity1, HIGH);
+    CAU::digitalWrite(ppSensitivity0, HIGH);
+    CAU::digitalWrite(ppSensitivity1, HIGH);
+    CAU::digitalWrite(ppSensitivity2, HIGH);
   }
 }
 
@@ -191,7 +201,7 @@ void light_MenuInit() {
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
   gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
-  setLightSensitivity();
+  setLightSensitivity(gLightData.sensitivity, gLightData.ppSensitivity0, gLightData.ppSensitivity1, gLightData.ppSensitivity2);
   gLightData.sf.init(gLightData.ppPin, CASensorFilter::ANALOG_MIN, 2000);  // Update display ever 2000 ms
   CAU::pinMode(gLightData.ppLaser, OUTPUT);
   CAU::digitalWrite(gLightData.ppLaser, LOW);
@@ -203,7 +213,7 @@ void light_PhotoInit() {
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
   gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
-  setLightSensitivity();
+  setLightSensitivity(gLightData.sensitivity, gLightData.ppSensitivity0, gLightData.ppSensitivity1, gLightData.ppSensitivity2);
   CAU::pinMode(gLightData.ppLaser, OUTPUT);
    CAU::digitalWrite(gLightData.ppLaser, LOW);
 }
@@ -230,7 +240,7 @@ void light_MenuRun() {
 
   // Update the sensitivity if it has changed
   if (prevSensitivity != gLightData.sensitivity) {
-    setLightSensitivity();
+    setLightSensitivity(gLightData.sensitivity, gLightData.ppSensitivity0, gLightData.ppSensitivity1, gLightData.ppSensitivity2);
   }
 
   if (gLightData.laserVal == 0) {
@@ -544,6 +554,9 @@ void valve_PhotoRun() {
 typedef struct {
   uint32_t triggerDiffThreshold;
   hwPortPin ppLight;
+  hwPortPin ppSensitivity0;   // This is a sensitivity control pin
+  hwPortPin ppSensitivity1;   // This is a sensitivity control pin
+  hwPortPin ppSensitivity2;   // This is a sensitivity control pin
   uint16_t sensorVal = 0;
   uint32_t updateRefPeriodMS = 200;
   uint32_t referenceUpdateTimeMS;
@@ -556,11 +569,18 @@ typedef struct {
   uint16_t refAtStrike = 0;
   uint32_t strikeStartTimeUS;  // used for strike duration display
   uint32_t strikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
-
+  uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
+  char sensitivityStr [4][9] = {"LOW", "MED-LOW", "MED-HIGH", "HIGH"};
   const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
 } LightningData;
 
 LightningData gLightningData;
+
+void autoLightSensitivity(uint16_t val, uint32_t& sensitivity) {
+  // Adjust sensitivity to try to get the light value in the middle range of 1000-3000 (out of 4096)
+  if(val < 1000 && sensitivity < 3) sensitivity++;
+  if(val > 3000 && sensitivity > 0) sensitivity--;
+}
 
 const char* lightning_Name() {
   return "Lightning Menu";
@@ -570,6 +590,10 @@ void lightning_MenuInit() {
   gLightningData.ppLight = CAU::getModulePin(0, 0);
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+  autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+  setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+  // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+  gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
 
@@ -577,6 +601,10 @@ void lightning_PhotoInit() {
   gLightningData.ppLight = CAU::getModulePin(0, 0);
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+  autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+  setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+  // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+  gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
   gLightningData.referenceSensorVal = gLightningData.sensorVal;
 }
 
@@ -590,7 +618,12 @@ void lightning_MenuRun() {
   // Handle outgoing packets once per second
   if (executeLimitAt(1000)) {
     gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+    autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+    setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+    // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+    gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
     g_ctx.packetHelper.writePacketString(2, String(gLightningData.sensorVal).c_str());
+    g_ctx.packetHelper.writePacketString(3, gLightningData.sensitivityStr[gLightningData.sensitivity]);
   }
 
   // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
@@ -599,17 +632,18 @@ void lightning_MenuRun() {
   //LTGDisplayPhotoMode Send photo-mode data back to mobile display all values obtained from gLightningData
 void LTGDisplayPhotoMode() {
   // Handle outgoing packets
-  g_ctx.packetHelper.writePacketString(3, String(gLightningData.referenceSensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(4, String(gLightningData.sensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(5, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
-  g_ctx.packetHelper.writePacketString(6, String(gLightningData.triggerDiffThreshold).c_str());
-  g_ctx.packetHelper.writePacketString(7, String(gLightningData.updateRefPeriodMS).c_str());
-  g_ctx.packetHelper.writePacketString(8, String(gLightningData.triggerCount).c_str());
-  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[gLightningData.triggerCount % 5]);
-  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 1) % 5]);
-  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
-  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
-  g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
+  g_ctx.packetHelper.writePacketString(4, String(gLightningData.referenceSensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(5, String(gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(6, String(gLightningData.referenceSensorVal - gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(7, gLightningData.sensitivityStr[gLightningData.sensitivity]);
+  g_ctx.packetHelper.writePacketString(8, String(gLightningData.triggerDiffThreshold).c_str());
+  g_ctx.packetHelper.writePacketString(9, String(gLightningData.updateRefPeriodMS).c_str());
+  g_ctx.packetHelper.writePacketString(10, String(gLightningData.triggerCount).c_str());
+  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[gLightningData.triggerCount % 5]);
+  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 1) % 5]);
+  g_ctx.packetHelper.writePacketString(13, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
+  g_ctx.packetHelper.writePacketString(14, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
+  g_ctx.packetHelper.writePacketString(15, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
 
   if (FAST_CHECK_FOR_PACKETS) {
     // Handle incoming packets
@@ -657,6 +691,10 @@ void lightning_PhotoRun() {
       // Not yet in a strike event
       // Is it time to update the Reference Value?
       if (curTimeMS >= gLightningData.referenceUpdateTimeMS) {
+        autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+        setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+        // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+        gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
         gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
         gLightningData.referenceUpdateTimeMS = curTimeMS + (uint32_t)gLightningData.updateRefPeriodMS;  // Update Timer 
         if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal)
@@ -689,6 +727,10 @@ void lightning_PhotoRun() {
         // Sensor value has been above threshold for >2 seconds - must be an ambient or sensor sensitivity change
         // Just end the strike and reset the Reference level
         gLightningData.inStrikeCycle = false;
+        autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+        setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+        // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+        gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
         gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
         gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS; // reset the Ref Update clock
         break;
@@ -721,6 +763,10 @@ void lightning_PhotoRun() {
     currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
     if (currentDif < (int16_t) gLightningData.triggerDiffThreshold)
     {
+      autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+      setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+      // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
       gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
       gLightningData.referenceUpdateTimeMS = curTimeMS + gLightningData.updateRefPeriodMS; // reset the Ref Update clock
     }
