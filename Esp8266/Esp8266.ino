@@ -31,7 +31,7 @@
 #define G_LED 4
 #define R_LED 5
 
-#define MAX_DYNAMIC_MESSAGES 16
+#define MAX_DYNAMIC_MESSAGES 20
 struct DynamicMessages
 {
   uint8_t numMessages = 0;
