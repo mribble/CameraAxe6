@@ -152,10 +152,10 @@
     )
   )
 
-  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A22CF55) (tstamp 59FF8149)
+  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A454C86) (tstamp 59FF8149)
     (at 40.132 45.72 270)
     (path /59FCD911)
-    (fp_text reference J1 (at 7.366 -8.89 360) (layer F.SilkS)
+    (fp_text reference J1 (at 7.366 -7.112 360) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
     (fp_text value JACK_RJ45 (at -4.445 -6.858 270) (layer F.SilkS)
@@ -274,7 +274,7 @@
       (net 1 GND))
   )
 
-  (module Resistors_SMD:R_0603 (layer F.Cu) (tedit 58E0A804) (tstamp 5A22CF6E)
+  (module Resistors_SMD:R_0603 (layer F.Cu) (tedit 5A454C7B) (tstamp 5A22CF6E)
     (at 72.136 43.942)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
@@ -283,7 +283,7 @@
     (fp_text reference R1 (at 0 -1.45) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
-    (fp_text value 100R (at 0 1.5) (layer F.Fab)
+    (fp_text value 100R (at 0 1.5) (layer F.Fab) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text user %R (at 0 0) (layer F.Fab)
