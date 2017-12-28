@@ -14,6 +14,4 @@ caTextStatic("Ready to take your photo!");
 caTextStatic("Speed of projectile");
 caTextDynamic("id6", "Feet/second", "??");
 caTextDynamic("id7", "Meters/second", "??");
-caButton("id8", "Turn on Cam8 Bulb:", "On");
-caButton("id9", "Turn off Cam8:", "Off");
 caEndMenu();
