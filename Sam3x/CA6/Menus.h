@@ -632,15 +632,15 @@ void LTGDisplayPhotoMode() {
   g_ctx.packetHelper.writePacketString(3, gLightningData.sensitivityStr[gLightningData.sensitivity]);
   
   // Check if we need to display warnings or suggestions for snoot or trigger level
-  if (gLightningData.sensitivity == 0) {
+  if (gLightningData.sensitivity == 0) {  // sensitivity=0 (LOW) means bright light; suggest extending the snoot
     g_ctx.packetHelper.writePacketString(4, "** Consider extending snoot and pointing at storm clouds **");
   }
   else {
-    g_ctx.packetHelper.writePacketString(4, " ");
+    g_ctx.packetHelper.writePacketString(4, " "); // blank out the message
   }
   if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal) {
     // At top of Sensor range - trigVal too high - can't trigger
-    g_ctx.packetHelper.writePacketString(5, "** Trigger Threshold probably too high -- can't trigger **");
+    g_ctx.packetHelper.writePacketString(5, "** Trigger Threshold may be too high -- consider lowering it **");
   }
   else {
     g_ctx.packetHelper.writePacketString(5, " ");
