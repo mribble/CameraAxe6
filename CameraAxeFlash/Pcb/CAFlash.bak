@@ -889,14 +889,50 @@ Connection ~ 8550 4200
 Text Label 8100 4200 2    60   ~ 0
 ledTemp
 $Comp
-L MCP6561 U?
-U 1 1 5A4E13EB
-P 9350 2850
-F 0 "U?" H 9350 3050 50  0000 L CNN
-F 1 "MCP6561" H 9350 2650 50  0000 L CNN
-F 2 "" H 9350 2850 50  0001 C CNN
-F 3 "" H 9350 3050 50  0001 C CNN
-	1    9350 2850
+L R R?
+U 1 1 5A4E28B6
+P 8350 1650
+F 0 "R?" V 8430 1650 50  0000 C CNN
+F 1 "100K" V 8350 1650 50  0000 C CNN
+F 2 "" V 8280 1650 50  0001 C CNN
+F 3 "" H 8350 1650 50  0001 C CNN
+	1    8350 1650
+	0    1    1    0   
+$EndComp
+$Comp
+L R R?
+U 1 1 5A4E29C2
+P 8550 1900
+F 0 "R?" V 8630 1900 50  0000 C CNN
+F 1 "2K" V 8550 1900 50  0000 C CNN
+F 2 "" V 8480 1900 50  0001 C CNN
+F 3 "" H 8550 1900 50  0001 C CNN
+	1    8550 1900
+	-1   0    0    1   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 5A4E2A45
+P 8550 2100
+F 0 "#PWR?" H 8550 1850 50  0001 C CNN
+F 1 "GND" H 8550 1950 50  0000 C CNN
+F 2 "" H 8550 2100 50  0001 C CNN
+F 3 "" H 8550 2100 50  0001 C CNN
+	1    8550 2100
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	8050 1650 8200 1650
+Connection ~ 8050 1650
+Wire Wire Line
+	8500 1650 8650 1650
+Wire Wire Line
+	8550 1650 8550 1750
+Wire Wire Line
+	8550 2050 8550 2100
+Connection ~ 8550 1650
+Text Notes 7100 300  0    60   ~ 0
+If need error proof led turn off and the thermister works we could use\na double caparitor to force led off at certain temp
+Text Label 8650 1650 0    60   ~ 0
+capVoltage
 $EndSCHEMATC
