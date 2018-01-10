@@ -192,13 +192,13 @@
 			/*jslint browser: true*/
 			/*global window*/
 
-			var PID_STRING = 1;
-			var PID_UINT32 = 2;
-			var PID_TIME_BOX = 3;
-			var PID_MENU_SELECT = 4;
-			var PID_CAM_SETTINGS = 5;
-			var PID_INTERVALOMETER = 6;
-			var PID_CAM_TRIGGER = 7;
+			const PID_STRING = 1;
+			const PID_UINT32 = 2;
+			const PID_TIME_BOX = 3;
+			const PID_MENU_SELECT = 4;
+			const PID_CAM_SETTINGS = 5;
+			const PID_INTERVALOMETER = 6;
+			const PID_CAM_TRIGGER = 7;
 
 			// Global Variables
 			var uiTestMode = true;
@@ -343,7 +343,7 @@
 			function LoadMenuList(photoMenus) {
 				var listItems = "";
 				photoMenus.forEach(function(item) {
-					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+item+"');\">"+item+"</button>";
+					listItems += "<button class=\"fullWidth\" onclick=\"loadPage('MenuMode', '"+item+"', null);\">"+item+"</button>";
 				});
 				document.getElementById("listButtons").innerHTML = listItems;
 

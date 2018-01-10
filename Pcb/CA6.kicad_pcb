@@ -1,4 +1,4 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.5)
+(kicad_pcb (version 4) (host pcbnew 4.0.7)
 
   (general
     (links 495)
@@ -63,9 +63,9 @@
     (pad_drill 0)
     (pad_to_mask_clearance 0)
     (aux_axis_origin 0 0)
-    (visible_elements 7FFEFF69)
+    (visible_elements 7FFFFF7F)
     (pcbplotparams
-      (layerselection 0x010e8_80000001)
+      (layerselection 0x010e8_80000007)
       (usegerberextensions true)
       (excludeedgelayer true)
       (linewidth 0.150000)
@@ -1076,13 +1076,13 @@
       (net 73 GND))
   )
 
-  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A37AABE) (tstamp 58ED4CF6)
+  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A5630D3) (tstamp 58ED4CF6)
     (at 121.92 118.11 90)
     (path /537AA6D0)
     (fp_text reference J8 (at 9.33 -7.12 180) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
-    (fp_text value MODULE_3 (at -5.08 -8.636 90) (layer F.SilkS)
+    (fp_text value MODULE_3 (at -5.08 -8.636 90) (layer F.SilkS) hide
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
     (fp_line (start -8.13 7.82) (end -8.13 -7.93) (layer F.SilkS) (width 0.14986))
@@ -1113,13 +1113,13 @@
       (net 71 3V3))
   )
 
-  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A37AACC) (tstamp 58ED4CD0)
+  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A5630CE) (tstamp 58ED4CD0)
     (at 121.92 93.98 90)
     (path /5377EFFB)
     (fp_text reference J4 (at 9.32 -7.03 180) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
-    (fp_text value MODULE_2 (at -5.08 -8.636 90) (layer F.SilkS)
+    (fp_text value MODULE_2 (at -5.08 -8.636 90) (layer F.SilkS) hide
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
     (fp_line (start -8.13 7.82) (end -8.13 -7.93) (layer F.SilkS) (width 0.14986))
@@ -1150,13 +1150,13 @@
       (net 71 3V3))
   )
 
-  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A37AAD0) (tstamp 58ED4CE3)
+  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A5630C5) (tstamp 58ED4CE3)
     (at 121.92 69.85 90)
     (path /536A1056)
     (fp_text reference J5 (at 9.22 -6.92 180) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
-    (fp_text value MODULE_1 (at -5.08 -8.636 90) (layer F.SilkS)
+    (fp_text value MODULE_1 (at -5.08 -8.636 90) (layer F.SilkS) hide
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
     (fp_line (start -8.13 7.82) (end -8.13 -7.93) (layer F.SilkS) (width 0.14986))
@@ -1187,13 +1187,13 @@
       (net 71 3V3))
   )
 
-  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A37AAE0) (tstamp 58ED4CBD)
+  (module CA6:RJ45_pcbwing (layer F.Cu) (tedit 5A5630C0) (tstamp 58ED4CBD)
     (at 121.92 45.72 90)
     (path /536A1078)
     (fp_text reference J3 (at 9.03 -6.36 180) (layer F.SilkS)
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
-    (fp_text value MODULE_0 (at -5.08 -8.636 90) (layer F.SilkS)
+    (fp_text value MODULE_0 (at -5.08 -8.636 90) (layer F.SilkS) hide
       (effects (font (size 0.8 0.8) (thickness 0.15)))
     )
     (fp_line (start -8.13 7.82) (end -8.13 -7.93) (layer F.SilkS) (width 0.14986))
