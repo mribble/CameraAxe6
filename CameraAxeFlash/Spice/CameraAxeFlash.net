@@ -1,0 +1,33 @@
+* D:\_my\git\CameraAxe6\CameraAxeFlash\Spice\CameraAxeFlash.asc
+V1 N001 N006 12
+L1 N001 N002 100µ Ipk=3 Rser=180m Rpar=0 Cpar=0
+D1 N002 N003 RB058L150
+C1 N003 0 100µ V=250 Rser=90m Lser=0
+M1 N002 N007 0 0 IRFP250N
+A1 0 N009 N011 0 0 0 N010 0 AND Vhigh=5
+A2 N010 N012 0 0 0 0 N007 0 SRFLOP Vhigh=5, ic=0, Ref=2.5, Td=10n
+B1 N009 0 V=if(V(VT0)<2.9, 5, 0) ; V Limit
+B2 N011 0 V=if(I(R3)<0.1m, 5, 0) ; Flux Reset
+B3 N012 0 V=if(I(R3)>2, 5, 0) ; Max I current
+R1 N003 VT0 1Meg
+R2 VT0 0 20K
+C2 VT0 0 0.1µ
+C3 N006 0 0.1µ
+R3 0 N006 0.1
+R4 N003 N005 5
+M2 N008 N013 0 0 IRFP250N
+V2 N013 0 PULSE(0 5 .12 0 0 .001)
+C4 N004 0 0.1µ
+R5 N004 N002 10K
+D2 N005 N008 CMA255048WHT
+.model D D
+.lib C:\Users\oe\Documents\LTspiceXVII\lib\cmp\standard.dio
+.model NMOS NMOS
+.model PMOS PMOS
+.lib C:\Users\oe\Documents\LTspiceXVII\lib\cmp\standard.mos
+.tran 0 .15 0
+* C1 scaled /10\nto reduce simulation time
+* Voltage logic, and gate, and flipflop all simulated by microcontroller
+.lib CMA3090-48VSpice.txt
+.backanno
+.end
