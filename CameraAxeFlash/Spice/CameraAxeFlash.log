@@ -4,20 +4,20 @@ Limiting rise time of source v2 to 0.0001
 Limiting fall time of source v2 to 0.0001
 Direct Newton iteration for .op point succeeded.
 
-Date: Wed Jan 10 16:19:31 2018
-Total elapsed time: 20.896 seconds.
+Date: Thu Jan 11 05:05:54 2018
+Total elapsed time: 33.374 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 7664445
-traniter = 7664408
-tranpoints = 2001429
-accept = 1393074
-rejected = 608355
-matrix size = 27
-fillins = 1
+totiter = 9386627
+traniter = 9386592
+tranpoints = 2375676
+accept = 1665388
+rejected = 710288
+matrix size = 37
+fillins = 5
 solver = Normal
-Matrix Compiler1:      65 opcodes  0.2/[0.1]/0.2
-Matrix Compiler2: off  [0.1]/0.2/0.2
+Matrix Compiler1: 1.77 KB object code size  0.4/0.2/[0.2]
+Matrix Compiler2: off  [0.2]/0.3/0.3
 
