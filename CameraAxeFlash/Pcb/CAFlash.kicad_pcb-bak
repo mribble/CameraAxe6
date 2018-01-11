@@ -3,7 +3,7 @@
   (general
     (links 97)
     (no_connects 0)
-    (area 21.280999 25.145999 129.615001 89.154002)
+    (area 21.280999 25.145999 127.075001 89.154002)
     (thickness 1.6)
     (drawings 15)
     (tracks 362)
@@ -37,7 +37,7 @@
   )
 
   (setup
-    (last_trace_width 0.508)
+    (last_trace_width 0.254)
     (user_trace_width 0.508)
     (user_trace_width 0.762)
     (user_trace_width 1.016)
@@ -1592,13 +1592,13 @@
     (pad 1 thru_hole circle (at 0 0) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask))
   )
 
-  (module Mounting_Holes:MountingHole_3.2mm_M3_Pad (layer F.Cu) (tedit 5A561881) (tstamp 5A52CC54)
+  (module Mounting_Holes:MountingHole_3.2mm_M3_Pad (layer F.Cu) (tedit 5A561A36) (tstamp 5A52CC54)
     (at 121.92 83.82)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
     (path /5A529504)
     (attr virtual)
-    (fp_text reference X3 (at 0 -4.2) (layer F.SilkS)
+    (fp_text reference X3 (at 0 -4.2) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value HOLE (at 0 4.2) (layer F.Fab) hide
@@ -1612,13 +1612,13 @@
     (pad 1 thru_hole circle (at 0 0) (size 6.4 6.4) (drill 3.2) (layers *.Cu *.Mask))
   )
 
-  (module Mounting_Holes:MountingHole_3.2mm_M3_Pad (layer F.Cu) (tedit 5A561886) (tstamp 5A52CC5C)
+  (module Mounting_Holes:MountingHole_3.2mm_M3_Pad (layer F.Cu) (tedit 5A561A3A) (tstamp 5A52CC5C)
     (at 121.92 30.48)
     (descr "Mounting Hole 3.2mm, M3")
     (tags "mounting hole 3.2mm m3")
     (path /5A5295A4)
     (attr virtual)
-    (fp_text reference X4 (at 0 -4.2) (layer F.SilkS)
+    (fp_text reference X4 (at 0 -4.2) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value HOLE (at 0 4.2) (layer F.Fab) hide
@@ -1939,7 +1939,7 @@
   (gr_text + (at 108.966 35.56 270) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify mirror))
   )
-  (gr_text - (at 108.712 53.34 360) (layer F.SilkS)
+  (gr_text - (at 108.712 53.34) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify mirror))
   )
   (gr_circle (center 108.712 43.942) (end 109.22 59.182) (layer B.SilkS) (width 0.2))
@@ -2138,11 +2138,11 @@
   (segment (start 49.784 72.136) (end 46.99 74.93) (width 0.254) (layer F.Cu) (net 9) (tstamp 5A5564BF))
   (segment (start 49.784 63.754) (end 49.784 72.136) (width 0.254) (layer F.Cu) (net 9) (tstamp 5A5564BC))
   (segment (start 49.53 63.5) (end 49.784 63.754) (width 0.254) (layer F.Cu) (net 9) (tstamp 5A5564BA))
+  (segment (start 45.974 70.104) (end 41.91 74.168) (width 0.254) (layer B.Cu) (net 10))
+  (segment (start 41.91 74.168) (end 41.91 74.93) (width 0.254) (layer B.Cu) (net 10))
   (segment (start 48.42 64.77) (end 48.42 67.658) (width 0.254) (layer F.Cu) (net 10))
-  (segment (start 45.974 70.104) (end 41.91 74.168) (width 0.254) (layer B.Cu) (net 10) (tstamp 5A5564CA))
+  (segment (start 48.42 67.658) (end 45.974 70.104) (width 0.254) (layer F.Cu) (net 10))
   (via (at 45.974 70.104) (size 0.6096) (drill 0.3048) (layers F.Cu B.Cu) (net 10))
-  (segment (start 48.42 67.658) (end 45.974 70.104) (width 0.254) (layer F.Cu) (net 10) (tstamp 5A5564C5))
-  (segment (start 41.91 74.168) (end 41.91 74.93) (width 0.254) (layer B.Cu) (net 10) (tstamp 5A5564CB))
   (segment (start 39.37 74.93) (end 39.37 76.454) (width 0.254) (layer F.Cu) (net 11))
   (segment (start 33.77 75.934) (end 33.77 74.93) (width 0.254) (layer F.Cu) (net 11) (tstamp 5A5564F1))
   (segment (start 35.052 77.216) (end 33.77 75.934) (width 0.254) (layer F.Cu) (net 11) (tstamp 5A5564EE))

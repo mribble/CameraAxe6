@@ -1,23 +1,23 @@
 Circuit: * D:\_my\git\CameraAxe6\CameraAxeFlash\Spice\CameraAxeFlash.asc
 
-Limiting rise time of source v2 to 0.0001
-Limiting fall time of source v2 to 0.0001
+Limiting rise time of source v2 to 5e-006
+Limiting fall time of source v2 to 5e-006
 Direct Newton iteration for .op point succeeded.
 
-Date: Thu Jan 11 05:05:54 2018
-Total elapsed time: 33.374 seconds.
+Date: Thu Jan 11 13:40:42 2018
+Total elapsed time: 22.644 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 9386627
-traniter = 9386592
-tranpoints = 2375676
-accept = 1665388
-rejected = 710288
+totiter = 6266497
+traniter = 6266463
+tranpoints = 1646064
+accept = 1146554
+rejected = 499510
 matrix size = 37
 fillins = 5
 solver = Normal
-Matrix Compiler1: 1.77 KB object code size  0.4/0.2/[0.2]
-Matrix Compiler2: off  [0.2]/0.3/0.3
+Matrix Compiler1: 1.77 KB object code size  0.4/0.2/[0.1]
+Matrix Compiler2: off  [0.2]/0.4/0.3
 
