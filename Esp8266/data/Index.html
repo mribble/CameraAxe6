@@ -209,7 +209,7 @@
 			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gDynamicMenuName;       // The current dynamic menu name
 			var gCamSelectVal = 0;      // The current camera/flash selected in the UI
-            var gHttpRequest = "";      // String that accumulates data to send via httpRequest
+			var gHttpRequest = "";      // String that accumulates data to send via httpRequest
 			var gCamSettingsArray = [
 				"5~0~1~0~0~0~0~0~0~0~0~", "5~1~1~0~0~0~0~0~0~0~0~",
 				"5~2~1~0~0~0~0~0~0~0~0~", "5~3~1~0~0~0~0~0~0~0~0~",
@@ -275,13 +275,13 @@
 				var menuModeButtonId = document.getElementById("MenuPhotoModeButton");
 				var testButtonId = document.getElementById("MenuModeTestTriggerButton");
 				var infoButtonId = document.getElementById("MenuInfoButton");
-                var triggerCamsId = document.getElementById("MenuModeTriggerCamsButton")
+				var triggerCamsId = document.getElementById("MenuModeTriggerCamsButton")
 
 				if (forceMenuMode) {
 					menuModeButtonId.innerHTML = "Photo Mode";
 					testButtonId.style.display = "initial";
 					infoButtonId.style.display = "initial";
-                    triggerCamsId.style.display = "none";
+					triggerCamsId.style.display = "none";
 					if (gMenuModeTable && gPhotoModeTable) {
 						gMenuModeTable.style.display = "table";
 						gPhotoModeTable.style.display = "none";
@@ -293,7 +293,7 @@
 						menuModeButtonId.innerHTML = "Menu Mode";
 						testButtonId.style.display = "none";
 						infoButtonId.style.display = "none";
-                        triggerCamsId.style.display = "initial";
+						triggerCamsId.style.display = "initial";
 						gMenuModeTable.style.display = "none";
 						gPhotoModeTable.style.display = "table";
 						gMode = 1;
@@ -302,7 +302,7 @@
 						menuModeButtonId.innerHTML = "Photo Mode";
 						testButtonId.style.display = "initial";
 						infoButtonId.style.display = "initial";
-                        triggerCamsId.style.display = "none";
+						triggerCamsId.style.display = "none";
 						gMenuModeTable.style.display = "table";
 						gPhotoModeTable.style.display = "none";
 						gMode = 0;
@@ -316,22 +316,22 @@
 
 			}
 
-            function buildHttpRequest(header, submit, data) {
-                gHttpRequest += header + "&~&";
-                if (data != null) {
-                    gHttpRequest += data + "&~&";
-                }
-                if (submit) {
-                    var type = "GET";
-                    var request = new XMLHttpRequest();
-                    request.onreadystatechange = function(){ajaxCallback(request);};
-                    request.open(type, gHttpRequest, true);
-                    request.send();
-                    gHttpRequest = "";
-                    return request;
-                }
-            }
-            
+			function buildHttpRequest(header, submit, data) {
+				gHttpRequest += header + "&~&";
+				if (data != null) {
+					gHttpRequest += data + "&~&";
+				}
+				if (submit) {
+					var type = "GET";
+					var request = new XMLHttpRequest();
+					request.onreadystatechange = function(){ajaxCallback(request);};
+					request.open(type, gHttpRequest, true);
+					request.send();
+					gHttpRequest = "";
+					return request;
+				}
+			}
+
 			// Checks ever n ms for a packet update from the esp8266 server
 			function getMenuDynamicIds() {
 				setTimeout(getMenuDynamicIds, 500);
@@ -340,7 +340,7 @@
 					document.getElementById("MenuMode").style.display != "none") {
 					// Only send the request if the dynamic menu is visible
 					buildHttpRequest("JSCA_GET_MENU_DYNAMIC_STRING_IDS", false);
-                    buildHttpRequest("JSCA_GET_MENU_DYNAMIC_UINT32_IDS", true);
+					buildHttpRequest("JSCA_GET_MENU_DYNAMIC_UINT32_IDS", true);
 				}
 			}
 
@@ -387,103 +387,103 @@
 				}
 			}
 
-            function ajaxCallback(xmlHttpRequest) {
-                if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-                    var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
-                    for (var i=0; i<ajaxList.length; i+=2) {
-                        switch(ajaxList[i]) {
-                            case "JSCA_GET_MENU_LIST": {
-                                var menuList = ajaxList[i+1].slice(0, -1).split("~");
-                                LoadMenuList(menuList);
-                                break;
-                            }
-                            case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
-                                if (ajaxList[i+1] != "null") {
-                                    var stateList = ajaxList[i+1].slice(0, -1).split("~");
-                                    for(i=0; i<stateList.length; i+=2) {
-                                        document.getElementById(stateList[i]).innerHTML = stateList[i+1];
-                                    }
-                                }
-                                break;
-                            }
-                            case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
-                                if (ajaxList[i+1] != "null") {
-                                    var stateList = ajaxList[i+1].slice(0, -1).split("~");
-                                    for(i=0; i<stateList.length; i+=2) {
-                                        document.getElementById(stateList[i]).value = stateList[i+1];
-                                    }
-                                }
-                                break;
-                            }
-                            case "JSCA_GET_CURRENT_DYNAMIC_MENU": {
-                                eval(ajaxList[i+1]);
-                                buildHttpRequest("JSCA_GET_DYNAMIC_MENU_SETTINGS", true, gDynamicMenuName);
-                                break;
-                            }
-                            case "JSCA_GET_INTERVAL": {
-                                if (ajaxList[i+1] != "null") {
-                                    var strArray = ajaxList[i+1].split("~");
-                                    strArray.pop(); // Last element is empty
-                                    var intervalForm = document.getElementById("intervalometerForm");
-                                    intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
-                                    intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
-                                    intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
-                                    intervalForm.elements.number_of_repeats.value = strArray[6];
-                                }
-                                break;
-                            }
-                            case "JSCA_GET_ALL_CAMS": {
-                                if (ajaxList[i+1] != "null") {
-                                    var strArray = ajaxList[i+1].split("&");
-                                    strArray.pop(); // Remove last empty element since there is a terminating "&"
-                                    gCamSettingsArray = strArray;
-                                    camSettingsLoad(0);
-                                }
-                                break;
-                            }
-                            case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
-                                if (ajaxList[i+1] == "null") {
-                                    document.getElementById("MenuMode").style.display = "block";  // Make this visible now
-                                }
-                                else {
-                                    var strArray = ajaxList[i+1].split("&");
-                                    strArray.pop(); // Remove last empty element since there is a terminating "&"
-                                    loadMenuModeFromPacket(strArray);
-                                    document.getElementById("MenuMode").style.display = "block";  // Make this visible now
-                                }
-                                break;
-                            }
-                            case "JSCA_GET_START_LOCATION": {
-                                var name = ajaxList[i+1];
-                                var startLocationSelect = document.getElementById("start_location");
-                                startLocationSelect.value = name;
-                                break;
-                            }
-                            case "JSCA_GET_VOLTAGE": {
-                                var name = ajaxList[i+1];
-                                var voltage = document.getElementById("current_voltage");   
-                                voltage.innerHTML = name;
-                                break;
-                            }
-                            case "JSCA_SET_DEFAULTS":
-                            case "JSCA_RAW_PACKET":
-                            case "JSCA_CLEAR_WIFI_NETWORKS":
-                            case "JSCA_SET_ALL_CAMS":
-                            case "JSCA_SET_START_LOCATION":
-                            case "JSCA_SET_DYNAMIC_MENU":
-                            {
-                                var name = ajaxList[i+1];
-                                if (name != "done") {
-                                    alert("Invalid ajax return");
-                                }
-                                break;
-                            }
-                            default:
-                                alert("Invalid ajaxCallback id");
-                        }
-                    }
-                }
-            }
+			function ajaxCallback(xmlHttpRequest) {
+				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+					var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
+					for (var i=0; i<ajaxList.length; i+=2) {
+						switch(ajaxList[i]) {
+							case "JSCA_GET_MENU_LIST": {
+								var menuList = ajaxList[i+1].slice(0, -1).split("~");
+								LoadMenuList(menuList);
+								break;
+							}
+							case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
+								if (ajaxList[i+1] != "null") {
+									var stateList = ajaxList[i+1].slice(0, -1).split("~");
+									for(i=0; i<stateList.length; i+=2) {
+										document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+									}
+								}
+								break;
+							}
+							case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
+								if (ajaxList[i+1] != "null") {
+									var stateList = ajaxList[i+1].slice(0, -1).split("~");
+									for(i=0; i<stateList.length; i+=2) {
+										document.getElementById(stateList[i]).value = stateList[i+1];
+									}
+								}
+								break;
+							}
+							case "JSCA_GET_CURRENT_DYNAMIC_MENU": {
+								eval(ajaxList[i+1]);
+								buildHttpRequest("JSCA_GET_DYNAMIC_MENU_SETTINGS", true, gDynamicMenuName);
+								break;
+							}
+							case "JSCA_GET_INTERVAL": {
+								if (ajaxList[i+1] != "null") {
+									var strArray = ajaxList[i+1].split("~");
+									strArray.pop(); // Last element is empty
+									var intervalForm = document.getElementById("intervalometerForm");
+									intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
+									intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
+									intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
+									intervalForm.elements.number_of_repeats.value = strArray[6];
+								}
+								break;
+							}
+							case "JSCA_GET_ALL_CAMS": {
+								if (ajaxList[i+1] != "null") {
+									var strArray = ajaxList[i+1].split("&");
+									strArray.pop(); // Remove last empty element since there is a terminating "&"
+									gCamSettingsArray = strArray;
+									camSettingsLoad(0);
+								}
+								break;
+							}
+							case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
+								if (ajaxList[i+1] == "null") {
+									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+								}
+								else {
+									var strArray = ajaxList[i+1].split("&");
+									strArray.pop(); // Remove last empty element since there is a terminating "&"
+									loadMenuModeFromPacket(strArray);
+									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+								}
+								break;
+							}
+							case "JSCA_GET_START_LOCATION": {
+								var name = ajaxList[i+1];
+								var startLocationSelect = document.getElementById("start_location");
+								startLocationSelect.value = name;
+								break;
+							}
+							case "JSCA_GET_VOLTAGE": {
+								var name = ajaxList[i+1];
+								var voltage = document.getElementById("current_voltage");
+								voltage.innerHTML = name;
+								break;
+							}
+							case "JSCA_SET_DEFAULTS":
+							case "JSCA_RAW_PACKET":
+							case "JSCA_CLEAR_WIFI_NETWORKS":
+							case "JSCA_SET_ALL_CAMS":
+							case "JSCA_SET_START_LOCATION":
+							case "JSCA_SET_DYNAMIC_MENU":
+							{
+								var name = ajaxList[i+1];
+								if (name != "done") {
+									alert("Invalid ajax return");
+								}
+								break;
+							}
+							default:
+								alert("Invalid ajaxCallback id");
+						}
+					}
+				}
+			}
 
 			// Get the nanoseconds from a time box string
 			// This could be updated to support nanoseconds just by putting them in array slot [6]
@@ -976,19 +976,19 @@
 					j++;
 				}
 			}
-            
-            // Get voltage of CA6
-            function sendVoltagePacket() {
-                buildHttpRequest("JSCA_GET_VOLTAGE", true);
-            }
+
+			// Get voltage of CA6
+			function sendVoltagePacket() {
+				buildHttpRequest("JSCA_GET_VOLTAGE", true);
+			}
 
 			// Submit packets for camera flash to esp8266
 			function sendCamFlashPacket() {
 				camSettingsSave(gCamSelectVal);
-                var str = gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" +
+				var str = gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" +
 							gCamSettingsArray[2] + "&" + gCamSettingsArray[3] + "&" + gCamSettingsArray[4] + "&" +
 							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7] + "&";
-                buildHttpRequest("JSCA_SET_ALL_CAMS", false, str);
+				buildHttpRequest("JSCA_SET_ALL_CAMS", false, str);
 			}
 
 			// Submit packet for intervalometer to esp8266
@@ -1019,12 +1019,12 @@
 				}
 				sendCamTriggerPacket();
 			}
-            
-            // Run function to trigger cams
-            function toggleCams() {
-                var str = PID_CAM_TRIGGER+"~1~0~0~";  // Set mode to 1, focus/shutter to 0
+
+			// Run function to trigger cams
+			function toggleCams() {
+				var str = PID_CAM_TRIGGER+"~1~0~0~";  // Set mode to 1, focus/shutter to 0
 				buildHttpRequest("JSCA_RAW_PACKET", true, str);
-            }
+			}
 
 			// Set the start location (home page is default)
 			function setStartLocation() {
@@ -1036,9 +1036,9 @@
 			// Reset all the settings to defaults
 			function setDefaults() {
 				buildHttpRequest("JSCA_SET_DEFAULTS", false);
-                buildHttpRequest("JSCA_GET_INTERVAL", false);
-                buildHttpRequest("JSCA_GET_ALL_CAMS", false);
-                buildHttpRequest("JSCA_GET_START_LOCATION", true);
+				buildHttpRequest("JSCA_GET_INTERVAL", false);
+				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
+				buildHttpRequest("JSCA_GET_START_LOCATION", true);
 			}
 
 			// Clear wifi network settings from wifi class
@@ -1046,7 +1046,7 @@
 				buildHttpRequest("JSCA_CLEAR_WIFI_NETWORKS", true);
 			}
 
- 			// Popup a screen with help info
+			// Popup a screen with help info
 			function displayInfo() {
 				alert(gInfoString);
 			}
@@ -1127,7 +1127,7 @@
 			<button onclick="loadPage('Home', null, submitMenuModeFormPacket);">&#x1F3E0&#xfe0e</button>
 			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPacket);">Photo Mode</button>
 			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPacket);">Test Trigger</button>
-            <button id="MenuModeTriggerCamsButton" onclick="toggleCams();">Trigger Cams</button>
+			<button id="MenuModeTriggerCamsButton" onclick="toggleCams();">Trigger Cams</button>
 			<button id="MenuInfoButton" onclick="displayInfo();">&#x2139&#xfe0e</button>
 			<h1 id="title">null</h1>
 
@@ -1267,7 +1267,7 @@
 			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
-            <p>Current voltage: <span id="current_voltage">?</span>
+			<p>Current voltage: <span id="current_voltage">?</span>
 			<p>Version: 2017.10.18</p>
 		</div>
 <!--Advanced Page (End)-->
