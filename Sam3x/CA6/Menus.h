@@ -912,11 +912,9 @@ void beam_MenuRun() {
     uint8_t val = CAU::digitalRead(gBeamData.ppDetect);
     if (val == LOW) {
       g_ctx.packetHelper.writePacketString(1, "LOW");      
-      CA_LOG("low\n");
-    }
+     }
     else {
       g_ctx.packetHelper.writePacketString(1, "HIGH");
-      CA_LOG("high\n");
     }
   }
 

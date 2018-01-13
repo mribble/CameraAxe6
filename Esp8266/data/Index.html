@@ -209,6 +209,7 @@
 			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gDynamicMenuName;       // The current dynamic menu name
 			var gCamSelectVal = 0;      // The current camera/flash selected in the UI
+            var gHttpRequest = "";      // String that accumulates data to send via httpRequest
 			var gCamSettingsArray = [
 				"5~0~1~0~0~0~0~0~0~0~0~", "5~1~1~0~0~0~0~0~0~0~0~",
 				"5~2~1~0~0~0~0~0~0~0~0~", "5~3~1~0~0~0~0~0~0~0~0~",
@@ -221,10 +222,10 @@
 
 			function initPage() {
 				loadPage("Home", null, null);
-				httpRequest(getMenuListAjax, "getMenuList");
-				httpRequest(getIntervalAjax, "getInterval");
-				httpRequest(getAllCamsAjax, "getAllCams");
-				httpRequest(getStartLocationAjax, "getStartLocation");
+				buildHttpRequest("JSCA_GET_MENU_LIST", false);
+				buildHttpRequest("JSCA_GET_INTERVAL", false);
+				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
+				buildHttpRequest("JSCA_GET_START_LOCATION", true);
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -251,7 +252,7 @@
 
 			// Called to make one of the top level pages visible
 			function loadPage(page, dynamicScript, submitPacketFunc) {
-				//document.getElementById("debugText").innerHTML = "init;
+				//document.getElementById("debugText").innerHTML = "init";
 
 				document.getElementById("Home").style.display = "none";
 				document.getElementById("MenuMode").style.display = "none";
@@ -263,7 +264,7 @@
 				}
 				if (dynamicScript != null) {
 					// Load the dynamic menu script
-					httpRequest(getCurrentDynamicMenuAjax, "getCurrentDynamicMenu "+dynamicScript);
+					buildHttpRequest("JSCA_GET_CURRENT_DYNAMIC_MENU", true, dynamicScript);
 					gDynamicMenuName = dynamicScript;
 				}
 				toggleMenuPhotoMode(true, dynamicScript, submitPacketFunc);
@@ -311,22 +312,26 @@
 					submitPacketFunc();
 				}
 				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
-				httpRequest(null, val);
+				buildHttpRequest("JSCA_RAW_PACKET", true, val);
 
 			}
 
-			function httpRequest(ajaxFunc, value) {
-				var type = "PUT";
-				var request = new XMLHttpRequest();
-				if (ajaxFunc != null) {
-					request.onreadystatechange = function(){ajaxFunc(request);};
-					type = "GET";
-				}
-				request.open(type, value, true);
-				request.send();
-				return request;
-			}
-
+            function buildHttpRequest(header, submit, data) {
+                gHttpRequest += header + "&~&";
+                if (data != null) {
+                    gHttpRequest += data + "&~&";
+                }
+                if (submit) {
+                    var type = "GET";
+                    var request = new XMLHttpRequest();
+                    request.onreadystatechange = function(){ajaxCallback(request);};
+                    request.open(type, gHttpRequest, true);
+                    request.send();
+                    gHttpRequest = "";
+                    return request;
+                }
+            }
+            
 			// Checks ever n ms for a packet update from the esp8266 server
 			function getMenuDynamicIds() {
 				setTimeout(getMenuDynamicIds, 500);
@@ -334,8 +339,8 @@
 				if (document.getElementById("MenuMode") != null &&
 					document.getElementById("MenuMode").style.display != "none") {
 					// Only send the request if the dynamic menu is visible
-					httpRequest(getMenuDynamicStringIdsAjax, "getMenuDynamicStringIds");
-                    httpRequest(getMenuDynamicUint32IdsAjax, "getMenuDynamicUint32Ids");
+					buildHttpRequest("JSCA_GET_MENU_DYNAMIC_STRING_IDS", false);
+                    buildHttpRequest("JSCA_GET_MENU_DYNAMIC_UINT32_IDS", true);
 				}
 			}
 
@@ -382,118 +387,107 @@
 				}
 			}
 
-			// Callback used when updating the dynamic menu name list
-			function getMenuListAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					var menuList = xmlHttpRequest.responseText.slice(0, -1).split("~");
-					LoadMenuList(menuList);
-				}
-			}
-
-			// Callback used when updated dynamic strings is returned
-			function getMenuDynamicStringIdsAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					if (xmlHttpRequest.responseText == "null") {
-						return;
-					}
-
-					var stateList = xmlHttpRequest.responseText.slice(0, -1).split("~");
-					for(i=0; i<stateList.length; i+=2) {
-						document.getElementById(stateList[i]).innerHTML = stateList[i+1];
-					}
-				}
-			}
-            
-            // Callback used when updated dynamic uint32 is returned
-            function getMenuDynamicUint32IdsAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					if (xmlHttpRequest.responseText == "null") {
-						return;
-					}
-
-					var stateList = xmlHttpRequest.responseText.slice(0, -1).split("~");
-					for(i=0; i<stateList.length; i+=2) {
-						document.getElementById(stateList[i]).value = stateList[i+1];
-					}
-				}
-            }
-
-			// Callback when updating a dynamic menu
-			function getCurrentDynamicMenuAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					eval(xmlHttpRequest.responseText);
-					httpRequest(getDynamicMenuSettingsAjax, "getDynamicMenuSettings "+gDynamicMenuName);
-				}
-			}
-
-			// Callback when getting the current intervalometer packet state (stored on esp8266 in flash)
-			function getIntervalAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					if (xmlHttpRequest.responseText == "null") {
-						return;
-					}
-					var strArray = xmlHttpRequest.responseText.split("~");
-					strArray.pop(); // Last element is empty
-					var intervalForm = document.getElementById("intervalometerForm");
-					intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
-					intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
-					intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
-					intervalForm.elements.number_of_repeats.value = strArray[6];
-				}
-			}
-
-			// Callback when getting the current camera/flash packets state (stored on esp8266 flash)
-			function getAllCamsAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					if (xmlHttpRequest.responseText == "null") {
-						return;
-					}
-					var strArray = xmlHttpRequest.responseText.split("&");
-					strArray.pop(); // Remove last empty element since there is a terminating "&"
-					gCamSettingsArray = strArray;
-					camSettingsLoad(0);
-				}
-			}
-
-			// Callback when getting the current settings for the dynamic menu
-			function getDynamicMenuSettingsAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					if (xmlHttpRequest.responseText == "null") {
-						document.getElementById("MenuMode").style.display = "block";  // Make this visible now
-						return;
-					}
-					var strArray = xmlHttpRequest.responseText.split("&");
-					strArray.pop(); // Remove last empty element since there is a terminating "&"
-					loadMenuModeFromPackets(strArray);
-					document.getElementById("MenuMode").style.display = "block";  // Make this visible now
-				}
-			}
-
-			// Callback when setting defaults
-			function setDefaultsAjax(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					httpRequest(getIntervalAjax, "getInterval");
-					httpRequest(getAllCamsAjax, "getAllCams");
-					httpRequest(getStartLocationAjax, "getStartLocation");
-				}
-			}
-
-			// Callback to get the start location
-			function getStartLocationAjax (xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					var name = xmlHttpRequest.responseText;
-					var startLocationSelect = document.getElementById("start_location");
-					startLocationSelect.value = name;
-				}
-			}
-            
-            // Callback to get the voltage
-            function getVoltageAjax (xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
-					var name = xmlHttpRequest.responseText;
-					var voltage = document.getElementById("current_voltage");
-					voltage.innerHTML = name;
-				}
+            function ajaxCallback(xmlHttpRequest) {
+                if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+                    var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
+                    for (i=0; i<ajaxList.length; i+=2) {
+                        switch(ajaxList[i]) {
+                            case "JSCA_GET_MENU_LIST": {
+                                var menuList = ajaxList[i+1].slice(0, -1).split("~");
+                                LoadMenuList(menuList);
+                                break;
+                            }
+                            case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
+                                if (ajaxList[i+1] != "null") {
+                                    var stateList = ajaxList[i+1].slice(0, -1).split("~");
+                                    for(i=0; i<stateList.length; i+=2) {
+                                        document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+                                    }
+                                }
+                                break;
+                            }
+                            case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
+                                if (ajaxList[i+1] != "null") {
+                                    var stateList = ajaxList[i+1].slice(0, -1).split("~");
+                                    for(i=0; i<stateList.length; i+=2) {
+                                        document.getElementById(stateList[i]).value = stateList[i+1];
+                                    }
+                                }
+                                break;
+                            }
+                            case "JSCA_GET_CURRENT_DYNAMIC_MENU": {
+                                eval(ajaxList[i+1]);
+                                buildHttpRequest("JSCA_GET_DYNAMIC_MENU_SETTINGS", true, gDynamicMenuName);
+                                break;
+                            }
+                            case "JSCA_GET_INTERVAL": {
+                                if (ajaxList[i+1] != "null") {
+                                    var strArray = ajaxList[i+1].split("~");
+                                    strArray.pop(); // Last element is empty
+                                    var intervalForm = document.getElementById("intervalometerForm");
+                                    intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
+                                    intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
+                                    intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
+                                    intervalForm.elements.number_of_repeats.value = strArray[6];
+                                }
+                                break;
+                            }
+                            case "JSCA_GET_ALL_CAMS": {
+                                if (ajaxList[i+1] != "null") {
+                                    var strArray = ajaxList[i+1].split("&");
+                                    strArray.pop(); // Remove last empty element since there is a terminating "&"
+                                    gCamSettingsArray = strArray;
+                                    camSettingsLoad(0);
+                                }
+                                break;
+                            }
+                            case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
+                                if (ajaxList[i+1] == "null") {
+                                    document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+                                }
+                                else {
+                                    var strArray = ajaxList[i+1].split("&");
+                                    strArray.pop(); // Remove last empty element since there is a terminating "&"
+                                    loadMenuModeFromPackets(strArray);
+                                    document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+                                }
+                                break;
+                            }
+                            case "JSCA_GET_START_LOCATION": {
+                                var name = ajaxList[i+1];
+                                var startLocationSelect = document.getElementById("start_location");
+                                startLocationSelect.value = name;
+                                break;
+                            }
+                            case "JSCA_GET_VOLTAGE": {
+                                var name = ajaxList[i+1];
+                                var voltage = document.getElementById("current_voltage");   
+                                voltage.innerHTML = name;
+                                break;
+                            }
+                            case "JSCA_SET_DEFAULTS": {
+                                buildHttpRequest("JSCA_GET_INTERVAL", false);
+                                buildHttpRequest("JSCA_GET_ALL_CAMS", false);
+                                buildHttpRequest("JSCA_GET_START_LOCATION", true);
+                                break;
+                            }
+                            case "JSCA_RAW_PACKET":
+                            case "JSCA_CLEAR_WIFI_NETWORKS":
+                            case "JSCA_SET_ALL_CAMS":
+                            case "JSCA_SET_START_LOCATION":
+                            case "JSCA_SET_DYNAMIC_MENU":
+                            {
+                                var name = ajaxList[i+1];
+                                if (name != "done") {
+                                    alert("Invalid ajax return");
+                                }
+                                break;
+                            }
+                            default:
+                                alert("Invalid ajaxCallback id");
+                        }
+                    }
+                }
             }
 
 			// Get the nanoseconds from a time box string
@@ -683,7 +677,7 @@
 				x.innerHTML = text1;
 				x.onclick = function(){
 					var val = PID_UINT32+"~"+id.substring(2)+"~1~";
-					httpRequest(null, val);
+					buildHttpRequest("JSCA_RAW_PACKET", true, val);
 				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
@@ -766,7 +760,7 @@
 
 				x.onchange = function(){
 					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.selectedIndex+"~";
-					httpRequest(null, val);
+					buildHttpRequest("JSCA_RAW_PACKET", true, val);
 				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
@@ -934,7 +928,7 @@
 			// Submit packets for menu mode to esp8266
 			function submitMenuModeFormPackets() {
 				var menuModeForm = document.forms["menuModeForm"];
-				var packetStr = "setDynamicMenu "+gDynamicMenuName+"&";
+				var packetStr = gDynamicMenuName+"&";
 
 				for(i=0; i<menuModeForm.length; i++) {
 					var el = menuModeForm[i];
@@ -954,7 +948,7 @@
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+el.value+"~&";
 					}
 				}
-				httpRequest(null, packetStr);
+				buildHttpRequest("JSCA_SET_DYNAMIC_MENU", true, packetStr);
 			}
 
 			// Load dynamic menu packets into the current form for the dynamic menu UI
@@ -1000,29 +994,29 @@
             // Run function to trigger cams
             function toggleCams() {
                 var str = PID_CAM_TRIGGER+"~1~0~0~";  // Set mode to 1, focus/shutter to 0
-				httpRequest(null, str);
+				buildHttpRequest("JSCA_RAW_PACKET", true, str);
             }
 
 			// Set the start location (home page is default)
 			function setStartLocation() {
 				var startLocationSelect = document.getElementById("start_location");
 				var str = startLocationSelect.options[startLocationSelect.selectedIndex].text;
-				httpRequest(null, "setStartLocation "+str);
+				buildHttpRequest("JSCA_SET_START_LOCATION", true, str);
 			}
 
 			// Reset all the settings to defaults
 			function setDefaults() {
-				httpRequest(setDefaultsAjax, "setDefaults");
+				buildHttpRequest("JSCA_SET_DEFAULTS", true);
 			}
 
 			// Clear wifi network settings from wifi class
 			function clearWifiNetworks() {
-				httpRequest(null, "clearWifiNetworks");
+				buildHttpRequest("JSCA_CLEAR_WIFI_NETWORKS", true);
 			}
 
             // Get voltage of CA6
             function sendVoltagePacketFunc() {
-                httpRequest(getVoltageAjax, "getVoltage");
+                buildHttpRequest("JSCA_GET_VOLTAGE", true);
             }
 
 
@@ -1034,11 +1028,10 @@
 			// Submit packets for camera flash to esp8266
 			function sendCamFlashPackets() {
 				camSettingsSave(gCamSelectVal);
-
-				var str = "setAllCams " + gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" +
+                var str = gCamSettingsArray[0] + "&" + gCamSettingsArray[1] + "&" +
 							gCamSettingsArray[2] + "&" + gCamSettingsArray[3] + "&" + gCamSettingsArray[4] + "&" +
 							gCamSettingsArray[5] + "&" + gCamSettingsArray[6] + "&" + gCamSettingsArray[7] + "&";
-				httpRequest(null, str);
+                buildHttpRequest("JSCA_SET_ALL_CAMS", true, str);
 			}
 
 			// Submit packet for intervalometer to esp8266
@@ -1053,13 +1046,13 @@
 				var numRepeats = document.getElementById("number_of_repeats").value
 				var str = PID_INTERVALOMETER+"~"+enabled+"~"+startSeconds+"~"+startNanoseconds+"~"+
 							intervalSeconds+"~"+intervalNanoseconds+"~"+numRepeats+"~";
-				httpRequest(null, str);
+				buildHttpRequest("JSCA_RAW_PACKET", true, str);
 			}
 
 			// Submit packet to trigger the camera ports to esp8266
 			function sendCamTriggerPacket(){
 				var str = PID_CAM_TRIGGER+"~0~0~0~";  // Set mode, focus, and shutter to 0
-				httpRequest(null, str);
+				buildHttpRequest("JSCA_RAW_PACKET", true, str);
 			}
 	</script>
 	</head>

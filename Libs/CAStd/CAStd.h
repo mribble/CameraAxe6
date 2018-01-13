@@ -47,9 +47,10 @@ void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 inline void CALog(const char* fmt, ...) {
     if (CHECK_SERIAL) {
         char buf[128]; // resulting string limited to 128 chars
+        buf[127] = 0;
         va_list args;
         va_start (args, fmt );
-        vsnprintf(buf, 128, fmt, args);
+        vsnprintf(buf, 127, fmt, args);
         va_end (args);
         SerialIO.print(buf);
        // On atmega we might want to use something like this if we are using F() to save ram

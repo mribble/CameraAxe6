@@ -42,11 +42,11 @@ void sendFileToClient(const char *fileName) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copies the contents of a file in flash memory to a string
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void readFileToString(const char* fileName, String &str) {
+boolean readFileToString(const char* fileName, String &str) {
   File f = SPIFFS.open(fileName, "r");
 
   if (!f) {
-    return;
+    return false;
   }
 
   //str = f.readStringUntil(0);  // This is simpler version of code below, but is slow
@@ -72,6 +72,7 @@ void readFileToString(const char* fileName, String &str) {
   } while (sz);
 
   f.close();
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
