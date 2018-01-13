@@ -119,7 +119,6 @@ void serviceUri() {
     }
     else if (jscaMatch(jsca, "JSCA_GET_START_LOCATION")) {
       String str;
-      
       if (!readFileToString(gStartLocation, str)) {
         str = gStartLocationDefaults;
       }
