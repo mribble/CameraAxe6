@@ -221,11 +221,11 @@
 			window.onload = initPage;
 
 			function initPage() {
-				loadPage("Home", null, null);
 				buildHttpRequest("JSCA_GET_MENU_LIST", false);
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
-				buildHttpRequest("JSCA_GET_START_LOCATION", true);
+				buildHttpRequest("JSCA_GET_START_LOCATION", false);
+				loadPage("Home", null, null);
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
@@ -252,8 +252,6 @@
 
 			// Called to make one of the top level pages visible
 			function loadPage(page, dynamicScript, submitPacketFunc) {
-				//document.getElementById("debugText").innerHTML = "init";
-
 				document.getElementById("Home").style.display = "none";
 				document.getElementById("MenuMode").style.display = "none";
 				document.getElementById("CameraFlash").style.display = "none";
@@ -327,6 +325,8 @@
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
 					request.send();
+                    request.timeout = 5000;
+                    request.ontimeout = function() {document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";}
 					gHttpRequest = "";
 					return request;
 				}

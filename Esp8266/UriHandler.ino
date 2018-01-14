@@ -48,7 +48,7 @@ void serviceUri() {
     if (jscaOffset == -1) {
       break;
     }
-    //CA_LOG("xxx0 %s\n", uri.c_str());
+    //CA_LOG("xxx0 %d %s\n", millis(), uri.c_str());
     //CA_LOG("xxx1 %s\n", jsca.c_str());
 
     if (jscaMatch(jsca, "JSCA_GET_MENU_LIST")) {
