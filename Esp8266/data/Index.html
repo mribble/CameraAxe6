@@ -189,9 +189,8 @@
 		</style>
 
 		<script>
-			/*jslint browser: true*/
-			/*global window*/
-
+            /*Javascript linting done with http://jshint.com/ */
+			/*jshint esversion: 6 */
 			const PID_STRING = 1;
 			const PID_UINT32 = 2;
 			const PID_TIME_BOX = 3;
@@ -204,9 +203,9 @@
 			var uiTestMode = true;
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
-			var gMenuModeTable;         // MenuMode table element for dynamic menus
-			var gPhotoModeTable;        // PhotoMode table element for dynamic menus
-			var gCurTable;              // Currently active table (either gMenuModeTable or gPhotoModeTable)
+			var gMenuModeTable = null;  // MenuMode table element for dynamic menus
+			var gPhotoModeTable = null; // PhotoMode table element for dynamic menus
+			var gCurTable = null;       // Currently active table (either gMenuModeTable or gPhotoModeTable)
 			var gDynamicMenuName;       // The current dynamic menu name
 			var gCamSelectVal = 0;      // The current camera/flash selected in the UI
 			var gHttpRequest = "";      // String that accumulates data to send via httpRequest
@@ -243,7 +242,7 @@
 				window.onclick = function(event) {
 					var modal = document.getElementById("timeboxModal");
 
-					if (event.target == modal) {
+					if (event.target === modal) {
 						modal.style.display = "none";
 					}
 				};
@@ -257,10 +256,10 @@
 				document.getElementById("CameraFlash").style.display = "none";
 				document.getElementById("Intervalometer").style.display = "none";
 				document.getElementById("Advanced").style.display = "none";
-				if (page != "MenuMode" || uiTestMode) {  // MenuMode is a special case which we make visible after scripts are loaded
+				if (page !== "MenuMode" || uiTestMode) {  // MenuMode is a special case which we make visible after scripts are loaded
 					document.getElementById(page).style.display = "block";
 				}
-				if (dynamicScript != null) {
+				if (dynamicScript !== null) {
 					// Load the dynamic menu script
 					buildHttpRequest("JSCA_GET_CURRENT_DYNAMIC_MENU", true, dynamicScript);
 					gDynamicMenuName = dynamicScript;
@@ -273,7 +272,7 @@
 				var menuModeButtonId = document.getElementById("MenuPhotoModeButton");
 				var testButtonId = document.getElementById("MenuModeTestTriggerButton");
 				var infoButtonId = document.getElementById("MenuInfoButton");
-				var triggerCamsId = document.getElementById("MenuModeTriggerCamsButton")
+				var triggerCamsId = document.getElementById("MenuModeTriggerCamsButton");
 
 				if (forceMenuMode) {
 					menuModeButtonId.innerHTML = "Photo Mode";
@@ -287,7 +286,7 @@
 					gMode = 0;
 				}
 				else {  // Toggle mode
-					if (menuModeButtonId.innerHTML == "Photo Mode") {
+					if (menuModeButtonId.innerHTML === "Photo Mode") {
 						menuModeButtonId.innerHTML = "Menu Mode";
 						testButtonId.style.display = "none";
 						infoButtonId.style.display = "none";
@@ -306,7 +305,7 @@
 						gMode = 0;
 					}
 				}
-				if (submitPacketFunc != null) {
+				if (submitPacketFunc !== null) {
 					submitPacketFunc();
 				}
 				var val = PID_MENU_SELECT+"~"+gMode+"~"+dynamicScript+"~";
@@ -316,7 +315,7 @@
 
 			function buildHttpRequest(header, submit, data) {
 				gHttpRequest += header + "&~&";
-				if (data != null) {
+				if (data !== null && data !== undefined) {
 					gHttpRequest += data + "&~&";
 				}
 				if (submit) {
@@ -325,8 +324,8 @@
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
 					request.send();
-                    request.timeout = 5000;
-                    request.ontimeout = function() {document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";}
+					request.timeout = 5000;
+					request.ontimeout = function() {document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";};
 					gHttpRequest = "";
 					return request;
 				}
@@ -336,8 +335,8 @@
 			function getMenuDynamicIds() {
 				setTimeout(getMenuDynamicIds, 500);
 
-				if (document.getElementById("MenuMode") != null &&
-					document.getElementById("MenuMode").style.display != "none") {
+				if (document.getElementById("MenuMode") !== null &&
+					document.getElementById("MenuMode").style.display !== "none") {
 					// Only send the request if the dynamic menu is visible
 					buildHttpRequest("JSCA_GET_MENU_DYNAMIC_STRING_IDS", false);
 					buildHttpRequest("JSCA_GET_MENU_DYNAMIC_UINT32_IDS", true);
@@ -376,10 +375,10 @@
 				if (number.value.length > maxLength) {
 					number.value = number.value.slice(0,maxLength);
 				}
-				if (number.value.length > 1 && number.value[0]==0){
+				if (number.value.length > 1 && number.value[0] === 0){
 					number.value = (number.value).replace("0","");
 				}
-				if (number.value < 0 || number.value=="") {
+				if (number.value < 0 || number.value === "") {
 					number.value = 0;
 				}
 				if (+number.value > +number.max) {
@@ -388,8 +387,9 @@
 			}
 
 			function ajaxCallback(xmlHttpRequest) {
-				if ((xmlHttpRequest.readyState == 4) && (xmlHttpRequest.status == 200)) {
+				if ((xmlHttpRequest.readyState === 4) && (xmlHttpRequest.status === 200)) {
 					var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
+					var stateList, strArray, name;
 					for (var i=0; i<ajaxList.length; i+=2) {
 						switch(ajaxList[i]) {
 							case "JSCA_GET_MENU_LIST": {
@@ -398,18 +398,18 @@
 								break;
 							}
 							case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
-								if (ajaxList[i+1] != "null") {
-									var stateList = ajaxList[i+1].slice(0, -1).split("~");
-									for(i=0; i<stateList.length; i+=2) {
+								if (ajaxList[i+1] !== "null") {
+									stateList = ajaxList[i+1].slice(0, -1).split("~");
+									for (i=0; i<stateList.length; i+=2) {
 										document.getElementById(stateList[i]).innerHTML = stateList[i+1];
 									}
 								}
 								break;
 							}
 							case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
-								if (ajaxList[i+1] != "null") {
-									var stateList = ajaxList[i+1].slice(0, -1).split("~");
-									for(i=0; i<stateList.length; i+=2) {
+								if (ajaxList[i+1] !== "null") {
+									stateList = ajaxList[i+1].slice(0, -1).split("~");
+									for (i=0; i<stateList.length; i+=2) {
 										document.getElementById(stateList[i]).value = stateList[i+1];
 									}
 								}
@@ -421,11 +421,11 @@
 								break;
 							}
 							case "JSCA_GET_INTERVAL": {
-								if (ajaxList[i+1] != "null") {
-									var strArray = ajaxList[i+1].split("~");
+								if (ajaxList[i+1] !== "null") {
+									strArray = ajaxList[i+1].split("~");
 									strArray.pop(); // Last element is empty
 									var intervalForm = document.getElementById("intervalometerForm");
-									intervalForm.elements.inter_enable.checked = (strArray[1]==0)? false : true;
+									intervalForm.elements.inter_enable.checked = (strArray[1] === "0")? false : true;
 									intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
 									intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
 									intervalForm.elements.number_of_repeats.value = strArray[6];
@@ -433,8 +433,8 @@
 								break;
 							}
 							case "JSCA_GET_ALL_CAMS": {
-								if (ajaxList[i+1] != "null") {
-									var strArray = ajaxList[i+1].split("&");
+								if (ajaxList[i+1] !== "null") {
+									strArray = ajaxList[i+1].split("&");
 									strArray.pop(); // Remove last empty element since there is a terminating "&"
 									gCamSettingsArray = strArray;
 									camSettingsLoad(0);
@@ -442,11 +442,11 @@
 								break;
 							}
 							case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
-								if (ajaxList[i+1] == "null") {
+								if (ajaxList[i+1] === "null") {
 									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
 								}
 								else {
-									var strArray = ajaxList[i+1].split("&");
+									strArray = ajaxList[i+1].split("&");
 									strArray.pop(); // Remove last empty element since there is a terminating "&"
 									loadMenuModeFromPacket(strArray);
 									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
@@ -454,13 +454,13 @@
 								break;
 							}
 							case "JSCA_GET_START_LOCATION": {
-								var name = ajaxList[i+1];
+								name = ajaxList[i+1];
 								var startLocationSelect = document.getElementById("start_location");
 								startLocationSelect.value = name;
 								break;
 							}
 							case "JSCA_GET_VOLTAGE": {
-								var name = ajaxList[i+1];
+								name = ajaxList[i+1];
 								var voltage = document.getElementById("current_voltage");
 								voltage.innerHTML = name;
 								break;
@@ -472,8 +472,8 @@
 							case "JSCA_SET_START_LOCATION":
 							case "JSCA_SET_DYNAMIC_MENU":
 							{
-								var name = ajaxList[i+1];
-								if (name != "done") {
+								name = ajaxList[i+1];
+								if (name !== "done") {
 									alert("Invalid ajax return");
 								}
 								break;
@@ -569,9 +569,9 @@
 			function timeBoxSaveValues(){
 				var timeboxForm = document.forms.timeboxForm;
 				var boxValue = "";
-				for(i=0; i<timeboxForm.length; i+=1) {
-					if(timeboxForm[i].type=="number") {
-						if(i>0 && boxValue != "") {
+				for(var i=0; i<timeboxForm.length; i+=1) {
+					if(timeboxForm[i].type === "number") {
+						if(i>0 && boxValue !== "") {
 							if (i < 2) {
 								boxValue += ".";
 							}
@@ -587,9 +587,6 @@
 				}
 				var el = document.getElementsByName(document.getElementById("boxName").value)[0];
 				el.value = boxValue;
-				if (el.sendTimeBoxPacket != null) {
-					el.sendTimeBoxPacket();
-				}
 				var modal = document.getElementById("timeboxModal");
 				modal.style.display = "none";
 			}
@@ -605,10 +602,9 @@
 					"microseconds" : true,//microseconds,
 				};
 				var j=0;
-				var i=0;
 				var inputFieldValue = inputField.value;
 				var splitInputField = inputFieldValue.split(new RegExp("[.:]", "g"));
-				for(key in timeArray){
+				for(var key in timeArray){
 					if(timeArray[key])
 					{
 						document.getElementsByName(key)[0].value = splitInputField[j];
@@ -623,7 +619,7 @@
 
 			function caStartMenuMode(menuString) {
 				document.getElementById("title").innerHTML = menuString;
-				if (gMenuModeTable != null) {
+				if (gMenuModeTable !== null) {
 					gMenuModeTable.remove();
 				}
 				gMenuModeTable = document.createElement("table");
@@ -632,7 +628,7 @@
 			}
 
 			function caStartPhotoMode() {
-				if (gPhotoModeTable != null) {
+				if (gPhotoModeTable !== null) {
 				gPhotoModeTable.remove();
 				}
 				gPhotoModeTable = document.createElement("table");
@@ -694,9 +690,6 @@
 				y.caType = "checkbox";
 				y.id = id;
 				y.checked = value;
-				y.onchange = function(){
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+(y.checked ? 1 : 0)+"~";
-				};
 
 				x.appendChild(y);
 				x.appendChild(z);
@@ -714,7 +707,6 @@
 				x.id = id;
 				x.caType = "dropSelect";
 				var a = text1.split("~");
-				var i;
 
 				a.forEach(function(item) {
 					var option = document.createElement("option");
@@ -725,9 +717,6 @@
 
 				x.classList.add("select1");
 
-				x.onchange = function(){
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.selectedIndex+"~";
-				};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -742,7 +731,6 @@
 				x.id = id;
 				x.caType = "dropSelect";
 				var a = text1.split("~");
-				var i;
 
 				a.forEach(function(item) {
 					var option = document.createElement("option");
@@ -778,16 +766,15 @@
 					if (x.value.length > maxLength) {
 						x.value = x.value.slice(0,maxLength);
 					}
-					if (x.value.length > 1 && x.value[0]==0){
+					if (x.value.length > 1 && x.value[0] === 0){
 						x.value = (x.value).replace("0","");
 					}
-					if (x.value < 0 || x.value=="") {
+					if (x.value < 0 || x.value === "") {
 						x.value = 0;
 					}
 					if (+x.value > +maxValue) {
 						x.value = maxValue;
 					}
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.value+"~";
 				};
 				x.value = value;
 				cell1.appendChild(x);
@@ -807,11 +794,6 @@
 				x.name = "timebox";
 				x.value = days + "." + hours + ":" + minutes + ":" + seconds + "." + milliseconds + "." + microseconds;
 				x.classList.add("inputTimebox");
-				x.sendTimeBoxPacket = function(){
-					var s = getSeconds(x.value);
-					var ns = getNanoseconds(x.value);
-					var val = PID_TIME_BOX+"~"+id.substring(2)+"~"+s+"~"+ns+"~";
-				};
 				x.onclick = function(){
 					openTimeBox(x, true, true, true, true, true, true);
 				};
@@ -836,8 +818,7 @@
 				x.step="1";
 				x.onchange = function(){
 					document.getElementById(id+"b").innerHTML = x.value;
-					var val = PID_UINT32+"~"+id.substring(2)+"~"+x.value+"~";
-				}
+				};
 				x.oninput = function() {
 					document.getElementById(id+"b").innerHTML = x.value;
 				};
@@ -889,7 +870,7 @@
 						cameraFlashSetupForm.elements["sequencer"+i].checked = false;
 					}
 				}
-				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[10] == 0) ? false : true;
+				cameraFlashSetupForm.elements["mirror_lockup"].checked = (strArray[10] === 0) ? false : true;
 			}
 
 			// Save current camera settings to a string
@@ -898,18 +879,18 @@
 				var str = PID_CAM_SETTINGS + "~" + index + "~";
 				var sequencerVal = +0;
 
-				for(i=0; i<cameraFlashSetupForm.length; i++) {
-					if(cameraFlashSetupForm[i].type=="checkbox"){
-						if(cameraFlashSetupForm[i].name == "mirror_lockup") {
-							str += (cameraFlashSetupForm[i].checked) ? "1~" : "0~"
+				for(var i=0; i<cameraFlashSetupForm.length; i++) {
+					if(cameraFlashSetupForm[i].type === "checkbox"){
+						if(cameraFlashSetupForm[i].name === "mirror_lockup") {
+							str += (cameraFlashSetupForm[i].checked) ? "1~" : "0~";
 						}
 						else if (cameraFlashSetupForm[i].checked){ // Sequencer check boxes
 							sequencerVal += +cameraFlashSetupForm[i].value;
 						}
-						if(cameraFlashSetupForm[i].name=="sequencer8") {
+						if(cameraFlashSetupForm[i].name === "sequencer8") {
 							str += sequencerVal + "~";
 						}
-					} else if (cameraFlashSetupForm[i].type == "text") {
+					} else if (cameraFlashSetupForm[i].type === "text") {
 						var seconds = getSeconds(cameraFlashSetupForm[i].value);
 						var nanoseconds = getNanoseconds(cameraFlashSetupForm[i].value);
 						str += seconds + "~" + nanoseconds + "~";
@@ -925,21 +906,21 @@
 				var menuModeForm = document.forms["menuModeForm"];
 				var packetStr = gDynamicMenuName+"&";
 
-				for(i=0; i<menuModeForm.length; i++) {
+				for(var i=0; i<menuModeForm.length; i++) {
 					var el = menuModeForm[i];
-					if (el.caType == "button") {
+					if (el.caType === "button") {
 						//packetStr += PID_UINT32+"~"+el.id.substring(2)+"~1~&";
-					} else if (el.caType == "checkbox") {
+					} else if (el.caType === "checkbox") {
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+(el.checked ? 1 : 0)+"~&";
-					} else if (el.caType == "dropSelect") {
+					} else if (el.caType === "dropSelect") {
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+el.selectedIndex+"~&";
-					} else if (el.caType == "editNumber") {
+					} else if (el.caType === "editNumber") {
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+el.value+"~&";
-					} else if (el.caType == "timeBox") {
+					} else if (el.caType === "timeBox") {
 						var seconds = getSeconds(el.value);
 						var nanoseconds = getNanoseconds(el.value);
 						packetStr += PID_TIME_BOX+"~"+el.id.substring(2)+"~"+seconds+"~"+nanoseconds+"~&";
-					} else if (el.caType == "slider") {
+					} else if (el.caType === "slider") {
 						packetStr += PID_UINT32+"~"+el.id.substring(2)+"~"+el.value+"~&";
 					}
 				}
@@ -951,25 +932,26 @@
 				var menuModeForm = document.forms["menuModeForm"];
 				var j = 0;  // packetArray index doesn't match form since button not sent in submitMenuModeFormPacket()
 
-				for(i=0; i<menuModeForm.length; i++) {
+				for(var i=0; i<menuModeForm.length; i++) {
 					var el = menuModeForm[i];
-					if (el.caType == "button") {
+					var packet;
+					if (el.caType === "button") {
 						// Do nothing
 						j--;
-					} else if (el.caType == "checkbox") {
-						var packet = packetArray[j].split("~");
+					} else if (el.caType === "checkbox") {
+						packet = packetArray[j].split("~");
 						el.checked = +packet[2];
-					} else if (el.caType == "dropSelect") {
-						var packet = packetArray[j].split("~");
+					} else if (el.caType === "dropSelect") {
+						packet = packetArray[j].split("~");
 						el.selectedIndex = packet[2];
-					} else if (el.caType == "editNumber") {
-						var packet = packetArray[j].split("~");
+					} else if (el.caType === "editNumber") {
+						packet = packetArray[j].split("~");
 						el.value = packet[2];
-					} else if (el.caType == "timeBox") {
-						var packet = packetArray[j].split("~");
+					} else if (el.caType === "timeBox") {
+						packet = packetArray[j].split("~");
 						el.value = getTimeBoxString(packet[2], packet[3]);
-					} else if (el.caType == "slider") {
-						var packet = packetArray[j].split("~");
+					} else if (el.caType === "slider") {
+						packet = packetArray[j].split("~");
 						el.value = packet[2];
 						document.getElementById("id"+packet[1]+"b").innerHTML = packet[2];
 					}
@@ -1000,7 +982,7 @@
 				var startNanoseconds = getNanoseconds(startStr);
 				var intervalSeconds = getSeconds(intervalStr);
 				var intervalNanoseconds = getNanoseconds(intervalStr);
-				var numRepeats = document.getElementById("number_of_repeats").value
+				var numRepeats = document.getElementById("number_of_repeats").value;
 				var str = PID_INTERVALOMETER+"~"+enabled+"~"+startSeconds+"~"+startNanoseconds+"~"+
 							intervalSeconds+"~"+intervalNanoseconds+"~"+numRepeats+"~";
 				buildHttpRequest("JSCA_RAW_PACKET", true, str);
@@ -1014,7 +996,7 @@
 
 			// Run test trigger function
 			function testTrigger(extraFunc) {
-				if (extraFunc != null) {
+				if (extraFunc !== null) {
 					extraFunc();
 				}
 				sendCamTriggerPacket();
@@ -1039,6 +1021,7 @@
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
 				buildHttpRequest("JSCA_GET_START_LOCATION", true);
+                loadPage('Home', null, null);
 			}
 
 			// Clear wifi network settings from wifi class
@@ -1050,7 +1033,7 @@
 			function displayInfo() {
 				alert(gInfoString);
 			}
-	</script>
+		</script>
 	</head>
 	<body>
 <!--Timebox Popup (Start)-->
@@ -1226,7 +1209,7 @@
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
 			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0;&#xfe0e;</button>
-			<button onclick="testTrigger(sendCamFlashPacket);" type="button">Test Trigger</button>
+			<button onclick="testTrigger(sendIntervalometerPacket);" type="button">Test Trigger</button>
 			<h1>Intervalometer</h1>
 
 			<form id="intervalometerForm" name="intervalometerForm">
