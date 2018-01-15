@@ -69,7 +69,7 @@
 			h1{
 				margin: 12px;
 				color: #0D47A1;
-				font-size: 48;
+				font-size: 48px;
 				font-weight: 800;
 			}
 			.text1{
@@ -93,14 +93,14 @@
 				background-color: #0D47A1;
 			}
 			label.checkbox :checked + span:after {
-				content: "\2714\fe0e"; //2714 is check mark and fe0e is don't render as emoji
+				content: "\2714\fe0e"; /*2714 is check mark and fe0e is don't render as emoji*/
 				font-size: 40px;
 				top: -4px;
 				left: 10px;
 				position: absolute;
 				color: #FFFFFF;
 			}
-			.mainBox{
+			.mainBox {
 				min-width: 600px;
 				max-width: 1000px;
 				padding: 16px;
@@ -1124,11 +1124,11 @@
 <!--Home Page (End)-->
 <!--Menu Mode Page (Start)-->
 		<div id="MenuMode" class="mainBox">
-			<button onclick="loadPage('Home', null, submitMenuModeFormPacket);">&#x1F3E0&#xfe0e</button>
+			<button onclick="loadPage('Home', null, submitMenuModeFormPacket);">&#x1F3E0;&#xfe0e;</button>
 			<button id="MenuPhotoModeButton" onclick="toggleMenuPhotoMode(false, gDynamicMenuName, submitMenuModeFormPacket);">Photo Mode</button>
 			<button id="MenuModeTestTriggerButton" onclick="testTrigger(submitMenuModeFormPacket);">Test Trigger</button>
 			<button id="MenuModeTriggerCamsButton" onclick="toggleCams();">Trigger Cams</button>
-			<button id="MenuInfoButton" onclick="displayInfo();">&#x2139&#xfe0e</button>
+			<button id="MenuInfoButton" onclick="displayInfo();">&#x2139;&#xfe0e;</button>
 			<h1 id="title">null</h1>
 
 			<form id="menuModeForm" name="menuModeForm"> </form>
@@ -1155,7 +1155,7 @@
 <!--Menu Mode Page (End)-->
 <!--Camera Flash Page (Start)-->
 		<div id="CameraFlash" class="mainBox">
-			<button onclick="loadPage('Home', null, sendCamFlashPacket);">&#x1F3E0&#xfe0e</button>
+			<button onclick="loadPage('Home', null, sendCamFlashPacket);">&#x1F3E0;&#xfe0e;</button>
 			<button onclick="testTrigger(sendCamFlashPacket);" type="button">Test Trigger</button>
 			<h1>Camera Flash</h1>
 
@@ -1225,7 +1225,7 @@
 <!--Camera Flash Page (End)-->
 <!--Intervalometer Page (Start)-->
 		<div id="Intervalometer" class="mainBox">
-			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0&#xfe0e</button>
+			<button onclick="loadPage('Home', null, sendIntervalometerPacket);">&#x1F3E0;&#xfe0e;</button>
 			<button onclick="testTrigger(sendCamFlashPacket);" type="button">Test Trigger</button>
 			<h1>Intervalometer</h1>
 
@@ -1261,7 +1261,7 @@
 <!--Intervalometer Page (End)-->
 <!--Advanced Page (Start)-->
 		<div id="Advanced" class="mainBox">
-			<button onclick="loadPage('Home', null, null);">&#x1F3E0&#xfe0e</button>
+			<button onclick="loadPage('Home', null, null);">&#x1F3E0;&#xfe0e;</button>
 			<h1>Advanced</h1>
 
 			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
