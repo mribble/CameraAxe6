@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/_my/git/CameraAxe6/CameraAxeFlash/Pcb/CAFlash.sch)
-    (date "1/11/2018 12:53:43 PM")
+    (date "1/15/2018 8:42:46 AM")
     (tool "Eeschema 4.0.7")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -308,7 +308,13 @@
       (footprint Capacitors_SMD:CP_Elec_6.3x5.7)
       (libsource (lib device) (part CP1))
       (sheetpath (names /) (tstamps /))
-      (tstamp 5A503C1F)))
+      (tstamp 5A503C1F))
+    (comp (ref G1)
+      (value CA_Logo_150)
+      (footprint CA6:CA_Logo_15mm)
+      (libsource (lib CA6) (part CA_Logo_150))
+      (sheetpath (names /) (tstamps /))
+      (tstamp 5A5CD9D2)))
   (libparts
     (libpart (lib atmel) (part ATTINY24-20SSU)
       (aliases
@@ -367,6 +373,20 @@
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
+    (libpart (lib CA6) (part CA_Logo_150)
+      (footprints
+        (fp CA_Logo_1000)
+        (fp CA_Logo_10mm)
+        (fp CA_Logo_150)
+        (fp CA_Logo_15mm)
+        (fp CA_Logo_20mm)
+        (fp CA_Logo_225)
+        (fp CA_Logo_25mm)
+        (fp CA_Logo_300)
+        (fp CA_Logo_30mm))
+      (fields
+        (field (name Reference) "#G")
+        (field (name Value) CA_Logo_150)))
     (libpart (lib device) (part CP1)
       (description "Polarised capacitor")
       (footprints
@@ -535,14 +555,14 @@
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive)))))
   (libraries
+    (library (logical conn)
+      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\conn.lib"))
+    (library (logical atmel)
+      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\atmel.lib"))
     (library (logical CA6)
       (uri D:\_my\git\CameraAxe6\Pcb\CA6.lib))
     (library (logical regul)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\regul.lib"))
-    (library (logical atmel)
-      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\atmel.lib"))
-    (library (logical conn)
-      (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\conn.lib"))
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib")))
   (nets
