@@ -562,11 +562,10 @@ typedef struct {
   uint16_t referenceSensorVal = 0;
   uint16_t triggerCount = 0;
   boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
-  char strikeDetailsBuf[5][27]; // circular buffer of the details for the last 5 strikes
+  char strikeDetailsBuf[5][32]; // circular buffer of the details for the last 5 strikes
   int16_t peakOfStrike = 0;
   uint16_t refAtStrike = 0;
-  uint32_t strikeStartTimeUS;  // used for strike duration display
-  uint32_t strikeStartTimeMS; // used for 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
+  uint32_t strikeStartTimeMS; // used for strike duration display and 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
   uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
   char sensitivityStr [4][9] = {"LOW", "MED-LOW", "MED-HIGH", "HIGH"};
   const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
@@ -629,29 +628,30 @@ void lightning_MenuRun() {
   //LTGDisplayPhotoMode Send photo-mode data back to mobile display all values obtained from gLightningData
 void LTGDisplayPhotoMode() {
   // Handle outgoing packets
-  g_ctx.packetHelper.writePacketString(3, gLightningData.sensitivityStr[gLightningData.sensitivity]);
+  g_ctx.packetHelper.writePacketString(3, String(gLightningData.sensorVal).c_str());
+  g_ctx.packetHelper.writePacketString(4, gLightningData.sensitivityStr[gLightningData.sensitivity]);
   
   // Check if we need to display warnings or suggestions for snoot or trigger level
   if (gLightningData.sensitivity == 0) {  // sensitivity=0 (LOW) means bright light; suggest extending the snoot
-    g_ctx.packetHelper.writePacketString(4, "** Consider extending snoot and pointing at storm clouds **");
+    g_ctx.packetHelper.writePacketString(5, "** Consider extending snoot and pointing at storm clouds **");
   }
   else {
-    g_ctx.packetHelper.writePacketString(4, " "); // blank out the message
+    g_ctx.packetHelper.writePacketString(5, " "); // blank out the message
   }
   if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal) {
     // At top of Sensor range - trigVal too high - can't trigger
-    g_ctx.packetHelper.writePacketString(5, "** Trigger Threshold may be too high -- consider lowering it **");
+    g_ctx.packetHelper.writePacketString(6, "** Trigger Threshold may be too high -- consider lowering it **");
   }
   else {
-    g_ctx.packetHelper.writePacketString(5, " ");
+    g_ctx.packetHelper.writePacketString(6, " ");
   }
   
-  g_ctx.packetHelper.writePacketString(6, String(gLightningData.triggerCount).c_str());
-  g_ctx.packetHelper.writePacketString(7, gLightningData.strikeDetailsBuf[gLightningData.triggerCount % 5]);
-  g_ctx.packetHelper.writePacketString(8, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 1) % 5]);
-  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
-  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
-  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
+  g_ctx.packetHelper.writePacketString(7, String(gLightningData.triggerCount).c_str());
+  g_ctx.packetHelper.writePacketString(8, gLightningData.strikeDetailsBuf[gLightningData.triggerCount % 5]);
+  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 1) % 5]);
+  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
+  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
+  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
 
   if (FAST_CHECK_FOR_PACKETS) {
     // Handle incoming packets
@@ -666,7 +666,6 @@ void lightning_PhotoRun() {
 
   uint32_t curTimeMS = millis();
   int16_t currentDif = 0;
-  uint32_t strikeDurUS = 0;
   uint32_t strikeDurMS = 0;
   uint32_t decimalUS = 0;
 
@@ -691,8 +690,7 @@ void lightning_PhotoRun() {
         triggerCameras();
         gLightningData.triggerCount = gLightningData.triggerCount + 1;
         gLightningData.peakOfStrike = gLightningData.sensorVal; // initialize the peak reading for this strike
-        gLightningData.strikeStartTimeUS = micros();  // initialize the strike start for duration measure
-        gLightningData.strikeStartTimeMS = curTimeMS;  // start clock for 2-second max check        
+        gLightningData.strikeStartTimeMS = curTimeMS;  // start clock for strike duration and 2-second max check        
         gLightningData.refAtStrike = gLightningData.referenceSensorVal;  // save reference value at beginning of strike
         break;
       }
@@ -742,10 +740,8 @@ void lightning_PhotoRun() {
     }
 
     // Strike cycle just finished, store values in character buffer for display
-    strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
-    strikeDurMS = strikeDurUS / 1000;
-    decimalUS = strikeDurUS % 1000;
-    sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "%4u%5u%5u%5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
+    strikeDurMS = millis() - gLightningData.strikeStartTimeMS;
+    sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5u</pre>\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
 
     // Loop until DeviceCycles (Bulb TImer) is completed for both devices
     while ( camTriggerRunning() ) {
@@ -754,11 +750,9 @@ void lightning_PhotoRun() {
       currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
       // Check if light value has gone back up over threshold -- secondary pulses/flashes
       if (currentDif > (int16_t) gLightningData.triggerDiffThreshold) {
-        strikeDurUS = micros() - gLightningData.strikeStartTimeUS + DURATIONOFFSET;
-        strikeDurMS = strikeDurUS / 1000;
-        decimalUS = strikeDurUS % 1000;
+        strikeDurMS = millis() - gLightningData.strikeStartTimeMS;
         gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
-        sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "%3u %5u %5u %5u.%03u\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS, decimalUS);
+        sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5u</pre>\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
       }
       delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
     }
