@@ -888,13 +888,17 @@ void projectile_PhotoRun() {
       
       while(CLOCK_TICKS-endTime < ticksDelay) ; //Delay in loop until it's time to trigger camera
       triggerCameras();
-  
-      g_ctx.packetHelper.writePacketString(6, String(inchPerSec/12).c_str());  // Feet/sec
-      g_ctx.packetHelper.writePacketString(7, String(inchPerSec*254/100/100).c_str());  // Meters/sec
+
+      if (executeLimitAt(500)) {
+        g_ctx.packetHelper.writePacketString(6, String(inchPerSec/12).c_str());  // Feet/sec
+        g_ctx.packetHelper.writePacketString(7, String(inchPerSec*254/100/100).c_str());  // Meters/sec
+      }
     }
     else if (firstSensor && !secondSensor) {
-      g_ctx.packetHelper.writePacketString(6, "Second sensor");  // Feet/sec
-      g_ctx.packetHelper.writePacketString(7, "not triggered");  // Meters/sec
+      if (executeLimitAt(500)) {
+        g_ctx.packetHelper.writePacketString(6, "Second sensor");  // Feet/sec
+        g_ctx.packetHelper.writePacketString(7, "not triggered");  // Meters/sec
+      }
     }
   
     if (FAST_CHECK_FOR_PACKETS) {

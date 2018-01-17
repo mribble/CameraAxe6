@@ -23,6 +23,9 @@ void sendPacket(String &packetStr) {
       break;
     case PID_MENU_SELECT:
       gPh.writePacketMenuSelect(packetStr);
+      for(uint8_t i=0; i<gDynamicMessages.numMessages; ++i) {
+        gDynamicMessages.str[i].remove(0);
+      }
       gDynamicMessages.numMessages = 0;
       gDynamicUint32s.remove(0);
       break;
@@ -51,7 +54,7 @@ void receivePacket() {
 
   if (gPh.readOnePacket()) {
     bool packetGuard = mUnpacker.unpackGuard();
-    mUnpacker.unpackSize();
+    uint16_t packetSize = mUnpacker.unpackSize();
     uint8_t packetType = mUnpacker.unpackType();
 
     CA_ASSERT(packetGuard==true, "Failed guard check");
@@ -102,7 +105,7 @@ void receivePacket() {
     }
     else {
       CA_ASSERT(0, "Unknown packet");
-      CA_LOG("packetType=%d\n", packetType);
+      CA_LOG("packetType=%d size=%d\n", packetType, packetSize);
     }
     mUnpacker.resetBuffer();
   }
