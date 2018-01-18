@@ -652,12 +652,6 @@ void LTGDisplayPhotoMode() {
   g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
   g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
   g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
-
-  if (FAST_CHECK_FOR_PACKETS) {
-    // Handle incoming packets
-    CAPacketElement *packet = processIncomingPacket();
-    incomingPacketFinish(packet);
-  }
 }
 
 void lightning_PhotoRun() {
@@ -710,10 +704,14 @@ void lightning_PhotoRun() {
       if (executeLimitAt(1000)) {
         LTGDisplayPhotoMode();
       }
-
+      if (FAST_CHECK_FOR_PACKETS) {
+        // Handle incoming packets
+        CAPacketElement *packet = processIncomingPacket();
+        incomingPacketFinish(packet);
+      }
     }  // End of loop looking for start of a strike
 
-       // Begin loop looking for end of strike and handling DeviceCycles
+    // Begin loop looking for end of strike and handling DeviceCycles
     while (gLightningData.inStrikeCycle && g_ctx.state == CA_STATE_PHOTO_MODE) {
       gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
       gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
@@ -737,6 +735,12 @@ void lightning_PhotoRun() {
         gLightningData.referenceUpdateTimeMS = curTimeMS + UPDATEREFPERIODMS; // reset the Ref Update clock
         break;
       }
+
+      if (FAST_CHECK_FOR_PACKETS) {
+        // Handle incoming packets
+        CAPacketElement *packet = processIncomingPacket();
+        incomingPacketFinish(packet);
+      }
     }
 
     // Strike cycle just finished, store values in character buffer for display
@@ -755,6 +759,12 @@ void lightning_PhotoRun() {
         sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5u</pre>\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
       }
       delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
+      if (FAST_CHECK_FOR_PACKETS) {
+        // Handle incoming packets
+        CAPacketElement *packet = processIncomingPacket();
+        incomingPacketFinish(packet);
+      }
+
     }
     // Recheck if current value is below threshold and if so reset Reference
     gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
@@ -868,7 +878,7 @@ void projectile_PhotoRun() {
           secondSensor = true;
           break;
         }
-        if ((CLOCK_TICKS-startTime) > (1000*1000*TICKS_PER_MICROSECOND)) {
+        if ((CLOCK_TICKS-startTime) > (500*1000*TICKS_PER_MICROSECOND)) {
           // Took 1 second which is too long so we need to timeout
           break;
         }
@@ -886,7 +896,9 @@ void projectile_PhotoRun() {
       uint32_t ticksDelay = gProjectileData.distToTarget*10000*TICKS_PER_MICROSECOND/inchPerSec; // distToTarget/inchesPerSec (then adjust for 100ths of inches in distance and convert sec to ticks)
       ticksDelay += gProjectileData.extraTime*TICKS_PER_MICROSECOND;
       
-      while(CLOCK_TICKS-endTime < ticksDelay) ; //Delay in loop until it's time to trigger camera
+      while(CLOCK_TICKS-endTime < ticksDelay) { //Delay in loop until it's time to trigger camera
+        if (FAST_CHECK_FOR_PACKETS) { break; }
+      }
       triggerCameras();
 
       if (executeLimitAt(500)) {

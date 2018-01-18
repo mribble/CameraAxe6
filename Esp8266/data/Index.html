@@ -375,7 +375,7 @@
 				if (number.value.length > maxLength) {
 					number.value = number.value.slice(0,maxLength);
 				}
-				if (number.value.length > 1 && number.value[0] === 0){
+				if (number.value.length > 1 && number.value[0] === "0"){
 					number.value = (number.value).replace("0","");
 				}
 				if (number.value < 0 || number.value === "") {
@@ -766,7 +766,7 @@
 					if (x.value.length > maxLength) {
 						x.value = x.value.slice(0,maxLength);
 					}
-					if (x.value.length > 1 && x.value[0] === 0){
+					if (x.value.length > 1 && x.value[0] === "0"){
 						x.value = (x.value).replace("0","");
 					}
 					if (x.value < 0 || x.value === "") {
