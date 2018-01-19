@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+//
+// Functions used to setup and trigger cameras/flashes (most of the triggering of cameras/flashes uses interrupts)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef TRIGGER_CAM_H
 #define TRIGGER_CAM_H
 
@@ -41,7 +47,7 @@ void triggerCamerasPhase2() {
   g_ctx.curCamElement = 0;
 
   if (g_ctx.numCamElements == 0) {
-    CA_LOG("No cameras triggered.\n");
+    CA_LOG(CA_INFO, "No cameras triggered.\n");
     triggerCamerasPhase4();
   }
 
@@ -384,9 +390,9 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
   g_ctx.numCamElements = curEl+1;
   g_ctx.curCamElement = 0;
 
-  //CA_LOG("Unified Camera List\n");
+  //CA_LOG(CA_INFO, "Unified Camera List\n");
   //for(uint8_t i=0; i<g_ctx.numUnifiedCamTimerElements; ++i) {
-  //  CA_LOG("%"PRId64" Set%#010x,%#010x,%#010x,%#010x Clear%#010x,%#010x,%#010x,%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
+  //  CA_LOG(CA_INFO, "%"PRId64" Set%#010x,%#010x,%#010x,%#010x Clear%#010x,%#010x,%#010x,%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
   //    g_ctx.unifiedCamTimerElements[i].setMasks[0], g_ctx.unifiedCamTimerElements[i].setMasks[1], g_ctx.unifiedCamTimerElements[i].setMasks[2], g_ctx.unifiedCamTimerElements[i].setMasks[3],
   //    g_ctx.unifiedCamTimerElements[i].clearMasks[0], g_ctx.unifiedCamTimerElements[i].clearMasks[1], g_ctx.unifiedCamTimerElements[i].clearMasks[2], g_ctx.unifiedCamTimerElements[i].clearMasks[3]);
   //}
@@ -412,9 +418,9 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
     }
   }
 
-  //CA_LOG("Unified Sequencer masks\n");
+  //CA_LOG(CA_INFO, "Unified Sequencer masks\n");
   //for(uint8_t i=0; i<NUM_SEQUENCER_BITS; ++i) {
-  //  CA_LOG("%#010x,%#010x,%#010x,%#010x\n", g_ctx.seqMask[i][0], g_ctx.seqMask[i][1], g_ctx.seqMask[i][2], g_ctx.seqMask[i][3]);
+  //  CA_LOG(CA_INFO, "%#010x,%#010x,%#010x,%#010x\n", g_ctx.seqMask[i][0], g_ctx.seqMask[i][1], g_ctx.seqMask[i][2], g_ctx.seqMask[i][3]);
   //}
 }
 
@@ -478,7 +484,7 @@ void setupCamTiming(uint64_t extraCamDelayNs=0, uint64_t extraFlashDelayNs=0) {
   }
 
   //for(i=0; i<NUM_CAM_TIMER_ELEMENTS; ++i) {
-  //  CA_LOG("%"PRId64" %d %d %d %d\n", camElements0[i].timeOffset, camElements0[i].camOffset, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].sequencerVal);
+  //  CA_LOG(CA_INFO, "%"PRId64" %d %d %d %d\n", camElements0[i].timeOffset, camElements0[i].camOffset, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].sequencerVal);
   //}
   g_ctx.curSeqMask = sequencerMask;
 
@@ -506,9 +512,9 @@ void setupCamTiming(uint64_t extraCamDelayNs=0, uint64_t extraFlashDelayNs=0) {
   // Phase 2
   generateUnifiedElements(camElements0, numCamElements0);
 
-  //CA_LOG("Unified Element List\n");
+  //CA_LOG(CA_INFO, "Unified Element List\n");
   //for(uint8_t i=0; i<g_ctx.numCamTimerElements; ++i) {
-  //  CA_LOG("%d  %"PRId64"\n", g_ctx.camTimerElements[i].camOffset, g_ctx.camTimerElements[i].timeOffset);
+  //  CA_LOG(CA_INFO, "%d  %"PRId64"\n", g_ctx.camTimerElements[i].camOffset, g_ctx.camTimerElements[i].timeOffset);
   //}
 }
 #endif //TRIGGER_CAM_H

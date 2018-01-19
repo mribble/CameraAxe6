@@ -1,6 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Maurice Ribble
-// Copyright 2017
+// Dreaming Robots - Copyright 2017, 2018
+//
+//  CALed - This blinks some LEDs.  The way it works is if you set a maxBlinks of 1 then the LEDs are on
+//          for the onTime in ms and off for the offTime in ms.  If maxBlinks is greater than 1 then 
+//          the LEDs flash on/off/on... for the onTime and then stay off after the blinking for the offTime.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <CALed.h>

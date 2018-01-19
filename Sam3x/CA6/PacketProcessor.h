@@ -1,13 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+//
+// Handles incoming serial packets from esp8266
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef PACKET_PROCESSOR_H
 #define PACKET_PROCESSOR_H
 
 #include "TriggerCam.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // processIncomingPacket() handles packets coming from the client (Android) to the host (sam3x).
 // Some packets always do the same thing so we handle those in this function and return null.
 // Other packets are menu specific and have to be handled outside this function.  In those cases we return
 // the packet from this function.  In these cases the caller must delete tthe packet when it's done.
- 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CAPacketElement* processIncomingPacket() {
   CAPacketHelper &ph = g_ctx.packetHelper;
   CAPacket &mUnpacker = ph.getUnpacker();
@@ -24,20 +31,20 @@ CAPacketElement* processIncomingPacket() {
       case PID_STRING: {
         CAPacketString unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_STRING - %d %s\n", packetSize, unpack.getClientHostId(), unpack.getString());
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_STRING(sam) - %d %s\n", unpack.getClientHostId(), unpack.getString());
         break;
       }
       case PID_UINT32: {
         CAPacketUint32 *unpack = new CAPacketUint32(mUnpacker);
         unpack->unpack();
-        CA_LOG("%d PID_UINT32 - %d %d\n", packetSize, unpack->getClientHostId(), unpack->getValue());
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_UINT32(sam) - %d %d\n", unpack->getClientHostId(), unpack->getValue());
         ret = unpack;
         break;
       }
       case PID_TIME_BOX: {
         CAPacketTimeBox *unpack = new CAPacketTimeBox(mUnpacker);
         unpack->unpack();
-        CA_LOG("%d PID_TIME_BOX - %d %d %d\n", packetSize, unpack->getClientHostId(), 
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_TIME_BOX(sam) - %d %d %d\n", unpack->getClientHostId(), 
                   unpack->getNanoseconds(), unpack->getSeconds() );
         ret = unpack;
         break;
@@ -45,7 +52,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_MENU_SELECT: {
         CAPacketMenuSelect unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_MENU_SELECT - %d %s\n", packetSize, unpack.getMenuMode(), unpack.getMenuName());
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_MENU_SELECT(sam) - %d %s\n", unpack.getMenuMode(), unpack.getMenuName());
 
         // This is where we do all the code to set pins back to defaults when changing menus or exiting/entering photo mode
         resetCameraPorts();
@@ -60,19 +67,19 @@ CAPacketElement* processIncomingPacket() {
               index = i;
             }
           }
-          if (index == 0) {
-            CA_ERROR("No menu name match", 0);
-          }
+          CA_ASSERT(index, "No menu name match");
         }
         g_ctx.menuId = index;
 
         if (g_ctx.menuId == 0) {
           g_ctx.state = CA_STATE_MENU_MODE;
-        } else if (unpack.getMenuMode() == 0) { 
+        } 
+        else if (unpack.getMenuMode() == 0) { 
           g_ctx.procTable.funcMenuInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_MENU_MODE;
           
-        } else {
+        }
+        else {
           g_ctx.procTable.funcPhotoInit[g_ctx.menuId]();
           g_ctx.state = CA_STATE_PHOTO_MODE;
           startTriggerCameraState();
@@ -83,7 +90,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_CAM_SETTINGS: {
         CAPacketCamSettings unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_CAM_SETTINGS - %d %d %d %d %d %d %d %d %d %d\n", packetSize, unpack.getCamPortNumber(),
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_CAM_SETTINGS(sam) - %d %d %d %d %d %d %d %d %d %d\n", unpack.getCamPortNumber(),
                   unpack.getMode(), unpack.getDelaySeconds(), unpack.getDelayNanoseconds(), unpack.getDurationSeconds(),
                   unpack.getDurationNanoseconds(), unpack.getPostDelaySeconds(), unpack.getPostDelayNanoseconds(), unpack.getSequencer(),
                   unpack.getMirrorLockup());
@@ -96,7 +103,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_INTERVALOMETER: {
         CAPacketIntervalometer unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_INTERVALOMETER - %d %d %d %d %d %d\n", packetSize, unpack.getEnable(), unpack.getStartSeconds(),
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_INTERVALOMETER(sam) - %d %d %d %d %d %d\n", unpack.getEnable(), unpack.getStartSeconds(),
                 unpack.getStartNanoseconds(), unpack.getIntervalSeconds(), unpack.getIntervalNanoseconds(), unpack.getRepeats());
         g_ctx.intervalometerEnable = unpack.getEnable();
         g_ctx.intervalometerStartTime = CATickTimer::convertTimeToTicks(unpack.getStartSeconds(), unpack.getStartNanoseconds());
@@ -107,7 +114,7 @@ CAPacketElement* processIncomingPacket() {
       case PID_CAM_TRIGGER: {
         CAPacketCamTrigger unpack(mUnpacker);
         unpack.unpack();
-        CA_LOG("%d PID_CAM_TRIGGER - %d %d %d\n", packetSize, unpack.getMode(), unpack.getFocus(), unpack.getShutter());
+        CA_LOG(CA_SAM_IN_PACKETS, "PID_CAM_TRIGGER(sam) - %d %d %d\n", unpack.getMode(), unpack.getFocus(), unpack.getShutter());
         if (unpack.getMode() == CA_MODE_STANDARD) {
           startTriggerCameraState();
           triggerCameras(); }
@@ -117,7 +124,7 @@ CAPacketElement* processIncomingPacket() {
         break;
       }
       default: {
-        CA_ERROR("Unknown packet", 0);
+        CA_LOG(CA_ERROR, "Error, unknown packet (sam) %d %d\n", packetType, packetSize);
         break;
       }
     }
@@ -126,6 +133,9 @@ CAPacketElement* processIncomingPacket() {
   return ret;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper function for menus
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CAPacketElement* incomingPacketCheckUint32(CAPacketElement* base, uint8_t clientHostId, uint32_t &val) {
   if (base != NULL) {
     if (base->getPacketType() == PID_UINT32) {
@@ -140,6 +150,9 @@ CAPacketElement* incomingPacketCheckUint32(CAPacketElement* base, uint8_t client
   return base;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper function for menus
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CAPacketElement* incomingPacketCheckTimeBox(CAPacketElement* base, uint8_t clientHostId, uint32_t &seconds, uint32_t &nanoseconds) {
   if (base != NULL) {
     if (base->getPacketType() == PID_TIME_BOX) {
@@ -155,6 +168,9 @@ CAPacketElement* incomingPacketCheckTimeBox(CAPacketElement* base, uint8_t clien
   return base;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper function for menus
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void incomingPacketFinish(CAPacketElement* base) {
   if (base != NULL) {
     //CA_LOG("Unprocessed packet at incomingPacketFinish() type: %d, id:%d\n", base->getPacketType(), base->getClientHostId());

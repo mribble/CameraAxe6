@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Maurice Ribble
-// Copyright 2017
+// Dreaming Robots - Copyright 2017, 2018
+//
+// Handles various helper functions dealing with flash file system (spiffs)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,9 +11,11 @@
 //   The size of the buffer has a big impact on perf (small buffers like 64 bytes make page loading slow)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void sendFileToClient(const char *fileName) {
-  const uint32_t bufSize = 1024;
+  const int32_t bufSize = 1024;
   uint8_t buf[bufSize];
   int32_t sz;
+
+  CA_LOG(CA_ESP_SPIFFS, "SPIFFS sendFileToClient: %s\n", fileName);
   File f = SPIFFS.open(fileName, "r");
 
   if (!f) {
@@ -45,6 +48,7 @@ void sendFileToClient(const char *fileName) {
 boolean readFileToString(const char* fileName, String &str) {
   File f = SPIFFS.open(fileName, "r");
 
+  CA_LOG(CA_ESP_SPIFFS, "SPIFFS readFileToString: %s\n", fileName);
   if (!f) {
     return false;
   }
@@ -83,20 +87,22 @@ void saveStringToFlash(const char* fileName, String& packetStr) {
   String fileStr;
 
   // Read contents and compare to avoid needless flash writes (flash has a limited number of writes -- generally ~50K)
+
+  CA_LOG(CA_ESP_SPIFFS, "SPIFFS saveStringToFlash: %s\n", fileName);
   readFileToString(fileName, fileStr);
   if (fileStr == packetStr) {
+    CA_LOG(CA_ESP_SPIFFS, " SPIFFS saveStringToFlash: match\n");
     match = true;
   }
   
   if (!match) {
-    bool del;
-    CA_LOG("SPIFF_write %s\n", fileName);
+    CA_LOG(CA_ESP_SPIFFS, " SPIFFS saveStringToFlash: write\n");
     File f = SPIFFS.open(fileName, "w");
     if (f) {
       f.print(packetStr);
       f.close();
     } else {
-      CA_INFO("Failed to load file: ", fileName);
+      CA_LOG(CA_ERROR, "Failed to load file: %s\n", fileName);
     }
   }
 }

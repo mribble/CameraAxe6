@@ -1,11 +1,13 @@
-#include "CAEsp8266.h"
-#include "CAUtility.h"
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+//
 //  CAEsp8266 - Class for handling the interface pins between SAM3X & ESP8266
 //                  Initialized pins, handles putting the ESP8266 into programming mode
 //                  and alto handles resetting the ESP8266
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "CAEsp8266.h"
+#include "CAUtility.h"
 
 void CAEsp8266::init(uint32_t baud) {
     // There are two pins connected from sam3x to esp8266.  One we call mEspGpio0 (book from flash on high and reprogram

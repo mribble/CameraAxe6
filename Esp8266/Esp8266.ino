@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Maurice Ribble
-// Copyright 2017
+// Dreaming Robots - Copyright 2017, 2018
 //
 // This runs the Camera Axe 6 (CA6) software on an esp8266 module
 //   The primary purposes of this software is:
@@ -9,7 +9,7 @@
 //    Send/receieve binary data packets to/from the sam3x
 //    Send/receive strings to/from a remote device running the javascript
 //
-// 2017.9.6
+// 2018.1.18
 //    - Initial version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +77,7 @@ void setup (void) {
   delay(10); // Wait for serial connection to sam3x
   gPh.init((HardwareSerial*)(&SerialIO), NULL);
   if (!SPIFFS.begin()) {
-    CA_INFO("Cannot open SPIFFS", "");
+    CA_LOG(CA_ERROR, "Cannot open SPIFFS\n");
   }
   else {
     displaySpiffsInfo();  
@@ -96,7 +96,7 @@ void loop (void) {
   serviceUri();
   pollWifiMode();
   tcpCleanup();
-  //CA_LOG("memleft: %d\n", ESP.getFreeHeap()); delay(50);
+  //CA_LOG(CA_INFO, "memleft: %d\n", ESP.getFreeHeap()); delay(50);
   ArduinoOTA.handle();
 }
 
@@ -106,20 +106,20 @@ void loop (void) {
 void displaySpiffsInfo() {
 #ifdef CA_DEBUG_INFO
   Dir dir = SPIFFS.openDir("/");
-  CA_LOG("SPIFFS directory contents:\n");
+  CA_LOG(CA_INFO, "SPIFFS directory contents:\n");
   while (dir.next()) {
     File f = dir.openFile("r");
-    CA_LOG(" - %s: Size: %d\n", dir.fileName().c_str(), f.size());
+    CA_LOG(CA_INFO, " - %s: Size: %d\n", dir.fileName().c_str(), f.size());
   }
 
   FSInfo info;
   SPIFFS.info(info);
-  CA_LOG("SPIFFS - TotalBytes: %d | UsedBytes: %d\n", info.totalBytes, info.usedBytes);
-  CA_LOG("Flash real size: %u\n", ESP.getFlashChipRealSize());
-  CA_LOG("Flash ide  size: %u\n", ESP.getFlashChipSize()); // Size programmed by ide (should match real size)
+  CA_LOG(CA_INFO, "SPIFFS - TotalBytes: %d | UsedBytes: %d\n", info.totalBytes, info.usedBytes);
+  CA_LOG(CA_INFO, "Flash real size: %u\n", ESP.getFlashChipRealSize());
+  CA_LOG(CA_INFO, "Flash ide  size: %u\n", ESP.getFlashChipSize()); // Size programmed by ide (should match real size)
   //FlashMode_t ideMode = ESP.getFlashChipMode();
-  //CA_LOG("Flash ide speed: %u\n", ESP.getFlashChipSpeed());
-  //CA_LOG("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
+  //CA_LOG(CA_INFO, "Flash ide speed: %u\n", ESP.getFlashChipSpeed());
+  //CA_LOG(CA_INFO, "Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 #endif
 }
 
@@ -167,21 +167,21 @@ void initOTA() {
   // ArduinoOTA.setPassword((const char *)"123");
 
   ArduinoOTA.onStart([]() {
-    CA_LOG("Starting OTA\n");
+    CA_LOG(CA_INFO, "Starting OTA\n");
   });
   ArduinoOTA.onEnd([]() {
-    CA_LOG("Ending OTA\n");
+    CA_LOG(CA_INFO, "Ending OTA\n");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress OTA: %u%%\n", (progress / (total / 100)));
+    CA_LOG(CA_INFO, "Progress OTA: %u%%\n", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    CA_LOG("OTA Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) CA_LOG("Auth Failed\n");
-    else if (error == OTA_BEGIN_ERROR) CA_LOG("Begin Failed\n");
-    else if (error == OTA_CONNECT_ERROR) CA_LOG("Connect Failed\n");
-    else if (error == OTA_RECEIVE_ERROR) CA_LOG("Receive Failed\n");
-    else if (error == OTA_END_ERROR) CA_LOG("End Failed\n");
+    CA_LOG(CA_INFO, "OTA Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) CA_LOG(CA_INFO, "Auth Failed\n");
+    else if (error == OTA_BEGIN_ERROR) CA_LOG(CA_INFO, "Begin Failed\n");
+    else if (error == OTA_CONNECT_ERROR) CA_LOG(CA_INFO, "Connect Failed\n");
+    else if (error == OTA_RECEIVE_ERROR) CA_LOG(CA_INFO, "Receive Failed\n");
+    else if (error == OTA_END_ERROR) CA_LOG(CA_INFO, "End Failed\n");
   });
   ArduinoOTA.begin();
 }

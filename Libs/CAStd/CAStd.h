@@ -1,72 +1,82 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+// 
+// Does logging controls and other macro setup for the Camera Axe software
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef __CASTD_H__
 #define __CASTD_H__
 
+// Don't define these to force off logging or asserts
+#define CA_DEBUG_LOG
+#define CA_DEBUG_ASSERT
+
+// Change these to 0 to force off this type of logging
+#define CA_INFO                 1
+#define CA_ERROR                1
+#define CA_SAM_IN_PACKETS       1
+#define CA_ESP_IN_PACKETS       1
+#define CA_ESP_SPIFFS           1
+#define CA_JS_URI               1
+// These modify the log output again change to 0 to force off this extra info
+#define CA_TIMESTAMP            0
+#define CA_PREFIX_CHIP          0
 
 #if defined(__SAM3X8E__)
     #include <Arduino.h>
-    #define CA_DEBUG_LOG
-    #define CA_DEBUG_ASSERT
-    #define CA_DEBUG_INFO
-    #define CA_DEBUG_ERROR
     #define SerialIO SerialUSB
     #define CHECK_SERIAL SerialIO.dtr()
 #elif defined (ESP8266)
     #include <Arduino.h>
-    #define CA_DEBUG_LOG
-    #define CA_DEBUG_ASSERT
-    #define CA_DEBUG_INFO
-    #define CA_DEBUG_ERROR
     #define SerialIO Serial
     #define CHECK_SERIAL 1
 #else
     #error Need a supported microchip
 #endif
 
-// Common macros for embedded microcontrollers
-// Each of the following must be defined or or there is no
-// output for their respective macro.
-//   CA_DEBUG_ERROR, CA_DEBUG_INFO, CA_DEBUG_LOG, CA_DEBUG_ASSERT 
-
 // SerialIO must be defined to be a hw serial device
-
 // CA_LOG(fmt, ....)            -- Output important info (such as a test passed or failed)
 // CA_ASSERT(cond, str)         -- Assert on errors
-// CA_DEBUG_INFO(str, value)    -- Log developer debug messages
-// CA_ERROR(str, value)         -- Log error messages
 
 #ifdef CA_DEBUG_LOG
+    // This should not be called directly (only call through macros below)
+    void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 
-// Base function to print debug messages
-// Requires the format string to use the PSTR() macro
-// We need this for SAM3X because there is no Serial.printf function available
-//  While there is a Serial.printf available for the ESP8266, it is best to maintain consistency with the use of PSTR()
+    inline void CALog(const char* fmt, ...) {
+        if (CHECK_SERIAL) {
+            // Serial.printf would be easier, but not supported on sam3x
+            char buf[128]; // resulting string limited to 128 chars
+            buf[127] = 0;
+            va_list args;
+            va_start (args, fmt );
+            vsnprintf(buf, 127, fmt, args);
+            va_end (args);
+           // On atmega we might want to use F() (or variants) to save ram, but that is a no-op on arm architectures
+           //vsnprintf_P(buf, maxSize, fmt, args);
 
-// This should not be called directly (only call through macros below)
-void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-
-inline void CALog(const char* fmt, ...) {
-    if (CHECK_SERIAL) {
-        char buf[128]; // resulting string limited to 128 chars
-        buf[127] = 0;
-        va_list args;
-        va_start (args, fmt );
-        vsnprintf(buf, 127, fmt, args);
-        va_end (args);
-        SerialIO.print(buf);
-       // On atmega we might want to use something like this if we are using F() to save ram
-       //vsnprintf_P(buf, maxSize, fmt, args);
+            if (CA_PREFIX_CHIP) {
+#if defined(__SAM3X8E__)
+                SerialIO.print("SAM-");
+#elif defined (ESP8266)
+                SerialIO.print("ESP-");
+#endif
+            }
+            if (CA_TIMESTAMP) {
+                SerialIO.print(millis());
+                SerialIO.print("-");
+            }
+            SerialIO.print(buf);
+        }
     }
-}
 
-// For the CA_LOG function, you *must* use the PSTR() macro for the format string
-#define CA_LOG(fmt, ...)           CALog(fmt, ##__VA_ARGS__)
-#else 
+    #define CA_LOG(flag, fmt, ...) ({if(flag) {CALog(fmt, ##__VA_ARGS__);}})
+#else
    #define CA_LOG(...)
 #endif // CA_DEBUG_LOG
 
 #ifdef CA_DEBUG_ASSERT
    #define CA_ASSERT(cond, str)                 \
-   {                                            \
+   ({                                           \
         if(!(cond)) {                           \
             if (CHECK_SERIAL) {                 \
                 SerialIO.print(__FILE__);       \
@@ -78,36 +88,9 @@ inline void CALog(const char* fmt, ...) {
                 SerialIO.println(str);          \
             }                                   \
         }                                       \
-   }
+   })
 #else
    #define CA_ASSERT(...)
 #endif
 
-#if defined(CA_DEBUG_INFO) || defined(CA_DEBUG_ERROR)
-// This should not be called directly (only call through macros below)
-#define _CA_MSG(header, msg, value) \
-{                                   \
-    if (CHECK_SERIAL)               \
-    {                               \
-        SerialIO.print(header);     \
-        SerialIO.print(msg);        \
-        SerialIO.print(F(": "));    \
-        SerialIO.println(value);    \
-    }                               \
-} 
-#endif
-   
-// Functions for simple messages using Serial.print. Use the F() macro for strings
-#ifdef CA_DEBUG_INFO
-   #define CA_INFO(msg, value)        _CA_MSG(F("INFO> "), msg, value)
-#else
-   #define CA_INFO(...)
-#endif
-
-#ifdef CA_DEBUG_ERROR
-   #define CA_ERROR(msg, value)       _CA_MSG(F("ERROR> "), msg, value)
-#else
-   #define CA_ERROR(...)
-#endif
-
-#endif 
+#endif //__CASTD_H__

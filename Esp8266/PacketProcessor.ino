@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Maurice Ribble
-// Copyright 2017
+// Dreaming Robots - Copyright 2017, 2018
+//
+// Handles sending and receiving serial packets to/from sam3x
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,8 +41,7 @@ void sendPacket(String &packetStr) {
       gPh.writePacketCamTrigger(packetStr);
       break;
     default:
-      CA_LOG("%s\n", packetStr.c_str());
-      CA_ASSERT(0, "Invalid type found");
+      CA_LOG(CA_ERROR, "Invalid packet PID: %s\n", packetStr.c_str());
       break;
   }
 }
@@ -64,8 +64,9 @@ void receivePacket() {
       bool found = false;
       CAPacketString unpack(mUnpacker);
       unpack.unpack();
-      uint8_t curId = unpack.getClientHostId();
+      CA_LOG(CA_ESP_IN_PACKETS, "PID_STRING(esp): %d %s\n", unpack.getClientHostId(), unpack.getString());
 
+      uint8_t curId = unpack.getClientHostId();
       // We store a limited number of dynamic messages per ajax refresh
       // This code sees if the message exists and if it does it overwrites it
       // otherwise it adds a new message to the list
@@ -82,30 +83,32 @@ void receivePacket() {
           gDynamicMessages.str[x] = unpack.getString();
         }
         else {
-          CA_INFO("Exceeded max dynamic messages", MAX_DYNAMIC_MESSAGES);
+          CA_LOG(CA_INFO, "Exceeded max dynamic messages: %d\n", MAX_DYNAMIC_MESSAGES);
         }
       }
     }
     else if (packetType == PID_UINT32) {
       CAPacketUint32 unpack(mUnpacker);
       unpack.unpack();
+      CA_LOG(CA_ESP_IN_PACKETS, "PID_UINT32(esp): %d %d\n", unpack.getClientHostId(), unpack.getValue());
+      
       uint8_t curId = unpack.getClientHostId();
       uint32_t val = unpack.getValue();
       if (gDynamicUint32s.length() < 200) {
         gDynamicUint32s += "id" + String(curId) + "~" + String(val) + "~";
       }
       else {
-        CA_INFO("Exceeded max uint32 values", 0);  // If you hit this you are sending uint32s too frequently or forgetting to fetch the values from JS
+        CA_LOG(CA_INFO, "Exceeded max uint32 values\n");  // If you hit this you are sending uint32s too frequently or forgetting to fetch the values from JS
       }
     }
     else if (packetType == PID_PERIODIC_DATA) {
       CAPacketPeriodicData unpack(mUnpacker);
       unpack.unpack();
+      CA_LOG(CA_ESP_IN_PACKETS, "PID_PERIODIC_DATA(esp): %d %d\n", unpack.getClientHostId(), unpack.getVoltage());
       gVoltage = unpack.getVoltage();
     }
     else {
-      CA_ASSERT(0, "Unknown packet");
-      CA_LOG("packetType=%d size=%d\n", packetType, packetSize);
+      CA_LOG(CA_ERROR, "Error, unknown packet (esp): %d %d\n", packetType, packetSize);
     }
     mUnpacker.resetBuffer();
   }

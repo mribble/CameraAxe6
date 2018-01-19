@@ -1,3 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Maurice Ribble
+// Dreaming Robots - Copyright 2017, 2018
+//
+// This runs the Camera Axe 6 (CA6) software on an sam3x microcontroller.  The primary purposes of this software are
+// to communicate with the esp8266 wifi module, monitor modules, and trigger cameras/flashes as requested.
+//
+// 2018.1.18
+//   - Initial version
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <CAPacket.h>
 #include <CAPacketHelper.h>
 #include <CAEsp8266.h>
@@ -9,7 +20,7 @@
 #include "Tests.h"
 #include "TriggerCam.h"
 
-// Initialize the context
+// Global Context
 Context g_ctx;
 
 void setup() {
@@ -33,7 +44,7 @@ void loop() {
   while(1) { // Existing loop causes 10 ms delay so we will stay in it forever to avoid that delay
     caRunTests();
     processTerminalCmds();
-  
+
     if (g_ctx.state == CA_STATE_MENU_MODE) {
       if (g_ctx.menuId == 0) {
         // Menus normally process packets, but menuId is a null menu which means we need to handle the processing here
@@ -48,7 +59,7 @@ void loop() {
         // This needs to get turned off for test trigger and there wasn't a better spot
         resetCameraPorts();
       }
-      if ((millis() - periodDataTime) >= 10000) {  // Send periodic data every 10 seconds
+      if ((millis() - periodDataTime) >= 20000) {  // Send periodic data every 20 seconds
         hwPortPin ppVoltage = CAU::getOnboardDevicePin(LV_DETECT_PIN);
         uint32_t voltage = CAU::analogRead(ppVoltage);
         // Convert to hundredths of volts by multiplying by max max voltage (4096 is from 12 bit ADC on sam3x)

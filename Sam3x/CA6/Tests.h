@@ -1,55 +1,34 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+//
+// Unit tests for for hardware and software
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #ifndef TESTS_H
 #define TESTS_H
 
 #include <CATickTimer.h>
-#include <CAEeprom.h>
 
 extern boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut);
 extern void caAllPortsLow();
 extern void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig);
-
-extern void caTestSerialWritePerf();
 extern void caTestTickTimer();
 extern void caTestPerf();
 extern void caTestPackets();
 extern void caTestModulePorts();
 extern void caTestAuxAndCamPorts();
-extern void caTestEeprom();
 extern void caTestAnalog();
 
 void caRunTests()
 {
-  //caTestSerialWritePerf();  // look into this
-  //caTestTickTimer();
-  //caTestPerf();
+//  delay(5000); // wait 5000 ms
+
+//  caTestTickTimer();
+//  caTestPerf();
 //  caTestPackets();
 //  caTestModulePorts();
 //  caTestAuxAndCamPorts();
-//  caTestEeprom();
 //  caTestAnalog();
-//  delay(5000); // wait 5000 ms
-}
-
-void caTestSerialWritePerf() {
-  const uint32_t bufSize = 20;
-  uint32_t startTime = 0;
-  uint32_t endTime = 0;
-  uint8_t writeChars[bufSize];
-
-  Serial1.end();
-  Serial1.begin(9600);
-
-  // fill the write buffer
-  for (uint8_t i = 0; i < bufSize; i++) {
-    writeChars[i] = char((i % 10) + '0');
-  }
-
-  startTime = micros();
-  Serial1.write(writeChars, bufSize);
-  endTime = micros();
-  delay(500); // Wait for values to finish being written
-
-  CA_LOG("Serial Write perf (%d bytes): %d us\n", bufSize, endTime-startTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,14 +93,14 @@ void caTestPackets()
           unpackType != PID_STRING ||               // Update per type
           unpack0.getClientHostId() != 1 ||
           strcmp(unpack0.getString(), "This is a string") != 0) {
-      CA_LOG("ERROR - STRING test failed\n");
+      CA_LOG(CA_INFO, "ERROR - STRING test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - STRING test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - STRING test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -139,14 +118,14 @@ void caTestPackets()
         unpackType != PID_UINT32 ||                 // Update per type
         unpack0.getClientHostId() != 2 ||
         unpack0.getValue() != 123) {
-      CA_LOG("ERROR - UINT32 test failed\n");
+      CA_LOG(CA_INFO, "ERROR - UINT32 test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - UINT32 test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - UINT32 test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -166,14 +145,14 @@ void caTestPackets()
         unpack0.getSeconds() != 99 ||
         unpack0.getNanoseconds() != 888888) 
         {
-      CA_LOG("ERROR - TIME_BOX test failed\n");
+      CA_LOG(CA_INFO, "ERROR - TIME_BOX test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - TIME_BOX test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - TIME_BOX test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -191,14 +170,14 @@ void caTestPackets()
           unpackType != PID_MENU_SELECT ||          // Update per type
           unpack0.getMenuMode() != 1 ||
           strcmp(unpack0.getMenuName(), "Test") != 0) {
-      CA_LOG("ERROR - MENU_SELECT test failed\n");
+      CA_LOG(CA_INFO, "ERROR - MENU_SELECT test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - MENU_SELECT test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - MENU_SELECT test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -224,14 +203,14 @@ void caTestPackets()
           unpack0.getPostDelayNanoseconds() != 1234567 ||
           unpack0.getSequencer() != 0xbe ||
           unpack0.getMirrorLockup() != 1) {
-      CA_LOG("ERROR - CAM_SETTINGS test failed\n");
+      CA_LOG(CA_INFO, "ERROR - CAM_SETTINGS test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - CAM_SETTINGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - CAM_SETTINGS test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -253,7 +232,7 @@ void caTestPackets()
           unpack0.getIntervalSeconds() != 3456789 ||
           unpack0.getIntervalNanoseconds() != 4567890 ||
           unpack0.getRepeats() != 10 ) {
-      CA_LOG("ERROR - INTERVALOMETER test failed\n");
+      CA_LOG(CA_INFO, "ERROR - INTERVALOMETER test failed\n");
     }
     
     String str0, str1;
@@ -261,7 +240,7 @@ void caTestPackets()
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - INTERVALOMETER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - INTERVALOMETER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
 
@@ -281,17 +260,17 @@ void caTestPackets()
         unpack0.getFocus() != 0 ||
         unpack0.getShutter() != 0) 
         {
-      CA_LOG("ERROR - CAM_TRIGGER test failed\n");
+      CA_LOG(CA_INFO, "ERROR - CAM_TRIGGER test failed\n");
     }
     String str0, str1;
     unpack0.packetToString(str0);
     unpack0.set(str0);
     unpack0.packetToString(str1);
     if (str0.compareTo(str1) != 0) {
-      CA_LOG("ERROR - CAM_TRIGGER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
+      CA_LOG(CA_INFO, "ERROR - CAM_TRIGGER test failed2 %s ** %s\n", str0.c_str(), str1.c_str());
     }
   }
-  CA_LOG("Done - testPackets\n");
+  CA_LOG(CA_INFO, "Done - testPackets\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +291,7 @@ void caTestPerf()
     val8 = CAU::digitalRead(pp0);
   }
   endTime = micros();
-  CA_LOG("  10,000 digitalRead() = %dus\n", endTime-startTime);
+  CA_LOG(CA_INFO, "  10,000 digitalRead() = %dus\n", endTime-startTime);
 
   startTime = micros();
   for(count=0; count<10000; ++count)
@@ -320,7 +299,7 @@ void caTestPerf()
     CAU::digitalWrite(pp0, LOW);
   }
   endTime = micros();
-  CA_LOG("  10,000 digitalWrite() = %dus\n", endTime-startTime);
+  CA_LOG(CA_INFO, "  10,000 digitalWrite() = %dus\n", endTime-startTime);
 
   pp0 = CAU::getOnboardDevicePin(LV_DETECT_PIN);
   CAU::initializeAnalog();
@@ -331,7 +310,7 @@ void caTestPerf()
     val16 = CAU::analogRead(pp0);
   }
   endTime = micros();
-  CA_LOG("  10,000 analogRead() = %dus  --junk(%d%d)\n", endTime-startTime, val16, val8);
+  CA_LOG(CA_INFO, "  10,000 analogRead() = %dus  --junk(%d%d)\n", endTime-startTime, val16, val8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,16 +331,16 @@ void caTestModulePorts()
       pp1 = CAU::getModulePin(module, pin+1);
       if (!caTestTwoPins(pp0, pp1))
       {
-        CA_LOG("  Module Port %d:%d failed\n", module, pin);
+        CA_LOG(CA_INFO, "  Module Port %d:%d failed\n", module, pin);
       }
       
       if (!caTestTwoPins(pp1, pp0))
       {
-        CA_LOG("  Module Port %d:%d failed\n", module, pin+1);
+        CA_LOG(CA_INFO, "  Module Port %d:%d failed\n", module, pin+1);
       }
     }
   }
-  CA_LOG("Done - module ports\n");
+  CA_LOG(CA_INFO, "Done - module ports\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,11 +358,11 @@ void caTestAuxAndCamPorts()
     pp1 = CAU::getAuxPin(pin+1);
     if (!caTestTwoPins(pp0, pp1))
     {
-      CA_LOG("  Aux Port %d failed\n", pin);
+      CA_LOG(CA_INFO, "  Aux Port %d failed\n", pin);
     }
     if (!caTestTwoPins(pp1, pp0))
     {
-      CA_LOG("  Aux Port %d failed\n", pin+1);
+      CA_LOG(CA_INFO, "  Aux Port %d failed\n", pin+1);
     }
   }
 
@@ -419,60 +398,11 @@ void caTestAuxAndCamPorts()
         (val2 != LOW)  || (val3 != HIGH) ||
         (val4 != HIGH) || (val5 != LOW))
     {
-      CA_LOG("  Camera/Aux Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
+      CA_LOG(CA_INFO, "  Camera/Aux Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
     }
   }
   
-  CA_LOG("Done - aux and camera ports\n");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// caTestEeprom - Tests the eeprom
-// returns  - NA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestEeprom()
-{
-  const char *str0 = "This is just a test string1.";
-  const char *str1 = "Blah blah blah blah 2.";
-  uint8_t buf[128];
-  unioReadStatus statusReg;
-
-  CAEeprom eeprom(CA_INTERNAL);
-  
-  if (!eeprom.statusWrite(EEPROM_WRITE_PROTECTED_ALL))
-  {
-    CA_LOG("  Writing status register FAILED\n");
-  }
-  if(!eeprom.statusRead(&statusReg))
-  {
-    CA_LOG("  Reading status register FAILED\n");
-  }
-  if (!eeprom.statusWrite(EEPROM_WRITE_PROTECTED_NONE))
-  {
-    CA_LOG("  Writing status register 2 FAILED\n");
-  }
-
-  if (!eeprom.write((uint8_t*)str0, 0x20, strlen(str0)+1))
-  {
-    CA_LOG("  Write1 FAILED\n");
-  }
-  memset(buf, 0, 128);
-  if (!eeprom.read(buf, 0x20, strlen(str0)+1))
-  {
-    CA_LOG("  Read1 FAILED\n");
-  }
-  if (!eeprom.write((uint8_t*)str1, 0x20, strlen(str1)+1))
-  {
-    CA_LOG("  Write2 FAILED\n");
-  }
-  memset(buf, 0, 128);
-
-  if (!eeprom.read(buf, 0x20, strlen(str1)+1))
-  {
-    CA_LOG("  Read2 FAILED\n");
-  }
-
-  CA_LOG("Done - eeprom\n");
+  CA_LOG(CA_INFO, "Done - aux and camera ports\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -535,10 +465,10 @@ void caTestAnalog()
   val = CAU::analogRead(ppAn); // expected value is 5V/4 = 1.25V -- 1.25*4095/3.3 =1551
   if ((val < 1350) || (val > 1650))
   {
-    CA_LOG("  Failed Analog Test -- LV_DETECT_PIN %d\n", val);
+    CA_LOG(CA_INFO, "  Failed Analog Test -- LV_DETECT_PIN %d\n", val);
   }
   
-  CA_LOG("Done - analog\n");
+  CA_LOG(CA_INFO, "Done - analog\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -596,7 +526,7 @@ void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
   valHigh = CAU::analogRead(ppAn);
   if (valLow >= 70 || valHigh <=4020)
   {
-    CA_LOG("  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
+    CA_LOG(CA_INFO, "  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
   }
 }
 

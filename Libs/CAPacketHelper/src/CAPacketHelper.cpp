@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dreaming Robots - Copyright 2017, 2018
+// 
+// This class helps create and send the binary data packets in CAPacket
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <CAPacketHelper.h>
 
 void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
@@ -59,7 +65,7 @@ boolean CAPacketHelper::readOnePacket() {
 }
 
 void CAPacketHelper::writeOnePacket(uint8_t *data) {
-    CA_ASSERT(data[0] == GUARD_PACKET, "Failed packet guard check")
+    CA_ASSERT(data[0] == GUARD_PACKET, "Failed packet guard check");
     uint16_t bufSize = genPacketSize(data[1], data[2]);
 
     if (bufSize >= MAX_PACKET_SIZE) {
