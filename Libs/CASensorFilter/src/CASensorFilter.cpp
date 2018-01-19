@@ -85,6 +85,10 @@ uint16_t CASensorFilter::getSensorData() {
                 val = max(val, mVals[i]);
             }
             break;
+        default:
+            CA_ASSERT(0, "Invalid mode");
+            val = 0;
+            break;
     }
     
     if (mNextUpdateTime <= millis()) {

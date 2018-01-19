@@ -251,7 +251,6 @@ void CAPacketTimeBox::unpack() {
 }
 
 uint16_t CAPacketTimeBox::pack() {
-    uint8_t unused = 0;
     uint16_t packetSize = PACK_TOTAL_SZ + 9;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
@@ -474,7 +473,6 @@ void CAPacketIntervalometer::unpack() {
 }
 
 uint16_t CAPacketIntervalometer::pack() {
-    uint8_t unused = 0;
     uint16_t packetSize = PACK_TOTAL_SZ + 19;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
@@ -531,7 +529,6 @@ void CAPacketCamTrigger::unpack() {
 }
 
 uint16_t CAPacketCamTrigger::pack() {
-    uint8_t unused = 0;
     uint16_t packetSize = PACK_TOTAL_SZ + 3;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);

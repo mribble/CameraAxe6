@@ -15,6 +15,12 @@ void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
 boolean CAPacketHelper::readOnePacket() {
     boolean ret = false;
     uint16_t avaliableBytes = mSerial->available();
+    
+    // Currently sam3x sets this to to a software buffer of 128 bytes and esp8266 uses a hardware buffer that is 128
+    // bytes.  If those values ever change this check should be updated.
+    if (avaliableBytes > 126) {
+        CA_LOG(CA_ERROR, "Possible serial buffer overflow: %d\n", avaliableBytes);
+    }
 
     // This reads the first byte, which verifies it's a valid packet, and then moves on
     //  Unless it isn't the guard byte and then it writes the char to the output serial port

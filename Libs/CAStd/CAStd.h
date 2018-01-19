@@ -40,8 +40,6 @@
 
 #ifdef CA_DEBUG_LOG
     // This should not be called directly (only call through macros below)
-    void CALog(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-
     inline void CALog(const char* fmt, ...) {
         if (CHECK_SERIAL) {
             // Serial.printf would be easier, but not supported on sam3x

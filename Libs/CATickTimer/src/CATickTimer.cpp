@@ -207,7 +207,6 @@ void CATickTimer::isrHandler(uint8_t timerNum)
     {
         // Handle multiple interrupts to decrement counter since ticks were too large to handle
         // with a single pass of the clock timer
-        uint32_t ticks;
         if (m_tcTicksCur[num] > 0xffffffff)
         {
             // Need to wait more

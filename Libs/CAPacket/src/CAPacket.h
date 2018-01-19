@@ -73,6 +73,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class CAPacketElement {
 public:
+    virtual ~CAPacketElement() {};
     virtual uint8_t getPacketType() = 0;
     virtual uint8_t getClientHostId() = 0;
     virtual void unpack() = 0;
