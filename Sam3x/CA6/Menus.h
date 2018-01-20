@@ -330,7 +330,7 @@ void vibration_MenuRun() {
 
   // Handle outgoing packets
   if (executeLimitAt(1000)) {
-    val = map(val, 1, 4095, 1, 1000);  // Convert the values used on the micro to values on webpage
+    val = map(val, 0, 4095, 0, 1000);  // Convert the values used on the micro to values on webpage
     g_ctx.packetHelper.writePacketString(1, String(val).c_str());
   }
 
@@ -340,7 +340,7 @@ void vibration_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 0, val);
   incomingPacketFinish(packet);
   if (val != 0) {
-     gVibrationData.triggerVal = map(val, 1, 1000, 1, 4095); // Convert the values used on the webpage to values used on mirco
+     gVibrationData.triggerVal = map(val, 0, 1000, 0, 4095); // Convert the values used on the webpage to values used on mirco
   }
 }
 

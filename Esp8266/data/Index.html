@@ -40,6 +40,16 @@
 				font-size: 48px;
 				width: 200px;
 			}
+			.inputSlider{
+				background-color: #BBDEFB;
+				color: #424242;
+				border-radius: 15px;
+				border: 2px solid #0D47A1;
+				padding: 20px;
+				margin: 5px;
+				font-size: 48px;
+				width: 120px;
+			}
 			.inputTimebox{
 				background-color: #BBDEFB;
 				color: #424242;
@@ -48,7 +58,7 @@
 				padding: 20px;
 				margin: 5px;
 				font-size: 48px;
-				width: 450px;
+				width: 440px;
 			}
 			.select1{
 				background-color: #BBDEFB;
@@ -152,9 +162,9 @@
 			}
 			.slider {
 				-webkit-appearance: none;
-				width: 350px;
+				width: 310px;
 				height: 24px;
-				margin: 20px;
+				margin: 5px;
 				border-radius: 5px;
 				background: #BBDEFB;
 				outline: none;
@@ -763,6 +773,7 @@
 				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
 				x.classList.add("input1");
 				x.oninput = function () {
+					// Similar to validateNumber()
 					if (x.value.length > maxLength) {
 						x.value = x.value.slice(0,maxLength);
 					}
@@ -802,7 +813,8 @@
 				cell1.classList.add("modeCell");
 			}
 
-			function caSlider(id, minValue, maxValue, value, text0) {
+			function caSlider(id, maxValue, value, text0) {
+				var maxLength = maxValue.toString().length;
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
 				cell0.innerHTML = text0;
@@ -812,20 +824,39 @@
 				x.type = "range";
 				x.caType = "slider";
 				x.id = id;
-				x.min=minValue;
+				x.min=0;
 				x.max=maxValue;
 				x.value=value;
 				x.step="1";
 				x.onchange = function(){
-					document.getElementById(id+"b").innerHTML = x.value;
+					document.getElementById(id+"b").value = x.value;
 				};
 				x.oninput = function() {
-					document.getElementById(id+"b").innerHTML = x.value;
+					document.getElementById(id+"b").value = x.value;
 				};
 				cell1.appendChild(x);
-				var x1 = document.createElement("span");
+				var x1 = document.createElement("input");
 				x1.id = id+"b";
-				x1.innerHTML = value;
+				x1.type = "number";
+				x1.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
+				x1.classList.add("inputSlider");
+				x1.oninput = function () {
+					// Similar to validateNumber()
+					if (x1.value.length > maxLength) {
+						x1.value = x1.value.slice(0,maxLength);
+					}
+					if (x1.value.length > 1 && x1.value[0] === "0"){
+						x1.value = (x1.value).replace("0","");
+					}
+					if (x1.value < 0 || x1.value === "") {
+						x1.value = 0;
+					}
+					if (+x1.value > +maxValue) {
+						x1.value = maxValue;
+					}
+					document.getElementById(id).value = x1.value;
+				};
+				x1.value = value;
 				cell1.appendChild(x1);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -1127,7 +1158,7 @@
 					caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
 					caEditNumber("id4", 999999, 2, "This is an edit number");
 					caTimeBox("id5", 89, 1, 59, 58, 800, 801, "This is a timebox");
-					caSlider("id6", 0, 255, 10, "This is a slider");
+					caSlider("id6", 9998, 10, "This is a slider");
 					caEndMenu();
 					caStartPhotoMode();
 					caTextStatic("Photo Mode");

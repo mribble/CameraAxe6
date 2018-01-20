@@ -1,8 +1,8 @@
 caSetInfoString("Plug the vibration module into port 1.");
 
 caStartMenuMode("Vibration Menu");
-caSlider("id0", 1, 1000, 1, "Vibration Trigger Level");
-caTextDynamic("id1", "Current Vibration Level (1-1000)", "1");
+caSlider("id0", 1000, 1, "Vibration Trigger Level");
+caTextDynamic("id1", "Current Vibration Level (0-1000)", "1");
 caEndMenu();
 
 caStartPhotoMode();
