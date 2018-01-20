@@ -38,7 +38,7 @@
 				padding: 20px;
 				margin: 5px;
 				font-size: 48px;
-				width: 200px;
+				width: 190px;
 			}
 			.inputSlider{
 				background-color: #BBDEFB;
@@ -381,20 +381,24 @@
 			}
 
 			// General function used to validate a number is in required range
-			function validateNumber(number, maxLength) {
-				if (number.value.length > maxLength) {
-					number.value = number.value.slice(0,maxLength);
+			function validateNumber(x, sliderId) {
+				var maxLength = x.max.toString().length;
+				if (x.value.length > maxLength) {
+					x.value = x.value.slice(0,maxLength);
 				}
-				if (number.value.length > 1 && number.value[0] === "0"){
-					number.value = (number.value).replace("0","");
+				if (x.value.length > 1 && x.value[0] === "0"){
+					x.value = (x.value).replace("0","");
 				}
-				if (number.value < 0 || number.value === "") {
-					number.value = 0;
+				if (x.value < 0 || x.value === "") {
+					x.value = 0;
 				}
-				if (+number.value > +number.max) {
-					number.value = number.max;
+				if (+x.value > +x.max) {
+					x1.value = x.max;
 				}
-			}
+				if (sliderId !== null && document.getElementById(sliderId) !== null) {
+					document.getElementById(sliderId).value = x.value;
+				}
+			};
 
 			function ajaxCallback(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState === 4) && (xmlHttpRequest.status === 200)) {
@@ -763,7 +767,6 @@
 			function caEditNumber(id, maxValue, value, text0) {
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
-				var maxLength = maxValue.toString().length;
 				cell0.innerHTML = text0;
 				var cell1 = row.insertCell();
 				var x = document.createElement("input");
@@ -772,27 +775,45 @@
 				x.id = id;
 				x.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
 				x.classList.add("input1");
-				x.oninput = function () {
-					// Similar to validateNumber()
-					if (x.value.length > maxLength) {
-						x.value = x.value.slice(0,maxLength);
-					}
-					if (x.value.length > 1 && x.value[0] === "0"){
-						x.value = (x.value).replace("0","");
-					}
-					if (x.value < 0 || x.value === "") {
-						x.value = 0;
-					}
-					if (+x.value > +maxValue) {
-						x.value = maxValue;
-					}
-				};
 				x.value = value;
+				x.max = maxValue;
+				x.oninput = function(){validateNumber(x, null);};
 				cell1.appendChild(x);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
 			}
 
+			function caEditNumber2(id0, maxValue0, value0, id1, maxValue1, value1, text0) {
+				var row = gCurTable.insertRow();
+				var cell0 = row.insertCell();
+				var maxLength0 = maxValue0.toString().length;
+				var maxLength1 = maxValue1.toString().length;
+				cell0.innerHTML = text0;
+				var cell1 = row.insertCell();
+				var x0 = document.createElement("input");
+				x0.type = "number";
+				x0.caType = "editNumber";
+				x0.id = id0;
+				x0.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
+				x0.classList.add("input1");
+				x0.value = value0;
+				x0.max = maxValue0;
+				x0.oninput = function(){validateNumber(x0, null);};
+				var x1 = document.createElement("input");
+				x1.type = "number";
+				x1.caType = "editNumber";
+				x1.id = id1;
+				x1.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
+				x1.classList.add("input1");
+				x1.value = value1;
+				x1.max = maxValue1;
+				x1.oninput = function(){validateNumber(x1, null);};
+				cell1.appendChild(x0);
+				cell1.appendChild(x1);
+				cell0.classList.add("modeCell");
+				cell1.classList.add("modeCell");
+			}			
+			
 			function caTimeBox(id, days, hours, minutes, seconds, milliseconds, microseconds, text0) {
 				var row = gCurTable.insertRow();
 				var cell0 = row.insertCell();
@@ -840,23 +861,9 @@
 				x1.type = "number";
 				x1.onkeypress="return event.charCode >= 48 && event.charCode <= 57;";
 				x1.classList.add("inputSlider");
-				x1.oninput = function () {
-					// Similar to validateNumber()
-					if (x1.value.length > maxLength) {
-						x1.value = x1.value.slice(0,maxLength);
-					}
-					if (x1.value.length > 1 && x1.value[0] === "0"){
-						x1.value = (x1.value).replace("0","");
-					}
-					if (x1.value < 0 || x1.value === "") {
-						x1.value = 0;
-					}
-					if (+x1.value > +maxValue) {
-						x1.value = maxValue;
-					}
-					document.getElementById(id).value = x1.value;
-				};
 				x1.value = value;
+				x1.max = maxValue;
+				x1.oninput = function(){validateNumber(x1, id);};
 				cell1.appendChild(x1);
 				cell0.classList.add("modeCell");
 				cell1.classList.add("modeCell");
@@ -1077,37 +1084,37 @@
 						<tr style="display:none;" id="days">
 							<td style="width:50%;">Days (0-99)</td>
 							<td style="width:50%;">
-								<input class="input1" type="number" name="days" min="0" max="99" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="days" max="99" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="hours">
 							<td >Hours (0-23)</td>
 							<td >
-								<input class="input1" type="number" name="hours" min="0" max="23" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="hours" max="23" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="minutes">
 							<td>Minutes (0-59)</td>
 							<td>
-								<input class="input1" type="number" name="minutes" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="minutes" max="59" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="seconds">
 							<td>Seconds (0-59)</td>
 							<td>
-								<input class="input1" type="number" name="seconds" min="0" max="59" oninput="validateNumber(this,2);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="seconds" max="59" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="milliseconds">
 							<td>Milliseconds (0-999)</td>
 							<td>
-								<input class="input1" type="number" name="milliseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="milliseconds" max="999" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr style="display:none;" id="microseconds">
 							<td>Microseconds (0-999)</td>
 							<td>
-								<input class="input1" type="number" name="microseconds" min="0" max="999" oninput="validateNumber(this,3);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
+								<input class="input1" type="number" name="microseconds" max="999" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57" value="0" />
 							</td>
 						</tr>
 						<tr>
@@ -1156,9 +1163,11 @@
 					caButton("id1", "This is a button", "Button");
 					caCheckBox("id2", 0, "This is a checkbox");
 					caDropSelect("id3", 0, "This is a dropdown", "no~yes~maybe");
-					caEditNumber("id4", 999999, 2, "This is an edit number");
-					caTimeBox("id5", 89, 1, 59, 58, 800, 801, "This is a timebox");
-					caSlider("id6", 9998, 10, "This is a slider");
+					caDropSelectImmediate("id4", 1, "Drop select immediate", "one~two")
+					caEditNumber("id5", 999999, 2, "This is an edit number");
+					caEditNumber2("id6", 9999, 50, "id7", 5000, 5, "This is edit2 number");
+					caTimeBox("id8", 89, 1, 59, 58, 800, 801, "This is a timebox");
+					caSlider("id9", 9998, 10, "This is a slider");
 					caEndMenu();
 					caStartPhotoMode();
 					caTextStatic("Photo Mode");
@@ -1266,7 +1275,7 @@
 					<tr>
 						<td>Number of Repeats (0 = Inf)</td>
 						<td>
-							<input class="input1" type="number" id="number_of_repeats" name="number_of_repeats" min="0" max="9999" oninput="validateNumber(this,4);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
+							<input class="input1" type="number" id="number_of_repeats" name="number_of_repeats" max="9999" oninput="validateNumber(this, null);" onkeypress="return event.charCode >= 48 && event.charCode <= 57;" value="0" />
 						</td>
 					</tr>
 				</table>

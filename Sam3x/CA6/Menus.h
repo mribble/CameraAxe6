@@ -66,8 +66,10 @@ void dev_MenuRun() {
   packet = incomingPacketCheckUint32(packet, 3, val);
   packet = incomingPacketCheckUint32(packet, 4, val);
   packet = incomingPacketCheckUint32(packet, 5, val);
-  packet = incomingPacketCheckTimeBox(packet, 6, sec, nano);
+  packet = incomingPacketCheckUint32(packet, 6, val);
   packet = incomingPacketCheckUint32(packet, 7, val);
+  packet = incomingPacketCheckTimeBox(packet, 8, sec, nano);
+  packet = incomingPacketCheckUint32(packet, 9, val);
   incomingPacketFinish(packet);
 }
 

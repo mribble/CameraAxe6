@@ -8,8 +8,9 @@ caCheckBox("id2", 0, "This is a checkbox");
 caDropSelect("id3", 0, "This is a drop select", "no~yes~maybe");
 caDropSelectImmediate("id4", 1, "Drop select immediate", "one~two")
 caEditNumber("id5", 999999, 2, "This is an edit number");
-caTimeBox("id6", 55, 23, 59, 58, 800, 801, "This is a timebox");
-caSlider("id7", 255, 10, "This is a slider");
+caEditNumber2("id6", 9999, 50, "id7", 5000, 8, "This is edit2 number");
+caTimeBox("id8", 55, 23, 59, 58, 800, 801, "This is a timebox");
+caSlider("id9", 255, 10, "This is a slider");
 caEndMenu();
 
 caStartPhotoMode();
