@@ -211,6 +211,7 @@
 
 			// Global Variables
 			var uiTestMode = true;
+            var gRequest;
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
 			var gMenuModeTable = null;  // MenuMode table element for dynamic menus
@@ -230,6 +231,7 @@
 			window.onload = initPage;
 
 			function initPage() {
+                gRequest = new XMLHttpRequest();
 				buildHttpRequest("JSCA_GET_MENU_LIST", false);
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
@@ -330,11 +332,11 @@
 				}
 				if (submit) {
 					var type = "GET";
-					var request = new XMLHttpRequest();
+					var request = gRequest;
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
 					request.send();
-					request.timeout = 5000;
+					request.timeout = 2000;
 					request.ontimeout = function() {document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";};
 					gHttpRequest = "";
 					return request;

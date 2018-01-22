@@ -95,8 +95,8 @@ void loop (void) {
   receivePacket();
   serviceUri();
   pollWifiMode();
-  tcpCleanup();
-  //CA_LOG(CA_INFO, "memleft: %d\n", ESP.getFreeHeap()); delay(50);
+  //tcpCleanup(); // Not needed in lwIP 1.4 after switching to client flushes.  lwIP 2 still has issues for this app
+  //git CA_LOG(CA_INFO, "memleft: %d\n", ESP.getFreeHeap()); delay(50);
   ArduinoOTA.handle();
 }
 

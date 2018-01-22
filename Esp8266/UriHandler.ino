@@ -41,7 +41,7 @@ void serviceUri() {
   if (jscaMatch(uri, "GET / HTTP/1.1") || jscaMatch(uri, "GET /index.html")) {
     CA_LOG(CA_JS_URI, " ProcURI: LoadMainPage\n");
     loadMainWebPage();
-    gClient.stop();
+    gClient.flush();
     return;
   }
 
@@ -191,7 +191,7 @@ void serviceUri() {
       CA_LOG(CA_ERROR, "ERROR - Unknown URI: %s\n", uri.c_str());
     }
   }
-  gClient.stop();
+  gClient.flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
