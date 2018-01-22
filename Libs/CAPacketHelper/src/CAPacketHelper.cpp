@@ -55,7 +55,7 @@ boolean CAPacketHelper::readOnePacket() {
     }
 
     if (mSize && (mTransferredBytes < mSize) && avaliableBytes) {
-        uint16_t transferBytes = min(avaliableBytes, mSize-mTransferredBytes);
+        uint16_t transferBytes = min(avaliableBytes, (uint16_t)(mSize-mTransferredBytes));
         mSerial->readBytes(mData+mTransferredBytes, transferBytes);
         mTransferredBytes += transferBytes;
     }

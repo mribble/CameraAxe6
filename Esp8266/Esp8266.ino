@@ -199,5 +199,3 @@ void tcpCleanup()
     tcp_abort(tcp_tw_pcbs);
   }
 }
-
-

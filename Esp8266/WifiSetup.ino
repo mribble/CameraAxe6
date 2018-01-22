@@ -95,23 +95,19 @@ void setupWiFi() {
 
 void pollWifiMode() {
   bool statusSet = false;
-  if (WiFi.getMode() == WIFI_AP_STA) {
-    if (WiFi.status() == WL_CONNECTED) {
-      gLed.set(CALed::GREEN_BLINK);
-      statusSet = true;
-    }
+  //CA_LOG(CA_INFO, "%d %d\n", WiFi.getMode(), WiFi.status());
+  if ((WiFi.getMode() == WIFI_AP_STA) && (WiFi.status() == WL_CONNECTED)) {
+    gLed.set(CALed::GREEN_BLINK);
+    statusSet = true;
   }
-  else if (WiFi.getMode() == WIFI_STA) {
-    if (WiFi.status() == WL_CONNECTED) {
-      gLed.set(CALed::GREEN_ON);
-      statusSet = true;
-    }
+  else if ((WiFi.getMode() == WIFI_STA) && (WiFi.status() == WL_CONNECTED)) {
+    gLed.set(CALed::GREEN_ON);
+    statusSet = true;
   }
-  else if (WiFi.getMode() == WIFI_AP) {
-    if (WiFi.status() == WL_DISCONNECTED) {  // WL_DISCONNECTED means not connected in STA mode (odd, but it's what the docs say -- probably this way to be compatible with Arduino wifi library)
-      gLed.set(CALed::GREEN_RED_BLINK);
-      statusSet = true;
-    }
+  // WL_DISCONNECTED means not connected in STA mode (odd, but it's what the docs say -- probably this way to be compatible with Arduino wifi library)
+  else if ((WiFi.getMode() == WIFI_AP) && (WiFi.status() == WL_DISCONNECTED)) {
+    gLed.set(CALed::GREEN_RED_BLINK);
+    statusSet = true;
   }
   
   if (statusSet == false) {
