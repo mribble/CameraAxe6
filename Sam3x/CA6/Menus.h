@@ -571,7 +571,7 @@ typedef struct {
   uint16_t triggerCount = 0;
   boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
   char strikeDetailsBuf[5][32]; // circular buffer of the details for the last 5 strikes
-  int16_t peakOfStrike = 0;
+  uint16_t peakOfStrike = 0;
   uint16_t refAtStrike = 0;
   uint32_t strikeStartTimeMS; // used for strike duration display and 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
   uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
@@ -751,7 +751,7 @@ void lightning_PhotoRun() {
 
     // Strike cycle just finished, store values in character buffer for display
     strikeDurMS = millis() - gLightningData.strikeStartTimeMS;
-    sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5u</pre>\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
+    sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5lu</pre>", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
 
     // Loop until DeviceCycles (Bulb TImer) is completed for both devices
     while ( camTriggerRunning() ) {
@@ -762,7 +762,7 @@ void lightning_PhotoRun() {
       if (currentDif > (int16_t) gLightningData.triggerDiffThreshold) {
         strikeDurMS = millis() - gLightningData.strikeStartTimeMS;
         gLightningData.peakOfStrike = max(gLightningData.peakOfStrike, gLightningData.sensorVal);
-        sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5u</pre>\0", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
+        sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5lu</pre>", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
       }
       delay(1); // Since we are waiting for the BulbSec timer, no need to go any faster than 1 ms
       if (FAST_CHECK_FOR_PACKETS) {
