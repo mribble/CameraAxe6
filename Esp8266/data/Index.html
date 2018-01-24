@@ -199,7 +199,7 @@
 		</style>
 
 		<script>
-            /*Javascript linting done with http://jshint.com/ */
+			/*Javascript linting done with http://jshint.com/ */
 			/*jshint esversion: 6 */
 			const PID_STRING = 1;
 			const PID_UINT32 = 2;
@@ -211,7 +211,7 @@
 
 			// Global Variables
 			var uiTestMode = true;
-            var gRequest;
+			var gXmlHttpRequests = new Array();
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
 			var gMenuModeTable = null;  // MenuMode table element for dynamic menus
@@ -231,7 +231,12 @@
 			window.onload = initPage;
 
 			function initPage() {
-                gRequest = new XMLHttpRequest();
+				var i;
+				for (i=0; i<4; i++) {
+					gXmlHttpRequests[i] = new XMLHttpRequest();
+					gXmlHttpRequests[i].inUse = false;
+				}
+				
 				buildHttpRequest("JSCA_GET_MENU_LIST", false);
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
@@ -332,12 +337,27 @@
 				}
 				if (submit) {
 					var type = "GET";
-					var request = gRequest;
+					var request = null;
+					var i;
+					for(i=0; i<gXmlHttpRequests.length; i++) {
+						if (gXmlHttpRequests[i].inUse == false) {
+							request = gXmlHttpRequests[i];
+							break;
+						}
+					}
+					
+					if (request == null) {
+						document.getElementById("debugText").innerHTML = "Failed to find free XmlHttpRequest.  Try reloading page.";
+					}
+					request.inUse = true;
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
 					request.send();
 					request.timeout = 2000;
-					request.ontimeout = function() {document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";};
+					request.ontimeout = function() {
+							document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";
+							request.inUse = false;
+							};
 					gHttpRequest = "";
 					return request;
 				}
@@ -498,6 +518,7 @@
 								alert("Invalid ajaxCallback id");
 						}
 					}
+					xmlHttpRequest.inUse = false;
 				}
 			}
 
@@ -1061,7 +1082,7 @@
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
 				buildHttpRequest("JSCA_GET_START_LOCATION", true);
-                loadPage('Home', null, null);
+				loadPage('Home', null, null);
 			}
 
 			// Clear wifi network settings from wifi class
@@ -1293,7 +1314,7 @@
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
 			<p>Current voltage: <span id="current_voltage">?</span>
-			<p>Version: 2017.10.18</p>
+			<p>Version: 2018.1.24</p>
 		</div>
 <!--Advanced Page (End)-->
 	<p id="debugText"></p>
