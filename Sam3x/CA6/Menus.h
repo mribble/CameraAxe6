@@ -576,7 +576,6 @@ typedef struct {
   uint32_t strikeStartTimeMS; // used for strike duration display and 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
   uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
   char sensitivityStr [4][9] = {"LOW", "MED-LOW", "MED-HIGH", "HIGH"};
-  const int16_t workingMaxSensorVal = 4015; // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
 } LightningData;
 
 LightningData gLightningData;
@@ -620,7 +619,7 @@ void lightning_MenuRun() {
   incomingPacketFinish(packet);
 
   // Handle outgoing packets once per second
-  if (executeLimitAt(1000)) {
+  if (executeLimitAt(500)) {
     gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
     autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
     setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
@@ -646,7 +645,8 @@ void LTGDisplayPhotoMode() {
   else {
     g_ctx.packetHelper.writePacketString(5, " "); // blank out the message
   }
-  if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= gLightningData.workingMaxSensorVal) {
+  #define WORKINGMAXSENSORVAL 4015 // light sensors saturate before reaching max of 4096 - measured for Vishay TEPT4400
+  if ((gLightningData.referenceSensorVal + gLightningData.triggerDiffThreshold) >= WORKINGMAXSENSORVAL) {
     // At top of Sensor range - trigVal too high - can't trigger
     g_ctx.packetHelper.writePacketString(6, "** Trigger Threshold may be too high -- consider lowering it **");
   }
@@ -664,12 +664,10 @@ void LTGDisplayPhotoMode() {
 
 void lightning_PhotoRun() {
   #define UPDATEREFPERIODMS 200 // Update the Reference Base value every 200 MS to adjust for ambient changes including moving clouds
-  #define DURATIONOFFSET 3 // Microseconds to add as 1/2 the estimated time between AnalogReads in strike detection loop
 
   uint32_t curTimeMS = millis();
   int16_t currentDif = 0;
   uint32_t strikeDurMS = 0;
-  uint32_t decimalUS = 0;
 
   gLightningData.triggerCount = 0;
   // Clear the strike details buffer from prior runs
@@ -709,7 +707,7 @@ void lightning_PhotoRun() {
       }
 
       //Only display details once per second
-      if (executeLimitAt(1000)) {
+      if (executeLimitAt(500)) {
         LTGDisplayPhotoMode();
       }
       if (FAST_CHECK_FOR_PACKETS) {
