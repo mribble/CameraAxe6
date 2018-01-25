@@ -176,7 +176,6 @@ void setLightSensitivity(uint32_t sensitivity, hwPortPin ppSensitivity0, hwPortP
   CAU::pinMode(ppSensitivity0, OUTPUT);
   CAU::pinMode(ppSensitivity1, OUTPUT);
   CAU::pinMode(ppSensitivity2, OUTPUT);
-  
   // Low resistance is low sensitivity on the sensor.  See schematic for resistor ladder setup
   // ppSensitivity0 is the buffer -- LOW to sink to ground for lowest sensitivity
   // ppSensitivity1 is connected directly to sam3x io pin -- pull LOW to set medium sensitivity otherwise high impedance
@@ -207,6 +206,7 @@ void light_MenuInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightData.ppSensitivity2 = CAU::getModulePin(0, 4);  // Module 0 pin 4 is where sensitivity control 2 is
   gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity(gLightData.sensitivity, gLightData.ppSensitivity0, gLightData.ppSensitivity1, gLightData.ppSensitivity2);
@@ -219,6 +219,7 @@ void light_PhotoInit() {
   gLightData.ppPin = CAU::getModulePin(0, 0);           // Module 0 pin 0 is where the analog light values are
   gLightData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
   gLightData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightData.ppSensitivity2 = CAU::getModulePin(0, 4);  // Module 0 pin 4 is where sensitivity control 2 is
   gLightData.ppLaser = CAU::getModulePin(0, 1);         // Module 0 pin 1 is where the laser is controlled
   CAU::pinMode(gLightData.ppPin, ANALOG_INPUT);
   setLightSensitivity(gLightData.sensitivity, gLightData.ppSensitivity0, gLightData.ppSensitivity1, gLightData.ppSensitivity2);
@@ -595,6 +596,9 @@ void lightning_MenuInit() {
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+  gLightningData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
+  gLightningData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightningData.ppSensitivity2 = CAU::getModulePin(0, 4);  // Module 0 pin 4 is where sensitivity control 2 is
   setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
   // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
@@ -606,6 +610,9 @@ void lightning_PhotoInit() {
   CAU::pinMode(gLightningData.ppLight, ANALOG_INPUT);
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
   autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+  gLightningData.ppSensitivity0 = CAU::getModulePin(0, 2);  // Module 0 pin 2 is where sensitivity control 0 is
+  gLightningData.ppSensitivity1 = CAU::getModulePin(0, 3);  // Module 0 pin 3 is where sensitivity control 1 is
+  gLightningData.ppSensitivity2 = CAU::getModulePin(0, 4);  // Module 0 pin 4 is where sensitivity control 2 is
   setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
   // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
   gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
@@ -628,7 +635,6 @@ void lightning_MenuRun() {
     g_ctx.packetHelper.writePacketString(1, String(gLightningData.sensorVal).c_str());
     g_ctx.packetHelper.writePacketString(2, gLightningData.sensitivityStr[gLightningData.sensitivity]);
   }
-
   // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
 }
 
