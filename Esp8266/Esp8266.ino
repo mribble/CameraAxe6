@@ -16,7 +16,6 @@
 // Loading you must use a recent version of esptool (https://github.com/espressif/esptool) with the following command line:
 // esptool.py --port COM3 --before no_reset --after no_reset write_flash 0x0 C:\Users\xyz\AppData\Local\Temp\arduino_build_440408/Esp8266.ino.bin 0x300000 C:\Users\xyz\AppData\Local\Temp\arduino_build_440408/Esp8266.spiffs.bin
 
-#include "lwip/tcp_impl.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         // https://github.com/Rom3oDelta7/WiFiManager
@@ -192,6 +191,10 @@ void initOTA() {
 //  frequently.  (I would expect this workaround eventually get added to esp8266 master.)
 //  https://github.com/esp8266/Arduino/issues/1923
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct tcp_pcb;
+extern struct tcp_pcb* tcp_tw_pcbs;
+extern "C" void tcp_abort (struct tcp_pcb* pcb);
+
 void tcpCleanup()
 {
   while(tcp_tw_pcbs!=NULL)
@@ -199,3 +202,6 @@ void tcpCleanup()
     tcp_abort(tcp_tw_pcbs);
   }
 }
+
+
+
