@@ -39,14 +39,14 @@
 #define READ_RING()  bitRead(PINA, PIN_RING)
 
 // Fast digital write macros
-#define SET_BOOST()   bitSet(PORTB, 1<<PIN_BOOST)
-#define CLR_BOOST()   bitClear(PORTB, 1<<PIN_BOOST)
-#define SET_GREEN()   bitSet(PORTB, 1<<PIN_GREEN)
-#define CLR_GREEN()   bitClear(PORTB, 1<<PIN_GREEN)
-#define SET_RED()     bitSet(PORTA, 1<<PIN_RED)
-#define CLR_RED()     bitClear(PORTA, 1<<PIN_RED)
-#define SET_LED()     bitSet(PORTB, 1<<PIN_LED)
-#define CLR_LED()     bitClear(PORTB, 1<<PIN_LED)
+#define SET_BOOST()   bitSet(PORTB, PIN_BOOST)
+#define CLR_BOOST()   bitClear(PORTB, PIN_BOOST)
+#define SET_GREEN()   bitSet(PORTB, PIN_GREEN)
+#define CLR_GREEN()   bitClear(PORTB, PIN_GREEN)
+#define SET_RED()     bitSet(PORTA, PIN_RED)
+#define CLR_RED()     bitClear(PORTA, PIN_RED)
+#define SET_LED()     bitSet(PORTB, PIN_LED)
+#define CLR_LED()     bitClear(PORTB, PIN_LED)
 
 // Fast Analog read macros
 #define READ_ADC(v) ({\
@@ -80,12 +80,12 @@ void setAdcParams()
   // 1      1      1      128        // Slowest (default)
   // Default set by wiring is 128 (16 MHz/128 = 128 Khz)
   // Since a conversion takes 13 adc clocks the sample rate at 128Khz/13 = 9.8Khz or about 99 us
-  // With a 16mhz system clock the div factor will be set to 16, (adc clock = 16 mhz/16 = 1 mhz).
+  // With a 8mhz system clock the div factor will be set to 8, (adc clock = 8 mhz/8 = 1 mhz).
   // 1mhz is at the highest suggested speed of the adc clock when full resolution is not required.
   // At a 1mhz clock the 13 required cycles will give an adc sample rate of 1 mhz/13 = 76.9 khz (13 uS).
-  ADCSRA &= ~(1<<ADPS0);   // 0
-  ADCSRA &= ~(1<<ADPS1);   // 0
-  ADCSRA |=  (1<<ADPS2);   // 1
+  ADCSRA |= (1<<ADPS0);    // 1
+  ADCSRA |= (1<<ADPS1);    // 1
+  ADCSRA &= ~(1<<ADPS2);   // 0
   ADCSRA &= ~(1<<ADIE) ;   // 0, ADC Interrupt Enable
   //ADCSRA &= ~(1<<ADIF);  // 0, ADC Interrupt Flag, since IE is not enabled no need to this setup
   ADCSRA &=  ~(1<<ADATE);  // 0, ADC Auto Trigger Enable
@@ -149,12 +149,12 @@ void setup()
   pinModePortA(APIN_TEMP, INPUT);
   pinModePortA(APIN_VOLTAGE, INPUT);
   
+  CLR_LED();
   CLR_BOOST();
   CLR_GREEN();
   SET_RED();
-  CLR_LED();
-
-  delay(100);    // Let things settle
+  
+  delay(10);  // Let things settle
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,12 +169,14 @@ void loop()
       uint8_t current = READ_ADC(APIN_CURRENT);
       if (current < MIN_INDUCTOR_CURRENT) {
         SET_BOOST();
+        CLR_GREEN();
+        SET_RED();
       }
       else if (current > MAX_INDUCTOR_CURRENT) {
         CLR_BOOST();
+        SET_GREEN();
+        SET_RED();
       }
-      CLR_GREEN();
-      SET_RED();
     } 
     else {
       CLR_BOOST();
@@ -187,7 +189,7 @@ void loop()
       __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\tnop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 0.5 us
       __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\tnop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 0.5 us
       CLR_LED();
-      delay(1000);
+      delay(5000);
     }
   }
 }
