@@ -57,6 +57,10 @@
   }while(0);\
 ADCH;})
 
+// Globals
+uint8_t gLowTime = 0;
+uint8_t gHighTime = 0;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setAdcParams - Sets the ADC parameters
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +110,58 @@ void setAdcParams()
 //ADCSRB, ADC control & status reg B:  ADCSRB default values are good..
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// setPwmParams - Sets up PWM parameters for motor.  Must be called before using the pwm from PB1
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void setPwmParamsBoost() {
+  // Setup pwm registers for output on PB2 using the timer counter
+
+  //F_CPU=8000000; 8MHz
+  // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
+  // are just expressed in microseconds.
+  gLowTime = 30;    // us -- Starts around 40us for very low cap voltages and goes to around 1.5us for 150V on cap (spice simulation)
+  gHighTime = 18;   // us -- Pretty similar for all cap voltages
+  setPwmBoost(true);
+
+  // enable timer0 A compare interrupt
+  TIMSK0 |= (1 << OCIE0A);
+  sei();
+}
+
+inline void setPwmBoost(bool setLow) {
+  // Pin6 matches with timere 0 A
+  // WGM02, WGM01, WGM00: Fast PWM
+  // CS12 | CS11 | CS10
+  //    0      0      1  no prescaling
+  //    0      1      0  /8 prescaling  << Currently selected
+  //    0      1      1  /64 prescaling
+  TCCR0B = (0<<CS02) | (1<<CS01) | (0<<CS00) | (1<<WGM02);
+
+  if (setLow) {
+    // COM0A1, COM0A0 sets output low until compare restes timer
+    TCCR0A = (1<<COM0A1) | (1<<COM0A0) | (1<<WGM01) | (1<<WGM00);
+    OCR0A = gLowTime;
+  }
+  else {
+    // COM0A1, COM0A0 sets output high until compare restes timer
+    TCCR0A = (1<<COM0A1) | (0<<COM0A0) | (1<<WGM01) | (1<<WGM00);
+    OCR0A = gHighTime;
+  }
+}
+
+ISR (TIM0_COMPA_vect) {
+  static bool low = true;
+  low = !low;
+  setPwmBoost(low);
+}
+
+
+void disablePwmBoost() {
+  TCCR1A = 0;
+  TCCR1B = 0;
+}
+
+
 void pinModePortA(uint8_t pin, uint8_t mode) {
   if (mode == INPUT) {
     bitClear(DDRA, pin);
@@ -138,7 +194,7 @@ void pinModePortB(uint8_t pin, uint8_t mode) {
 void setup()
 {
   setAdcParams();
-  
+
   pinModePortB(PIN_BOOST, OUTPUT);
   pinModePortB(PIN_GREEN, OUTPUT);
   pinModePortA(PIN_RED, OUTPUT);
@@ -150,9 +206,10 @@ void setup()
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  CLR_BOOST();
+  //CLR_BOOST();
   CLR_GREEN();
   SET_RED();
+  setPwmParamsBoost();
   
   delay(10);  // Let things settle
 }
@@ -164,17 +221,17 @@ void loop()
 {
   while(1) {
     uint8_t voltage = READ_ADC(APIN_VOLTAGE);
-  
+
     if (voltage < MAX_CAP_VOLTAGE) {
       uint8_t current = READ_ADC(APIN_CURRENT);
       if (current < MIN_INDUCTOR_CURRENT) {
         SET_BOOST();
-        CLR_GREEN();
+        SET_GREEN();
         SET_RED();
       }
       else if (current > MAX_INDUCTOR_CURRENT) {
         CLR_BOOST();
-        SET_GREEN();
+        CLR_GREEN();
         SET_RED();
       }
     } 

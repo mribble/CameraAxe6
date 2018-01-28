@@ -1,0 +1,8 @@
+* Cree XLAMP MH-B White LED
+* Model valid for 30mA to 250mA & Tj=25C
+.MODEL MH-BWHT D
++ IS=7.34025E-20
++ N=31.91376
++ RS=27.95666
++ XTI=1302.96051
++ EG=2.5000
