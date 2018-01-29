@@ -113,22 +113,13 @@ void setAdcParams()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setPwmParams - Sets up PWM parameters for motor.  Must be called before using the pwm from PB1
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void setPwmParamsBoost() {
-  // Setup pwm registers for output on PB2 using the timer counter
-
+inline void setPwmBoost(bool setLow) {
   //F_CPU=8000000; 8MHz
   // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
   // are just expressed in microseconds.
-  gLowTime = 30;    // us -- Starts around 40us for very low cap voltages and goes to around 1.5us for 150V on cap (spice simulation)
+  gLowTime = 40;    // us -- Starts around 40us for very low cap voltages and goes to around 1.5us for 150V on cap (spice simulation)
   gHighTime = 18;   // us -- Pretty similar for all cap voltages
-  setPwmBoost(true);
 
-  // enable timer0 A compare interrupt
-  TIMSK0 |= (1 << OCIE0A);
-  sei();
-}
-
-inline void setPwmBoost(bool setLow) {
   // Pin6 matches with timere 0 A
   // WGM02, WGM01, WGM00: Fast PWM
   // CS12 | CS11 | CS10
@@ -157,8 +148,10 @@ ISR (TIM0_COMPA_vect) {
 
 
 void disablePwmBoost() {
-  TCCR1A = 0;
-  TCCR1B = 0;
+  TIMSK0 &= ~(1 << OCIE0A);
+  TCCR0A = 0;
+  TCCR0B = 0;
+  CLR_BOOST();
 }
 
 
@@ -206,10 +199,13 @@ void setup()
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  //CLR_BOOST();
   CLR_GREEN();
   SET_RED();
-  setPwmParamsBoost();
+  setPwmBoost(true);
+  // enable timer0 A compare interrupt
+  TIMSK0 |= (1 << OCIE0A);
+  sei();
+
   
   delay(10);  // Let things settle
 }
@@ -223,20 +219,12 @@ void loop()
     uint8_t voltage = READ_ADC(APIN_VOLTAGE);
 
     if (voltage < MAX_CAP_VOLTAGE) {
-      uint8_t current = READ_ADC(APIN_CURRENT);
-      if (current < MIN_INDUCTOR_CURRENT) {
-        SET_BOOST();
-        SET_GREEN();
-        SET_RED();
-      }
-      else if (current > MAX_INDUCTOR_CURRENT) {
-        CLR_BOOST();
-        CLR_GREEN();
-        SET_RED();
-      }
-    } 
+      //todo Need to enable cap charge again here
+      SET_GREEN();
+      SET_RED();
+    }
     else {
-      CLR_BOOST();
+      disablePwmBoost();
       SET_GREEN();
       CLR_RED();
     }
