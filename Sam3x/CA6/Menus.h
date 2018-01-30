@@ -571,12 +571,12 @@ typedef struct {
   uint16_t referenceSensorVal = 0;
   uint16_t triggerCount = 0;
   boolean inStrikeCycle = false;        // logical indicating that we are in a strike cycle
-  char strikeDetailsBuf[5][32]; // circular buffer of the details for the last 5 strikes
+  char strikeDetailsBuf[5][31] {"<pre> </pre>", "<pre> </pre>", "<pre> </pre>", "<pre> </pre>", "<pre> </pre>"}; // circular buffer of the details for the last 5 strikes
   uint16_t peakOfStrike = 0;
   uint16_t refAtStrike = 0;
   uint32_t strikeStartTimeMS; // used for strike duration display and 2-second max strike duration to prevent lock-up with ambient or sensitivity changes
   uint32_t sensitivity=0;     // This stores the sensitivity level 0=low, 1=medium-low, 2=medium-high, 3=high
-  char sensitivityStr [4][9] = {"LOW", "MED-LOW", "MED-HIGH", "HIGH"};
+  const char sensitivityStr [4][9] = {"LOW", "MED-LOW", "MED-HIGH", "HIGH"};
 } LightningData;
 
 LightningData gLightningData;
@@ -638,8 +638,10 @@ void lightning_MenuRun() {
   // Still may need to deal with Camera settings, e.g. want to default to Focus active, no delay, etc.
 }
 
-  //LTGDisplayPhotoMode Send photo-mode data back to mobile display; all values obtained from gLightningData
+//LTGDisplayPhotoMode Send photo-mode data back to mobile display; all values obtained from gLightningData
 void LTGDisplayPhotoMode() {
+  int8_t indx = 0;
+
   if (FAST_CHECK_FOR_PACKETS) {
     // Handle incoming packets
     CAPacketElement *packet = processIncomingPacket();
@@ -664,13 +666,21 @@ void LTGDisplayPhotoMode() {
   else {
     g_ctx.packetHelper.writePacketString(6, " ");
   }
-  
+
+  if (FAST_CHECK_FOR_PACKETS) {
+    // Handle incoming packets
+    CAPacketElement *packet = processIncomingPacket();
+    incomingPacketFinish(packet);
+  }
+
+  if (gLightningData.triggerCount < 5) indx = gLightningData.triggerCount + 5;
+  else indx = gLightningData.triggerCount;
   g_ctx.packetHelper.writePacketString(7, String(gLightningData.triggerCount).c_str());
-  g_ctx.packetHelper.writePacketString(8, gLightningData.strikeDetailsBuf[gLightningData.triggerCount % 5]);
-  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 1) % 5]);
-  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 2) % 5]);
-  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 3) % 5]);
-  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(gLightningData.triggerCount - 4) % 5]);
+  g_ctx.packetHelper.writePacketString(8, gLightningData.strikeDetailsBuf[indx % 5]);
+  g_ctx.packetHelper.writePacketString(9, gLightningData.strikeDetailsBuf[(indx - 1) % 5]);
+  g_ctx.packetHelper.writePacketString(10, gLightningData.strikeDetailsBuf[(indx - 2) % 5]);
+  g_ctx.packetHelper.writePacketString(11, gLightningData.strikeDetailsBuf[(indx - 3) % 5]);
+  g_ctx.packetHelper.writePacketString(12, gLightningData.strikeDetailsBuf[(indx - 4) % 5]);
 }
 
 void lightning_PhotoRun() {
@@ -687,13 +697,13 @@ void lightning_PhotoRun() {
   currentDif = 0;
   // Clear the strike details buffer from prior runs
   for(int8_t i = 0; i < 5; i++) {
-    gLightningData.strikeDetailsBuf[i] [0] = '\0';
+    strcpy(gLightningData.strikeDetailsBuf[i], "<pre>---</pre>");
   }
   gLightningData.referenceSensorVal = CAU::analogRead(gLightningData.ppLight);  // initialize reference base
-  gLightningData.referenceUpdateTimeMS = curTimeMS + UPDATEREFPERIODMS;  // initialize the update timer
+  gLightningData.referenceUpdateTimeMS = curTimeMS + UPDATEREFPERIODMS;  // initialize the Reference update timer
 
   while (g_ctx.state == CA_STATE_PHOTO_MODE) {
-    // Loop checking for a strike (curval - ref > trigger)
+    // Loop checking for a strike (sensorVal - ref > trigger)
     while (!gLightningData.inStrikeCycle && g_ctx.state == CA_STATE_PHOTO_MODE) {
       curTimeMS = millis();  // capture the current time
       gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
