@@ -5,23 +5,20 @@
 // Here are the steps to loading the firmware:
 //   Set Tools->Board to: ATtiny24/44/84
 //   Set Tools->Processor to: ATtiny44
-//   Set Tools->Clock to: Internal 16 MHz
-//     (may need to add this to Arduino15\packages\attiny\hardware\avr\1.0.2\boards.txt)
+//   Set Tools->Clock to: Internal 8 MHz
 //   Set Tools->Programmer to: USBtinyISP
-//   Tools->Burn Bootloader - This sets some fuses so the chip runs at 16 Mhz.
+//   Tools->Burn Bootloader - This sets some fuses so the chip runs at 8 Mhz.
 //   Upload the program
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REVISIONS:
-// 1.00 January 16, 2018 - Maurice Ribble
+// 1.00 January 30, 2018 - Maurice Ribble
 //      Initial version
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADC maps 0->5V with values from 0 to 255
-#define MAX_CAP_VOLTAGE 20        // v = 20V*20K/(1M+20K)*255/5
-#define MIN_INDUCTOR_CURRENT 6    // v = .1A*1*255/5
-#define MAX_INDUCTOR_CURRENT 102  // v = 2A*1*255/5
+#define MAX_CAP_VOLTAGE 30        // v = 20V*20K/(1M+20K)*255/5
 
 // Digital/analog pins
 #define PIN_BOOST           2   // PORT_B - Output. Controls current flow to boost inductor
@@ -48,23 +45,14 @@
 #define SET_LED()     bitSet(PORTB, PIN_LED)
 #define CLR_LED()     bitClear(PORTB, PIN_LED)
 
-// Fast Analog read macros
-#define READ_ADC(v) ({\
-  do{\
-    ADMUX = v; /* This is deceptively simple.  See setAdcParams() to see all the bitfields*/\
-    bitSet(ADCSRA, ADSC);\
-    while( bitRead(ADCSRA, ADSC) == 1) {};\
-  }while(0);\
-ADCH;})
-
 // Globals
-uint8_t gLowTime = 0;
-uint8_t gHighTime = 0;
+uint8_t gLowTime = 40;      // Boost converter mosfet off time in microseconds
+uint8_t gHighTime = 18;     // Boost converter mosfet on time in microseconds
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setAdcParams - Sets the ADC parameters
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void setAdcParams()
+inline void setAdcParams()
 {
  // Setup ADC parameters.
  // Manually triggering the adc allows conversions to run in the background once initiated.
@@ -111,18 +99,27 @@ void setAdcParams()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// setPwmParams - Sets up PWM parameters for motor.  Must be called before using the pwm from PB1
+// readAdc - Fast analog read
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+uint8_t readAdc(uint8_t v) {
+  ADMUX = v; // Set mux to current ADC pin
+  bitSet(ADCSRA, ADSC);
+    while( bitRead(ADCSRA, ADSC) == 1) ;
+
+  return ADCH;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PB1
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void setPwmBoost(bool setLow) {
   //F_CPU=8000000; 8MHz
   // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
-  // are just expressed in microseconds.
-  gLowTime = 40;    // us -- Starts around 40us for very low cap voltages and goes to around 1.5us for 150V on cap (spice simulation)
-  gHighTime = 18;   // us -- Pretty similar for all cap voltages
+  //  are just expressed in microseconds. (gLowTime and gHighTime)
 
   // Pin6 matches with timere 0 A
   // WGM02, WGM01, WGM00: Fast PWM
-  // CS12 | CS11 | CS10
+  // CS02 | CS01 | CS00
   //    0      0      1  no prescaling
   //    0      1      0  /8 prescaling  << Currently selected
   //    0      1      1  /64 prescaling
@@ -140,18 +137,26 @@ inline void setPwmBoost(bool setLow) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This ISR generates square wave generation when timer compare values matched
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ISR (TIM0_COMPA_vect) {
-  static bool low = true;
-  low = !low;
-  setPwmBoost(low);
+  static bool toggle = true; //True means low and false means high
+  toggle = !toggle;
+  setPwmBoost(toggle);
 }
 
-
-void disablePwmBoost() {
-  TIMSK0 &= ~(1 << OCIE0A);
-  TCCR0A = 0;
-  TCCR0B = 0;
-  CLR_BOOST();
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enables and disables charging from the boost converter until setPwmParams is called again
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void enablePwmBoost(bool val) {
+  if (val == true) {
+    GTCCR |= (1<<PSR10);  //Reset timer
+    pinModePortB(PIN_BOOST, OUTPUT);
+  }
+  else {
+    pinModePortB(PIN_BOOST, INPUT);
+  }
 }
 
 
@@ -199,13 +204,10 @@ void setup()
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  CLR_GREEN();
-  SET_RED();
   setPwmBoost(true);
   // enable timer0 A compare interrupt
   TIMSK0 |= (1 << OCIE0A);
   sei();
-
   
   delay(10);  // Let things settle
 }
@@ -215,26 +217,41 @@ void setup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop()
 {
+  bool allowTrigger = true;
   while(1) {
-    uint8_t voltage = READ_ADC(APIN_VOLTAGE);
-
+    uint8_t voltage = readAdc(APIN_VOLTAGE);
+    uint32_t startTime;
+    
     if (voltage < MAX_CAP_VOLTAGE) {
-      //todo Need to enable cap charge again here
-      SET_GREEN();
+      enablePwmBoost(true);
+      CLR_GREEN();
       SET_RED();
     }
     else {
-      disablePwmBoost();
+      enablePwmBoost(false);
       SET_GREEN();
       CLR_RED();
     }
-    
-    if (READ_TIP() == LOW) {
-      SET_LED();
-      __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\tnop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 0.5 us
-      __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\tnop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 0.5 us
-      CLR_LED();
-      delay(5000);
+
+    if (allowTrigger) {
+      if (READ_TIP() == LOW) {
+        SET_LED();
+        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
+        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
+        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
+        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
+        CLR_LED();
+        startTime = millis();
+        allowTrigger = false;
+      }
     }
-  }
+    else {
+      uint32_t duration = 200000; // Clock is running at /8 multiplier instead of /64 so times are 8x shorter
+      if ((millis() - startTime) >= duration) {
+        allowTrigger = true;
+      }
+      CLR_GREEN();
+      CLR_RED();
+    }
+  }  //while(1)
 }
