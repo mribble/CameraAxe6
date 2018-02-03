@@ -102,11 +102,11 @@ F 3 "" H 2350 7400 50  0001 C CNN
 	1    2350 7400
 	1    0    0    -1  
 $EndComp
-Text Label 4700 7250 0    60   ~ 0
-boost
 Text Label 4700 6450 0    60   ~ 0
+red
+Text Label 4700 7250 0    60   ~ 0
 tip
-Text Label 4700 6150 0    60   ~ 0
+Text Label 4700 6850 0    60   ~ 0
 voltage
 Text Label 2050 2750 0    60   ~ 0
 tip
@@ -142,7 +142,7 @@ U 1 1 5A4D2BF4
 P 6950 4500
 F 0 "R7" V 7030 4500 50  0000 C CNN
 F 1 "1" V 6950 4500 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0617_L17.0mm_D6.0mm_P5.08mm_Vertical" V 6880 4500 50  0001 C CNN
+F 2 "Resistors_SMD:R_2512" V 6880 4500 50  0001 C CNN
 F 3 "" H 6950 4500 50  0001 C CNN
 	1    6950 4500
 	1    0    0    -1  
@@ -213,7 +213,7 @@ F 3 "" H 3500 6750 50  0001 C CNN
 	1    3500 6750
 	1    0    0    -1  
 $EndComp
-Text Label 4700 6350 0    60   ~ 0
+Text Label 4700 7150 0    60   ~ 0
 ring
 $Comp
 L Conn_01x06 J2
@@ -372,7 +372,7 @@ F 3 "" H 5900 1900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 6600 1700 0    60   ~ 0
-boost
+mosi_boost
 $Comp
 L R R8
 U 1 1 5A4DB9AA
@@ -406,7 +406,7 @@ F 3 "" V 1135 5120 60  0000 C CNN
 	1    1300 4950
 	1    0    0    -1  
 $EndComp
-Text Label 4700 7150 0    60   ~ 0
+Text Label 4700 6350 0    60   ~ 0
 green
 $Comp
 L R R1
@@ -492,12 +492,12 @@ $EndComp
 $Comp
 L +5V #PWR021
 U 1 1 5A4E6583
-P 1750 6150
-F 0 "#PWR021" H 1750 6000 50  0001 C CNN
-F 1 "+5V" H 1750 6290 50  0000 C CNN
-F 2 "" H 1750 6150 50  0001 C CNN
-F 3 "" H 1750 6150 50  0001 C CNN
-	1    1750 6150
+P 1850 6150
+F 0 "#PWR021" H 1850 6000 50  0001 C CNN
+F 1 "+5V" H 1850 6290 50  0000 C CNN
+F 2 "" H 1850 6150 50  0001 C CNN
+F 3 "" H 1850 6150 50  0001 C CNN
+	1    1850 6150
 	1    0    0    -1  
 $EndComp
 Text Label 1300 6650 0    60   ~ 0
@@ -505,11 +505,11 @@ sck
 Text Label 1300 6450 0    60   ~ 0
 miso
 Text Label 1300 6350 0    60   ~ 0
-mosi_red
+mosi_boost
 Text Label 1300 6250 0    60   ~ 0
 rst
 Text Label 4700 6750 0    60   ~ 0
-mosi_red
+mosi_boost
 Text Label 4700 6650 0    60   ~ 0
 miso
 Text Label 4700 6550 0    60   ~ 0
@@ -530,8 +530,6 @@ Text Notes 4750 700  0    118  ~ 24
 Cap Charging Boost Converter
 Text Notes 9150 700  0    118  ~ 24
 Flash Cap
-Text Notes 2550 8950 0    79   ~ 0
-Firmware Overview:\n* Write fast digital read/write and analog reads\n* See spice file for logic controlling boost mosfet\n* Interupt triggers on change to tip - Sets flash LED on/off (mirrors ca6 flash delay and duration settings)
 Text Notes 9750 2500 0    79   ~ 0
 Planned max\ncap voltage is 180V
 $Comp
@@ -694,7 +692,7 @@ F 3 "" H 3250 700 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 900  4100 0    60   ~ 0
-mosi_red
+red
 Wire Wire Line
 	4600 4800 4600 4100
 Wire Wire Line
@@ -794,9 +792,9 @@ Wire Wire Line
 Wire Wire Line
 	1250 6750 1250 6850
 Wire Wire Line
-	1150 6550 1750 6550
+	1150 6550 1850 6550
 Wire Wire Line
-	1750 6550 1750 6150
+	1850 6550 1850 6150
 Wire Wire Line
 	1150 6650 1300 6650
 Wire Wire Line
@@ -813,8 +811,6 @@ Wire Wire Line
 	4550 6550 4700 6550
 Wire Wire Line
 	4550 7350 4700 7350
-Wire Wire Line
-	4550 6150 4700 6150
 Wire Wire Line
 	4550 6350 4700 6350
 Wire Wire Line
@@ -888,7 +884,6 @@ Wire Wire Line
 	1450 3050 1350 3050
 Wire Wire Line
 	1350 1200 1350 1300
-NoConn ~ 4550 6850
 Wire Wire Line
 	2050 2750 1350 2750
 Wire Wire Line
@@ -955,7 +950,7 @@ U 1 1 5A740CE1
 P 7450 4500
 F 0 "R3" V 7530 4500 50  0000 C CNN
 F 1 "1" V 7450 4500 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0617_L17.0mm_D6.0mm_P5.08mm_Vertical" V 7380 4500 50  0001 C CNN
+F 2 "Resistors_SMD:R_2512" V 7380 4500 50  0001 C CNN
 F 3 "" H 7450 4500 50  0001 C CNN
 	1    7450 4500
 	1    0    0    -1  
@@ -1023,7 +1018,7 @@ U 1 1 5A741C5A
 P 7950 4500
 F 0 "R4" V 8030 4500 50  0000 C CNN
 F 1 "1" V 7950 4500 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0617_L17.0mm_D6.0mm_P5.08mm_Vertical" V 7880 4500 50  0001 C CNN
+F 2 "Resistors_SMD:R_2512" V 7880 4500 50  0001 C CNN
 F 3 "" H 7950 4500 50  0001 C CNN
 	1    7950 4500
 	1    0    0    -1  
@@ -1089,7 +1084,7 @@ U 1 1 5A741CA8
 P 8450 4500
 F 0 "R10" V 8530 4500 50  0000 C CNN
 F 1 "1" V 8450 4500 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0617_L17.0mm_D6.0mm_P5.08mm_Vertical" V 8380 4500 50  0001 C CNN
+F 2 "Resistors_SMD:R_2512" V 8380 4500 50  0001 C CNN
 F 3 "" H 8450 4500 50  0001 C CNN
 	1    8450 4500
 	1    0    0    -1  
@@ -1578,4 +1573,7 @@ F 3 "" H 8650 3000 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	4900 950  4900 1000
+Wire Wire Line
+	4700 6850 4550 6850
+NoConn ~ 4550 6150
 $EndSCHEMATC
