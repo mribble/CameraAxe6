@@ -25,8 +25,8 @@
 #define PIN_GREEN           1   // PORT_B - Output. Controls green indicator led  
 #define PIN_RED             6   // PORT_A - Output. Controls red indicator led
 #define PIN_LED             0   // PORT_B - Output. Controls pulse to big led
-#define PIN_TIP             3   // PORT_A - Digital input. Reads tip of 3.5mm jack input
-#define PIN_RING            2   // PORT_A - Digital input. Reads ring of 3.5mm jack input
+#define PIN_TIP             2   // PORT_A - Digital input. Reads tip of 3.5mm jack input
+#define PIN_RING            3   // PORT_A - Digital input. Reads ring of 3.5mm jack input
 #define APIN_CURRENT        7   // PORT_A - Analog input. Reads current of 12V power supply (also current into inductor)
 #define APIN_TEMP           1   // PORT_A - Analog input.  Reads thermistor sensing temp of big led
 #define APIN_VOLTAGE        0   // PORT_A - Analog input.  Reads voltage of the big capacitor
@@ -204,10 +204,10 @@ void setup()
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  setPwmBoost(true);
+  //setPwmBoost(true);
   // enable timer0 A compare interrupt
-  TIMSK0 |= (1 << OCIE0A);
-  sei();
+  //TIMSK0 |= (1 << OCIE0A);
+  //sei();
   
   delay(10);  // Let things settle
 }
@@ -219,6 +219,8 @@ void loop()
 {
   bool allowTrigger = true;
   while(1) {
+    testDataTransfer();    
+    /*
     uint8_t voltage = readAdc(APIN_VOLTAGE);
     uint32_t startTime;
     
@@ -252,6 +254,101 @@ void loop()
       }
       CLR_GREEN();
       CLR_RED();
-    }
+    }*/
   }  //while(1)
 }
+
+void testDataTransfer() {
+  uint8_t val;
+  if (READ_RING() == 0) {
+    if (rxCaByte(val)) {
+      if (val == 203) {
+        CLR_RED();
+        for (uint8_t i=0; i<3; ++i) {
+          SET_GREEN();
+          delay(100);
+          CLR_GREEN();
+          delay(100);
+        }
+      }
+    }
+    else {
+        CLR_GREEN();
+        for (uint8_t i=0; i<3; ++i) {
+          SET_RED();
+          delay(100);
+          CLR_RED();
+          delay(100);
+        }
+    }
+  }
+}
+
+
+#define CA_QUANTUM 200  // This is the base time quantium in microseconds
+
+// This uses a simple protocal to transfer 1 byte (8 bits).  The protocal can only send data one way becuase it is
+// designed to work over camera trigger ports which are basically just 2 switched on the transmitter.  Then the
+// receiver has two lines connected to those switches with pullup resistors so when when the transmitter is
+// low the receiver is high and when the transmitter is high the reciever is low.
+// 
+// This protocal transfer data over a 3.5mm jack.  There are 3 connections (tip transfers data, ring enables 
+// data transfers, and base is common/ground).  Here is how data is transfered:
+// 1) Ring is set high
+// 2) Tip set low for 4 quantums (init period)
+// 3) For each bit:
+// 4)   if bit is 1: tip set high for 3 quantums, then tip set low for 1 quantums
+// 5)   if bit is 0: tip set high for 1 quantums, then tip set low for 3 quantums
+// 6) Tip set high for 4 quantums (end period)
+// 7) Tip set low
+// 8) Ring is set low
+//
+// Receiving packets will verify the above happens, but is designed to be tolerant of the CPU frequecy being off
+// at least 30% since the internal oscillators used for the led flash aren't very good.
+// Remember signals on receiving end are reversed due to pullup resistors.
+// 
+bool rxCaByte(uint8_t &val) {
+  uint8_t v = 0;
+  if (!waitRxTip(HIGH, 4)) return false;  // Wait for start of init period
+  if (!waitRxTip(LOW, 8))  return false;  // Wait for end of init period
+  for(uint8_t i=0; i<8; ++i) {  // For each bit
+    uint8_t tHigh = waitRxTip(HIGH, 5);  // High time in quantums for the bit
+    uint8_t tLow = waitRxTip(LOW, 5);    // Low time in quantums for the bit
+    if (tHigh == 0 || tLow == 0) {
+      return false;  // Signal not detected so we fail
+    }
+    else if (tHigh >= 2 && tLow <= 1) {
+      v |= 1<<i;  // Bit is high
+    }
+    else if (tLow >= 2 && tHigh <= 1) {
+      // Bit is low
+    }
+    else {
+      return false;  // Timing expectations not met
+    }
+  }
+  if (!waitRxTip(HIGH, 8)) return false;  // Wait for end
+
+  // Blink green indicator 3 times to indicate success
+  val = v;
+  return true;
+}
+// Check for bit set on the tip to the requested signal.  Max wait time in maxQuantums
+// Returned value is time quantums.  This value is always the floor of us/QUANTUM, exept it is rounded up to to 1
+//  since zero is reserved for failure
+uint8_t waitRxTip(uint8_t signal, uint8_t maxQuantums) {
+  uint32_t start = micros();
+  uint32_t end;
+
+  do {
+    end = micros();
+    if (READ_TIP() == signal) {
+      uint8_t q;
+      q = (uint8_t)((end-start)/CA_QUANTUM);  // Always clamp quantiums to floor
+      q = max(1, q);  // But make sure any passed quantum is at least 1 since 0 means failure to find signal
+      return q;
+    }
+  } while (end-start < maxQuantums*CA_QUANTUM);
+  return 0;
+}
+

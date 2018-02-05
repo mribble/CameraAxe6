@@ -7,29 +7,7 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#define CA_QUANTUM 10  // This is the base time quantium in microseconds
-
-// This uses a simple protocal to transfer 1 byte (8 bits).  The protocal can only send data one way becuase it is
-// designed to work over camera trigger ports which are basically just 2 switched on the transmitter.  Then the
-// receiver has two lines connected to those switches with pullup resistors so when when the transmitter is
-// low the receiver is high and when the transmitter is high the reciever is low.
-// 
-// This protocal transfer data over a 3.5mm jack.  There are 3 connections (tip transfers data, ring enables 
-// data transfers, and base is common/ground).  Here is how data is transfered:
-// 1) Ring is set high
-// 2) Tip set low for 4 quantums (init period)
-// 3) For each bit:
-// 4)   if bit is 0: tip set high for 1 quantums, then tip set low for 2 quantums
-// 5)   if bit is 1: tip set high for 2 quantums, then tip set low for 1 quantums
-// 6) Tip set high for 4 quantums (end period)
-// 7) Ring is set low
-//
-void txCaByte(uint8_t, val) {
-  hwPortPin ppTip = CAU::getModulePin(0, FOCUS);   // 3.5mm ring
-  hwPortPin ppRing = CAU::getModulePin(0, SHUTTER); // 3.5mm tip
-  
-  CAU::pinMode(pp, OUTPUT);  // Set pins to high impedance
-}
+extern void txCaByte(uint8_t val);
 
 void processTerminalCmds() {
   if (SerialIO.available()) {
@@ -92,10 +70,67 @@ void processTerminalCmds() {
       SerialIO.print("Exited wireless serial passthrough mode\n");
       break;
     }
+    case '2': // Test sending data to led flash
+      CA_LOG(CA_INFO, "Sending LED Flash Packet.\n");
+      txCaByte(203);
+      break;
     default:
       break;
     }
   }
 }
+
+#define CA_QUANTUM 200  // This is the base time quantium in microseconds
+
+// This uses a simple protocal to transfer 1 byte (8 bits).  The protocal can only send data one way becuase it is
+// designed to work over camera trigger ports which are basically just 2 switched on the transmitter.  Then the
+// receiver has two lines connected to those switches with pullup resistors so when when the transmitter is
+// low the receiver is high and when the transmitter is high the reciever is low.
+// 
+// This protocal transfer data over a 3.5mm jack.  There are 3 connections (tip transfers data, ring enables 
+// data transfers, and base is common/ground).  Here is how data is transfered:
+// 1) Ring is set high
+// 2) Tip set low for 4 quantums (init period)
+// 3) For each bit:
+// 4)   if bit is 1: tip set high for 3 quantums, then tip set low for 1 quantums
+// 5)   if bit is 0: tip set high for 1 quantums, then tip set low for 3 quantums
+// 6) Tip set high for 4 quantums (end period)
+// 7) Tip set low
+// 8) Ring is set low
+//
+// Receiving packets will verify the above happens, but is designed to be tolerant of the CPU frequecy being off
+// at least 30% since the internal oscillators used for the led flash aren't very good.
+// Remember signals on receiving end are reversed due to pullup resistors.
+// 
+void txCaByte(uint8_t val) {
+  hwPortPin ppTip = CAU::getCameraPin(0, SHUTTER);  // 3.5mm tip
+  hwPortPin ppRing = CAU::getCameraPin(0, FOCUS);   // 3.5mm ring
+
+  CAU::pinMode(ppTip, OUTPUT);
+  CAU::pinMode(ppRing, OUTPUT);
+  CAU::digitalWrite(ppRing, HIGH);
+  CAU::digitalWrite(ppTip, LOW);
+  delayMicroseconds(CA_QUANTUM*4);
+  for(uint8_t i=0; i<8; ++i) {
+    if (val & (1<<i)) { // bit is 1
+      CAU::digitalWrite(ppTip, HIGH);
+      delayMicroseconds(CA_QUANTUM*3);
+      CAU::digitalWrite(ppTip, LOW);
+      delayMicroseconds(CA_QUANTUM*1);
+    }
+    else { // bit is 0
+      CAU::digitalWrite(ppTip, HIGH);
+      delayMicroseconds(CA_QUANTUM*1);
+      CAU::digitalWrite(ppTip, LOW);
+      delayMicroseconds(CA_QUANTUM*3);
+    }
+  }
+  CAU::digitalWrite(ppTip, HIGH);
+  delayMicroseconds(CA_QUANTUM*4);
+  CAU::digitalWrite(ppTip, LOW);
+  CAU::digitalWrite(ppRing, LOW);
+  resetCameraPorts();
+}
+
 #endif //TERMINAL_H
 
