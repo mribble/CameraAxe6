@@ -27,8 +27,8 @@
 #define PIN_LED             0   // PORT_B - Output. Controls pulse to big led
 #define PIN_TIP             2   // PORT_A - Digital input. Reads tip of 3.5mm jack input
 #define PIN_RING            3   // PORT_A - Digital input. Reads ring of 3.5mm jack input
-#define APIN_CURRENT        7   // PORT_A - Analog input. Reads current of 12V power supply (also current into inductor)
-#define APIN_TEMP           1   // PORT_A - Analog input.  Reads thermistor sensing temp of big led
+//#define APIN_CURRENT        7   // PORT_A - Analog input. Reads current of 12V power supply (also current into inductor)
+//#define APIN_TEMP           1   // PORT_A - Analog input.  Reads thermistor sensing temp of big led
 #define APIN_VOLTAGE        0   // PORT_A - Analog input.  Reads voltage of the big capacitor
 
 // Fast digital read macros
@@ -199,17 +199,13 @@ void setup()
   pinModePortB(PIN_LED, OUTPUT);
   pinModePortA(PIN_TIP, INPUT);
   pinModePortA(PIN_RING, INPUT);
-  pinModePortA(APIN_CURRENT, INPUT);
-  pinModePortA(APIN_TEMP, INPUT);
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  //setPwmBoost(true);
+  setPwmBoost(true);
   // enable timer0 A compare interrupt
-  //TIMSK0 |= (1 << OCIE0A);
-  //sei();
-  
-  delay(10);  // Let things settle
+  TIMSK0 |= (1 << OCIE0A);
+  sei();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,8 +215,8 @@ void loop()
 {
   bool allowTrigger = true;
   while(1) {
-    testDataTransfer();    
-    /*
+    //testDataTransfer();
+    
     uint8_t voltage = readAdc(APIN_VOLTAGE);
     uint32_t startTime;
     
@@ -254,7 +250,7 @@ void loop()
       }
       CLR_GREEN();
       CLR_RED();
-    }*/
+    }
   }  //while(1)
 }
 

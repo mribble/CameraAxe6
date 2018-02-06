@@ -1,11 +1,11 @@
-(module LED_Cree-MHB-A (layer F.Cu) (tedit 5A75FE95)
+(module LED_Cree-MHB-A (layer F.Cu) (tedit 5A78CEE4)
   (descr http://www.cree.com/~/media/Files/Cree/LED-Components-and-Modules/XLamp/Data-and-Binning/XLampXBD.pdf)
   (tags "LED Cree XB")
   (attr smd)
-  (fp_text reference D16 (at 0 -3.1) (layer F.SilkS) hide
+  (fp_text reference D11 (at 0 -3.1) (layer F.SilkS) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
-  (fp_text value LED_PAD (at 0 3.2) (layer F.Fab)
+  (fp_text value LED_PAD (at 0 3.2) (layer F.Fab) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (fp_line (start -2.5 -2) (end -2.5 2.5) (layer F.CrtYd) (width 0.05))
@@ -30,7 +30,7 @@
   (pad "" smd rect (at -0.6 -0.55) (size 0.9 0.8) (layers F.Paste))
   (pad 2 smd rect (at 2.14 0) (size 0.5 4.78) (layers F.Cu F.Paste F.Mask))
   (pad 1 smd rect (at -2.14 0) (size 0.5 4.78) (layers F.Cu F.Paste F.Mask))
-  (pad 3 smd rect (at 0 0) (size 2.78 4.78) (layers F.Cu F.Paste F.Mask))
+  (pad 3 smd rect (at 0 0) (size 2.78 4.78) (layers F.Cu F.Mask))
   (model ${KISYS3DMOD}/LEDs.3dshapes/LED_Cree-XB.wrl
     (at (xyz 0 0 0))
     (scale (xyz 0.39 0.39 0.39))
