@@ -18,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADC maps 0->5V with values from 0 to 255
-#define MAX_CAP_VOLTAGE 30        // v = 20V*20K/(1M+20K)*255/5
+#define MAX_CAP_VOLTAGE 20        // v = 20V*20K/(1M+20K)*255/5
 
 // Digital/analog pins
 #define PIN_BOOST           2   // PORT_B - Output. Controls current flow to boost inductor
@@ -55,9 +55,28 @@ uint8_t gHighTime = 18;     // Boost converter mosfet on time in microseconds
 inline void setAdcParams()
 {
  // Setup ADC parameters.
- // Manually triggering the adc allows conversions to run in the background once initiated.
- // In manual mode ADCH must be read to allow data from the next conversion to load into the result registers.
+ // Using free running mode and only a single ADC channel.  So we just start it running and then ADCH will hold the 
+ // most recent value.
  // Note: Performing an Arduino analogRead() may change some of these parameters so don't do that.
+
+  // ADCSRB - ADC Control and Status Register B
+  ADCSRB &= ~(1<<ADTS0);  // 0 Setting ADSTSR0..2 to (0,0,0) puts the ADC in freee running mode
+  ADCSRB &= ~(1<<ADTS1);  // 0
+  ADCSRB &= ~(1<<ADTS2);  // 0
+  // bit 3 reserved can write 0
+  ADCSRB |=  (1<<ADLAR);  // 1, Set the upper 8 bits are found in ADCH, so reading ADCH has 8 msb
+  //ADCSRB &= ~(1<<ACME); // 0, Don't set just use default
+  //ADCSRB &= ~(1<<BIN);    // 0, Set bipolar input mode to unipolar (negative inputs not allowed)
+
+  //ADMUX, ADC Mux Seletion Register
+  ADMUX &= ~(1<<MUX0);   // 1, adc Mux channel for ADC0(PA0) need (0,0,0,0,0,0)
+  ADMUX &= ~(1<<MUX1);   // 1
+  ADMUX &= ~(1<<MUX2);   // 0
+  ADMUX &= ~(1<<MUX3);   // 0
+  ADMUX &= ~(1<<MUX4);   // 0
+  ADMUX &= ~(1<<MUX5);   // 0
+  ADMUX &= ~(1<<REFS0);  // 0, adc reference for Vcc need (0,0)
+  ADMUX &= ~(1<<REFS1);  // 0
 
   // ADCSRA , ADC control & status reg A:
   // ADC clock divisor
@@ -71,41 +90,24 @@ inline void setAdcParams()
   // 1      1      0      64
   // 1      1      1      128        // Slowest (default)
   // Default set by wiring is 128 (16 MHz/128 = 128 Khz)
-  // Since a conversion takes 13 adc clocks the sample rate at 128Khz/13 = 9.8Khz or about 99 us
-  // With a 8mhz system clock the div factor will be set to 8, (adc clock = 8 mhz/8 = 1 mhz).
+  // A conversion takes 13 adc clocks the sample rate at 128Khz/13 = 9.8Khz or about 99 us
+  // We use a 8mhz system clock and the div factor will be set to 8, (adc clock = 8 mhz/8 = 1 mhz).
   // 1mhz is at the highest suggested speed of the adc clock when full resolution is not required.
-  // At a 1mhz clock the 13 required cycles will give an adc sample rate of 1 mhz/13 = 76.9 khz (13 uS).
-  ADCSRA |= (1<<ADPS0);    // 1
-  ADCSRA |= (1<<ADPS1);    // 1
-  ADCSRA &= ~(1<<ADPS2);   // 0
-  ADCSRA &= ~(1<<ADIE) ;   // 0, ADC Interrupt Enable
-  //ADCSRA &= ~(1<<ADIF);  // 0, ADC Interrupt Flag, since IE is not enabled no need to this setup
-  ADCSRA &=  ~(1<<ADATE);  // 0, ADC Auto Trigger Enable
-  //ADCSRA &= ~(1<<ADSC);  // 0, ADC Start Conversion, no need to setup here
-  ADCSRA |=  (1<<ADEN)  ;  // 1, ADC Enable
-   
-  //ADMUX, ADC Mux Seletion Register
-  ADMUX |=  (1<<MUX0);   // 1, adc Mux channel (ADMUX bits MUX[3-0], for ADC3(PB3) single ended need "B0011")
-  ADMUX |=  (1<<MUX1);   // 1
-  ADMUX &= ~(1<<MUX2);   // 0
-  ADMUX &= ~(1<<MUX3);   // 0
-  
-  ADMUX &= ~(1<<REFS0);  // 0, adc reference (ADMUX bits REF[1-0], for Vcc need "B00")
-  ADMUX &= ~(1<<REFS1);  // 0
-  
-  ADCSRB |=  (1<<ADLAR);  // 1, Set the upper 8 bits are found in ADCH, so reading ADCH satisfies update requirement
-
-//ADCSRB, ADC control & status reg B:  ADCSRB default values are good..
+  // At a 1mhz clock, the 13 required cycles will give an adc sample rate of 1 mhz/13 = 76.9 khz (13 us).
+  ADCSRA |=  (1<<ADPS0);  // 1  Setting ADPS0..2 to (1,1,0) sets div factor to 8
+  ADCSRA |=  (1<<ADPS1);  // 1
+  ADCSRA &= ~(1<<ADPS2);  // 0
+  ADCSRA &= ~(1<<ADIE) ;  // 0, ADC Interrupt Enable
+  //ADCSRA &= ~(1<<ADIF); // 0, ADC Interrupt Flag, since IE is not enabled no need to this setup
+  ADCSRA |=  (1<<ADATE);  // 1, ADC Auto Trigger Enable
+  ADCSRA |=  (1<<ADEN);   // 1, ADC Enable
+  ADCSRA |=  (1<<ADSC);   // 1, ADC Start Conversion (required for free running mode)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // readAdc - Fast analog read
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-uint8_t readAdc(uint8_t v) {
-  ADMUX = v; // Set mux to current ADC pin
-  bitSet(ADCSRA, ADSC);
-    while( bitRead(ADCSRA, ADSC) == 1) ;
-
+inline uint8_t readAdc() {
   return ADCH;
 }
 
@@ -217,7 +219,7 @@ void loop()
   while(1) {
     //testDataTransfer();
     
-    uint8_t voltage = readAdc(APIN_VOLTAGE);
+    uint8_t voltage = readAdc();
     uint32_t startTime;
     
     if (voltage < MAX_CAP_VOLTAGE) {
