@@ -114,6 +114,34 @@ inline uint8_t readAdc() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PB1
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//todo remove setPwmBoost and the ISR stuff
+inline void setPwmBoost2() {
+  //F_CPU=8000000; 8MHz
+  // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
+  //  are just expressed in microseconds. (gLowTime and gHighTime)
+
+  GTCCR = (1<<TSM) | (1<<PSR10);  //Reset and pause timere while it is setup
+
+  // COM0A1/COM0A0 clear OC1A on compare match, set OC1A at bottom
+  // WGM1[0..3] Fast PWM TOP=ICR1
+  TCCR1A = (1<<COM1A1) | (1<<WGM11);
+  
+  // Pin7 (A6) the signal driving the boost converter generates a pwm
+  // WGM02, WGM01, WGM00: Fast PWM
+  // CS12 | CS11 | CS10
+  //    0      0      1  no prescaling
+  //    0      1      0  /8 prescaling  << Currently selected
+  //    0      1      1  /64 prescaling
+  TCCR1B = (1<<CS11) | (1<<WGM12) | (1<<WGM13);
+
+  ICR1 = gLowTime+gHighTime;
+  OCR1A = gLowTime;
+  GTCCR = (1<<PSR10);  //Reset timer and let it run
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PB1
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 inline void setPwmBoost(bool setLow) {
   //F_CPU=8000000; 8MHz
   // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
