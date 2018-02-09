@@ -15,6 +15,15 @@ void CAPacketHelper::init(HardwareSerial *serial, HardwareSerial *debugSerial) {
 boolean CAPacketHelper::readOnePacket() {
     boolean ret = false;
     uint16_t avaliableBytes = mSerial->available();
+#if defined(__SAM3X8E__)
+    // Currently sam3x sets this to a software buffer of 128 bytes
+    uint16_t bufferSize = 126;
+#elif defined (ESP8266)
+    // Currently the esp8266 uses a hardware fifo, but the software buffer that goes to is 256 bytes
+    uint16_t bufferSize = 126; // todo change to 254
+#else
+    #error Need a supported microchip
+#endif
     
     // Currently sam3x sets this to to a software buffer of 128 bytes and esp8266 uses a hardware buffer that is 128
     // bytes.  If those values ever change this check should be updated.
