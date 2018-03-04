@@ -6,25 +6,25 @@ Limiting rise time of source v2 to 5e-006
 Limiting fall time of source v2 to 5e-006
 WARNING: Node NC_05 is floating.
 
-WARNING: Less than two connections to node N013.  This node is used by A2.
 WARNING: Less than two connections to node NC_04.  This node is used by D2.
 WARNING: Less than two connections to node NC_05.  This node is used by D2.
+WARNING: Less than two connections to node N015.  This node is used by V3.
 Direct Newton iteration for .op point succeeded.
 
-Date: Sun Jan 28 10:44:47 2018
-Total elapsed time: 36.391 seconds.
+Date: Fri Feb 23 09:22:28 2018
+Total elapsed time: 4.265 seconds.
 
 tnom = 27
 temp = 27
 method = modified trap
-totiter = 9538956
-traniter = 9538922
-tranpoints = 2460817
-accept = 1796274
-rejected = 664543
-matrix size = 42
+totiter = 1056127
+traniter = 1056093
+tranpoints = 323381
+accept = 242564
+rejected = 80817
+matrix size = 43
 fillins = 5
 solver = Normal
-Matrix Compiler1: 1.89 KB object code size  0.4/0.2/[0.1]
+Matrix Compiler1: 1.96 KB object code size  0.4/0.2/[0.2]
 Matrix Compiler2: off  [0.2]/0.4/0.3
 

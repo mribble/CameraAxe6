@@ -18,28 +18,26 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADC maps 0->5V with values from 0 to 255
-#define MAX_CAP_VOLTAGE 20        // v = 20V*20K/(1M+20K)*255/5
+#define MAX_CAP_VOLTAGE 150        // v = 20V*20K/(1M+20K)*255/5
 
 // Digital/analog pins
-#define PIN_BOOST           2   // PORT_B - Output. Controls current flow to boost inductor
-#define PIN_GREEN           1   // PORT_B - Output. Controls green indicator led  
-#define PIN_RED             6   // PORT_A - Output. Controls red indicator led
+#define PIN_BOOST           6   // PORT_A - Output. Controls current flow to boost inductor
+#define PIN_GREEN           2   // PORT_A - Output. Controls green indicator led  
+#define PIN_RED             3   // PORT_A - Output. Controls red indicator led
 #define PIN_LED             0   // PORT_B - Output. Controls pulse to big led
-#define PIN_TIP             2   // PORT_A - Digital input. Reads tip of 3.5mm jack input
-#define PIN_RING            3   // PORT_A - Digital input. Reads ring of 3.5mm jack input
-//#define APIN_CURRENT        7   // PORT_A - Analog input. Reads current of 12V power supply (also current into inductor)
-//#define APIN_TEMP           1   // PORT_A - Analog input.  Reads thermistor sensing temp of big led
-#define APIN_VOLTAGE        0   // PORT_A - Analog input.  Reads voltage of the big capacitor
+#define PIN_TIP             2   // PORT_B - Digital input. Reads tip of 3.5mm jack input
+#define PIN_RING            1   // PORT_B - Digital input. Reads ring of 3.5mm jack input
+#define APIN_VOLTAGE        7   // PORT_A - Analog input.  Reads voltage of the big capacitor
 
 // Fast digital read macros
-#define READ_TIP()   bitRead(PINA, PIN_TIP)
-#define READ_RING()  bitRead(PINA, PIN_RING)
+#define READ_TIP()   bitRead(PINB, PIN_TIP)
+#define READ_RING()  bitRead(PINB, PIN_RING)
 
 // Fast digital write macros
-#define SET_BOOST()   bitSet(PORTB, PIN_BOOST)
-#define CLR_BOOST()   bitClear(PORTB, PIN_BOOST)
-#define SET_GREEN()   bitSet(PORTB, PIN_GREEN)
-#define CLR_GREEN()   bitClear(PORTB, PIN_GREEN)
+#define SET_BOOST()   bitSet(PORTA, PIN_BOOST)
+#define CLR_BOOST()   bitClear(PORTA, PIN_BOOST)
+#define SET_GREEN()   bitSet(PORTA, PIN_GREEN)
+#define CLR_GREEN()   bitClear(PORTA, PIN_GREEN)
 #define SET_RED()     bitSet(PORTA, PIN_RED)
 #define CLR_RED()     bitClear(PORTA, PIN_RED)
 #define SET_LED()     bitSet(PORTB, PIN_LED)
@@ -56,7 +54,7 @@ inline void setAdcParams()
 {
  // Setup ADC parameters.
  // Using free running mode and only a single ADC channel.  So we just start it running and then ADCH will hold the 
- // most recent value.
+ // most recent value.  MUX values must change to match APIN_VOLTAGE
  // Note: Performing an Arduino analogRead() may change some of these parameters so don't do that.
 
   // ADCSRB - ADC Control and Status Register B
@@ -69,9 +67,9 @@ inline void setAdcParams()
   //ADCSRB &= ~(1<<BIN);    // 0, Set bipolar input mode to unipolar (negative inputs not allowed)
 
   //ADMUX, ADC Mux Seletion Register
-  ADMUX &= ~(1<<MUX0);   // 1, adc Mux channel for ADC0(PA0) need (0,0,0,0,0,0)
-  ADMUX &= ~(1<<MUX1);   // 1
-  ADMUX &= ~(1<<MUX2);   // 0
+  ADMUX |= (1<<MUX0);    // 1, adc Mux channel for ADC0(PA7)
+  ADMUX |= (1<<MUX1);    // 1
+  ADMUX |= (1<<MUX2);    // 1
   ADMUX &= ~(1<<MUX3);   // 0
   ADMUX &= ~(1<<MUX4);   // 0
   ADMUX &= ~(1<<MUX5);   // 0
@@ -112,10 +110,9 @@ inline uint8_t readAdc() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PB1
+// setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PA6 (PIN_BOOST)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//todo remove setPwmBoost and the ISR stuff
-inline void setPwmBoost2() {
+inline void setPwmBoost() {
   //F_CPU=8000000; 8MHz
   // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
   //  are just expressed in microseconds. (gLowTime and gHighTime)
@@ -127,53 +124,16 @@ inline void setPwmBoost2() {
   TCCR1A = (1<<COM1A1) | (1<<WGM11);
   
   // Pin7 (A6) the signal driving the boost converter generates a pwm
-  // WGM02, WGM01, WGM00: Fast PWM
+  // WGM13, WGM12, WGM11, WGM10: clear on compare ICR1
   // CS12 | CS11 | CS10
   //    0      0      1  no prescaling
   //    0      1      0  /8 prescaling  << Currently selected
   //    0      1      1  /64 prescaling
   TCCR1B = (1<<CS11) | (1<<WGM12) | (1<<WGM13);
 
-  ICR1 = gLowTime+gHighTime;
-  OCR1A = gLowTime;
+  ICR1 = gLowTime+gHighTime-1;
+  OCR1A = gHighTime;
   GTCCR = (1<<PSR10);  //Reset timer and let it run
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// setPwmParams - Sets up PWM parameters for boost mosfet.  Must be called before using the pwm from PB1
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-inline void setPwmBoost(bool setLow) {
-  //F_CPU=8000000; 8MHz
-  // Because the frequency of the CPU is 8Mhz and the prescaler is set to 8 that means low and high times are
-  //  are just expressed in microseconds. (gLowTime and gHighTime)
-
-  // Pin6 matches with timere 0 A
-  // WGM02, WGM01, WGM00: Fast PWM
-  // CS02 | CS01 | CS00
-  //    0      0      1  no prescaling
-  //    0      1      0  /8 prescaling  << Currently selected
-  //    0      1      1  /64 prescaling
-  TCCR0B = (0<<CS02) | (1<<CS01) | (0<<CS00) | (1<<WGM02);
-
-  if (setLow) {
-    // COM0A1, COM0A0 sets output low until compare restes timer
-    TCCR0A = (1<<COM0A1) | (1<<COM0A0) | (1<<WGM01) | (1<<WGM00);
-    OCR0A = gLowTime;
-  }
-  else {
-    // COM0A1, COM0A0 sets output high until compare restes timer
-    TCCR0A = (1<<COM0A1) | (0<<COM0A0) | (1<<WGM01) | (1<<WGM00);
-    OCR0A = gHighTime;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This ISR generates square wave generation when timer compare values matched
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ISR (TIM0_COMPA_vect) {
-  static bool toggle = true; //True means low and false means high
-  toggle = !toggle;
-  setPwmBoost(toggle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,10 +142,10 @@ ISR (TIM0_COMPA_vect) {
 void enablePwmBoost(bool val) {
   if (val == true) {
     GTCCR |= (1<<PSR10);  //Reset timer
-    pinModePortB(PIN_BOOST, OUTPUT);
+    pinModePortA(PIN_BOOST, OUTPUT);
   }
   else {
-    pinModePortB(PIN_BOOST, INPUT);
+    pinModePortA(PIN_BOOST, INPUT);
   }
 }
 
@@ -223,64 +183,88 @@ void setup()
 {
   setAdcParams();
 
-  pinModePortB(PIN_BOOST, OUTPUT);
-  pinModePortB(PIN_GREEN, OUTPUT);
+  pinModePortA(PIN_BOOST, INPUT);
+  pinModePortA(PIN_GREEN, OUTPUT);
   pinModePortA(PIN_RED, OUTPUT);
   pinModePortB(PIN_LED, OUTPUT);
-  pinModePortA(PIN_TIP, INPUT);
-  pinModePortA(PIN_RING, INPUT);
+  pinModePortB(PIN_TIP, INPUT);
+  pinModePortB(PIN_RING, INPUT);
   pinModePortA(APIN_VOLTAGE, INPUT);
   
   CLR_LED();
-  setPwmBoost(true);
-  // enable timer0 A compare interrupt
-  TIMSK0 |= (1 << OCIE0A);
-  sei();
+  setPwmBoost();
+  enablePwmBoost(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // loop - Main program loop (this is just how Arduino code works)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define MODEL_LIGHT 1
+
 void loop()
 {
   bool allowTrigger = true;
+  bool charging = false;
+  uint32_t startTime;  
+  
   while(1) {
     //testDataTransfer();
     
     uint8_t voltage = readAdc();
-    uint32_t startTime;
     
     if (voltage < MAX_CAP_VOLTAGE) {
-      enablePwmBoost(true);
-      CLR_GREEN();
-      SET_RED();
+      if (charging == false) {
+        charging = true;
+        enablePwmBoost(true);
+        CLR_GREEN();
+        SET_RED();
+      }
     }
     else {
+      charging = false;
       enablePwmBoost(false);
       SET_GREEN();
       CLR_RED();
     }
 
+#ifdef MODEL_LIGHT
     if (allowTrigger) {
-      if (READ_TIP() == LOW) {
-        SET_LED();
-        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
-        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
-        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
-        __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
-        CLR_LED();
-        startTime = millis();
-        allowTrigger = false;
-      }
+      SET_LED();
+      __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 1 us
+      CLR_LED();
+      startTime = millis();
+      allowTrigger = false;
     }
     else {
-      uint32_t duration = 200000; // Clock is running at /8 multiplier instead of /64 so times are 8x shorter
+      uint32_t duration = 10;
       if ((millis() - startTime) >= duration) {
         allowTrigger = true;
       }
       CLR_GREEN();
       CLR_RED();
     }
+
+#else
+    if (allowTrigger) {
+      //if (READ_TIP() == LOW) {
+        SET_LED();
+        for(uint8_t i=0; i<150; ++i) {
+          __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 5/8 us, but loop takes 3/8 us so total is 1 us
+        }
+        CLR_LED();
+        startTime = millis();
+        allowTrigger = false;
+      //}
+    }
+    else {
+      uint32_t duration = 1000;  // Allow retrigger every 1 second
+      if ((millis() - startTime) >= duration) {
+        allowTrigger = true;
+      }
+      CLR_GREEN();
+      CLR_RED();
+    }
+#endif
   }  //while(1)
 }
 
