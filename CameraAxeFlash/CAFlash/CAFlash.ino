@@ -248,7 +248,7 @@ void loop()
     if (allowTrigger) {
       //if (READ_TIP() == LOW) {
         SET_LED();
-        for(uint8_t i=0; i<150; ++i) {
+        for(uint8_t i=0; i<1; ++i) {
           __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 5/8 us, but loop takes 3/8 us so total is 1 us
         }
         CLR_LED();
