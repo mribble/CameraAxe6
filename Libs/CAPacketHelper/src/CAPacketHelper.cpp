@@ -16,18 +16,16 @@ boolean CAPacketHelper::readOnePacket() {
     boolean ret = false;
     uint16_t avaliableBytes = mSerial->available();
 #if defined(__SAM3X8E__)
-    // Currently sam3x sets this to a software buffer of 128 bytes
-    uint16_t bufferSize = 126;
+    // Currently sam3x uses a 128 byte buffer
+    uint16_t serialRxSize = 126;
 #elif defined (ESP8266)
-    // Currently the esp8266 uses a hardware fifo, but the software buffer that goes to is 256 bytes
-    uint16_t bufferSize = 126; // todo change to 254
+    // Currently esp8266 uses a 256 byte buffer
+    uint16_t serialRxSize = 126; // todo change to 254
 #else
     #error Need a supported microchip
 #endif
-    
-    // Currently sam3x sets this to to a software buffer of 128 bytes and esp8266 uses a hardware buffer that is 128
-    // bytes.  If those values ever change this check should be updated.
-    if (avaliableBytes > 126) {
+
+    if (avaliableBytes > serialRxSize) {
         CA_LOG(CA_ERROR, "Possible serial buffer overflow: %d\n", avaliableBytes);
     }
 
