@@ -11,7 +11,7 @@
 
 enum hwPorts {PORT_A=0, PORT_B=1, PORT_C=2, PORT_D=3};
 enum camPinType {FOCUS=0, SHUTTER=1};
-enum hwDevice {EEPROM_PIN=0, LV_DETECT_PIN=1, CC_PROG=2, CC_RESET=3, CC_CTS=4,
+enum hwDevice {PROG_BUTTON=0, LV_DETECT_PIN=1, CC_PROG=2, CC_RESET=3, CC_CTS=4,
                 CC_RTS=5, CC_TX=6, CC_RX=7, CC_EXT0=8, CC_EXT1=9};
 
 #define NO_PIN -1
@@ -58,6 +58,27 @@ inline uint8_t digitalRead(hwPortPin pp)
     CA_ASSERT(pp.pin <= 31, "Error: Bad pin size");
 
     return bitRead(val, pp.pin);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// digitalWrite - Writes a single bit from an IO port
+//   pp  - The port (PORT_A, PORT_B, PORT_C, PORT_D) and pin (0-31) in that port to set
+//   val   - The value being written (LOW or HIGH)
+// returns - NA
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+inline void digitalWrite(hwPortPin pp, uint8_t val)
+{
+    // SODR = Set output data register
+    // CODR = Clear output data register
+    volatile RwReg *regs[8] = {&REG_PIOA_CODR, &REG_PIOB_CODR, &REG_PIOC_CODR, &REG_PIOD_CODR,
+                               &REG_PIOA_SODR, &REG_PIOB_SODR, &REG_PIOC_SODR, &REG_PIOD_SODR};
+
+    CA_ASSERT(pp.port <= 3, "Error: Bad port size");
+    CA_ASSERT(pp.pin <= 31, "Error: Bad pin size");
+    CA_ASSERT(val == LOW || val == HIGH, "Error: bad val");
+
+    // We could make this faster if needed by caching (math on index slow on sam3x)
+    *(regs[(val*4)+pp.port]) = 1<<pp.pin;  
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -524,7 +524,7 @@ void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
   CAU::digitalWrite(ppDig, HIGH);
   delayMicroseconds(20);  // I think this is needed due to capacitance in ribbon cable
   valHigh = CAU::analogRead(ppAn);
-  if (valLow >= 70 || valHigh <=4020)
+  if (valLow >= 70 || valHigh <=4000)
   {
     CA_LOG(CA_INFO, "  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
   }
@@ -539,8 +539,10 @@ boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut)
   CAU::pinMode(ppOut, OUTPUT);
   CAU::digitalWrite(ppOut, LOW);
   CAU::pinMode(ppIn, INPUT);
+  delayMicroseconds(20);
   val0 = CAU::digitalRead(ppIn);
   CAU::digitalWrite(ppOut, HIGH);
+  delayMicroseconds(20);
   val1 = CAU::digitalRead(ppIn);
   if ((val0 != LOW) || (val1 != HIGH))
   {

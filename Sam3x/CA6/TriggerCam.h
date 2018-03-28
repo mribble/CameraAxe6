@@ -291,14 +291,18 @@ void blinkCameraPins() {
   for(uint8_t j=0; j<3; ++j) {
     for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
       hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
       CAU::digitalWrite(shutterPin, HIGH);
+      CAU::digitalWrite(focusPin, HIGH);
     }
-    delay(100);
+    delay(200);
     for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
       hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
       CAU::digitalWrite(shutterPin, LOW);
+      CAU::digitalWrite(focusPin, LOW);
     }
-    delay(100);
+    delay(200);
   }
 }
 

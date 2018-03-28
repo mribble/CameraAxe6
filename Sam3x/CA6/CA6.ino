@@ -79,13 +79,27 @@ void loop() {
 // Put esp8266 into programming mode if dev module on port 4 button pressed during boot
 void esp8266ProgramMode() {
   hwPortPin ppPin;
-  ppPin = CAU::getModulePin(3, 5);
+  ppPin = CAU::getOnboardDevicePin(PROG_BUTTON);
   CAU::pinMode(ppPin, INPUT_PULLUP);
   if (CAU::digitalRead(ppPin) == LOW) {
-    blinkCameraPins();
+    CA_LOG(CA_INFO, "Sam3x passthrough ESP8266 reprogramming mode, cycle power when finished\n");
+    g_ctx.esp8266.end();
+    g_ctx.esp8266.init(115200);
     g_ctx.esp8266.reprogramESP();
+    g_ctx.packetHelper.flushGarbagePackets();
+    blinkCameraPins();
+
+    HardwareSerial *s = g_ctx.esp8266.getSerial();
+    // Setup serial passthrough.  Must use power switch after programming is complete
+    while (1) {
+      if(SerialIO.available()){
+        s->write(SerialIO.read());
+      }
+      if(s->available()){
+        SerialIO.write(s->read());
+      }
+    }
   }
-  CAU::pinMode(ppPin, INPUT);
 }
 
 
