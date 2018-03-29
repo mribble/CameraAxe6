@@ -94,8 +94,8 @@ void loop (void) {
   receivePacket();
   serviceUri();
   pollWifiMode();
-  //tcpCleanup(); // Not needed in lwIP 1.4 after switching to client flushes.  lwIP 2 still has issues for this app
-  //git CA_LOG(CA_INFO, "memleft: %d\n", ESP.getFreeHeap()); delay(50);
+  tcpCleanup(); // Not needed if using lwIP higher bandwidth mode, but lower memory mode is default and seems to have a bug
+  //CA_LOG(CA_INFO, "memleft: %d\n", ESP.getFreeHeap()); delay(50);
   ArduinoOTA.handle();
 }
 
