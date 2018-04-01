@@ -52,8 +52,8 @@ struct CamElement0 {
 
 struct CamElement1 {
   uint64_t timeOffset;
-  uint32_t setMasks[4];
-  uint32_t clearMasks[4];
+  uint32_t setMask;
+  uint32_t clearMask;
 };
 
 struct Context {
@@ -72,7 +72,7 @@ struct Context {
   CamElement1 camElements[NUM_CAM_TIMER_ELEMENTS];
   uint8_t numCamElements;
   uint8_t curCamElement;
-  uint32_t seqMask[NUM_SEQUENCER_BITS][4];
+  uint32_t seqMask[NUM_SEQUENCER_BITS];
   uint8_t sequencerValue;
   
   uint8_t camTriggerRunning;

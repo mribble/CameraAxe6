@@ -67,12 +67,8 @@ void triggerCamerasPhase2() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void triggerCamerasPhase3() {
   CamElement1& x = g_ctx.camElements[g_ctx.curCamElement];
-  REG_PIOA_SODR = x.setMasks[0] & g_ctx.seqMask[g_ctx.sequencerValue][0];
-  REG_PIOB_SODR = x.setMasks[1] & g_ctx.seqMask[g_ctx.sequencerValue][1];
-  REG_PIOD_SODR = x.setMasks[3] & g_ctx.seqMask[g_ctx.sequencerValue][3];
-  REG_PIOA_CODR = x.clearMasks[0] & g_ctx.seqMask[g_ctx.sequencerValue][0];
-  REG_PIOB_CODR = x.clearMasks[1] & g_ctx.seqMask[g_ctx.sequencerValue][1];
-  REG_PIOD_CODR = x.clearMasks[3] & g_ctx.seqMask[g_ctx.sequencerValue][3];
+  REG_PIOB_SODR = x.setMask & g_ctx.seqMask[g_ctx.sequencerValue];
+  REG_PIOB_CODR = x.clearMask & g_ctx.seqMask[g_ctx.sequencerValue];
 
   if (++g_ctx.curCamElement == g_ctx.numCamElements) {
     triggerCamerasPhase4();
@@ -349,21 +345,21 @@ void biasCamTiming(CamElement0* arry, int8_t sz) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // calcMasks() - Helper function that adds bits to the set/clear register masks based on current focus/shutter values
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void calcMasks(uint32_t *setMasks, uint32_t *clearMasks, uint8_t focusSig, uint8_t shutterSig, uint8_t cam) {
+void calcMasks(uint32_t &setMask, uint32_t &clearMask, uint8_t focusSig, uint8_t shutterSig, uint8_t cam) {
   hwPortPin focus = CAU::getCameraPin(cam, FOCUS);
   if (focusSig) {
-    setMasks[focus.port] |= (1<<focus.pin);
+    setMask |= (1<<focus.pin);
   }
   else {
-    clearMasks[focus.port] |= (1<<focus.pin);
+    clearMask |= (1<<focus.pin);
   }
   
   hwPortPin shutter = CAU::getCameraPin(cam, SHUTTER);
   if (shutterSig) {
-    setMasks[shutter.port] |= (1<<shutter.pin);
+    setMask |= (1<<shutter.pin);
   }
   else {
-    clearMasks[shutter.port] |= (1<<shutter.pin);
+    clearMask |= (1<<shutter.pin);
   }
 }
 
@@ -388,7 +384,7 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
       curEl++;
       el[curEl].timeOffset = camElements0[i].timeOffset;
     }
-    calcMasks(el[curEl].setMasks, el[curEl].clearMasks, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].camOffset);
+    calcMasks(el[curEl].setMask, el[curEl].clearMask, camElements0[i].focusSig, camElements0[i].shutterSig, camElements0[i].camOffset);
   }
 
   g_ctx.numCamElements = curEl+1;
@@ -396,9 +392,8 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
 
   //CA_LOG(CA_INFO, "Unified Camera List\n");
   //for(uint8_t i=0; i<g_ctx.numUnifiedCamTimerElements; ++i) {
-  //  CA_LOG(CA_INFO, "%"PRId64" Set%#010x,%#010x,%#010x,%#010x Clear%#010x,%#010x,%#010x,%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
-  //    g_ctx.unifiedCamTimerElements[i].setMasks[0], g_ctx.unifiedCamTimerElements[i].setMasks[1], g_ctx.unifiedCamTimerElements[i].setMasks[2], g_ctx.unifiedCamTimerElements[i].setMasks[3],
-  //    g_ctx.unifiedCamTimerElements[i].clearMasks[0], g_ctx.unifiedCamTimerElements[i].clearMasks[1], g_ctx.unifiedCamTimerElements[i].clearMasks[2], g_ctx.unifiedCamTimerElements[i].clearMasks[3]);
+  //  CA_LOG(CA_INFO, "%"PRId64" Set%#010x, Clear%#010x\n", g_ctx.unifiedCamTimerElements[i].timeOffset,
+  //    g_ctx.unifiedCamTimerElements[i].setMask, g_ctx.unifiedCamTimerElements[i].clearMask,);
   //}
 
   memset(g_ctx.seqMask, 0, sizeof(g_ctx.seqMask));
@@ -414,17 +409,17 @@ void generateUnifiedElements(CamElement0* camElements0, int8_t numCamElements0) 
       // This check removes bits that shouldn't be in this sequencer mask
       if (seq & (1<<i)) {
         hwPortPin focus = CAU::getCameraPin(j, FOCUS);
-        g_ctx.seqMask[i][focus.port] |= (1<<focus.pin);
+        g_ctx.seqMask[i] |= (1<<focus.pin);
 
         hwPortPin shutter = CAU::getCameraPin(j, SHUTTER);
-        g_ctx.seqMask[i][shutter.port] |= (1<<shutter.pin);
+        g_ctx.seqMask[i] |= (1<<shutter.pin);
       }
     }
   }
 
   //CA_LOG(CA_INFO, "Unified Sequencer masks\n");
   //for(uint8_t i=0; i<NUM_SEQUENCER_BITS; ++i) {
-  //  CA_LOG(CA_INFO, "%#010x,%#010x,%#010x,%#010x\n", g_ctx.seqMask[i][0], g_ctx.seqMask[i][1], g_ctx.seqMask[i][2], g_ctx.seqMask[i][3]);
+  //  CA_LOG(CA_INFO, "%#010x\n", g_ctx.seqMask[i]);
   //}
 }
 
