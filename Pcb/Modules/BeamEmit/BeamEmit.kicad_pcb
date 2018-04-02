@@ -3,7 +3,7 @@
   (general
     (links 17)
     (no_connects 0)
-    (area 31.906869 34.2568 88.4622 57.2832)
+    (area 31.906869 34.2568 91.2562 57.2832)
     (thickness 1.6)
     (drawings 14)
     (tracks 61)
@@ -37,7 +37,7 @@
   )
 
   (setup
-    (last_trace_width 1.016)
+    (last_trace_width 0.254)
     (user_trace_width 0.381)
     (user_trace_width 0.508)
     (user_trace_width 0.762)
@@ -623,7 +623,7 @@
   (gr_line (start 42.1894 55.88) (end 35.5854 55.88) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 35.5854 41.91) (end 35.5854 49.53) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 86.3854 41.91) (end 86.3854 49.53) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Beam Emit Module\n2018.3.30" (at 54.61 38.1) (layer F.SilkS)
+  (gr_text "Beam Emit Module\n2018.3.31" (at 54.61 38.1) (layer F.SilkS)
     (effects (font (size 0.889 0.889) (thickness 0.2032)) (justify left))
   )
   (gr_line (start 80.0354 55.88) (end 41.9354 55.88) (angle 90) (layer Edge.Cuts) (width 0.15))

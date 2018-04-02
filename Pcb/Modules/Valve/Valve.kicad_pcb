@@ -1443,7 +1443,7 @@
   (gr_arc (start 85.09 69.85) (end 86.36 69.85) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_arc (start 26.67 26.67) (end 25.4 26.67) (angle 90) (layer Edge.Cuts) (width 0.15))
   (gr_arc (start 26.67 69.85) (end 26.67 71.12) (angle 90) (layer Edge.Cuts) (width 0.15))
-  (gr_text "Valve Module\n2017.12.23" (at 82.804 57.404 90) (layer F.SilkS)
+  (gr_text "Valve Module\n2018.3.31" (at 82.804 57.404 90) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)))
   )
   (gr_line (start 86.36 69.85) (end 86.36 26.67) (angle 90) (layer Edge.Cuts) (width 0.15))
