@@ -1,4 +1,4 @@
-caSetInfoString("Plug the beam module into port 1.");
+caSetInfoString("Plug the beam detect module into port 1 and beam emit module into port 2.");
 
 caStartMenuMode("Beam Menu");
 caDropSelect("id0", 0, "Trigger On:", "Low~High");

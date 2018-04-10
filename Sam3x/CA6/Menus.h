@@ -972,20 +972,20 @@ void isrGenerateSquareWave() {
 }
 
 void beam_MenuInit() {
-  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog values are
+  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 1 pin 0 is where the analog values are
   CAU::pinMode(gBeamData.ppDetect, INPUT);
-  gBeamData.ppEmit = CAU::getModulePin(0, 1);      // Module 0 pin 1 turns on the IR LED
+  gBeamData.ppEmit = CAU::getModulePin(1, 1);      // Module 2 pin 1 turns on the IR LED
   CAU::pinMode(gBeamData.ppEmit, OUTPUT);
   CAU::digitalWrite(gBeamData.ppEmit, LOW);
   g_ctx.menuTimer.stop();
-  uint64_t ticks = CATickTimer::convertTimeToTicks(0, 13000); // 38Khz with 50% duty cycle
+  uint64_t ticks = CATickTimer::convertTimeToTicks(0, 13150); // 38Khz with 50% duty cycle
   g_ctx.menuTimer.start(isrGenerateSquareWave, ticks, true);
 }
 
 void beam_PhotoInit() {
-  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 0 pin 0 is where the analog values are
+  gBeamData.ppDetect = CAU::getModulePin(0, 0);    // Module 1 pin 0 is where the analog values are
   CAU::pinMode(gBeamData.ppDetect, INPUT);
-  gBeamData.ppEmit = CAU::getModulePin(0, 1);      // Module 0 pin 1 turns on the IR LED
+  gBeamData.ppEmit = CAU::getModulePin(1, 1);      // Module 2 pin 1 turns on the IR LED
   CAU::pinMode(gBeamData.ppEmit, OUTPUT);
   CAU::digitalWrite(gBeamData.ppEmit, LOW);
   g_ctx.menuTimer.stop();
