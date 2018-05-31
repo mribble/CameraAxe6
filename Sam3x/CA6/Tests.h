@@ -21,14 +21,14 @@ extern void caTestAnalog();
 
 void caRunTests()
 {
-//  delay(5000); // wait 5000 ms
-
 //  caTestTickTimer();
 //  caTestPerf();
 //  caTestPackets();
+
 //  caTestModulePorts();
 //  caTestAuxAndCamPorts();
 //  caTestAnalog();
+//  delay(2000); // wait 5000 ms
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

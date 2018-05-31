@@ -18,16 +18,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADC maps 0->5V with values from 0 to 255
-#define MAX_CAP_VOLTAGE 150        // v = 20V*20K/(1M+20K)*255/5
+#define MAX_CAP_VOLTAGE 170        // v = 20V*20K/(1M+20K)*255/5
 
 // Digital/analog pins
 #define PIN_BOOST           6   // PORT_A - Output. Controls current flow to boost inductor
-#define PIN_GREEN           2   // PORT_A - Output. Controls green indicator led  
-#define PIN_RED             3   // PORT_A - Output. Controls red indicator led
-#define PIN_LED             0   // PORT_B - Output. Controls pulse to big led
-#define PIN_TIP             2   // PORT_B - Digital input. Reads tip of 3.5mm jack input
+#define PIN_GREEN           0   // PORT_A - Output. Controls green indicator led  
+#define PIN_RED             1   // PORT_A - Output. Controls red indicator led
+#define PIN_LED             2   // PORT_B - Output. Controls pulse to big led
+#define PIN_TIP             0   // PORT_B - Digital input. Reads tip of 3.5mm jack input
 #define PIN_RING            1   // PORT_B - Digital input. Reads ring of 3.5mm jack input
 #define APIN_VOLTAGE        7   // PORT_A - Analog input.  Reads voltage of the big capacitor
+#define APIN_TEMP           3   // PORT_A - Analog input.  Reads temperature
 
 // Fast digital read macros
 #define READ_TIP()   bitRead(PINB, PIN_TIP)
@@ -248,7 +249,7 @@ void loop()
     if (allowTrigger) {
       //if (READ_TIP() == LOW) {
         SET_LED();
-        for(uint8_t i=0; i<1; ++i) {
+        for(uint8_t i=0; i<100; ++i) {
           __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 5/8 us, but loop takes 3/8 us so total is 1 us
         }
         CLR_LED();

@@ -625,7 +625,7 @@
   )
 
   (module Mounting_Holes:MountingHole_2.5mm_Pad (layer F.Cu) (tedit 5A2EDD4A) (tstamp 5A2EDD5A)
-    (at 28.702 23.368)
+    (at 28.448 23.368)
     (descr "Mounting Hole 2.5mm")
     (tags "mounting hole 2.5mm")
     (path /5A2EE04A)
