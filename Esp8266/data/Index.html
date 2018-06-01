@@ -210,7 +210,7 @@
 			const PID_CAM_TRIGGER = 7;
 
 			// Global Variables
-			var uiTestMode = true;
+			var uiTestMode = false;
 			var gXmlHttpRequests = new Array();
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
@@ -245,8 +245,8 @@
 
 				if (uiTestMode) {
 					LoadMenuList(["Dummy Menu 1", "Dummy Menu 2"]);
-					getMenuDynamicIds();
 				}
+				getMenuDynamicIds();
 
 				// When the user clicks on <span> (x), close the time box modal
 				var span = document.getElementsByClassName("close")[0];
