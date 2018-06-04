@@ -1014,7 +1014,8 @@
 					} else if (el.caType === "slider") {
 						packet = packetArray[j].split("~");
 						el.value = packet[2];
-						document.getElementById("id"+packet[1]+"b").innerHTML = packet[2];
+                        document.getElementById("id"+packet[1]).value = packet[2];
+						document.getElementById("id"+packet[1]+"b").value = packet[2];
 					}
 					j++;
 				}
