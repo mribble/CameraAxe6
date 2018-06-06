@@ -11,24 +11,59 @@
 
 extern boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut);
 extern void caAllPortsLow();
-extern void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig);
+extern boolean caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig);
 extern void caTestTickTimer();
 extern void caTestPerf();
 extern void caTestPackets();
-extern void caTestModulePorts();
-extern void caTestAuxAndCamPorts();
-extern void caTestAnalog();
+extern boolean caTestModulePorts();
+extern boolean caTestAuxAndCamPorts();
+extern boolean caTestAnalog();
+extern void setAllShutterPins();
+extern void setAllFocusPins();
+extern void clearAllShutterPins();
+extern void clearAllShutterPins();
 
 void caRunTests()
 {
-//  caTestTickTimer();
-//  caTestPerf();
-//  caTestPackets();
+  hwPortPin ppPin;
+  ppPin = CAU::getOnboardDevicePin(PROG_BUTTON);
+  CAU::pinMode(ppPin, INPUT_PULLUP);
+  if (CAU::digitalRead(ppPin) == LOW) {  // Only enter this mode if program button pressed
+    
+    // Only enter this mode if aux dongle detected (this dongle joins aux pin 0 and 1)
+    hwPortPin pp0, pp1;
+    pp0 = CAU::getAuxPin(0);
+    pp1 = CAU::getAuxPin(1);
+    if (caTestTwoPins(pp0, pp1)) {
+      setAllShutterPins(); // Red
+      setAllFocusPins(); // Green
+      delay(500);
+      clearAllShutterPins();
+      clearAllFocusPins();
+      delay(500);
 
-//  caTestModulePorts();
-//  caTestAuxAndCamPorts();
-//  caTestAnalog();
-//  delay(2000); // wait 5000 ms
+      while(1) {
+        boolean ret0, ret1, ret2;
+        //caTestTickTimer();
+        //caTestPerf();
+        //caTestPackets();
+    
+        ret0 = caTestModulePorts();
+        ret1 = caTestAuxAndCamPorts();
+        ret2 = caTestAnalog();
+
+        if (ret0 && ret1 && ret1) {
+          setAllFocusPins(); // Pass - Green
+        }
+        else {
+          setAllShutterPins(); // Fail - Red
+        }
+        delay(2000); // wait 5000 ms
+        clearAllShutterPins();
+        clearAllFocusPins();
+      }
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,12 +350,13 @@ void caTestPerf()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestModulePorts - Tests all the module ports.  Reports which ones failed. - Requires a special test dongle.
-// returns  - NA
+// returns  - true mean pass and false means fail
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestModulePorts()
+boolean caTestModulePorts()
 {
   uint8_t module;
   uint8_t pin;
+  boolean ret = true;
 
   for(module=0; module<4; ++module)
   {
@@ -332,25 +368,29 @@ void caTestModulePorts()
       if (!caTestTwoPins(pp0, pp1))
       {
         CA_LOG(CA_INFO, "  Module Port %d:%d failed\n", module, pin);
+        ret = false;
       }
       
       if (!caTestTwoPins(pp1, pp0))
       {
         CA_LOG(CA_INFO, "  Module Port %d:%d failed\n", module, pin+1);
+        ret = false;
       }
     }
   }
   CA_LOG(CA_INFO, "Done - module ports\n");
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestAuxAndCamPorts - Tests the aux and cameraa ports.  Reports which pins failed. - Requires a special test dongle.
-// returns  - NA
+// returns  - true mean pass and false means fail
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestAuxAndCamPorts()
+boolean caTestAuxAndCamPorts()
 {
   uint8_t pin;
   hwPortPin pp0, pp1;
+  boolean ret = true;
 
   for(pin=0; pin<46; pin+=2)
   {
@@ -359,10 +399,12 @@ void caTestAuxAndCamPorts()
     if (!caTestTwoPins(pp0, pp1))
     {
       CA_LOG(CA_INFO, "  Aux Port %d failed\n", pin);
+      ret = false;
     }
     if (!caTestTwoPins(pp1, pp0))
     {
       CA_LOG(CA_INFO, "  Aux Port %d failed\n", pin+1);
+      ret = false;
     }
   }
 
@@ -399,19 +441,22 @@ void caTestAuxAndCamPorts()
         (val4 != HIGH) || (val5 != LOW))
     {
       CA_LOG(CA_INFO, "  Camera/Aux Port Cam:%d failed (%d,%d,%d,%d,%d,%d)\n", cam, val0, val1, val2, val3, val4, val5);
+      ret = false;
     }
   }
   
   CA_LOG(CA_INFO, "Done - aux and camera ports\n");
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // caTestAnalog - Tests the different analog pins
-// returns  - NA
+// returns  - true mean pass and false means fail
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void caTestAnalog()
+boolean caTestAnalog()
 {
   uint16_t val;
+  boolean ret = true;
   hwPortPin ppAn;   // Analog Port
   hwPortPin ppDig;  // Port used to change analog's voltage level
 
@@ -419,46 +464,46 @@ void caTestAnalog()
 
   ppAn = CAU::getModulePin(0, 0);
   ppDig = CAU::getModulePin(0, 1);
-  caTestAnalogPin(ppAn, ppDig);
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(0, 1);
   ppDig = CAU::getModulePin(0, 0);
-  caTestAnalogPin(ppAn, ppDig);
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(0, 2);
   ppDig = CAU::getModulePin(0, 3);
-  caTestAnalogPin(ppAn, ppDig);
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(1, 0);
   ppDig = CAU::getModulePin(1, 1);
-  caTestAnalogPin(ppAn, ppDig);
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 0);
   ppDig = CAU::getModulePin(2, 1);
-  caTestAnalogPin(ppAn, ppDig);
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 1);
   ppDig = CAU::getModulePin(2, 0);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 2);
   ppDig = CAU::getModulePin(2, 3);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 4);
   ppDig = CAU::getModulePin(2, 5);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 5);
   ppDig = CAU::getModulePin(2, 4);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(3, 0);
   ppDig = CAU::getModulePin(3, 1);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(39);
   ppDig = CAU::getAuxPin(38);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(40);
   ppDig = CAU::getAuxPin(41);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(41);
   ppDig = CAU::getAuxPin(40);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(42);
   ppDig = CAU::getAuxPin(43);
-  caTestAnalogPin(ppAn, ppDig);
+  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
 
   ppAn = CAU::getOnboardDevicePin(LV_DETECT_PIN);
   CAU::pinMode(ppAn, ANALOG_INPUT);
@@ -466,9 +511,11 @@ void caTestAnalog()
   if ((val < 1350) || (val > 1650))
   {
     CA_LOG(CA_INFO, "  Failed Analog Test -- LV_DETECT_PIN %d\n", val);
+    ret = false;
   }
   
   CA_LOG(CA_INFO, "Done - analog\n");
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -510,9 +557,10 @@ void caAllPortsLow() {
   }
 }
 
-void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
+boolean caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
 {
   uint16_t valLow, valHigh;
+  boolean ret = true;
 
   caAllPortsLow(); // Helps detect shorted pins
   CAU::pinMode(ppAn, ANALOG_INPUT);
@@ -527,7 +575,9 @@ void caTestAnalogPin(hwPortPin ppAn, hwPortPin ppDig)
   if (valLow >= 70 || valHigh <=4000)
   {
     CA_LOG(CA_INFO, "  Failed Analog Test pp(%d, %d) - %d %d\n", ppAn.port, ppAn.pin, valLow, valHigh);
+    ret = false;
   }
+  return ret;
 }
 
 boolean caTestTwoPins(hwPortPin ppIn, hwPortPin ppOut)

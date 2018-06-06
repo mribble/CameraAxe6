@@ -280,26 +280,49 @@ void initCameraPins() {
   }
 }
 
+void setAllShutterPins() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+    CAU::digitalWrite(shutterPin, HIGH);
+  }
+}
+
+void setAllFocusPins() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+    CAU::digitalWrite(focusPin, HIGH);
+  }
+}
+
+void clearAllShutterPins() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
+    CAU::digitalWrite(shutterPin, LOW);
+  }
+}
+
+void clearAllFocusPins() {
+  for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
+    hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
+    CAU::digitalWrite(focusPin, LOW);
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // blinkCameraPins() - Blink camera pins for debugging
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void blinkCameraPins() {
   for(uint8_t j=0; j<3; ++j) {
-    for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
-      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
-      CAU::digitalWrite(shutterPin, HIGH);
-      CAU::digitalWrite(focusPin, HIGH);
-    }
+    setAllShutterPins();
+    setAllFocusPins();
     delay(200);
-    for(uint8_t i=0; i<NUM_CAMERAS; ++i) {
-      hwPortPin shutterPin = CAU::getCameraPin(i, SHUTTER);
-      hwPortPin focusPin = CAU::getCameraPin(i, FOCUS);
-      CAU::digitalWrite(shutterPin, LOW);
-      CAU::digitalWrite(focusPin, LOW);
-    }
+    clearAllShutterPins();
+    clearAllFocusPins();
     delay(200);
   }
+  
+  setAllShutterPins();
+  setAllFocusPins();
 }
 
 
