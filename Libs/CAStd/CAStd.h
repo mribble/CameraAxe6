@@ -9,7 +9,7 @@
 
 // Don't define these to force off logging or asserts
 #define CA_DEBUG_LOG
-#define CA_DEBUG_ASSERT
+//#define CA_DEBUG_ASSERT
 
 // Change these to 0 to force off this type of logging
 #define CA_INFO                 1
