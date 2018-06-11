@@ -1,4 +1,4 @@
-caSetInfoString("Plug the sound module into port 1.");
+caSetInfoString("Plug the dev module into port 1.");
 
 caStartMenuMode("Dev Menu");
 caTextStatic("This is a test menu");
