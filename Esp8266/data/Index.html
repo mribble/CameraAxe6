@@ -211,7 +211,6 @@
 
 			// Global Variables
 			var uiTestMode = false;
-			var gXmlHttpRequests = new Array();
 			var gInfoString;
 			var gMode = 0;              // Tracks whether in menuMode (0) or photoMode (1)
 			var gMenuModeTable = null;  // MenuMode table element for dynamic menus
@@ -231,12 +230,6 @@
 			window.onload = initPage;
 
 			function initPage() {
-				var i;
-				for (i=0; i<4; i++) {
-					gXmlHttpRequests[i] = new XMLHttpRequest();
-					gXmlHttpRequests[i].inUse = false;
-				}
-				
 				buildHttpRequest("JSCA_GET_MENU_LIST", false);
 				buildHttpRequest("JSCA_GET_INTERVAL", false);
 				buildHttpRequest("JSCA_GET_ALL_CAMS", false);
@@ -338,26 +331,19 @@
 				if (submit) {
 					var type = "GET";
 					var request = null;
-					var i;
-					for(i=0; i<gXmlHttpRequests.length; i++) {
-						if (gXmlHttpRequests[i].inUse == false) {
-							request = gXmlHttpRequests[i];
-							break;
-						}
-					}
+
+                    request = new XMLHttpRequest();
 					
 					if (request == null) {
 						document.getElementById("debugText").innerHTML = "Failed to find free XmlHttpRequest.  Try reloading page.";
 					}
-					request.inUse = true;
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
-					request.send();
-					request.timeout = 10000;
+					request.timeout = 5000;
 					request.ontimeout = function() {
 							document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";
-							request.inUse = false;
 							};
+					request.send();
 					gHttpRequest = "";
 					return request;
 				}
@@ -424,101 +410,102 @@
 
 			function ajaxCallback(xmlHttpRequest) {
 				if ((xmlHttpRequest.readyState === 4) && (xmlHttpRequest.status === 200)) {
-					var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
-					var stateList, strArray, name;
-					for (var i=0; i<ajaxList.length; i+=2) {
-						switch(ajaxList[i]) {
-							case "JSCA_GET_MENU_LIST": {
-								var menuList = ajaxList[i+1].slice(0, -1).split("~");
-								LoadMenuList(menuList);
-								break;
-							}
-							case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
-								if (ajaxList[i+1] !== "null") {
-									stateList = ajaxList[i+1].slice(0, -1).split("~");
-									for (i=0; i<stateList.length; i+=2) {
-										document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+					if (xmlHttpRequest.responseText !== "") {
+						var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
+						var stateList, strArray, name;
+						for (var i=0; i<ajaxList.length; i+=2) {
+							switch(ajaxList[i]) {
+								case "JSCA_GET_MENU_LIST": {
+									var menuList = ajaxList[i+1].slice(0, -1).split("~");
+									LoadMenuList(menuList);
+									break;
+								}
+								case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
+									if (ajaxList[i+1] !== "null") {
+										stateList = ajaxList[i+1].slice(0, -1).split("~");
+										for (i=0; i<stateList.length; i+=2) {
+											document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+										}
 									}
+									break;
 								}
-								break;
-							}
-							case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
-								if (ajaxList[i+1] !== "null") {
-									stateList = ajaxList[i+1].slice(0, -1).split("~");
-									for (i=0; i<stateList.length; i+=2) {
-										document.getElementById(stateList[i]).value = stateList[i+1];
+								case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
+									if (ajaxList[i+1] !== "null") {
+										stateList = ajaxList[i+1].slice(0, -1).split("~");
+										for (i=0; i<stateList.length; i+=2) {
+											document.getElementById(stateList[i]).value = stateList[i+1];
+										}
 									}
+									break;
 								}
-								break;
-							}
-							case "JSCA_GET_CURRENT_DYNAMIC_MENU": {
-								eval(ajaxList[i+1]);
-								buildHttpRequest("JSCA_GET_DYNAMIC_MENU_SETTINGS", true, gDynamicMenuName);
-								break;
-							}
-							case "JSCA_GET_INTERVAL": {
-								if (ajaxList[i+1] !== "null") {
-									strArray = ajaxList[i+1].split("~");
-									strArray.pop(); // Last element is empty
-									var intervalForm = document.getElementById("intervalometerForm");
-									intervalForm.elements.inter_enable.checked = (strArray[1] === "0")? false : true;
-									intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
-									intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
-									intervalForm.elements.number_of_repeats.value = strArray[6];
+								case "JSCA_GET_CURRENT_DYNAMIC_MENU": {
+									eval(ajaxList[i+1]);
+									buildHttpRequest("JSCA_GET_DYNAMIC_MENU_SETTINGS", true, gDynamicMenuName);
+									break;
 								}
-								break;
-							}
-							case "JSCA_GET_ALL_CAMS": {
-								if (ajaxList[i+1] !== "null") {
-									strArray = ajaxList[i+1].split("&");
-									strArray.pop(); // Remove last empty element since there is a terminating "&"
-									gCamSettingsArray = strArray;
-									camSettingsLoad(0);
+								case "JSCA_GET_INTERVAL": {
+									if (ajaxList[i+1] !== "null") {
+										strArray = ajaxList[i+1].split("~");
+										strArray.pop(); // Last element is empty
+										var intervalForm = document.getElementById("intervalometerForm");
+										intervalForm.elements.inter_enable.checked = (strArray[1] === "0")? false : true;
+										intervalForm.elements.start_delay.value = getTimeBoxString(strArray[2], strArray[3]);
+										intervalForm.elements.interval.value = getTimeBoxString(strArray[4], strArray[5]);
+										intervalForm.elements.number_of_repeats.value = strArray[6];
+									}
+									break;
 								}
-								break;
-							}
-							case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
-								if (ajaxList[i+1] === "null") {
-									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+								case "JSCA_GET_ALL_CAMS": {
+									if (ajaxList[i+1] !== "null") {
+										strArray = ajaxList[i+1].split("&");
+										strArray.pop(); // Remove last empty element since there is a terminating "&"
+										gCamSettingsArray = strArray;
+										camSettingsLoad(0);
+									}
+									break;
 								}
-								else {
-									strArray = ajaxList[i+1].split("&");
-									strArray.pop(); // Remove last empty element since there is a terminating "&"
-									loadMenuModeFromPacket(strArray);
-									document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+								case "JSCA_GET_DYNAMIC_MENU_SETTINGS": {
+									if (ajaxList[i+1] === "null") {
+										document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+									}
+									else {
+										strArray = ajaxList[i+1].split("&");
+										strArray.pop(); // Remove last empty element since there is a terminating "&"
+										loadMenuModeFromPacket(strArray);
+										document.getElementById("MenuMode").style.display = "block";  // Make this visible now
+									}
+									break;
 								}
-								break;
-							}
-							case "JSCA_GET_START_LOCATION": {
-								name = ajaxList[i+1];
-								var startLocationSelect = document.getElementById("start_location");
-								startLocationSelect.value = name;
-								break;
-							}
-							case "JSCA_GET_VOLTAGE": {
-								name = ajaxList[i+1];
-								var voltage = document.getElementById("current_voltage");
-								voltage.innerHTML = name;
-								break;
-							}
-							case "JSCA_SET_DEFAULTS":
-							case "JSCA_RAW_PACKET":
-							case "JSCA_CLEAR_WIFI_NETWORKS":
-							case "JSCA_SET_ALL_CAMS":
-							case "JSCA_SET_START_LOCATION":
-							case "JSCA_SET_DYNAMIC_MENU":
-							{
-								name = ajaxList[i+1];
-								if (name !== "done") {
-									alert("Invalid ajax return");
+								case "JSCA_GET_START_LOCATION": {
+									name = ajaxList[i+1];
+									var startLocationSelect = document.getElementById("start_location");
+									startLocationSelect.value = name;
+									break;
 								}
-								break;
+								case "JSCA_GET_VOLTAGE": {
+									name = ajaxList[i+1];
+									var voltage = document.getElementById("current_voltage");
+									voltage.innerHTML = name;
+									break;
+								}
+								case "JSCA_SET_DEFAULTS":
+								case "JSCA_RAW_PACKET":
+								case "JSCA_CLEAR_WIFI_NETWORKS":
+								case "JSCA_SET_ALL_CAMS":
+								case "JSCA_SET_START_LOCATION":
+								case "JSCA_SET_DYNAMIC_MENU":
+								{
+									name = ajaxList[i+1];
+									if (name !== "done") {
+										alert("Invalid ajax return");
+									}
+									break;
+								}
+								default:
+									alert("Invalid ajaxCallback id");
 							}
-							default:
-								alert("Invalid ajaxCallback id");
 						}
 					}
-					xmlHttpRequest.inUse = false;
 				}
 			}
 
@@ -1014,7 +1001,7 @@
 					} else if (el.caType === "slider") {
 						packet = packetArray[j].split("~");
 						el.value = packet[2];
-                        document.getElementById("id"+packet[1]).value = packet[2];
+						document.getElementById("id"+packet[1]).value = packet[2];
 						document.getElementById("id"+packet[1]+"b").value = packet[2];
 					}
 					j++;

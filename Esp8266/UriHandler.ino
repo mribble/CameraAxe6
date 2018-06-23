@@ -33,7 +33,7 @@ void serviceUri() {
   String uri = gClient.readStringUntil('\r');
   String jsca;
   int16_t jscaOffset = 0;
-  gClient.flush();
+  //gClient.flush();
   uri.replace("%20", " "); // The uri code converts spaces to %20, this undoes that transformation
 
   CA_LOG(CA_JS_URI, "Full URI: %s\n", uri.c_str());
@@ -41,7 +41,7 @@ void serviceUri() {
   if (jscaMatch(uri, "GET / HTTP/1.1") || jscaMatch(uri, "GET /index.html")) {
     CA_LOG(CA_JS_URI, " ProcURI: LoadMainPage\n");
     loadMainWebPage();
-    gClient.flush();
+    //gClient.flush();
     return;
   }
 
@@ -191,7 +191,7 @@ void serviceUri() {
       CA_LOG(CA_ERROR, "ERROR - Unknown URI: %s\n", uri.c_str());
     }
   }
-  gClient.flush();
+  //gClient.flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
