@@ -353,7 +353,7 @@
 					request.onreadystatechange = function(){ajaxCallback(request);};
 					request.open(type, gHttpRequest, true);
 					request.send();
-					request.timeout = 2000;
+					request.timeout = 10000;
 					request.ontimeout = function() {
 							document.getElementById("debugText").innerHTML = "Network timeout.  Try reloading page.";
 							request.inUse = false;
