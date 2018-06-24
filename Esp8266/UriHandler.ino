@@ -45,6 +45,9 @@ void serviceUri() {
     return;
   }
 
+  gClient.println("HTTP/1.1 200 OK");
+  gClient.println("Content-Type: text/html\r\n");
+
   while(jscaOffset != -1) {
     jscaOffset = getNextSubstring(uri, jsca, jscaOffset);
     if (jscaOffset == -1) {
