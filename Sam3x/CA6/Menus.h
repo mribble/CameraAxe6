@@ -778,8 +778,8 @@ void lightning_PhotoRun() {
     strikeDurMS = millis() - gLightningData.strikeStartTimeMS;
     sprintf(gLightningData.strikeDetailsBuf[gLightningData.triggerCount%5], "<pre>%4u%5u%5u%5lu</pre>", gLightningData.triggerCount, gLightningData.refAtStrike, gLightningData.peakOfStrike, strikeDurMS);
 
-    // Loop until Duration (Bulb TImer) is completed for all Cam/Flash ports
-    while ( camTriggerRunning() ) {
+    // Loop until Duration (Bulb Timer) is completed for all Cam/Flash ports
+    while ( camTriggerRunning() && (g_ctx.state == CA_STATE_PHOTO_MODE) ) {
       curTimeMS = millis();  // capture the current time
       gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Just to keep the current value up to date 
       currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
@@ -798,16 +798,18 @@ void lightning_PhotoRun() {
 
     }
     // Recheck if current value is below threshold and if so reset Reference
-    gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
-    currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
-    if (currentDif < (int16_t) gLightningData.triggerDiffThreshold)
-    {
-      autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
-      setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
-      // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
-      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
-      gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
-      gLightningData.referenceUpdateTimeMS = curTimeMS + UPDATEREFPERIODMS; // reset the Ref Update clock
+    if (g_ctx.state == CA_STATE_PHOTO_MODE) {
+      gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);
+      currentDif = (int16_t) gLightningData.sensorVal - (int16_t) gLightningData.referenceSensorVal;
+      if (currentDif < (int16_t) gLightningData.triggerDiffThreshold)
+      {
+        autoLightSensitivity(gLightningData.sensorVal, gLightningData.sensitivity);
+        setLightSensitivity(gLightningData.sensitivity, gLightningData.ppSensitivity0, gLightningData.ppSensitivity1, gLightningData.ppSensitivity2);
+        // May have to test whether a small delay might be needed to allow the sensitivity change to take effect (?3 microseconds?)
+        gLightningData.sensorVal = CAU::analogRead(gLightningData.ppLight);  // Re-read light value in case sensitivity has changed
+        gLightningData.referenceSensorVal = gLightningData.sensorVal;          // Update the threshold reference base value to current value 
+        gLightningData.referenceUpdateTimeMS = curTimeMS + UPDATEREFPERIODMS; // reset the Ref Update clock
+      }
     }
     // If still above threshold, keep old Reference to allow a retrigger to capture more secondary flashes / pulses
 
