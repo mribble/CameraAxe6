@@ -32,5 +32,6 @@ caButton("id32", "V1d2 delay", "Decrease");
 caTextStatic("Auto calibrate works on valve 1");
 caButton("id33", "Auto Calibrate", "Auto");
 caTextDynamic("id34", "Auto Calibrate", "?");
+caTextStatic("*NOTE* For Auto mode use a post trigger delay in camera settings of a few seconds");
 
 caEndMenu();
