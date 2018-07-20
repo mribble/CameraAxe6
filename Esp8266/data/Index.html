@@ -413,7 +413,7 @@
 				if ((xmlHttpRequest.readyState === 4) && (xmlHttpRequest.status === 200)) {
 					if (xmlHttpRequest.responseText !== "") {
 						var ajaxList = xmlHttpRequest.responseText.slice(0, -3).split("&~&");
-						var stateList, strArray, name;
+						var stateList, strArray, name, j;
 						for (var i=0; i<ajaxList.length; i+=2) {
 							switch(ajaxList[i]) {
 								case "JSCA_GET_MENU_LIST": {
@@ -424,8 +424,8 @@
 								case "JSCA_GET_MENU_DYNAMIC_STRING_IDS": {
 									if (ajaxList[i+1] !== "null") {
 										stateList = ajaxList[i+1].slice(0, -1).split("~");
-										for (i=0; i<stateList.length; i+=2) {
-											document.getElementById(stateList[i]).innerHTML = stateList[i+1];
+										for (j=0; j<stateList.length; j+=2) {
+											document.getElementById(stateList[j]).innerHTML = stateList[j+1];
 										}
 									}
 									break;
@@ -433,8 +433,8 @@
 								case "JSCA_GET_MENU_DYNAMIC_UINT32_IDS": {
 									if (ajaxList[i+1] !== "null") {
 										stateList = ajaxList[i+1].slice(0, -1).split("~");
-										for (i=0; i<stateList.length; i+=2) {
-											document.getElementById(stateList[i]).value = stateList[i+1];
+										for (j=0; j<stateList.length; j+=2) {
+											document.getElementById(stateList[j]).value = stateList[j+1];
 										}
 									}
 									break;
