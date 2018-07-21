@@ -45,7 +45,7 @@ public:
     void writePacketIntervalometer(const String& str);
     void writePacketCamTrigger(uint8_t mode, uint8_t focus, uint8_t shutter);
     void writePacketCamTrigger(const String& str);
-    void writePacketPeriodicData(uint16_t voltage);
+    void writePacketPeriodicData(uint16_t voltage, const char* version);
     void writePacketPeriodicData(const String& str);
 
 private:

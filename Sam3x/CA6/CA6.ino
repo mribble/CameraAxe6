@@ -22,6 +22,7 @@
 
 // Global Context
 Context g_ctx;
+String gSamVersion = "sam180721";
 
 void setup() {
   // Set up clock ticks
@@ -60,7 +61,7 @@ void loop() {
         resetCameraPorts();
       }
       if ((millis() - periodDataTime) >= 20000) {  // Send periodic data every 20 seconds
-        g_ctx.packetHelper.writePacketPeriodicData(getHundredthsOfVoltsAtBattery());
+        g_ctx.packetHelper.writePacketPeriodicData(getHundredthsOfVoltsAtBattery(), gSamVersion.c_str());
         periodDataTime = millis();
       }
     } else if (g_ctx.state == CA_STATE_PHOTO_MODE) {

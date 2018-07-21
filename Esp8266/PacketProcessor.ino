@@ -104,8 +104,9 @@ void receivePacket() {
     else if (packetType == PID_PERIODIC_DATA) {
       CAPacketPeriodicData unpack(mUnpacker);
       unpack.unpack();
-      CA_LOG(CA_ESP_IN_PACKETS, "PID_PERIODIC_DATA(esp): %d %d\n", unpack.getClientHostId(), unpack.getVoltage());
+      CA_LOG(CA_ESP_IN_PACKETS, "PID_PERIODIC_DATA(esp): %d %d %s\n", unpack.getClientHostId(), unpack.getVoltage(), unpack.getVersion());
       gVoltage = unpack.getVoltage();
+      gVersion = (String)unpack.getVersion() + "." + gEspVersion;
     }
     else {
       CA_LOG(CA_ERROR, "Error, unknown packet (esp): %d %d\n", packetType, packetSize);

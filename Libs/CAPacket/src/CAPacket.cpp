@@ -552,8 +552,10 @@ CAPacketPeriodicData::CAPacketPeriodicData(CAPacket& caPacket) {
     mCAP = &caPacket;
 }
 
-void CAPacketPeriodicData::set(uint16_t voltage) {
+void CAPacketPeriodicData::set(uint16_t voltage, String version) {
     mVoltage = voltage;
+    mVersion = version;
+    CA_ASSERT(mVersion.length() < MAX_STRING_SIZE, "String too long");
 }
 
 void CAPacketPeriodicData::set(const String& str) {
@@ -562,26 +564,32 @@ void CAPacketPeriodicData::set(const String& str) {
 
     id = getUint32FromString(index, str);
     mVoltage = getUint32FromString(index, str);
+    mVersion = getStringFromString(index, str);
     CA_ASSERT(index==str.length(), "Failed end check");
     CA_ASSERT(id==PID_PERIODIC_DATA, "Wrong PID ID");
+    CA_ASSERT(mVersion.length() < MAX_STRING_SIZE, "String too long");
 }
 
 void CAPacketPeriodicData::unpack() {
     mVoltage = mCAP->unpacker(16);
+    mCAP->unpackerString(mVersion);
     mCAP->flushPacket();
+    CA_ASSERT(mVersion.length() < MAX_STRING_SIZE, "String too long");
 }
 
 uint16_t CAPacketPeriodicData::pack() {
-    uint16_t packetSize = PACK_TOTAL_SZ + 2;
+    uint16_t len = mVersion.length()+1;  // 1 for the null terminator
+    uint16_t packetSize = PACK_TOTAL_SZ + 2 + len;
     mCAP->packer(GUARD_PACKET, 8);
     mCAP->packer(packetSize, 16);
     mCAP->packer(PID_PERIODIC_DATA, 8);
     mCAP->packer(mVoltage, 16);
+    mCAP->packerString(mVersion.c_str());
     mCAP->flushPacket();
     return packetSize;
 }
 
 void CAPacketPeriodicData::packetToString(String& str) {
-    str = (String)PID_PERIODIC_DATA + '~' + mVoltage + '~';
+    str = (String)PID_PERIODIC_DATA + '~' + mVoltage + '~' + mVersion + '~';
 }
 

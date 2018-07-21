@@ -289,13 +289,15 @@ public:
     uint8_t getPacketType() {return PID_PERIODIC_DATA;};
     uint8_t getClientHostId() {return NULL_CLIENT_HOST_ID;};
     uint16_t getVoltage() {return mVoltage;};
-    void set(uint16_t voltage);
+    const char* getVersion() {return mVersion.c_str();};
+    void set(uint16_t voltage, String version);
     void set(const String& str);
     void unpack();
     uint16_t pack();
     void packetToString(String& str);
 private:
     uint16_t mVoltage;
+    String mVersion;
 };
 
 #endif // __CAPACKET_H__

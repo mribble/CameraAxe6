@@ -49,6 +49,8 @@ DynamicMessages gDynamicMessages;   // Stores dynamic string packet updates from
 String gDynamicUint32s;             // Stores uint32 packet updates from sam32 headed to JS on next refresh
 CALed gLed(G_LED, R_LED);           // Manages a red/green LED used to indicate connection status
 uint32_t gVoltage = 0;              // Current voltage being read by sam3x
+const String gEspVersion = "esp180721";
+String gVersion;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Defaults

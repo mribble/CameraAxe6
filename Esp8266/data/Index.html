@@ -209,6 +209,8 @@
 			const PID_CAM_SETTINGS = 5;
 			const PID_INTERVALOMETER = 6;
 			const PID_CAM_TRIGGER = 7;
+			
+			const JS_VERSION = "js180721";
 
 			// Global Variables
 			var uiTestMode = false;
@@ -487,6 +489,12 @@
 									name = ajaxList[i+1];
 									var voltage = document.getElementById("current_voltage");
 									voltage.innerHTML = name;
+									break;
+								}
+								case "JSCA_GET_VERSION": {
+									name = ajaxList[i+1];
+									var version = document.getElementById("current_version");
+									version.innerHTML = name + "." + JS_VERSION;
 									break;
 								}
 								case "JSCA_SET_DEFAULTS":
@@ -1011,6 +1019,7 @@
 
 			// Get voltage of CA6
 			function sendVoltagePacket() {
+				buildHttpRequest("JSCA_GET_VERSION", false);
 				buildHttpRequest("JSCA_GET_VOLTAGE", true);
 			}
 
@@ -1302,8 +1311,8 @@
 			<p>Start here on startup: <select class="select1" id="start_location" onchange="setStartLocation();"></select></p>
 			<p><button onclick="setDefaults();">Set Menu Defaults</button></p>
 			<p><button onclick="clearWifiNetworks();">Clear Wifi Settings</button> <br>Turn off power after clicking</p>
-			<p>Current voltage: <span id="current_voltage">?</span>
-			<p>Version: 2018.6.24</p>
+			<p>Current voltage: <span id="current_voltage">?</span></p>
+			<p>Version: <span id="current_version">?</span></p>
 		</div>
 <!--Advanced Page (End)-->
 	<p id="debugText"></p>

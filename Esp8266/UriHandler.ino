@@ -140,6 +140,11 @@ void serviceUri() {
       String str = String(gVoltage/100) + "." + String(gVoltage%100/10) + String(gVoltage%10);
       sendResponce("JSCA_GET_VOLTAGE", str);
     }
+    else if (jscaMatch(jsca, "JSCA_GET_VERSION")) {
+      CA_LOG(CA_JS_URI, " ProcURI: JSCA_GET_VERSION\n");
+      String str = String(gVersion);
+      sendResponce("JSCA_GET_VERSION", str);
+    }
     else if (jscaMatch(jsca, "JSCA_SET_DEFAULTS")) {
       CA_LOG(CA_JS_URI, " ProcURI: JSCA_SET_DEFAULTS\n");
       Dir dir = SPIFFS.openDir("/data");
