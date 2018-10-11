@@ -18,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADC maps 0->5V with values from 0 to 255
-#define MAX_CAP_VOLTAGE 170        // v = 20V*20K/(1M+20K)*255/5
+#define MAX_CAP_VOLTAGE 110        // v = 20V*20K/(1M+20K)*255/5
 
 // Digital/analog pins
 #define PIN_BOOST           6   // PORT_A - Output. Controls current flow to boost inductor
@@ -247,7 +247,7 @@ void loop()
 
 #else
     if (allowTrigger) {
-      //if (READ_TIP() == LOW) {
+      if (READ_TIP() == LOW) {
         SET_LED();
         for(uint8_t i=0; i<100; ++i) {
           __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"); // 5/8 us, but loop takes 3/8 us so total is 1 us
@@ -255,7 +255,7 @@ void loop()
         CLR_LED();
         startTime = millis();
         allowTrigger = false;
-      //}
+      }
     }
     else {
       uint32_t duration = 1000;  // Allow retrigger every 1 second

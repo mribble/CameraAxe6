@@ -30,6 +30,11 @@ void setup() {
   *REG_DWT_CTRL |= (uint32_t)1;
   *REG_DWT_CYCCNT = (uint32_t)0;
 
+  // When CC_EXT0 is high it forces the esp8266 into test mode
+  hwPortPin ppExt0 = CAU::getOnboardDevicePin(CC_EXT0);
+  CAU::pinMode(ppExt0, OUTPUT);
+  CAU::digitalWrite(ppExt0, LOW);
+
   initCameraPins();
   SerialIO.begin(12345); // Speed doesn't matter here
   CAU::initializeAnalog();

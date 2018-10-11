@@ -27,8 +27,15 @@
 #include <ArduinoOTA.h>
 
 #define CA_AP_PASSWORD "ca6admin"
-#define G_LED 4
-#define R_LED 5
+
+#define PIN_CTS   13
+#define PIN_RTS   15
+#define PIN_TX    1
+#define PIN_RX    3
+#define PIN_EXT0  12
+#define PIN_EXT1  14
+#define PIN_G_LED 4
+#define PIN_R_LED 5
 
 #define MAX_DYNAMIC_MESSAGES 16
 struct DynamicMessages
@@ -47,7 +54,7 @@ WiFiClient gClient;                 // Client that connects to a specific IP add
 CAPacketHelper gPh;                 // Helps assemble binary packets going to the sam3x
 DynamicMessages gDynamicMessages;   // Stores dynamic string packet updates from sam3x headed to JS on next refresh
 String gDynamicUint32s;             // Stores uint32 packet updates from sam32 headed to JS on next refresh
-CALed gLed(G_LED, R_LED);           // Manages a red/green LED used to indicate connection status
+CALed gLed(PIN_G_LED, PIN_R_LED);   // Manages a red/green LED used to indicate connection status
 uint32_t gVoltage = 0;              // Current voltage being read by sam3x
 const String gEspVersion = "esp180721";
 String gVersion;
@@ -74,6 +81,14 @@ String gStartLocationDefaults = "Home Page (default)";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup (void) {
   gLed.set(CALed::RED_ON); // Force solid red led until connection made
+  delay(100);
+
+  // When PIN_EXT0 is high it forces the esp8266 into test mode
+  pinMode(PIN_EXT0, INPUT);
+  if (digitalRead(PIN_EXT0) == HIGH) {
+    espTestMode();
+  }
+  
   SerialIO.begin(74880); // Connection to SAM3X
   delay(10); // Wait for serial connection to sam3x
   gPh.init((HardwareSerial*)(&SerialIO), NULL);
@@ -185,6 +200,52 @@ void initOTA() {
     else if (error == OTA_END_ERROR) CA_LOG(CA_INFO, "End Failed\n");
   });
   ArduinoOTA.begin();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Puts esp8266 into a test mode to verify pin connections with sam3x
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void espTestMode() {
+  uint8_t red = 1;
+  uint8_t green = 0;
+  uint32_t t = millis();
+  pinMode(PIN_RTS, OUTPUT);
+  pinMode(PIN_CTS, OUTPUT);
+  pinMode(PIN_TX, OUTPUT);
+  pinMode(PIN_EXT1, OUTPUT);
+  pinMode(PIN_G_LED, OUTPUT);
+  pinMode(PIN_R_LED, OUTPUT);
+  
+  while(1) {
+    if (digitalRead(PIN_EXT0) == LOW) {
+      digitalWrite(PIN_RTS, LOW);
+      digitalWrite(PIN_CTS, LOW);
+      digitalWrite(PIN_TX, LOW);
+      digitalWrite(PIN_EXT1, LOW);
+    }
+    else {
+      digitalWrite(PIN_RTS, HIGH);
+      digitalWrite(PIN_CTS, HIGH);
+      digitalWrite(PIN_TX, HIGH);
+      digitalWrite(PIN_EXT1, HIGH);
+    }
+
+    // Swap red/green led colors ever 200 ms
+    if (t <= millis()) {
+      if (red) {
+        red = 0;
+        green = 1;
+      }
+      else {
+        red = 1;
+        green = 0;
+      }
+      t = millis()+200;
+    }
+    digitalWrite(PIN_R_LED, red);
+    digitalWrite(PIN_G_LED, green);
+    yield();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,7 @@ extern void caTestPackets();
 extern boolean caTestModulePorts();
 extern boolean caTestAuxAndCamPorts();
 extern boolean caTestAnalog();
+extern boolean caTestEsp8266Pins();
 extern void setAllShutterPins();
 extern void setAllFocusPins();
 extern void clearAllShutterPins();
@@ -27,6 +28,7 @@ void caRunTests()
 {
   hwPortPin ppPin;
   ppPin = CAU::getOnboardDevicePin(PROG_BUTTON);
+
   CAU::pinMode(ppPin, INPUT_PULLUP);
   if (CAU::digitalRead(ppPin) == LOW) {  // Only enter this mode if program button pressed
     
@@ -35,6 +37,12 @@ void caRunTests()
     pp0 = CAU::getAuxPin(0);
     pp1 = CAU::getAuxPin(1);
     if (caTestTwoPins(pp0, pp1)) {
+
+      // When CC_EXT0 is high it forces the esp8266 into test mode
+      ppPin = CAU::getOnboardDevicePin(CC_EXT0);
+      CAU::pinMode(ppPin, OUTPUT);
+      CAU::digitalWrite(ppPin, HIGH);
+      
       setAllShutterPins(); // Red
       setAllFocusPins(); // Green
       delay(500);
@@ -43,7 +51,7 @@ void caRunTests()
       delay(500);
 
       while(1) {
-        boolean ret0, ret1, ret2;
+        boolean ret0, ret1, ret2, ret3;
         //caTestTickTimer();
         //caTestPerf();
         //caTestPackets();
@@ -51,12 +59,15 @@ void caRunTests()
         ret0 = caTestModulePorts();
         ret1 = caTestAuxAndCamPorts();
         ret2 = caTestAnalog();
+        ret3 = caTestEsp8266Pins();
 
-        if (ret0 && ret1 && ret1) {
+        if (ret0 && ret1 && ret2 && ret3) {
           setAllFocusPins(); // Pass - Green
+          CA_LOG(CA_INFO, "\n");
         }
         else {
           setAllShutterPins(); // Fail - Red
+          CA_LOG(CA_INFO, "FAIL - %d %d %d %d\n\n", ret0, ret1, ret2, ret3);          
         }
         delay(2000); // wait 5000 ms
         clearAllShutterPins();
@@ -479,31 +490,31 @@ boolean caTestAnalog()
   if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 1);
   ppDig = CAU::getModulePin(2, 0);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 2);
   ppDig = CAU::getModulePin(2, 3);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 4);
   ppDig = CAU::getModulePin(2, 5);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(2, 5);
   ppDig = CAU::getModulePin(2, 4);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getModulePin(3, 0);
   ppDig = CAU::getModulePin(3, 1);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(39);
   ppDig = CAU::getAuxPin(38);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(40);
   ppDig = CAU::getAuxPin(41);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(41);
   ppDig = CAU::getAuxPin(40);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
   ppAn = CAU::getAuxPin(42);
   ppDig = CAU::getAuxPin(43);
-  if (caTestAnalogPin(ppAn, ppDig)) {ret = false;}
+  if (!caTestAnalogPin(ppAn, ppDig)) {ret = false;}
 
   ppAn = CAU::getOnboardDevicePin(LV_DETECT_PIN);
   CAU::pinMode(ppAn, ANALOG_INPUT);
@@ -515,6 +526,57 @@ boolean caTestAnalog()
   }
   
   CA_LOG(CA_INFO, "Done - analog\n");
+  return ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// caTestEsp8266Pins - Tests the pins going to the esp8266
+// returns  - true mean pass and false means fail
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+boolean caTestEsp8266Pins()
+{
+  uint8_t p0, p1, p2, p3;
+  uint16_t val;
+  boolean ret = true;
+
+  g_ctx.esp8266.getSerial()->end();
+  hwPortPin ppCts = CAU::getOnboardDevicePin(CC_CTS);
+  hwPortPin ppRts = CAU::getOnboardDevicePin(CC_RTS);
+  hwPortPin ppTx = CAU::getOnboardDevicePin(CC_TX);
+  hwPortPin ppRx = CAU::getOnboardDevicePin(CC_RX);
+  hwPortPin ppExt0 = CAU::getOnboardDevicePin(CC_EXT0);
+  hwPortPin ppExt1 = CAU::getOnboardDevicePin(CC_EXT1);
+
+  CAU::pinMode(ppCts, INPUT);
+  CAU::pinMode(ppRts, INPUT);
+  CAU::pinMode(ppTx, INPUT);
+  CAU::pinMode(ppRx, INPUT);
+  CAU::pinMode(ppExt0, OUTPUT);
+  CAU::pinMode(ppExt1, INPUT);
+
+  CAU::digitalWrite(ppExt0, LOW);
+  delay(100);
+  p0 = CAU::digitalRead(ppCts);
+  p1 = CAU::digitalRead(ppRts);
+  p2 = CAU::digitalRead(ppRx);
+  p3 = CAU::digitalRead(ppExt1);
+  if ((p0 != LOW) || (p1 != LOW) || (p2 != LOW) || (p3 != LOW)) {
+    CA_LOG(CA_INFO, "  Failed ESP8266 Pin Test (expect 0) : %d %d %d %d\n", p0, p1, p2, p3);
+    ret = false;
+  }
+
+  CAU::digitalWrite(ppExt0, HIGH);
+  delay(100);
+  p0 = CAU::digitalRead(ppCts);
+  p1 = CAU::digitalRead(ppRts);
+  p2 = CAU::digitalRead(ppRx);
+  p3 = CAU::digitalRead(ppExt1);
+  if ((p0 != HIGH) || (p1 != HIGH) || (p2 != HIGH) || (p3 != HIGH)) {
+    CA_LOG(CA_INFO, "  Failed ESP8266 Pin Test (expect 1) : %d %d %d %d\n", p0, p1, p2, p3);
+    ret = false;
+  }
+  CA_LOG(CA_INFO, "Done - esp8266 pin test\n");
+  
   return ret;
 }
 
