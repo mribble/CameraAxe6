@@ -1,0 +1,703 @@
+EESchema Schematic File Version 2
+LIBS:CA6
+LIBS:74xx
+LIBS:74xgxx
+LIBS:ac-dc
+LIBS:actel
+LIBS:adc-dac
+LIBS:allegro
+LIBS:Altera
+LIBS:analog_devices
+LIBS:analog_switches
+LIBS:atmel
+LIBS:audio
+LIBS:battery_management
+LIBS:bbd
+LIBS:brooktre
+LIBS:cmos_ieee
+LIBS:cmos4000
+LIBS:conn
+LIBS:contrib
+LIBS:cypress
+LIBS:dc-dc
+LIBS:device
+LIBS:digital-audio
+LIBS:diode
+LIBS:display
+LIBS:dsp
+LIBS:elec-unifil
+LIBS:ESD_Protection
+LIBS:ftdi
+LIBS:gennum
+LIBS:graphic
+LIBS:hc11
+LIBS:intel
+LIBS:interface
+LIBS:ir
+LIBS:Lattice
+LIBS:linear
+LIBS:logo
+LIBS:maxim
+LIBS:mechanical
+LIBS:memory
+LIBS:microchip
+LIBS:microchip_dspic33dsc
+LIBS:microchip_pic10mcu
+LIBS:microchip_pic12mcu
+LIBS:microchip_pic16mcu
+LIBS:microchip_pic18mcu
+LIBS:microchip_pic32mcu
+LIBS:microcontrollers
+LIBS:motor_drivers
+LIBS:motorola
+LIBS:motors
+LIBS:msp430
+LIBS:nordicsemi
+LIBS:nxp_armmcu
+LIBS:onsemi
+LIBS:opto
+LIBS:Oscillators
+LIBS:philips
+LIBS:power
+LIBS:Power_Management
+LIBS:powerint
+LIBS:pspice
+LIBS:references
+LIBS:regul
+LIBS:relays
+LIBS:rfcom
+LIBS:sensors
+LIBS:silabs
+LIBS:siliconi
+LIBS:stm8
+LIBS:stm32
+LIBS:supertex
+LIBS:switches
+LIBS:texas
+LIBS:transf
+LIBS:transistors
+LIBS:ttl_ieee
+LIBS:valves
+LIBS:video
+LIBS:wiznet
+LIBS:Worldsemi
+LIBS:Xicor
+LIBS:xilinx
+LIBS:zetex
+LIBS:Zilog
+LIBS:Light-cache
+EELAYER 25 0
+EELAYER END
+$Descr USLetter 11000 8500
+encoding utf-8
+Sheet 1 1
+Title "CA6 version of New Light Sensor Module with Extensible Snoot"
+Date "2017-12-04"
+Rev ""
+Comp "DreamingRobots.com"
+Comment1 "D. M. Lenardon"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L JACK_STEREO J2
+U 1 1 54012E4D
+P 5950 4950
+F 0 "J2" H 5575 4950 50  0000 R CNN
+F 1 "JACK_STEREO" H 5950 5200 50  0000 C CNN
+F 2 "CA6:161-3334-E_Big_Pad" H 5950 4950 60  0001 C CNN
+F 3 "~" H 5950 4950 60  0000 C CNN
+	1    5950 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L JACK_RJ45 J1
+U 1 1 5401301C
+P 4200 3650
+F 0 "J1" H 4375 4150 39  0000 C CNN
+F 1 "JACK_RJ45" H 4025 4150 39  0000 C CNN
+F 2 "CA6:RJ45_pcbwing" H 4175 3650 60  0001 C CNN
+F 3 "~" H 4175 3650 60  0000 C CNN
+	1    4200 3650
+	0    -1   1    0   
+$EndComp
+$Comp
+L 3V3 #PWR01
+U 1 1 540144B1
+P 4650 3200
+F 0 "#PWR01" H 4650 3300 40  0001 C CNN
+F 1 "3V3" H 4650 3325 40  0000 C CNN
+F 2 "" H 4650 3200 60  0000 C CNN
+F 3 "" H 4650 3200 60  0000 C CNN
+	1    4650 3200
+	1    0    0    -1  
+$EndComp
+Text Label 4650 3400 0    60   ~ 0
+AN1
+Text Label 4650 3500 0    60   ~ 0
+D1
+Text Label 4650 3600 0    60   ~ 0
+D2
+Text Label 4650 3700 0    60   ~ 0
+D3
+Text Label 4650 3800 0    60   ~ 0
+D4
+Text Label 4650 3900 0    60   ~ 0
+D5
+$Comp
+L GND #PWR02
+U 1 1 540144C2
+P 4650 4100
+F 0 "#PWR02" H 4650 4100 30  0001 C CNN
+F 1 "GND" H 4650 4030 30  0001 C CNN
+F 2 "" H 4650 4100 60  0000 C CNN
+F 3 "" H 4650 4100 60  0000 C CNN
+	1    4650 4100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4650 3200 4650 3300
+$Comp
+L 3V3 #PWR03
+U 1 1 5401450D
+P 5800 4000
+F 0 "#PWR03" H 5800 4100 40  0001 C CNN
+F 1 "3V3" H 5800 4125 40  0000 C CNN
+F 2 "" H 5800 4000 60  0000 C CNN
+F 3 "" H 5800 4000 60  0000 C CNN
+	1    5800 4000
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4650 4000 4650 4100
+Text Label 5350 5650 0    60   ~ 0
+D1
+$Comp
+L R R2
+U 1 1 54AA118B
+P 5700 5650
+F 0 "R2" V 5780 5650 40  0000 C CNN
+F 1 "1K" V 5707 5651 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 5630 5650 30  0001 C CNN
+F 3 "~" H 5700 5650 30  0000 C CNN
+	1    5700 5650
+	0    -1   -1   0   
+$EndComp
+$Comp
+L OPTO_NPN Q1
+U 1 1 54AA12A2
+P 5850 3050
+F 0 "Q1" H 6000 3100 50  0000 L CNN
+F 1 "TEPT4400" H 5500 3200 50  0000 L CNN
+F 2 "CA6:PhotoTrans_Conn_Pads_1x02_Pitch2.54mm" H 5850 3050 60  0001 C CNN
+F 3 "http://www.mouser.com/ds/2/427/tept4400-244748.pdf" H 5850 3050 60  0001 C CNN
+	1    5850 3050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L R R1
+U 1 1 54AA13F6
+P 5500 3400
+F 0 "R1" V 5580 3400 40  0000 C CNN
+F 1 "1K" V 5507 3401 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 5430 3400 30  0001 C CNN
+F 3 "~" H 5500 3400 30  0000 C CNN
+	1    5500 3400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R3
+U 1 1 54AA1792
+P 7750 3700
+F 0 "R3" V 7830 3700 40  0000 C CNN
+F 1 "160 1%" V 7757 3701 40  0000 C CNN
+F 2 "Resistors_SMD:R_1206" V 7680 3700 30  0001 C CNN
+F 3 "" H 7750 3700 30  0001 C CNN
+	1    7750 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR04
+U 1 1 54AA199D
+P 5750 2750
+F 0 "#PWR04" H 5750 2850 40  0001 C CNN
+F 1 "3V3" H 5750 2875 40  0000 C CNN
+F 2 "" H 5750 2750 60  0000 C CNN
+F 3 "" H 5750 2750 60  0000 C CNN
+	1    5750 2750
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR05
+U 1 1 54AA1A1B
+P 7750 5950
+F 0 "#PWR05" H 7750 5950 30  0001 C CNN
+F 1 "GND" H 7750 5880 30  0001 C CNN
+F 2 "" H 7750 5950 60  0000 C CNN
+F 3 "" H 7750 5950 60  0000 C CNN
+	1    7750 5950
+	1    0    0    -1  
+$EndComp
+Text Notes 5600 5300 0    60   ~ 0
+3.5mm Jack for\nLaser Power
+Text Notes 3900 2450 0    60   ~ 0
+CA6 version of New Light Sensor Module with Extensible Snoot
+$Comp
+L C C1
+U 1 1 54AABC31
+P 5250 2850
+F 0 "C1" H 5250 2950 40  0000 L CNN
+F 1 "10uF" H 5256 2765 40  0000 L CNN
+F 2 "CA6:c_1206" H 5288 2700 30  0001 C CNN
+F 3 "~" H 5250 2850 60  0000 C CNN
+	1    5250 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR06
+U 1 1 54AABCE0
+P 5250 3100
+F 0 "#PWR06" H 5250 3100 30  0001 C CNN
+F 1 "GND" H 5250 3030 30  0001 C CNN
+F 2 "" H 5250 3100 60  0000 C CNN
+F 3 "" H 5250 3100 60  0000 C CNN
+	1    5250 3100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5750 3250 5750 3400
+Connection ~ 5750 3400
+Wire Wire Line
+	4650 3400 5250 3400
+Wire Wire Line
+	5300 3500 5300 5650
+Wire Wire Line
+	5300 3500 4650 3500
+NoConn ~ 4650 3900
+$Comp
+L PWR_FLAG #FLG07
+U 1 1 58FEFDE5
+P 4300 2950
+F 0 "#FLG07" H 4300 3025 50  0001 C CNN
+F 1 "PWR_FLAG" H 4300 3100 50  0000 C CNN
+F 2 "" H 4300 2950 50  0001 C CNN
+F 3 "" H 4300 2950 50  0001 C CNN
+	1    4300 2950
+	-1   0    0    1   
+$EndComp
+$Comp
+L 3V3 #PWR08
+U 1 1 58FEFE63
+P 4300 2850
+F 0 "#PWR08" H 4300 2950 40  0001 C CNN
+F 1 "3V3" H 4300 2975 40  0000 C CNN
+F 2 "" H 4300 2850 60  0000 C CNN
+F 3 "" H 4300 2850 60  0000 C CNN
+	1    4300 2850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4300 2950 4300 2850
+Wire Wire Line
+	5250 3100 5250 3050
+Wire Wire Line
+	5750 2750 5750 2850
+Wire Wire Line
+	5250 2650 5500 2650
+Wire Wire Line
+	5500 2650 5500 2800
+Wire Wire Line
+	5500 2800 5750 2800
+Connection ~ 5750 2800
+Text Notes 6000 3150 0    60   ~ 0
+just wire pads on board\nphoto trans. connected via wires
+Wire Wire Line
+	5950 5650 6150 5650
+Wire Wire Line
+	5300 5650 5450 5650
+Text Notes 7900 3750 0    39   ~ 0
+R2 for MAX current of 20mA\n(3.3V - .17 drop across Buffer)/20mA=156.5 ohms\nUse 160 ohms for max current = 19.5 mA
+$Comp
+L PWR_FLAG #FLG09
+U 1 1 59E23186
+P 4200 4350
+F 0 "#FLG09" H 4200 4425 50  0001 C CNN
+F 1 "PWR_FLAG" H 4200 4500 50  0000 C CNN
+F 2 "" H 4200 4350 50  0001 C CNN
+F 3 "" H 4200 4350 50  0001 C CNN
+	1    4200 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR010
+U 1 1 59E231B3
+P 4200 4450
+F 0 "#PWR010" H 4200 4450 30  0001 C CNN
+F 1 "GND" H 4200 4380 30  0001 C CNN
+F 2 "" H 4200 4450 60  0000 C CNN
+F 3 "" H 4200 4450 60  0000 C CNN
+	1    4200 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4200 4350 4200 4450
+$Comp
+L Q_NMOS_GSD Q2
+U 1 1 59E3F4ED
+P 6350 5650
+F 0 "Q2" H 6550 5700 50  0000 L CNN
+F 1 "Q_NMOS_GSD" H 6550 5600 50  0001 L CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23" H 6550 5750 50  0001 C CNN
+F 3 "" H 6350 5650 50  0000 C CNN
+	1    6350 5650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK1
+U 1 1 5A1F1815
+P 3200 3100
+F 0 "MK1" H 3200 3300 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3225 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_4.5mm_Pad" H 3200 3100 60  0001 C CNN
+F 3 "" H 3200 3100 60  0001 C CNN
+	1    3200 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK2
+U 1 1 5A1F1870
+P 3200 3450
+F 0 "MK2" H 3200 3650 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3575 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 3450 60  0001 C CNN
+F 3 "" H 3200 3450 60  0001 C CNN
+	1    3200 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK3
+U 1 1 5A1F18E3
+P 3200 3800
+F 0 "MK3" H 3200 4000 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 3925 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 3800 60  0001 C CNN
+F 3 "" H 3200 3800 60  0001 C CNN
+	1    3200 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R4
+U 1 1 5A244879
+P 7750 4300
+F 0 "R4" V 7830 4300 40  0000 C CNN
+F 1 "1K" V 7757 4301 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 7680 4300 30  0001 C CNN
+F 3 "" H 7750 4300 30  0001 C CNN
+	1    7750 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R5
+U 1 1 5A2448F7
+P 7750 4900
+F 0 "R5" V 7830 4900 40  0000 C CNN
+F 1 "3.9k" V 7757 4901 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 7680 4900 30  0001 C CNN
+F 3 "" H 7750 4900 30  0001 C CNN
+	1    7750 4900
+	1    0    0    -1  
+$EndComp
+Connection ~ 7750 4600
+Wire Wire Line
+	7750 5150 7750 5400
+$Comp
+L 74LVC1G07 U2
+U 1 1 5A244A16
+P 7350 4600
+F 0 "U2" H 7250 4750 50  0000 C CNN
+F 1 "74LVC1G07" H 7350 4450 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-353_SC-70-5" H 7350 4600 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/sn74lvc1g07.pdf" H 7350 4600 50  0001 C CNN
+	1    7350 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L 74LVC1G07 U1
+U 1 1 5A244A65
+P 7500 4000
+F 0 "U1" H 7400 4150 50  0000 C CNN
+F 1 "74LVC1G07" H 7500 3850 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-353_SC-70-5" H 7500 4000 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/sn74lvc1g07.pdf" H 7500 4000 50  0001 C CNN
+	1    7500 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7050 3600 4650 3600
+Wire Wire Line
+	6950 3700 4650 3700
+$Comp
+L GND #PWR011
+U 1 1 5A247E92
+P 7350 4850
+F 0 "#PWR011" H 7350 4850 30  0001 C CNN
+F 1 "GND" H 7350 4780 30  0001 C CNN
+F 2 "" H 7350 4850 60  0000 C CNN
+F 3 "" H 7350 4850 60  0000 C CNN
+	1    7350 4850
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR012
+U 1 1 5A247ECA
+P 7500 4200
+F 0 "#PWR012" H 7500 4200 30  0001 C CNN
+F 1 "GND" H 7500 4130 30  0001 C CNN
+F 2 "" H 7500 4200 60  0000 C CNN
+F 3 "" H 7500 4200 60  0000 C CNN
+	1    7500 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR013
+U 1 1 5A248403
+P 7500 3800
+F 0 "#PWR013" H 7500 3900 40  0001 C CNN
+F 1 "3V3" H 7500 3925 40  0000 C CNN
+F 2 "" H 7500 3800 60  0000 C CNN
+F 3 "" H 7500 3800 60  0000 C CNN
+	1    7500 3800
+	-1   0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR014
+U 1 1 5A2484A4
+P 7350 4400
+F 0 "#PWR014" H 7350 4500 40  0001 C CNN
+F 1 "3V3" H 7350 4550 40  0000 C CNN
+F 2 "" H 7350 4400 60  0000 C CNN
+F 3 "" H 7350 4400 60  0000 C CNN
+	1    7350 4400
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	7750 4600 7600 4600
+Wire Wire Line
+	7350 4850 7350 4700
+Wire Wire Line
+	6950 3700 6950 4600
+Wire Wire Line
+	6950 4600 7050 4600
+Wire Wire Line
+	7750 4550 7750 4650
+Wire Wire Line
+	7750 3950 7750 4050
+Connection ~ 7750 4000
+Wire Wire Line
+	5750 3400 7750 3400
+Wire Wire Line
+	7750 3400 7750 3450
+Wire Wire Line
+	7350 4500 7350 4400
+Wire Wire Line
+	7500 4100 7500 4200
+Wire Wire Line
+	7500 3900 7500 3800
+$Comp
+L C C3
+U 1 1 5A2877CA
+P 6300 4250
+F 0 "C3" H 6300 4350 40  0000 L CNN
+F 1 "10uF" H 6306 4165 40  0000 L CNN
+F 2 "CA6:c_1206" H 6338 4100 30  0001 C CNN
+F 3 "~" H 6300 4250 60  0000 C CNN
+	1    6300 4250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CAP_ELEC C2
+U 1 1 5A287922
+P 5900 4250
+F 0 "C2" H 5950 4350 50  0000 L CNN
+F 1 "100uF" H 5950 4150 50  0000 L CNN
+F 2 "CA6:c_elec_6.3x5.7" H 5900 4250 60  0001 C CNN
+F 3 "" H 5900 4250 60  0000 C CNN
+	1    5900 4250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5800 4000 6450 4000
+Wire Wire Line
+	6450 4000 6450 4800
+Wire Wire Line
+	6300 4050 6300 4000
+Connection ~ 6300 4000
+Wire Wire Line
+	5900 4050 5900 4000
+Connection ~ 5900 4000
+$Comp
+L GND #PWR015
+U 1 1 5A2880E8
+P 5900 4500
+F 0 "#PWR015" H 5900 4500 30  0001 C CNN
+F 1 "GND" H 5900 4430 30  0001 C CNN
+F 2 "" H 5900 4500 60  0000 C CNN
+F 3 "" H 5900 4500 60  0000 C CNN
+	1    5900 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR016
+U 1 1 5A288126
+P 6300 4500
+F 0 "#PWR016" H 6300 4500 30  0001 C CNN
+F 1 "GND" H 6300 4430 30  0001 C CNN
+F 2 "" H 6300 4500 60  0000 C CNN
+F 3 "" H 6300 4500 60  0000 C CNN
+	1    6300 4500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6300 4500 6300 4450
+Wire Wire Line
+	5900 4450 5900 4500
+$Comp
+L Mounting_Hole MK4
+U 1 1 5A2EE04A
+P 3200 4150
+F 0 "MK4" H 3200 4350 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 4275 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 4150 60  0001 C CNN
+F 3 "" H 3200 4150 60  0001 C CNN
+	1    3200 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mounting_Hole MK5
+U 1 1 5A2EE142
+P 3200 4500
+F 0 "MK5" H 3200 4700 50  0000 C CNN
+F 1 "Mounting_Hole" H 3200 4625 50  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 3200 4500 60  0001 C CNN
+F 3 "" H 3200 4500 60  0001 C CNN
+	1    3200 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R6
+U 1 1 5A32AF14
+P 6050 5950
+F 0 "R6" V 6130 5950 40  0000 C CNN
+F 1 "10K" V 6057 5951 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 5980 5950 30  0001 C CNN
+F 3 "~" H 6050 5950 30  0000 C CNN
+	1    6050 5950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 5700 6050 5650
+Connection ~ 6050 5650
+$Comp
+L GND #PWR017
+U 1 1 5A32B0B2
+P 6050 6250
+F 0 "#PWR017" H 6050 6250 30  0001 C CNN
+F 1 "GND" H 6050 6180 30  0001 C CNN
+F 2 "" H 6050 6250 60  0000 C CNN
+F 3 "" H 6050 6250 60  0000 C CNN
+	1    6050 6250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6050 6250 6050 6200
+Wire Wire Line
+	6450 4800 6300 4800
+NoConn ~ 6300 5000
+Wire Wire Line
+	6300 5100 6450 5100
+Wire Wire Line
+	6450 5100 6450 5450
+Wire Wire Line
+	6450 5850 6450 6250
+$Comp
+L GND #PWR018
+U 1 1 5A36EE99
+P 6450 6250
+F 0 "#PWR018" H 6450 6250 30  0001 C CNN
+F 1 "GND" H 6450 6180 30  0001 C CNN
+F 2 "" H 6450 6250 60  0000 C CNN
+F 3 "" H 6450 6250 60  0000 C CNN
+	1    6450 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R7
+U 1 1 5A393684
+P 7750 5650
+F 0 "R7" V 7830 5650 40  0000 C CNN
+F 1 "15k" V 7757 5651 40  0000 C CNN
+F 2 "CA6:SM0603_Resistor" V 7680 5650 30  0001 C CNN
+F 3 "" H 7750 5650 30  0001 C CNN
+	1    7750 5650
+	1    0    0    -1  
+$EndComp
+Connection ~ 7750 5350
+Wire Wire Line
+	7750 5900 7750 5950
+$Comp
+L 74LVC1G07 U3
+U 1 1 5A39368C
+P 7350 5350
+F 0 "U3" H 7250 5500 50  0000 C CNN
+F 1 "74LVC1G07" H 7350 5200 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-353_SC-70-5" H 7350 5350 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/sn74lvc1g07.pdf" H 7350 5350 50  0001 C CNN
+	1    7350 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR019
+U 1 1 5A393692
+P 7350 5950
+F 0 "#PWR019" H 7350 5950 30  0001 C CNN
+F 1 "GND" H 7350 5880 30  0001 C CNN
+F 2 "" H 7350 5950 60  0000 C CNN
+F 3 "" H 7350 5950 60  0000 C CNN
+	1    7350 5950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7750 5350 7600 5350
+Wire Wire Line
+	7350 5950 7350 5450
+Wire Wire Line
+	6850 5350 7050 5350
+$Comp
+L 3V3 #PWR020
+U 1 1 5A3937A4
+P 7350 5200
+F 0 "#PWR020" H 7350 5300 40  0001 C CNN
+F 1 "3V3" H 7350 5350 40  0000 C CNN
+F 2 "" H 7350 5200 60  0000 C CNN
+F 3 "" H 7350 5200 60  0000 C CNN
+	1    7350 5200
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 5200 7350 5250
+Wire Wire Line
+	6850 5350 6850 3800
+Wire Wire Line
+	6850 3800 4650 3800
+Wire Wire Line
+	7050 3600 7050 4000
+Wire Wire Line
+	7050 4000 7200 4000
+Text Label 7100 4000 0    60   ~ 0
+D2
+Text Label 6950 4600 0    60   ~ 0
+D3
+Text Label 6900 5350 0    60   ~ 0
+D4
+$EndSCHEMATC

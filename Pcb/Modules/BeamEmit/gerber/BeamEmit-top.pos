@@ -1,0 +1,12 @@
+### Module positions - created on 2/13/2019 4:29:26 AM ###
+### Printed by Pcbnew version pcbnew (5.0.1)-4
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val         Package                PosX       PosY       Rot  Side
+C2        0.1uF       C_0603              40.6400   -35.5600   90.0000  top
+C3        10uF        R_1206              43.1800   -35.5600   90.0000  top
+Q1        Q_NMOS_GSD  SOT-23              62.7380   -37.8460    0.0000  top
+R1        4R7         R_1206              62.4840   -33.2740  180.0000  top
+R2        100K        R_0603              55.8800   -40.0050   90.0000  top
+R4        1K          R_0603              59.9440   -38.1000   90.0000  top
+## End

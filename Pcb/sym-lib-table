@@ -1,0 +1,6 @@
+(sym_lib_table
+  (lib (name CA6-rescue)(type Legacy)(uri ${KIPRJMOD}/CA6-rescue.lib)(options "")(descr ""))
+  (lib (name CA6)(type Legacy)(uri ${KIPRJMOD}/CA6.lib)(options "")(descr ""))
+  (lib (name conn)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/conn.lib)(options "")(descr ""))
+  (lib (name switches)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/switches.lib)(options "")(descr ""))
+)

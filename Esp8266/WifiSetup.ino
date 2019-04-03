@@ -50,7 +50,7 @@ void setupWiFi() {
     CA_LOG(CA_INFO, "Network scan count: %d\n", netCount);
     wifiManager.setDebugOutput(false);
     wifiManager.setBreakAfterConfig(true);              // Return if config unsuccessful
-    wifiManager.setExitButtonLabel("Standalone Mode");  // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
+    //wifiManager.setExitButtonLabel("Standalone Mode");  // [Local mod] sets the label on the exit button to clarify the meaning of exiting from the portal
 
     //wifiManager.setAPStaticIPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));    // use native WiFi class call below instead
     WiFi.softAPConfig(myIPAddress, myIPAddress, IPAddress(255, 0, 0, 0));                    // Force a static ip

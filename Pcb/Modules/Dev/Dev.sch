@@ -1,36 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:CA6
+EESchema Schematic File Version 4
 LIBS:Dev-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -45,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L JACK_RJ45 J2
+L CA6:JACK_RJ45 J2
 U 1 1 58C31719
 P 1150 1600
 F 0 "J2" H 1325 2100 39  0000 C CNN
@@ -56,7 +26,7 @@ F 3 "" H 1125 1600 60  0000 C CNN
 	0    -1   1    0   
 $EndComp
 $Comp
-L 3V3 #PWR01
+L CA6:3V3 #PWR01
 U 1 1 58C31841
 P 2500 1150
 F 0 "#PWR01" H 2500 1250 40  0001 C CNN
@@ -67,7 +37,7 @@ F 3 "" H 2500 1150 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR02
+L power:GND #PWR02
 U 1 1 58C3198F
 P 2650 1650
 F 0 "#PWR02" H 2650 1400 50  0001 C CNN
@@ -78,7 +48,7 @@ F 3 "" H 2650 1650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR03
+L power:GND #PWR03
 U 1 1 58C31B87
 P 2500 2050
 F 0 "#PWR03" H 2500 1800 50  0001 C CNN
@@ -115,7 +85,7 @@ M_4
 Text Label 1950 1850 2    60   ~ 0
 M_5
 $Comp
-L JACK_STEREO J1
+L CA6:JACK_STEREO J1
 U 1 1 58C32458
 P 1050 2850
 F 0 "J1" H 675 2850 50  0000 R CNN
@@ -126,7 +96,7 @@ F 3 "" H 1050 2850 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_02X04 P1
+L Dev-rescue:CONN_02X04 P1
 U 1 1 58C324F0
 P 4050 2400
 F 0 "P1" H 4050 2650 50  0000 C CNN
@@ -142,7 +112,7 @@ Text Label 1800 2900 2    60   ~ 0
 M_0
 NoConn ~ 2950 200 
 $Comp
-L GND #PWR04
+L power:GND #PWR04
 U 1 1 58C34106
 P 3350 2250
 F 0 "#PWR04" H 3350 2000 50  0001 C CNN
@@ -153,7 +123,7 @@ F 3 "" H 3350 2250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 3V3 #PWR05
+L CA6:3V3 #PWR05
 U 1 1 58C3412C
 P 4400 2250
 F 0 "#PWR05" H 4400 2350 40  0001 C CNN
@@ -192,7 +162,7 @@ M_4
 Text Label 4600 2550 2    60   ~ 0
 M_5
 Wire Wire Line
-	1600 1250 2650 1250
+	1600 1250 2500 1250
 Wire Wire Line
 	2500 1150 2500 1250
 Connection ~ 2500 1250
@@ -201,7 +171,7 @@ Wire Wire Line
 Wire Wire Line
 	2500 1950 2500 2050
 $Comp
-L SW_TACTILE SW0
+L CA6:SW_TACTILE SW0
 U 1 1 59DE648C
 P 4350 3300
 F 0 "SW0" H 4350 3500 50  0000 C CNN
@@ -218,19 +188,19 @@ Wire Wire Line
 Wire Wire Line
 	4600 3250 4650 3250
 Wire Wire Line
-	4650 3250 4650 3350
+	4650 3250 4650 3300
 Wire Wire Line
 	4650 3300 5000 3300
 Wire Wire Line
 	4650 3350 4600 3350
 Connection ~ 4650 3300
 Wire Wire Line
-	4000 3250 4000 3350
+	4000 3250 4000 3300
 Wire Wire Line
 	4000 3300 3550 3300
 Connection ~ 4000 3300
 $Comp
-L GND #PWR06
+L power:GND #PWR06
 U 1 1 59DE6C39
 P 3550 3350
 F 0 "#PWR06" H 3550 3100 50  0001 C CNN
@@ -245,7 +215,7 @@ M_5
 Wire Wire Line
 	3550 3300 3550 3350
 $Comp
-L C C1
+L Device:C C1
 U 1 1 58C3185F
 P 2650 1400
 F 0 "C1" H 2675 1500 50  0000 L CNN
@@ -256,7 +226,7 @@ F 3 "" H 2650 1400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X1
+L CA6:HOLE X1
 U 1 1 5A2341D5
 P 1650 4000
 F 0 "X1" H 1650 3900 60  0000 C CNN
@@ -267,7 +237,7 @@ F 3 "" H 1650 4000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X2
+L CA6:HOLE X2
 U 1 1 5A2343A7
 P 1950 4000
 F 0 "X2" H 1950 3900 60  0000 C CNN
@@ -278,7 +248,7 @@ F 3 "" H 1950 4000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X3
+L CA6:HOLE X3
 U 1 1 5A2343E7
 P 2250 4000
 F 0 "X3" H 2250 3900 60  0000 C CNN
@@ -289,7 +259,7 @@ F 3 "" H 2250 4000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X4
+L CA6:HOLE X4
 U 1 1 5A234424
 P 2550 4000
 F 0 "X4" H 2550 3900 60  0000 C CNN
@@ -300,7 +270,7 @@ F 3 "" H 2550 4000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 3V3 #PWR07
+L CA6:3V3 #PWR07
 U 1 1 5A36DAE6
 P 1550 2650
 F 0 "#PWR07" H 1550 2750 40  0001 C CNN
@@ -315,7 +285,7 @@ Wire Wire Line
 Wire Wire Line
 	1550 2700 1550 2650
 $Comp
-L GND #PWR08
+L power:GND #PWR08
 U 1 1 5A36E71D
 P 1550 3050
 F 0 "#PWR08" H 1550 2800 50  0001 C CNN
@@ -329,4 +299,10 @@ Wire Wire Line
 	1400 3000 1550 3000
 Wire Wire Line
 	1550 3000 1550 3050
+Wire Wire Line
+	2500 1250 2650 1250
+Wire Wire Line
+	4650 3300 4650 3350
+Wire Wire Line
+	4000 3300 4000 3350
 $EndSCHEMATC

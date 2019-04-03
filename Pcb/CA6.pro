@@ -1,4 +1,4 @@
-update=1/11/2018 8:21:29 AM
+update=1/10/2019 5:12:11 PM
 last_client=kicad
 [general]
 version=1
@@ -39,11 +39,4 @@ SpiceUseNetNumbers=0
 LabSize=60
 [eeschema]
 version=1
-LibDir=../pcb
-[eeschema/libraries]
-LibName1=CA6
-LibName2=C:/Program Files/KiCad/share/kicad/library/device
-LibName3=C:/Program Files/KiCad/share/kicad/library/conn
-LibName4=C:/Program Files/KiCad/share/kicad/library/interface
-LibName5=C:/Program Files/KiCad/share/kicad/library/74xx
-LibName6=C:/Program Files/KiCad/share/kicad/library/switches
+LibDir=

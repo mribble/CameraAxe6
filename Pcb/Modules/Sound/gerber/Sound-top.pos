@@ -1,0 +1,19 @@
+### Module positions - created on 2/13/2019 4:33:54 AM ###
+### Printed by Pcbnew version pcbnew (5.0.1)-4
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val       Package                PosX       PosY       Rot  Side
+C1        47uF      C_1206              52.3240   -36.9570  180.0000  top
+C2        1uF       C_0603              49.2760   -40.2590   90.0000  top
+C3        0.1uF     C_0603              55.3720   -31.8770  180.0000  top
+C4        47pF      C_0603              47.7520   -32.6390  180.0000  top
+C5        47uF      C_1206              41.9100   -35.5600  270.0000  top
+MK1       Mic       MIC_CMA-4544PF      70.9930   -35.5600  180.0000  top
+R1        1K        R_0603              52.3240   -34.9250    0.0000  top
+R2        2.2K      R_0603              55.1180   -34.9250    0.0000  top
+R3        100K      R_0603              47.2440   -39.7510    0.0000  top
+R4        100K      R_0603              51.3080   -39.7510    0.0000  top
+R5        20K       R_0603              52.0700   -31.8770    0.0000  top
+R6        1M        R_0603              47.7520   -34.1630    0.0000  top
+U1        MAX4466   SOT-353_SC-70-5     47.7520   -36.9570  180.0000  top
+## End

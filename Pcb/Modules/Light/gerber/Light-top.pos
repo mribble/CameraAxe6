@@ -1,0 +1,17 @@
+### Module positions - created on 2/13/2019 4:32:45 AM ###
+### Printed by Pcbnew version pcbnew (5.0.1)-4
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val         Package                PosX       PosY       Rot  Side
+Q2        Q_NMOS_GSD  SOT-23             -96.7740    89.6620    0.0000  top
+R1        1K          SM0603_Resistor   -128.0160   100.8380  180.0000  top
+R2        1K          SM0603_Resistor   -102.1080    89.1540    0.0000  top
+R3        160_1%      R_1206            -104.6480    99.5680  270.0000  top
+R4        1K          SM0603_Resistor   -104.9020    95.7580  270.0000  top
+R5        3.9k        SM0603_Resistor   -104.9020    92.7100  270.0000  top
+R6        10K         SM0603_Resistor    -99.3140    89.9160  270.0000  top
+R7        15k         SM0603_Resistor   -104.9020    89.6620  270.0000  top
+U1        74LVC1G07   SOT-353_SC-70-5   -107.9500    96.7740    0.0000  top
+U2        74LVC1G07   SOT-353_SC-70-5   -107.9500    93.4720    0.0000  top
+U3        74LVC1G07   SOT-353_SC-70-5   -107.9500    90.1700    0.0000  top
+## End

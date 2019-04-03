@@ -1,36 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:CA6
+EESchema Schematic File Version 4
 LIBS:Vibration-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -45,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L JACK_RJ45 J1
+L CA6:JACK_RJ45 J1
 U 1 1 59C40B7A
 P 1500 1400
 F 0 "J1" H 1675 1900 39  0000 C CNN
@@ -56,7 +26,7 @@ F 3 "" H 1475 1400 60  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR01
+L power:GND #PWR01
 U 1 1 59C40C28
 P 2150 1100
 F 0 "#PWR01" H 2150 850 50  0001 C CNN
@@ -67,7 +37,7 @@ F 3 "" H 2150 1100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R1
+L Device:R R1
 U 1 1 59C40D7E
 P 2450 1400
 F 0 "R1" V 2530 1400 50  0000 C CNN
@@ -78,7 +48,7 @@ F 3 "" H 2450 1400 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L D_Schottky D1
+L Device:D_Schottky D1
 U 1 1 59C40E4B
 P 2800 1400
 F 0 "D1" H 2800 1500 50  0000 C CNN
@@ -89,7 +59,7 @@ F 3 "" H 2800 1400 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L CONN_01X01 P1
+L Vibration-rescue:CONN_01X01 P1
 U 1 1 59C4105F
 P 3200 1650
 F 0 "P1" H 3200 1750 50  0000 C CNN
@@ -100,7 +70,7 @@ F 3 "" H 3200 1650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X01 P2
+L Vibration-rescue:CONN_01X01 P2
 U 1 1 59C410A1
 P 3200 1050
 F 0 "P2" H 3200 1150 50  0000 C CNN
@@ -111,7 +81,7 @@ F 3 "" H 3200 1050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1950 1050 3000 1050
+	1950 1050 2150 1050
 Wire Wire Line
 	2150 1100 2150 1050
 Connection ~ 2150 1050
@@ -122,7 +92,7 @@ Wire Wire Line
 	2800 1250 2800 1050
 Connection ~ 2800 1050
 Wire Wire Line
-	1950 1650 3000 1650
+	1950 1650 2450 1650
 Wire Wire Line
 	2800 1550 2800 1650
 Connection ~ 2800 1650
@@ -136,7 +106,7 @@ NoConn ~ 1950 1450
 NoConn ~ 1950 1550
 NoConn ~ 1950 1750
 $Comp
-L HOLE X1
+L CA6:HOLE X1
 U 1 1 5A21F271
 P 1400 2400
 F 0 "X1" H 1400 2300 60  0000 C CNN
@@ -147,7 +117,7 @@ F 3 "" H 1400 2400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X2
+L CA6:HOLE X2
 U 1 1 5A21F32B
 P 1700 2400
 F 0 "X2" H 1700 2300 60  0000 C CNN
@@ -158,7 +128,7 @@ F 3 "" H 1700 2400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X3
+L CA6:HOLE X3
 U 1 1 5A21F3A3
 P 2050 2400
 F 0 "X3" H 2050 2300 60  0000 C CNN
@@ -169,7 +139,7 @@ F 3 "" H 2050 2400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X4
+L CA6:HOLE X4
 U 1 1 5A21F3F5
 P 2350 2400
 F 0 "X4" H 2350 2300 60  0000 C CNN
@@ -180,7 +150,7 @@ F 3 "" H 2350 2400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X5
+L CA6:HOLE X5
 U 1 1 5A228D90
 P 1400 2750
 F 0 "X5" H 1400 2650 60  0000 C CNN
@@ -191,7 +161,7 @@ F 3 "" H 1400 2750 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L HOLE X6
+L CA6:HOLE X6
 U 1 1 5A228DCC
 P 1700 2750
 F 0 "X6" H 1700 2650 60  0000 C CNN
@@ -201,4 +171,14 @@ F 3 "" H 1700 2750 60  0000 C CNN
 	1    1700 2750
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	2150 1050 2450 1050
+Wire Wire Line
+	2450 1050 2800 1050
+Wire Wire Line
+	2800 1050 3000 1050
+Wire Wire Line
+	2800 1650 3000 1650
+Wire Wire Line
+	2450 1650 2800 1650
 $EndSCHEMATC

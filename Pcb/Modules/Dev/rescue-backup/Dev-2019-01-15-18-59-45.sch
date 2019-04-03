@@ -1,0 +1,332 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:CA6
+LIBS:Dev-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L JACK_RJ45 J2
+U 1 1 58C31719
+P 1150 1600
+F 0 "J2" H 1325 2100 39  0000 C CNN
+F 1 "JACK_RJ45" H 975 2100 39  0000 C CNN
+F 2 "CA6:RJ45_pcbwing" H 1125 1600 60  0001 C CNN
+F 3 "" H 1125 1600 60  0000 C CNN
+	1    1150 1600
+	0    -1   1    0   
+$EndComp
+$Comp
+L 3V3 #PWR01
+U 1 1 58C31841
+P 2500 1150
+F 0 "#PWR01" H 2500 1250 40  0001 C CNN
+F 1 "3V3" H 2500 1275 40  0000 C CNN
+F 2 "" H 2500 1150 60  0000 C CNN
+F 3 "" H 2500 1150 60  0000 C CNN
+	1    2500 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 58C3198F
+P 2650 1650
+F 0 "#PWR02" H 2650 1400 50  0001 C CNN
+F 1 "GND" H 2650 1500 50  0000 C CNN
+F 2 "" H 2650 1650 50  0000 C CNN
+F 3 "" H 2650 1650 50  0000 C CNN
+	1    2650 1650
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR03
+U 1 1 58C31B87
+P 2500 2050
+F 0 "#PWR03" H 2500 1800 50  0001 C CNN
+F 1 "GND" H 2500 1900 50  0000 C CNN
+F 2 "" H 2500 2050 50  0000 C CNN
+F 3 "" H 2500 2050 50  0000 C CNN
+	1    2500 2050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 1350 1950 1350
+Wire Wire Line
+	1600 1450 1950 1450
+Wire Wire Line
+	1600 1550 1950 1550
+Wire Wire Line
+	1600 1650 1950 1650
+Wire Wire Line
+	1600 1750 1950 1750
+Wire Wire Line
+	1600 1850 1950 1850
+Wire Wire Line
+	1600 1950 2500 1950
+Text Label 1950 1350 2    60   ~ 0
+M_0
+Text Label 1950 1450 2    60   ~ 0
+M_1
+Text Label 1950 1550 2    60   ~ 0
+M_2
+Text Label 1950 1650 2    60   ~ 0
+M_3
+Text Label 1950 1750 2    60   ~ 0
+M_4
+Text Label 1950 1850 2    60   ~ 0
+M_5
+$Comp
+L JACK_STEREO J1
+U 1 1 58C32458
+P 1050 2850
+F 0 "J1" H 675 2850 50  0000 R CNN
+F 1 "JACK_STEREO" H 1050 3100 50  0000 C CNN
+F 2 "CA6:161-3334-E_Big_Pad" H 1050 2850 60  0001 C CNN
+F 3 "" H 1050 2850 60  0000 C CNN
+	1    1050 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_02X04 P1
+U 1 1 58C324F0
+P 4050 2400
+F 0 "P1" H 4050 2650 50  0000 C CNN
+F 1 "CONN_02X04" H 4050 2150 50  0000 C CNN
+F 2 "Socket_Strips:Socket_Strip_Straight_2x04_Pitch2.54mm" H 4050 1200 50  0001 C CNN
+F 3 "" H 4050 1200 50  0000 C CNN
+	1    4050 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1400 2900 1800 2900
+Text Label 1800 2900 2    60   ~ 0
+M_0
+NoConn ~ 2950 200 
+$Comp
+L GND #PWR04
+U 1 1 58C34106
+P 3350 2250
+F 0 "#PWR04" H 3350 2000 50  0001 C CNN
+F 1 "GND" H 3350 2100 50  0000 C CNN
+F 2 "" H 3350 2250 50  0000 C CNN
+F 3 "" H 3350 2250 50  0000 C CNN
+	1    3350 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR05
+U 1 1 58C3412C
+P 4400 2250
+F 0 "#PWR05" H 4400 2350 40  0001 C CNN
+F 1 "3V3" H 4400 2375 40  0000 C CNN
+F 2 "" H 4400 2250 60  0000 C CNN
+F 3 "" H 4400 2250 60  0000 C CNN
+	1    4400 2250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3800 2350 3500 2350
+Wire Wire Line
+	4300 2350 4600 2350
+Wire Wire Line
+	4300 2450 4600 2450
+Wire Wire Line
+	4300 2550 4600 2550
+Wire Wire Line
+	3800 2450 3500 2450
+Wire Wire Line
+	3800 2550 3500 2550
+Wire Wire Line
+	3350 2250 3800 2250
+Wire Wire Line
+	4300 2250 4400 2250
+Text Label 3500 2350 0    60   ~ 0
+M_0
+Text Label 3500 2450 0    60   ~ 0
+M_1
+Text Label 3500 2550 0    60   ~ 0
+M_2
+Text Label 4600 2350 2    60   ~ 0
+M_3
+Text Label 4600 2450 2    60   ~ 0
+M_4
+Text Label 4600 2550 2    60   ~ 0
+M_5
+Wire Wire Line
+	1600 1250 2650 1250
+Wire Wire Line
+	2500 1150 2500 1250
+Connection ~ 2500 1250
+Wire Wire Line
+	2650 1550 2650 1650
+Wire Wire Line
+	2500 1950 2500 2050
+$Comp
+L SW_TACTILE SW0
+U 1 1 59DE648C
+P 4350 3300
+F 0 "SW0" H 4350 3500 50  0000 C CNN
+F 1 "SW_TACTILE" H 4350 3200 50  0001 C CNN
+F 2 "CA6:PTS645" H 4350 3300 60  0001 C CNN
+F 3 "" H 4350 3300 60  0000 C CNN
+	1    4350 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4000 3250 4100 3250
+Wire Wire Line
+	4000 3350 4100 3350
+Wire Wire Line
+	4600 3250 4650 3250
+Wire Wire Line
+	4650 3250 4650 3350
+Wire Wire Line
+	4650 3300 5000 3300
+Wire Wire Line
+	4650 3350 4600 3350
+Connection ~ 4650 3300
+Wire Wire Line
+	4000 3250 4000 3350
+Wire Wire Line
+	4000 3300 3550 3300
+Connection ~ 4000 3300
+$Comp
+L GND #PWR06
+U 1 1 59DE6C39
+P 3550 3350
+F 0 "#PWR06" H 3550 3100 50  0001 C CNN
+F 1 "GND" H 3550 3200 50  0000 C CNN
+F 2 "" H 3550 3350 50  0000 C CNN
+F 3 "" H 3550 3350 50  0000 C CNN
+	1    3550 3350
+	1    0    0    -1  
+$EndComp
+Text Label 5000 3300 2    60   ~ 0
+M_5
+Wire Wire Line
+	3550 3300 3550 3350
+$Comp
+L C C1
+U 1 1 58C3185F
+P 2650 1400
+F 0 "C1" H 2675 1500 50  0000 L CNN
+F 1 "10uF" H 2675 1300 50  0000 L CNN
+F 2 "CA6:c_1206" H 2750 1300 50  0001 C CNN
+F 3 "" H 2650 1400 50  0000 C CNN
+	1    2650 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L HOLE X1
+U 1 1 5A2341D5
+P 1650 4000
+F 0 "X1" H 1650 3900 60  0000 C CNN
+F 1 "HOLE" H 1650 4100 60  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 1650 4000 60  0001 C CNN
+F 3 "" H 1650 4000 60  0000 C CNN
+	1    1650 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L HOLE X2
+U 1 1 5A2343A7
+P 1950 4000
+F 0 "X2" H 1950 3900 60  0000 C CNN
+F 1 "HOLE" H 1950 4100 60  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 1950 4000 60  0001 C CNN
+F 3 "" H 1950 4000 60  0000 C CNN
+	1    1950 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L HOLE X3
+U 1 1 5A2343E7
+P 2250 4000
+F 0 "X3" H 2250 3900 60  0000 C CNN
+F 1 "HOLE" H 2250 4100 60  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 2250 4000 60  0001 C CNN
+F 3 "" H 2250 4000 60  0000 C CNN
+	1    2250 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L HOLE X4
+U 1 1 5A234424
+P 2550 4000
+F 0 "X4" H 2550 3900 60  0000 C CNN
+F 1 "HOLE" H 2550 4100 60  0000 C CNN
+F 2 "Mounting_Holes:MountingHole_2.5mm_Pad" H 2550 4000 60  0001 C CNN
+F 3 "" H 2550 4000 60  0000 C CNN
+	1    2550 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L 3V3 #PWR07
+U 1 1 5A36DAE6
+P 1550 2650
+F 0 "#PWR07" H 1550 2750 40  0001 C CNN
+F 1 "3V3" H 1550 2775 40  0000 C CNN
+F 2 "" H 1550 2650 60  0000 C CNN
+F 3 "" H 1550 2650 60  0000 C CNN
+	1    1550 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1400 2700 1550 2700
+Wire Wire Line
+	1550 2700 1550 2650
+$Comp
+L GND #PWR08
+U 1 1 5A36E71D
+P 1550 3050
+F 0 "#PWR08" H 1550 2800 50  0001 C CNN
+F 1 "GND" H 1550 2900 50  0000 C CNN
+F 2 "" H 1550 3050 50  0000 C CNN
+F 3 "" H 1550 3050 50  0000 C CNN
+	1    1550 3050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1400 3000 1550 3000
+Wire Wire Line
+	1550 3000 1550 3050
+$EndSCHEMATC

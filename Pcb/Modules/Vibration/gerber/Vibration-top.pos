@@ -1,0 +1,10 @@
+### Module positions - created on 2/13/2019 4:34:43 AM ###
+### Printed by Pcbnew version pcbnew (5.0.1)-4
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val         Package                               PosX       PosY       Rot  Side
+D1        D_Schottky  D_SOT-23_ANK                       48.2600   -35.5600  270.0000  top
+P1        C+          SolderWirePad_single_SMD_5x10mm    57.1500   -38.1000   90.0000  top
+P2        C-          SolderWirePad_single_SMD_5x10mm    57.1500   -33.0200   90.0000  top
+R1        1M          R_0603                             43.1800   -35.5600   90.0000  top
+## End
