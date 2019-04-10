@@ -1,0 +1,77 @@
+CA6
+
+Unique parts: 34
+SMT Parts: 158
+Through Hole Parts: 10
+102 163
+
+There are 2 through hole parts on the bottom which I don't think complicate assemble.  But if those cause you problems you can leave those off and I'll add them myself.  (J2 SW4)
+------------------------------
+BeamDetect
+
+Unique parts: 5
+SMT Parts: 3
+Through Hole Parts: 2
+51 21
+
+------------------------------
+BeamEmit
+
+Unique parts: 9
+SMT Parts: 7
+Through Hole Parts: 3
+51 21
+
+------------------------------
+Dev
+
+Unique parts: 4
+SMT Parts: 3
+Through Hole Parts: 1
+51 21
+
+
+------------------------------
+Light
+
+Unique parts: 11
+SMT Parts: 14
+Through Hole Parts: 1
+64 33
+
+
+------------------------------
+Projectile
+
+Unique parts: 15
+SMT Parts: 28
+Through Hole Parts: 5
+110 46
+
+
+------------------------------
+Sound
+
+Unique parts: 12
+SMT Parts: 12
+Through Hole Parts: 2
+51 21
+
+------------------------------
+Valve
+
+Unique parts: 11
+SMT Parts: 20
+Through Hole Parts: 8
+61 46
+
+
+------------------------------
+Vibration
+
+Unique parts: 3
+SMT Parts: 2
+Through Hole Parts: 1
+51 21
+
+
